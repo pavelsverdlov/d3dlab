@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="D3DLab.Core.Test.Entity" BaseTypeListCollapsed="true">
+    <Position X="17" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAACABAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.45" Collapsed="true" />
+  </Class>
+  <Class Name="D3DLab.Core.Test.Context" BaseTypeListCollapsed="true">
+    <Position X="11" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAEAAAQAEAMAACAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="D3DLab.Core.Test.Component">
+    <Position X="15" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Struct Name="D3DLab.Core.Test.InputStates">
+    <Position X="17" Y="4.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="D3DLab.Core.Test.IComponent" Collapsed="true">
+    <Position X="12.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="D3DLab.Core.Test.IComponentSystem">
+    <Position X="3.75" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="D3DLab.Core.Test.IEntity">
+    <Position X="6.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAABAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="D3DLab.Core.Test.IEntityContext">
+    <Position X="9.75" Y="8.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAIAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="D3DLab.Core.Test.IContext">
+    <Position X="6.25" Y="8.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="D3DLab.Core.Test.IHittableComponent">
+    <Position X="8.25" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="D3DLab.Core.Test.ITransformableComponent">
+    <Position X="10.25" Y="6.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="D3DLab.Core.Test.ISubscriberComponent&lt;TMessage&gt;">
+    <Position X="12.75" Y="6.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Test\Component.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
