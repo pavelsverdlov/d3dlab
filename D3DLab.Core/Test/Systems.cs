@@ -11,13 +11,16 @@ namespace D3DLab.Core.Test {
     }
 
 
+
+
+    public interface IPositionComponent : IComponent {
+        Vector3 Position { get; set; }
+    }
+    public interface IReconstructionMovementMessageComponent : IMessageComponent {
+        Vector3 NewPosition { get; set; }
+    }
+
     public class ReconstructionMovementSystem<TReconstruction> : IComponentSystem where TReconstruction : IEntity {
-
-        public interface IPositionComponent : IComponent {
-            Vector3 Position { get; set; }
-        }
-        public interface IReconstructionMovementMessageComponent : IMessageComponent { }
-
         public void Execute(IContext ctx) {
 
             foreach (var en in ctx.GetEntities<TReconstruction>()) {

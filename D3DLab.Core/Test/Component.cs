@@ -9,9 +9,6 @@ using System.Windows.Forms;
 namespace D3DLab.Core.Test {
     public interface IComponent : IDisposable { }
     
-  
-   
-
     public interface IHittableComponent : IComponent { }
 
     public interface ITransformableComponent : IComponent {
@@ -23,16 +20,10 @@ namespace D3DLab.Core.Test {
         void Push(TMessage message);
     }
 
-    public interface IMessageComponent {
+    public interface IMessageComponent : IComponent {
 
     }
     
-
-
-   
-
-
-
     public abstract class Component : IComponent {
         public abstract void Dispose();
     }
