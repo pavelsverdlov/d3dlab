@@ -270,8 +270,8 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Resources\_default.bfx" />
-    <None Include="Resources\_deferred.bfx" />
+    <EmbeddedResource Include="Resources\_default.bfx" />
+    <EmbeddedResource Include="Resources\_deferred.bfx" />
     <None Include="Utilities\1" />
   </ItemGroup>
   <ItemGroup>
