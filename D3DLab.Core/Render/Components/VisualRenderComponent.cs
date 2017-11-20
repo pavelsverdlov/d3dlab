@@ -20,25 +20,26 @@ namespace D3DLab.Core.Render.Components {
             IndexBuffer.Dispose();
         }
     }
-    public class VisualRenderComponent : RenderComponent,IAttachTo<VisualEntity> {
-        private sealed class Data : VisualRenderData {
-            public readonly Buffer InstanceBuffer;
-            public readonly RasterizerState RasterState;
-            
-            public DuplexMaterialRenderData MaterialData;
+    public sealed class RenderData : VisualRenderData {
+        public readonly Buffer InstanceBuffer;
+        public readonly RasterizerState RasterState;
 
-            public Data() {
-                InstanceBuffer = null;
-                RasterState = null;
-            }
+        public DuplexMaterialRenderData MaterialData;
 
-            public override void Dispose() {
-                base.Dispose();
-                MaterialData.Dispose();
-            }
+        public RenderData() {
+            InstanceBuffer = null;
+            RasterState = null;
         }
+
+        public override void Dispose() {
+            base.Dispose();
+            MaterialData.Dispose();
+        }
+    }
+    public class VisualRenderComponent : RenderComponent,IAttachTo<VisualEntity> {
+        
       
-        private Data renderData;
+        private RenderData renderData;
         private readonly object loker;
         public VisualRenderComponent() {
             this.loker = new object();
@@ -46,7 +47,7 @@ namespace D3DLab.Core.Render.Components {
 
         protected override void OnUpdate(Graphics graphics) {
           
-            var updateData = new Data();
+            var updateData = new RenderData();
             var data = parent.Data;
             
             var gindeces = data.Geometry.Indices.ToArrayFast();
@@ -159,7 +160,7 @@ namespace D3DLab.Core.Render.Components {
             }
         }
         
-        protected override void OnRender(World world, Graphics graphics) {
+       protected override void OnRender(World world, Graphics graphics) {
 //            var sw = new Stopwatch();
 //            sw.Start();
             var data = parent.Data;

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using D3DLab.Core.Test;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Core.Components {
-    public abstract class Component :IDisposable {
+    public abstract class Component : IComponent {
         private readonly string tag;
 
         protected Component() {

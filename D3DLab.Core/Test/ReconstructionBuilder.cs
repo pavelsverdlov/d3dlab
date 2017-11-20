@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SharpDX;
 
 namespace D3DLab.Core.Test {
-    public static class ReconstructionBuilder {
+    public static class ReconstructionBuilder {/*
         public class PositionComponent : IPositionComponent {
             public Vector3 Position { get; set; }
 
@@ -28,6 +28,7 @@ namespace D3DLab.Core.Test {
                     var position = en.GetComponent<IPositionComponent>();
                     
                     position.Position = message.NewPosition;
+                    
                 }
             }
         }
@@ -46,9 +47,9 @@ namespace D3DLab.Core.Test {
             var sup = context.CreateEntity("SupportEntity");
             var arrow = context.CreateEntity("ArrowEntity");
 
-            var sc = new SubscriberComponent(new[] { sup, arrow });
+           // var sc = new SubscriberComponent(new[] { sup, arrow }.SelectMany(x=>x.GetComponent<>());
 
-            rec.AddComponent(sc);
+            //rec.AddComponent(sc);
             rec.AddComponent(new PositionComponent());
 
             sup.AddComponent(new PositionComponent());
@@ -58,6 +59,6 @@ namespace D3DLab.Core.Test {
             context.AddEntity(sup);
             context.AddEntity(arrow);
         }
-
+        */
     }
 }

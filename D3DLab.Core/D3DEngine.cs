@@ -26,6 +26,7 @@ using SharpDX.Windows;
 using Application = System.Windows.Application;
 using Buffer = System.Buffer;
 using Resource = SharpDX.DXGI.Resource;
+using D3DLab.Core.Test;
 
 //https://habrahabr.ru/post/199378/
 namespace D3DLab.Core {
@@ -38,6 +39,8 @@ namespace D3DLab.Core {
         ViewportNotificator Notificator { get; }
     }
     public class D3DEngine : ID3DEngine, IDisposable {
+        private readonly Context context;
+
         private BaseScene currentScene;
 
         private readonly FormsHost host;
@@ -52,6 +55,8 @@ namespace D3DLab.Core {
             host.HandleCreated += OnHandleCreated;
             host.Unloaded += OnUnloaded;
             Notificator = new ViewportNotificator();
+
+            context = new Context(this);
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
@@ -70,7 +75,7 @@ namespace D3DLab.Core {
                         sw.Restart();
                         OnCompositionTargetRendering(null, null);
                         sw.Stop();
-                       // Debug.WriteLine("{0} FPS", (int)total / sw.ElapsedMilliseconds);
+                        // Debug.WriteLine("{0} FPS", (int)total / sw.ElapsedMilliseconds);
                         //                        sw.Stop();
                         //                        if (sw.ElapsedMilliseconds < time) {
                         //                            Thread.Sleep((int) (time- sw.ElapsedMilliseconds));
@@ -107,7 +112,7 @@ namespace D3DLab.Core {
             camera.AddComponent(new CameraViewsComponent());
 
             camera.GetComponent<CameraViewsComponent>()
-                (com=>com.SetCamera(CameraViewsComponent.CameraViews.TopView));
+                (com => com.SetCamera(CameraViewsComponent.CameraViews.TopView));
 
             currentScene = new BaseScene();
             currentScene.Data = new SceneData {
@@ -118,19 +123,19 @@ namespace D3DLab.Core {
 
             currentScene
                 .GetComponent<VisualEntity>()
-                (com=>com.AddComponent(new ManipulateInputComponent(obj)));
+                (com => com.AddComponent(new ManipulateInputComponent(obj)));
+            /*
+            var lineX = new LineEntity();
+            lineX.Data = new LineData {
+                Color = SharpDX.Color.Blue,
+                Thickness = 30f,
+                Start = Vector3.Zero,
+                End = Vector3.Zero + Vector3.UnitX * 100,
+                RenderTechnique = Techniques.RenderPhong//Techniques.RenderLines
+            };
+            lineX.AddComponent(new LineRenderComponent());
+            currentScene.AddComponent(lineX);
 
-                        var lineX = new LineEntity();
-                        lineX.Data = new LineData {
-                            Color = SharpDX.Color.Blue,
-                            Thickness = 30f,
-                            Start = Vector3.Zero,
-                            End = Vector3.Zero + Vector3.UnitX*100,
-                            RenderTechnique = Techniques.RenderPhong//Techniques.RenderLines
-                        };
-                        lineX.AddComponent(new LineRenderComponent());
-                        currentScene.AddComponent(lineX);
-           
             var points = new List<Vector3> { lineX.Data.Start, lineX.Data.End, lineX.Data.End, lineX.Data.End * Vector3.UnitX * 30 };
             var g = new LineBuilder();
             var p1 = points[0];
@@ -149,6 +154,7 @@ namespace D3DLab.Core {
             g.Add(points);
 
             geometry = g.ToLineGeometry3D();
+            */
 
             var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
                 AmbientColor = new Color4(),
@@ -160,16 +166,29 @@ namespace D3DLab.Core {
             };
             var mesh = new VisualEntity("object ");
             mesh.Data = new VisualData {
-                Geometry = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 } ,new int[] { 0,1,2 }, null),
+                Geometry = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null),
                 Material = mat,
                 BackMaterial = mat,
                 RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong
             };
             mesh.AddComponent(new VisualRenderComponent());
-            currentScene.AddComponent(mesh);
-            
 
-           
+
+            //NEW APPROACH
+            context.CreateSystemy<VisualRenderSystem>();
+
+            var geo = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null);
+
+            var entity = context.CreateEntity("triangle");
+            entity.AddComponent(new GeometryComponent() { Geometry = geo });
+            entity.AddComponent(new MaterialComponent {
+                Material = mat,
+                BackMaterial = mat,
+                CullMaterial = CullMode.Back
+            });
+            entity.AddComponent(new Test.RenderComponent { RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong } );
+            entity.AddComponent(new Test.TransformComponent { Matrix = SharpDX.Matrix.Identity });            
+
         }
 
         private void CreateScene(OrthographicCameraEntity camera) {
@@ -186,8 +205,8 @@ namespace D3DLab.Core {
             currentScene.AddComponent(camera);
 
             //var path = @"Z:\DATABASE FOR TESTING\STL\Srew_retained_crown_bridge\screw retained.obj";
-//              LoadFile(@"C:\STL_TO_ZZN_TEST\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
-//            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
+            //              LoadFile(@"C:\STL_TO_ZZN_TEST\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
+            //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
             //            LoadFile(@"C:\Storage\trash\[ZZN][N-599]screw retained.obj");
             //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
             //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
@@ -286,6 +305,13 @@ namespace D3DLab.Core {
                     foreach (var rederable in child.GetComponents<IRenderComponent>()) {
                         rederable.Render(world, gr);
                     }
+                }
+
+                context.Graphics = gr;
+                context.World = world;
+
+                foreach (var sys in context.GetSystems()) {
+                    sys.Execute(context);
                 }
 
                 sharpDevice.Device.ImmediateContext.End(queryForCompletion);

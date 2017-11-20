@@ -1,4 +1,5 @@
-﻿using System;
+﻿using D3DLab.Core.Test;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace D3DLab.Core.Components {
     public abstract class ComponentContainer : Component {
-        private readonly List<Component> components;
+        private readonly List<IComponent> components;
 
         protected ComponentContainer(string tag) : base(tag) {
-            components = new List<Component>();
+            components = new List<IComponent>();
         }
 
         protected ComponentContainer() {
-            components = new List<Component>();
+            components = new List<IComponent>();
         }
 
-        public Action<Action<T>> GetComponent<T>() where T : Component {
+        public Action<Action<T>> GetComponent<T>() where T : IComponent {
             var com = (T)components.FirstOrDefault(x => x is T);
             return com == null ? action => { } : (Action<Action<T>>)(action => action(com));
         }
@@ -25,7 +26,7 @@ namespace D3DLab.Core.Components {
             return components.OfType<T>();
         }
 
-        public void AddComponent<T>(T component) where T : Component {
+        public void AddComponent<T>(T component) where T : IComponent {
             var attachment = component as ICanAttach;
             if (attachment != null) {
                 AttachToParent(attachment, this);

@@ -5,15 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Core.Test {
-    public interface IEntity {
-        void AddComponent<T>(T component) where T : IComponent;
-        T GetComponent<T>() where T : IComponent;
-    }
-
-    public class Entity : IEntity {
+    public sealed class Entity  {
+        public string Tag { get; }
         private readonly List<IComponent> components;
 
-        public Entity() {
+        public Entity(string tag) {
+            Tag = tag;
             components = new List<IComponent>();
         }
         public T GetComponent<T>() where T : IComponent {
