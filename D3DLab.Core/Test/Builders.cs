@@ -69,4 +69,15 @@ namespace D3DLab.Core.Test {
             return entity;
         }
     }
+
+    public static class CameraBuilder {
+        
+        public static Entity BuildOrthographicCamera(IEntityContext context) {
+            var entity = context.CreateEntity("OrthographicCamera");
+            
+
+
+            return entity;
+        }
+    }
 }

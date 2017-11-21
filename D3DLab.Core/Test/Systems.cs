@@ -37,7 +37,7 @@ namespace D3DLab.Core.Test {
         public void Execute(IContext ctx) {
             foreach (var entity in ctx.GetEntities()) {
                 var render = entity.GetComponent<VisualRenderComponent>();
-                if(render == null) {
+                if (render == null) {
                     continue;
                 }
                 var material = entity.GetComponent<MaterialComponent>();
@@ -218,5 +218,38 @@ namespace D3DLab.Core.Test {
             }
         }
     }
+    public class CameraRenderSystem : IComponentSystem {
+        private struct RenderData {
+            public Matrix ViewMatrix;
+            public Matrix ProjectionMatrix;
+            public Vector3 Position;
+            public Vector3 LookDirection;
+        }
+        public void Execute(IContext ctx) {
+            var rd = ctx.Camera;
 
+            var aspectRatio = (float)ctx.Graphics.SharpDevice.Width / ctx.Graphics.SharpDevice.Height;
+
+            var data = new RenderData {
+                Position = rd.Position,
+                LookDirection = rd.LookDirection,
+                ViewMatrix = rd.CreateViewMatrix(),
+                ProjectionMatrix = rd.CreateProjectionMatrix(aspectRatio)
+            };
+
+            var projectionMatrix = data.ProjectionMatrix;
+            var viewMatrix = data.ViewMatrix;
+            var viewport = Vector4.Zero;
+            var frustum = Vector4.Zero;
+            var variables = ctx.Graphics.Variables(Techniques.RenderPhong);
+            variables.EyePos.Set(data.Position);
+            variables.Projection.SetMatrix(ref projectionMatrix);
+            variables.View.SetMatrix(ref viewMatrix);
+            //if (isProjCamera) {
+            variables.Viewport.Set(ref viewport);
+            variables.Frustum.Set(ref frustum);
+            variables.EyeLook.Set(data.LookDirection);
+        }
+
+    }
 }

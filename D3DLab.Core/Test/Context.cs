@@ -1,4 +1,5 @@
-﻿using D3DLab.Core.Render;
+﻿using D3DLab.Core.Entities;
+using D3DLab.Core.Render;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace D3DLab.Core.Test {
 
     public interface IContext : IEntityContext {
         InputStates InputState { get; }
+        CameraData Camera { get; }
+
         Graphics Graphics { get; }
         World World { get; }
     }
@@ -29,6 +32,7 @@ namespace D3DLab.Core.Test {
 
         InputStates state = new InputStates();
 
+        public CameraData Camera { get; set; }
 
         public Entity CreateEntity(string tag) {
             var en = new Entity(tag);

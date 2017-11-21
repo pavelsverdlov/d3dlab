@@ -96,6 +96,8 @@ namespace D3DLab.Core {
             sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(obj);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
 
+            currentScene = new BaseScene();
+            /*
             var camera = new OrthographicCameraEntity();
             camera.Data = new CameraData {
                 Position = new Vector3(0, 0, 300),//50253
@@ -119,16 +121,27 @@ namespace D3DLab.Core {
                 Viewport = obj
             };
 
-            CreateScene(camera);
+            //CreateScene(camera);
 
             currentScene
                 .GetComponent<VisualEntity>()
                 (com => com.AddComponent(new ManipulateInputComponent(obj)));
+            */
             /*
              * 
              * NEW APPROACH
              * 
             */
+            context.Camera = new CameraData {
+                Position = new Vector3(0, 0, 300),//50253
+                LookDirection = new Vector3(0, 0, -300),
+                UpDirection = new Vector3(0, 1, 0),
+                NearPlaneDistance = 0,
+                FarPlaneDistance = 100500,
+                Width = 300
+            };
+
+            context.CreateSystemy<CameraRenderSystem>();
             context.CreateSystemy<LightRenderSystem>();
             context.CreateSystemy<VisualRenderSystem>();
 

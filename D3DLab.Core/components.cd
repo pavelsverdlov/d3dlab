@@ -30,7 +30,7 @@
       <FileName>Test\ReconstructionBuilder.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="D3DLab.Core.Test.LightRenderSystem" Collapsed="true" BaseTypeListCollapsed="true">
+  <Class Name="D3DLab.Core.Test.CameraRenderSystem" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="29.75" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
@@ -66,10 +66,10 @@
       <FileName>Test\Builders.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="D3DLab.Core.Test.LightBuilder" Collapsed="true">
+  <Class Name="D3DLab.Core.Test.CameraBuilder" Collapsed="true">
     <Position X="33.25" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Builders.cs</FileName>
     </TypeIdentifier>
   </Class>
