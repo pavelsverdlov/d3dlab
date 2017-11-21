@@ -27,7 +27,9 @@ namespace D3DLab.Core.Test {
     }
     
     public abstract class Component : IComponent {
-        public abstract void Dispose();
+        public void Dispose() {
+
+        }
     }
 
    
@@ -42,38 +44,29 @@ namespace D3DLab.Core.Test {
      *
      */
 
-    public sealed class GeometryComponent : IComponent {
+    public sealed class GeometryComponent : Component {
         public HelixToolkit.Wpf.SharpDX.MeshGeometry3D Geometry { get; set; }
 
-        public void Dispose() {
-            
-        }
+       
     }
 
-    public sealed class MaterialComponent : IComponent {
+    public sealed class MaterialComponent : Component {
         public HelixToolkit.Wpf.SharpDX.PhongMaterial Material { get; set; }
         public HelixToolkit.Wpf.SharpDX.PhongMaterial BackMaterial { get; set; }
         public CullMode CullMaterial { get; set; }
 
-        public void Dispose() {
-            
-        }
     }
 
-    public sealed class RenderComponent : IComponent {
+    public sealed class RenderComponent : Component {
         public HelixToolkit.Wpf.SharpDX.RenderTechnique RenderTechnique { get; set; }
 
-        public void Dispose() {
-            
-        }
+       
     }
 
-    public sealed class TransformComponent : IComponent {
+    public sealed class TransformComponent : Component {
         public Matrix Matrix { get; set; }
 
-        public void Dispose() {
-
-        }
+       
     }
 
 

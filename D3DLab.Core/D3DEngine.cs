@@ -164,14 +164,14 @@ namespace D3DLab.Core {
                 ReflectiveColor = new Color4(),
                 SpecularShininess = 100f
             };
-            var mesh = new VisualEntity("object ");
-            mesh.Data = new VisualData {
-                Geometry = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null),
-                Material = mat,
-                BackMaterial = mat,
-                RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong
-            };
-            mesh.AddComponent(new VisualRenderComponent());
+            //var mesh = new VisualEntity("object ");
+            //mesh.Data = new VisualData {
+            //    Geometry = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null),
+            //    Material = mat,
+            //    BackMaterial = mat,
+            //    RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong
+            //};
+            //mesh.AddComponent(new VisualRenderComponent());
 
 
             //NEW APPROACH
