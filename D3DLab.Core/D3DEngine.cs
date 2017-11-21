@@ -125,83 +125,29 @@ namespace D3DLab.Core {
                 .GetComponent<VisualEntity>()
                 (com => com.AddComponent(new ManipulateInputComponent(obj)));
             /*
-            var lineX = new LineEntity();
-            lineX.Data = new LineData {
-                Color = SharpDX.Color.Blue,
-                Thickness = 30f,
-                Start = Vector3.Zero,
-                End = Vector3.Zero + Vector3.UnitX * 100,
-                RenderTechnique = Techniques.RenderPhong//Techniques.RenderLines
-            };
-            lineX.AddComponent(new LineRenderComponent());
-            currentScene.AddComponent(lineX);
-
-            var points = new List<Vector3> { lineX.Data.Start, lineX.Data.End, lineX.Data.End, lineX.Data.End * Vector3.UnitX * 30 };
-            var g = new LineBuilder();
-            var p1 = points[0];
-            var vFirst = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
-            var v1 = vFirst;
-            for (int i = 1; i < points.Count; i++) {
-                var p2 = points[i];
-                var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
-                g.AddLine(v1, v2);
-                v1 = v2;
-            }
-            g.AddLine(v1, vFirst);
-            var geometry = g.ToLineGeometry3D();
-
-            g = new LineBuilder();
-            g.Add(points);
-
-            geometry = g.ToLineGeometry3D();
+             * 
+             * NEW APPROACH
+             * 
             */
-
-            var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
-                AmbientColor = new Color4(),
-                DiffuseColor = SharpDX.Color.Blue,
-                SpecularColor = SharpDX.Color.Blue,
-                EmissiveColor = new Color4(),
-                ReflectiveColor = new Color4(),
-                SpecularShininess = 100f
-            };
-            //var mesh = new VisualEntity("object ");
-            //mesh.Data = new VisualData {
-            //    Geometry = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null),
-            //    Material = mat,
-            //    BackMaterial = mat,
-            //    RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong
-            //};
-            //mesh.AddComponent(new VisualRenderComponent());
-
-
-            //NEW APPROACH
+            context.CreateSystemy<LightRenderSystem>();
             context.CreateSystemy<VisualRenderSystem>();
 
-            var geo = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null);
-
-            var entity = context.CreateEntity("triangle");
-            entity.AddComponent(new GeometryComponent() { Geometry = geo });
-            entity.AddComponent(new MaterialComponent {
-                Material = mat,
-                BackMaterial = mat,
-                CullMaterial = CullMode.Back
-            });
-            entity.AddComponent(new Test.RenderComponent { RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong } );
-            entity.AddComponent(new Test.TransformComponent { Matrix = SharpDX.Matrix.Identity });            
+            LightBuilder.BuildDirectionalLight(context);
+            VisualModelBuilder.Build(context);
 
         }
 
         private void CreateScene(OrthographicCameraEntity camera) {
 
 
-            var directionalLight = new DirectionalLightEntity("DirectionalLight");
-            directionalLight.Data = new DirectionalLightData {
-                Color = HelixToolkit.Wpf.SharpDX.VectorExtensions.ToColor4(Colors.White)
-            };
-            directionalLight.AddComponent(new DirectionalLightRenderComponent());
+            //var directionalLight = new DirectionalLightEntity("DirectionalLight");
+            //directionalLight.Data = new DirectionalLightData {
+            //    Color = HelixToolkit.Wpf.SharpDX.VectorExtensions.ToColor4(Colors.White)
+            //};
+            //directionalLight.AddComponent(new DirectionalLightRenderComponent());
             //            directionalLight.AddComponent(new DirectionalLightCameraObserver(camera));
 
-            currentScene.AddComponent(directionalLight);
+            //currentScene.AddComponent(directionalLight);
             currentScene.AddComponent(camera);
 
             //var path = @"Z:\DATABASE FOR TESTING\STL\Srew_retained_crown_bridge\screw retained.obj";
@@ -213,7 +159,7 @@ namespace D3DLab.Core {
             //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
         }
 
-        private void LoadFile(string rec) {
+        private void LoadFile(string rec) {/*
             var colors = new[] {
                 SharpDX.Color.Red,
                 SharpDX.Color.AliceBlue,
@@ -259,7 +205,7 @@ namespace D3DLab.Core {
 
 
                 currentScene.AddComponent(mesh);
-            }
+            }*/
         }
         private void OnCompositionTargetRendering(object sender, EventArgs e) {
             //                                    currentScene.Render();

@@ -15,28 +15,31 @@ namespace D3DLab.Core.Test {
         void Execute(IContext ctx);
     }
 
-
-
-
-    public interface IPositionComponent : IComponent {
-        Vector3 Position { get; set; }
-    }
-    public interface IReconstructionMovementMessageComponent : IMessageComponent {
-        Vector3 NewPosition { get; set; }
-    }
-
-    public class ReconstructionMovementSystem : IComponentSystem {
+    public class LightRenderSystem : IComponentSystem {
         public void Execute(IContext ctx) {
+            foreach (var entity in ctx.GetEntities()) {
+                var render = entity.GetComponent<LightRenderComponent>();
+                if (render == null) {
+                    continue;
+                }
 
-
+                ctx.World.LightCount++;
+                var variables = ctx.Graphics.Variables(render.RenderTechnique);
+                variables.LightCount.Set(ctx.World.LightCount);
+                /// --- update lighting variables               
+                variables.LightDir.Set(-ctx.World.Camera.LookDirection);
+                variables.LightColor.Set(new[] { render.Color });
+                variables.LightType.Set(new[] { 1 /* (int)Light3D.Type.Directional*/ });
+            }
         }
     }
-
-
     public class VisualRenderSystem : IComponentSystem {
         public void Execute(IContext ctx) {
             foreach (var entity in ctx.GetEntities()) {
-                var render = entity.GetComponent<RenderComponent>();
+                var render = entity.GetComponent<VisualRenderComponent>();
+                if(render == null) {
+                    continue;
+                }
                 var material = entity.GetComponent<MaterialComponent>();
                 var geo = entity.GetComponent<GeometryComponent>();
                 var transform = entity.GetComponent<TransformComponent>();

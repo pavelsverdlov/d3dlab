@@ -123,6 +123,7 @@
     <Compile Include="Render\Components\OrthographicCameraRenderComponent.cs" />
     <Compile Include="Render\DuplexMaterialRenderData.cs" />
     <Compile Include="Render\MaterialRenderData.cs" />
+    <Compile Include="Test\Builders.cs" />
     <Compile Include="Test\Component.cs" />
     <Compile Include="Test\Context.cs" />
     <Compile Include="Test\Entity.cs" />

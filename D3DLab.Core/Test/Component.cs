@@ -38,36 +38,4 @@ namespace D3DLab.Core.Test {
         public MouseButtons Buttons { get; set; }
     }
 
-
-    /*
-     *
-     *
-     */
-
-    public sealed class GeometryComponent : Component {
-        public HelixToolkit.Wpf.SharpDX.MeshGeometry3D Geometry { get; set; }
-
-       
-    }
-
-    public sealed class MaterialComponent : Component {
-        public HelixToolkit.Wpf.SharpDX.PhongMaterial Material { get; set; }
-        public HelixToolkit.Wpf.SharpDX.PhongMaterial BackMaterial { get; set; }
-        public CullMode CullMaterial { get; set; }
-
-    }
-
-    public sealed class RenderComponent : Component {
-        public HelixToolkit.Wpf.SharpDX.RenderTechnique RenderTechnique { get; set; }
-
-       
-    }
-
-    public sealed class TransformComponent : Component {
-        public Matrix Matrix { get; set; }
-
-       
-    }
-
-
 }

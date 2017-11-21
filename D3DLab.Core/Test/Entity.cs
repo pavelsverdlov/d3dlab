@@ -14,7 +14,7 @@ namespace D3DLab.Core.Test {
             components = new List<IComponent>();
         }
         public T GetComponent<T>() where T : IComponent {
-            return components.OfType<T>().First();
+            return components.OfType<T>().FirstOrDefault();
         }
 
         public void AddComponent<T>(T component) where T : IComponent {
