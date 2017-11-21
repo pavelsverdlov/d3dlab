@@ -10,6 +10,7 @@ using global::SharpDX.Direct3D;
 using global::SharpDX.Direct3D11;
 using global::SharpDX.DXGI;
 using HelixToolkit.Wpf.SharpDX.Controls.CustomTechniques;
+using System.Reflection;
 
 namespace HelixToolkit.Wpf.SharpDX
 {
@@ -84,7 +85,13 @@ namespace HelixToolkit.Wpf.SharpDX
 	#endif
 	            };
 
-		    var _default = File.ReadAllBytes(@"C:\Storage\projects\sv\D3DLab\D3DLab.Helix\Resources\_default.bfx");
+            byte[] _default = null;
+            using (var ms = new MemoryStream()) {
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("D3DLab.Helix.Resources._default.bfx")) {
+                    stream.CopyTo(ms);
+                    _default = ms.ToArray();
+                }
+            }
 
 
             TechniquesSourceDict = new Dictionary<RenderTechnique, byte[]>()

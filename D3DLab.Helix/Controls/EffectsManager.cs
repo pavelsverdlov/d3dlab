@@ -12,6 +12,7 @@ using global::SharpDX.Direct3D11;
 using HelixToolkit.Wpf.SharpDX.WinForms;
 using Adapter = SharpDX.DXGI.Adapter;
 using Format = global::SharpDX.DXGI.Format;
+using System.Reflection;
 
 namespace HelixToolkit.Wpf.SharpDX
 {
@@ -37,7 +38,10 @@ namespace HelixToolkit.Wpf.SharpDX
 		private void InitEffects()
 		{
 			try {
-			    var def = File.ReadAllText(@"C:\Storage\projects\sv\D3DLab\D3DLab.Helix\Shaders\Default.fx"); 
+                string def = null;
+                using (var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("D3DLab.Helix.Shaders.Default.fx"))) {
+                    def = reader.ReadToEnd();
+                }
                 // ------------------------------------------------------------------------------------
                 RegisterEffect(def, new[] 
 	                { 
@@ -310,7 +314,10 @@ namespace HelixToolkit.Wpf.SharpDX
 			{
 //                throw new NotImplementedException();
 			    var name = Path.GetFileNameWithoutExtension(fileName);
-                var codeString =  File.ReadAllText(@"C:\Storage\projects\sv\D3DLab\D3DLab.Helix\Shaders\" + name+ ".fx");//Resources.ResourceManager.GetString(name, System.Globalization.CultureInfo.InvariantCulture);
+                string codeString = null;
+                using (var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream($"D3DLab.Helix.Shaders.{name}.fx"))) {
+                    codeString = reader.ReadToEnd();
+                }
 
 				MemoryStream stream = new MemoryStream();
 				StreamWriter writer = new StreamWriter(stream);
