@@ -13,13 +13,12 @@ namespace D3DLab.Core.Test {
         IEnumerable<Entity> GetEntities();
     }
     public interface ISystemContext {
-        TSystem CreateSystemy<TSystem>() where TSystem : IComponentSystem;
-        IEnumerable<IComponentSystem> GetSystems();
+        TSystem CreateSystemy<TSystem>() where TSystem : ComponentSystem;
+        IEnumerable<ComponentSystem> GetSystems();
     }
 
     public interface IContext : IEntityContext {
         InputStates InputState { get; }
-        CameraData Camera { get; }
 
         Graphics Graphics { get; }
         World World { get; }
@@ -28,12 +27,10 @@ namespace D3DLab.Core.Test {
 
     public class Context : IContext, ISystemContext {
         readonly List<Entity> entities = new List<Entity>();
-        readonly List<IComponentSystem> systems = new List<IComponentSystem>();
+        readonly List<ComponentSystem> systems = new List<ComponentSystem>();
 
         InputStates state = new InputStates();
-
-        public CameraData Camera { get; set; }
-
+        
         public Entity CreateEntity(string tag) {
             var en = new Entity(tag);
             entities.Add(en);
@@ -50,13 +47,13 @@ namespace D3DLab.Core.Test {
             return entities;
         }
 
-        public TSystem CreateSystemy<TSystem>() where TSystem : IComponentSystem {
+        public TSystem CreateSystemy<TSystem>() where TSystem : ComponentSystem {
             var sys = Activator.CreateInstance<TSystem>();
             systems.Add(sys);
             return sys;
         }
 
-        public IEnumerable<IComponentSystem> GetSystems() {
+        public IEnumerable<ComponentSystem> GetSystems() {
             return systems;
         }
 

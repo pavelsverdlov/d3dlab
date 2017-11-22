@@ -38,7 +38,9 @@ namespace D3DLab.Core.Render {
             //context.LightContext.lightDirections[0] = -Direction.ToVector4();
 
             /// --- update lighting variables               
-            variables.LightDir.Set(-world.Camera.LookDirection);
+            
+            //variables.LightDir.Set(-world.Camera.LookDirection);
+
             variables.LightColor.Set(new[] { parent.Data.Color });//context.LightContext.lightColors);
             variables.LightType.Set(new[] { 1 /* (int)Light3D.Type.Directional*/ });//context.LightContext.lightTypes);
 

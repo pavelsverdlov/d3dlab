@@ -1,4 +1,6 @@
-﻿using HelixToolkit.Wpf.SharpDX;
+﻿using D3DLab.Core.Render;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Render;
 using SharpDX;
 using SharpDX.Direct3D11;
 using System;
@@ -16,20 +18,21 @@ namespace D3DLab.Core.Test {
         public HelixToolkit.Wpf.SharpDX.PhongMaterial BackMaterial { get; set; }
         public CullMode CullMaterial { get; set; }
     }
-    public abstract class RenderComponent : Component {
-        public HelixToolkit.Wpf.SharpDX.RenderTechnique RenderTechnique { get; set; }
+    public abstract class RenderTechniqueComponent : Component {
+        public RenderTechnique RenderTechnique { get; set; }
     }
-
-    public sealed class VisualRenderComponent : RenderComponent {
-    }
-    public sealed class LightRenderComponent : RenderComponent {
-        public Color4 Color { get; set; }
+    public class PhongTechniqueRenderComponent : RenderTechniqueComponent {
+        public PhongTechniqueRenderComponent() {
+            RenderTechnique = Techniques.RenderPhong;
+        }
     }
 
     public sealed class TransformComponent : Component {
         public Matrix Matrix { get; set; }
     }
-   
+    
+    //builders
+
     public static class VisualModelBuilder {
         public static Entity Build(IEntityContext context) {
             var geo = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null);
@@ -50,34 +53,132 @@ namespace D3DLab.Core.Test {
                 BackMaterial = mat,
                 CullMaterial = CullMode.Back
             });
-            entity.AddComponent(new Test.VisualRenderComponent { RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong });
+            entity.AddComponent(new Test.PhongTechniqueRenderComponent ());
             entity.AddComponent(new Test.TransformComponent { Matrix = SharpDX.Matrix.Identity });
 
             return entity;
         }
     }
-
     public static class LightBuilder {
+
+        public sealed class LightTechniqueRenderComponent : PhongTechniqueRenderComponent {
+            public void Update(Graphics graphics, World world, Color4 color) {
+                var variables = graphics.Variables(this.RenderTechnique);
+                variables.LightCount.Set(world.LightCount);
+                /// --- update lighting variables               
+                variables.LightDir.Set(-world.LookDirection);
+                variables.LightColor.Set(new[] { color });
+                variables.LightType.Set(new[] { 1 /* (int)Light3D.Type.Directional*/ });
+            }
+        }
+
+        public sealed class LightRenderComponent : Component {
+            public Color4 Color { get; set; }
+        }
+
         public static Entity BuildDirectionalLight(IEntityContext context) {
             var entity = context.CreateEntity("DirectionalLight");
 
+            entity.AddComponent(new LightTechniqueRenderComponent());
             entity.AddComponent(new LightRenderComponent {
-                RenderTechnique = Techniques.RenderPhong,
                 Color = Color.White
             });
 
             return entity;
         }
     }
-
     public static class CameraBuilder {
-        
+        public sealed class CameraComponent : Component {
+            public Vector3 Position { get; set; }
+            public Vector3 LookDirection { get; set; }
+            public Vector3 UpDirection { get; set; }
+            public float NearPlaneDistance { get; set; }
+            public int FarPlaneDistance { get; set; }
+            public float Width { get; set; }
+
+            public Matrix CreateViewMatrix() {
+                if (false) {// this.CreateLeftHandSystem) {
+                    return global::SharpDX.Matrix.LookAtLH(Position, Position + LookDirection, UpDirection);
+                }
+                return global::SharpDX.Matrix.LookAtRH(Position, Position + LookDirection, UpDirection);
+            }
+
+            public Matrix CreateProjectionMatrix(double aspectRatio) {
+                if (false) {// this.CreateLeftHandSystem) {
+                    return Matrix.OrthoLH((float)Width, (float)(Width / aspectRatio), (float)NearPlaneDistance, (float)FarPlaneDistance);
+                }
+                float halfWidth = (float)(Width * 0.5f);
+                float halfHeight = (float)(Width / aspectRatio) * 0.5f;
+                Matrix projection;
+                OrthoOffCenterLH(-halfWidth, halfWidth, -halfHeight, halfHeight, (float)NearPlaneDistance, (float)FarPlaneDistance, out projection);
+                return projection;
+            }
+            public static void OrthoOffCenterLH(float left, float right, float bottom, float top, float znear, float zfar, out Matrix result) {
+                float zRange = -2.0f / (zfar - znear);
+
+                result = Matrix.Identity;
+                result.M11 = 2.0f / (right - left);
+                result.M22 = 2.0f / (top - bottom);
+                result.M33 = zRange;
+                result.M41 = ((left + right) / (left - right));
+                result.M42 = ((top + bottom) / (bottom - top));
+                result.M43 = -znear * zRange;
+            }
+
+            public Matrix GetFullMatrix(double aspectRatio) {
+                return Matrix.Add(CreateViewMatrix(), CreateProjectionMatrix(aspectRatio));
+            }
+        }
+        public sealed class CameraTechniqueRenderComponent : PhongTechniqueRenderComponent {
+
+            public void Update(Graphics graphics, World world, CameraComponent camera) {
+                var variables = graphics.Variables(this.RenderTechnique);
+                var aspectRatio = (float)graphics.SharpDevice.Width / graphics.SharpDevice.Height;
+                
+                var projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
+                var viewMatrix = camera.CreateViewMatrix();
+                var viewport = Vector4.Zero;
+                var frustum = Vector4.Zero;
+                variables.EyePos.Set(camera.Position);
+                variables.Projection.SetMatrix(ref projectionMatrix);
+                variables.View.SetMatrix(ref viewMatrix);
+                //if (isProjCamera) {
+                variables.Viewport.Set(ref viewport);
+                variables.Frustum.Set(ref frustum);
+                variables.EyeLook.Set(camera.LookDirection);
+
+
+                world.Position = camera.Position;
+                world.LookDirection = camera.LookDirection;
+                world.ViewMatrix = viewMatrix;
+                world.ProjectionMatrix = projectionMatrix;
+            }
+        }
         public static Entity BuildOrthographicCamera(IEntityContext context) {
             var entity = context.CreateEntity("OrthographicCamera");
-            
 
+            entity.AddComponent(new CameraComponent {
+                Position = new Vector3(0, 0, 300),//50253
+                LookDirection = new Vector3(0, 0, -300),
+                UpDirection = new Vector3(0, 1, 0),
+                NearPlaneDistance = 0,
+                FarPlaneDistance = 100500,
+                Width = 300
+            });
+            entity.AddComponent(new CameraTechniqueRenderComponent());
 
             return entity;
         }
     }
+    public static class ViewportBuilder {
+        public static Entity Build(IEntityContext context) {
+            var view = context.CreateEntity("Viewport");
+
+           // view.AddComponent();
+
+            return view;
+        }
+    }
+
+
 }

@@ -132,22 +132,14 @@ namespace D3DLab.Core {
              * NEW APPROACH
              * 
             */
-            context.Camera = new CameraData {
-                Position = new Vector3(0, 0, 300),//50253
-                LookDirection = new Vector3(0, 0, -300),
-                UpDirection = new Vector3(0, 1, 0),
-                NearPlaneDistance = 0,
-                FarPlaneDistance = 100500,
-                Width = 300
-            };
-
-            context.CreateSystemy<CameraRenderSystem>();
-            context.CreateSystemy<LightRenderSystem>();
+                        
+            context.CreateSystemy<UpdateRenderTechniqueSystem>();
             context.CreateSystemy<VisualRenderSystem>();
 
+            ViewportBuilder.Build(context);
+            CameraBuilder.BuildOrthographicCamera(context);
             LightBuilder.BuildDirectionalLight(context);
             VisualModelBuilder.Build(context);
-
         }
 
         private void CreateScene(OrthographicCameraEntity camera) {
@@ -235,7 +227,7 @@ namespace D3DLab.Core {
             }
 
             var world = new World();
-            currentScene.GetComponent<OrthographicCameraEntity>()(com => world.Camera = com.Data);
+            //currentScene.GetComponent<OrthographicCameraEntity>()(com => world.Camera = com.Data);
 
 
             // var lightRenderContext = new LightRenderContext();
@@ -268,11 +260,13 @@ namespace D3DLab.Core {
 
                 context.Graphics = gr;
                 context.World = world;
-
-                foreach (var sys in context.GetSystems()) {
-                    sys.Execute(context);
+                try {
+                    foreach (var sys in context.GetSystems()) {
+                        sys.Execute(context);
+                    }
+                }catch(Exception ex) {
+                    ex.ToString();
                 }
-
                 sharpDevice.Device.ImmediateContext.End(queryForCompletion);
 
                 int value;

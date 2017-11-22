@@ -11,38 +11,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Core.Test {
-    public interface IComponentSystem {
-        void Execute(IContext ctx);
+    public abstract class ComponentSystem {
+        public abstract void Execute(IContext ctx);
     }
 
-    public class LightRenderSystem : IComponentSystem {
-        public void Execute(IContext ctx) {
-            foreach (var entity in ctx.GetEntities()) {
-                var render = entity.GetComponent<LightRenderComponent>();
-                if (render == null) {
-                    continue;
-                }
 
-                ctx.World.LightCount++;
-                var variables = ctx.Graphics.Variables(render.RenderTechnique);
-                variables.LightCount.Set(ctx.World.LightCount);
-                /// --- update lighting variables               
-                variables.LightDir.Set(-ctx.World.Camera.LookDirection);
-                variables.LightColor.Set(new[] { render.Color });
-                variables.LightType.Set(new[] { 1 /* (int)Light3D.Type.Directional*/ });
-            }
-        }
-    }
-    public class VisualRenderSystem : IComponentSystem {
-        public void Execute(IContext ctx) {
+    public class VisualRenderSystem : ComponentSystem {
+        public override void Execute(IContext ctx) {
             foreach (var entity in ctx.GetEntities()) {
-                var render = entity.GetComponent<VisualRenderComponent>();
-                if (render == null) {
-                    continue;
-                }
+                var render = entity.GetComponent<PhongTechniqueRenderComponent>();               
                 var material = entity.GetComponent<MaterialComponent>();
                 var geo = entity.GetComponent<GeometryComponent>();
                 var transform = entity.GetComponent<TransformComponent>();
+
+                if (render == null || material == null || geo == null || transform == null ) {
+                    continue;
+                }
 
                 using (var data = Update(ctx.Graphics, geo, material)) {
                     Render(ctx.World, ctx.Graphics, data, render, transform, material);
@@ -82,7 +66,7 @@ namespace D3DLab.Core.Test {
 
         }
         private void Render(World world, Graphics graphics, RenderData renderData,
-            RenderComponent render, TransformComponent transform, MaterialComponent material) {
+            RenderTechniqueComponent render, TransformComponent transform, MaterialComponent material) {
             //            var sw = new Stopwatch();
             //            sw.Start();
             var device = graphics.SharpDevice;
@@ -218,37 +202,26 @@ namespace D3DLab.Core.Test {
             }
         }
     }
-    public class CameraRenderSystem : IComponentSystem {
-        private struct RenderData {
-            public Matrix ViewMatrix;
-            public Matrix ProjectionMatrix;
-            public Vector3 Position;
-            public Vector3 LookDirection;
-        }
-        public void Execute(IContext ctx) {
-            var rd = ctx.Camera;
+    public class UpdateRenderTechniqueSystem : ComponentSystem {
+        public override void Execute(IContext ctx) {
+            foreach (var entity in ctx.GetEntities()) {
+                var tech = entity.GetComponent<RenderTechniqueComponent>();
+                if(tech == null) {
+                    continue;
+                }
+                switch (tech) {
+                    case LightBuilder.LightTechniqueRenderComponent light:
+                        var com = entity.GetComponent<LightBuilder.LightRenderComponent>();
+                        light.Update(ctx.Graphics,ctx.World, com.Color);
+                        break;
+                    case CameraBuilder.CameraTechniqueRenderComponent camera:
+                        var ccom = entity.GetComponent<CameraBuilder.CameraComponent>();
+                        camera.Update(ctx.Graphics, ctx.World, ccom);
+                        break;
+                }
+            }
 
-            var aspectRatio = (float)ctx.Graphics.SharpDevice.Width / ctx.Graphics.SharpDevice.Height;
 
-            var data = new RenderData {
-                Position = rd.Position,
-                LookDirection = rd.LookDirection,
-                ViewMatrix = rd.CreateViewMatrix(),
-                ProjectionMatrix = rd.CreateProjectionMatrix(aspectRatio)
-            };
-
-            var projectionMatrix = data.ProjectionMatrix;
-            var viewMatrix = data.ViewMatrix;
-            var viewport = Vector4.Zero;
-            var frustum = Vector4.Zero;
-            var variables = ctx.Graphics.Variables(Techniques.RenderPhong);
-            variables.EyePos.Set(data.Position);
-            variables.Projection.SetMatrix(ref projectionMatrix);
-            variables.View.SetMatrix(ref viewMatrix);
-            //if (isProjCamera) {
-            variables.Viewport.Set(ref viewport);
-            variables.Frustum.Set(ref frustum);
-            variables.EyeLook.Set(data.LookDirection);
         }
 
     }
