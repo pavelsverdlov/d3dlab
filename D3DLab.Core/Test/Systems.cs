@@ -11,13 +11,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Core.Test {
-    public abstract class ComponentSystem {
-        public abstract void Execute(IContext ctx);
+    public interface IComponentSystem {
+        void Execute(IContext ctx);        
     }
 
 
-    public class VisualRenderSystem : ComponentSystem {
-        public override void Execute(IContext ctx) {
+    public class VisualRenderSystem : IComponentSystem {
+        public void Execute(IContext ctx) {
             foreach (var entity in ctx.GetEntities()) {
                 var render = entity.GetComponent<PhongTechniqueRenderComponent>();               
                 var material = entity.GetComponent<MaterialComponent>();
@@ -202,8 +202,8 @@ namespace D3DLab.Core.Test {
             }
         }
     }
-    public class UpdateRenderTechniqueSystem : ComponentSystem {
-        public override void Execute(IContext ctx) {
+    public class UpdateRenderTechniqueSystem : IComponentSystem {
+        public void Execute(IContext ctx) {
             foreach (var entity in ctx.GetEntities()) {
                 var tech = entity.GetComponent<RenderTechniqueComponent>();
                 if(tech == null) {

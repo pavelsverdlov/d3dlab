@@ -92,8 +92,8 @@ namespace D3DLab.Core {
 
         private SharpDevice sharpDevice;
 
-        public void Init(WinFormsD3DControl obj) {
-            sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(obj);
+        public void Init(WinFormsD3DControl control) {
+            sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(control);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
 
             currentScene = new BaseScene();
@@ -132,9 +132,9 @@ namespace D3DLab.Core {
              * NEW APPROACH
              * 
             */
-                        
-            context.CreateSystemy<UpdateRenderTechniqueSystem>();
-            context.CreateSystemy<VisualRenderSystem>();
+            context.AddSystem(new CameraInputSystem(control));
+            context.CreateSystem<UpdateRenderTechniqueSystem>();
+            context.CreateSystem<VisualRenderSystem>();
 
             ViewportBuilder.Build(context);
             CameraBuilder.BuildOrthographicCamera(context);
@@ -264,7 +264,7 @@ namespace D3DLab.Core {
                     foreach (var sys in context.GetSystems()) {
                         sys.Execute(context);
                     }
-                }catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.ToString();
                 }
                 sharpDevice.Device.ImmediateContext.End(queryForCompletion);

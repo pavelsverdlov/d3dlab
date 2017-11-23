@@ -13,8 +13,9 @@ namespace D3DLab.Core.Test {
         IEnumerable<Entity> GetEntities();
     }
     public interface ISystemContext {
-        TSystem CreateSystemy<TSystem>() where TSystem : ComponentSystem;
-        IEnumerable<ComponentSystem> GetSystems();
+        TSystem CreateSystem<TSystem>() where TSystem : IComponentSystem;
+        IEnumerable<IComponentSystem> GetSystems();
+        void AddSystem(IComponentSystem system);
     }
 
     public interface IContext : IEntityContext {
@@ -27,7 +28,7 @@ namespace D3DLab.Core.Test {
 
     public class Context : IContext, ISystemContext {
         readonly List<Entity> entities = new List<Entity>();
-        readonly List<ComponentSystem> systems = new List<ComponentSystem>();
+        readonly List<IComponentSystem> systems = new List<IComponentSystem>();
 
         InputStates state = new InputStates();
         
@@ -47,14 +48,17 @@ namespace D3DLab.Core.Test {
             return entities;
         }
 
-        public TSystem CreateSystemy<TSystem>() where TSystem : ComponentSystem {
+        public TSystem CreateSystem<TSystem>() where TSystem : IComponentSystem {
             var sys = Activator.CreateInstance<TSystem>();
             systems.Add(sys);
             return sys;
         }
 
-        public IEnumerable<ComponentSystem> GetSystems() {
+        public IEnumerable<IComponentSystem> GetSystems() {
             return systems;
+        }
+        public void AddSystem(IComponentSystem system) {
+            systems.Add(system);
         }
 
         readonly D3DEngine d3DEngine;

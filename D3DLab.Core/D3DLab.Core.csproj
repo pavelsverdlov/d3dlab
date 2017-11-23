@@ -127,7 +127,7 @@
     <Compile Include="Test\Component.cs" />
     <Compile Include="Test\Context.cs" />
     <Compile Include="Test\Entity.cs" />
-    <Compile Include="Test\ReconstructionBuilder.cs" />
+    <Compile Include="Test\CameraInputSystem.cs" />
     <Compile Include="Test\Systems.cs" />
     <Compile Include="Viewport\ViewportNotificator.cs" />
     <Compile Include="Entities\Entity.cs" />
