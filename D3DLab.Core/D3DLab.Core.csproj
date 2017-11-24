@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>D3DLab.Core</RootNamespace>
     <AssemblyName>D3DLab.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -90,8 +91,12 @@
     <Compile Include="Components\IHaveDependency.cs" />
     <Compile Include="Common\InputBehaviourTree.cs" />
     <Compile Include="Components\InputComponent.cs" />
+    <Compile Include="Entities\DirectionalLightEntity.cs" />
+    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\LineEntity.cs" />
+    <Compile Include="Entities\OrthographicCameraEntity.cs" />
     <Compile Include="Entities\SceneAttachedEntity.cs" />
+    <Compile Include="Entities\VisualEntity.cs" />
     <Compile Include="Render\Components\DirectionalLightRenderComponent.cs" />
     <Compile Include="Components\Render\RenderComponent.cs" />
     <Compile Include="Render\Components\LineRenderComponent.cs" />
@@ -101,9 +106,6 @@
     <Compile Include="Components\Render\InternalComponentsRender.cs" />
     <Compile Include="Render\World.cs" />
     <Compile Include="D3DEngine.cs" />
-    <Compile Include="Entities\DirectionalLightEntity.cs" />
-    <Compile Include="Entities\OrthographicCameraEntity.cs" />
-    <Compile Include="Entities\VisualEntity.cs" />
     <Compile Include="Events\EventRegistry.cs" />
     <Compile Include="Host\FormsHost.cs" />
     <Compile Include="Host\WinFormsD3DControl.cs">
@@ -130,7 +132,6 @@
     <Compile Include="Test\CameraInputSystem.cs" />
     <Compile Include="Test\Systems.cs" />
     <Compile Include="Viewport\ViewportNotificator.cs" />
-    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Visual3D\DisposeEx.cs" />
   </ItemGroup>
   <ItemGroup>

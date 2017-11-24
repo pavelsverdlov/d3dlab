@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace D3DLab.Core.Test {
     public interface IComponentSystem {
-        void Execute(IContext ctx);        
+        void Execute(IEntityManager emanager,IContext ctx);        
     }
 
 
     public class VisualRenderSystem : IComponentSystem {
-        public void Execute(IContext ctx) {
-            foreach (var entity in ctx.GetEntities()) {
+        public void Execute(IEntityManager emanager, IContext ctx) {
+            foreach (var entity in emanager.GetEntities()) {
                 var render = entity.GetComponent<PhongTechniqueRenderComponent>();               
                 var material = entity.GetComponent<MaterialComponent>();
                 var geo = entity.GetComponent<GeometryComponent>();
@@ -203,8 +203,8 @@ namespace D3DLab.Core.Test {
         }
     }
     public class UpdateRenderTechniqueSystem : IComponentSystem {
-        public void Execute(IContext ctx) {
-            foreach (var entity in ctx.GetEntities()) {
+        public void Execute(IEntityManager emanager, IContext ctx) {
+            foreach (var entity in emanager.GetEntities()) {
                 var tech = entity.GetComponent<RenderTechniqueComponent>();
                 if(tech == null) {
                     continue;

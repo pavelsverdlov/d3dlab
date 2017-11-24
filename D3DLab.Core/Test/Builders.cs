@@ -34,7 +34,7 @@ namespace D3DLab.Core.Test {
     //builders
 
     public static class VisualModelBuilder {
-        public static Entity Build(IEntityContext context) {
+        public static Entity Build(IEntityManager context) {
             var geo = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null);
 
             var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
@@ -76,7 +76,7 @@ namespace D3DLab.Core.Test {
             public Color4 Color { get; set; }
         }
 
-        public static Entity BuildDirectionalLight(IEntityContext context) {
+        public static Entity BuildDirectionalLight(IEntityManager context) {
             var entity = context.CreateEntity("DirectionalLight");
 
             entity.AddComponent(new LightTechniqueRenderComponent());
@@ -154,7 +154,7 @@ namespace D3DLab.Core.Test {
                 world.ProjectionMatrix = projectionMatrix;
             }
         }
-        public static Entity BuildOrthographicCamera(IEntityContext context) {
+        public static Entity BuildOrthographicCamera(IEntityManager context) {
             var entity = context.CreateEntity("OrthographicCamera");
 
             entity.AddComponent(new CameraComponent {
@@ -171,7 +171,7 @@ namespace D3DLab.Core.Test {
         }
     }
     public static class ViewportBuilder {
-        public static Entity Build(IEntityContext context) {
+        public static Entity Build(IEntityManager context) {
             var view = context.CreateEntity("Viewport");
 
            // view.AddComponent();

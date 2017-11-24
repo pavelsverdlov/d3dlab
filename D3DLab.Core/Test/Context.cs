@@ -8,41 +8,34 @@ using System.Threading.Tasks;
 
 namespace D3DLab.Core.Test {
 
-    public interface IEntityContext {
+    public interface IEntityManager {
         Entity CreateEntity(string tag);
         IEnumerable<Entity> GetEntities();
     }
-    public interface ISystemContext {
+    public interface ISystemManager {
         TSystem CreateSystem<TSystem>() where TSystem : IComponentSystem;
         IEnumerable<IComponentSystem> GetSystems();
         void AddSystem(IComponentSystem system);
     }
 
-    public interface IContext : IEntityContext {
-        InputStates InputState { get; }
-
+    public interface IContext {
         Graphics Graphics { get; }
         World World { get; }
     }
 
 
-    public class Context : IContext, ISystemContext {
+    public class Context : IContext, ISystemManager, IEntityManager {
         readonly List<Entity> entities = new List<Entity>();
         readonly List<IComponentSystem> systems = new List<IComponentSystem>();
-
-        InputStates state = new InputStates();
-        
+                
         public Entity CreateEntity(string tag) {
             var en = new Entity(tag);
             entities.Add(en);
             return en;
         }
-
-        public InputStates InputState => state;
-
+        
         public Graphics Graphics { get; set; }
         public World World { get; set; }
-
 
         public IEnumerable<Entity> GetEntities() {
             return entities;

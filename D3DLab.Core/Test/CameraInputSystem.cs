@@ -128,8 +128,8 @@ namespace D3DLab.Core.Test {
 
         private List<CameraInputState> events = new List<CameraInputState>();
 
-        public void Execute(IContext ctx) {
-            foreach (var entity in ctx.GetEntities()) {
+        public void Execute(IEntityManager emanager, IContext ctx) {
+            foreach (var entity in emanager.GetEntities()) {
                 var ccom = entity.GetComponent<CameraBuilder.CameraComponent>();
                 if (ccom == null || !events.Any()) {
                     continue;

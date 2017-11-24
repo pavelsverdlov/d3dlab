@@ -16,11 +16,4 @@ namespace D3DLab.Core.Test {
 
         }
     }
-
-   
-        
-    public struct InputStates {
-        public MouseButtons Buttons { get; set; }
-    }
-
 }

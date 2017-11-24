@@ -54,6 +54,7 @@ namespace D3DLab.Debugger {
         static CustomControl1() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(CustomControl1), new FrameworkPropertyMetadata(typeof(CustomControl1)));
         }
+
         public interface IVisualProperty {
             string Name { get; }
             string Value { get; }

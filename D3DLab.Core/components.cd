@@ -10,7 +10,7 @@
   <Class Name="D3DLab.Core.Test.Context" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="28.25" Y="1.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAQAABgAAQAAAAAAAAAACEAAAQAEAEAAAAAQAAA=</HashCode>
+      <HashCode>AAAAAAQAEBgAAQAAIAAAAAAACAAAAQAAAEAAAAAAAAA=</HashCode>
       <FileName>Test\Context.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
@@ -23,13 +23,13 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="D3DLab.Core.Test.UpdateRenderTechniqueSystem" BaseTypeListCollapsed="true">
-    <Position X="15.5" Y="7" Width="2.5" />
+  <Class Name="D3DLab.Core.Test.UpdateRenderTechniqueSystem" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="28.25" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Systems.cs</FileName>
     </TypeIdentifier>
-    <Lollipop Position="0.2" />
+    <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="D3DLab.Core.Test.GeometryComponent">
     <Position X="20.25" Y="3" Width="3" />
@@ -53,26 +53,26 @@
     </TypeIdentifier>
   </Class>
   <Class Name="D3DLab.Core.Test.VisualModelBuilder" Collapsed="true">
-    <Position X="30" Y="2.25" Width="1.5" />
+    <Position X="31.75" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Builders.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="D3DLab.Core.Test.ViewportBuilder" Collapsed="true">
-    <Position X="28.25" Y="2.25" Width="1.5" />
+    <Position X="30" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Builders.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="D3DLab.Core.Test.VisualRenderSystem" BaseTypeListCollapsed="true">
-    <Position X="12.5" Y="7" Width="2.25" />
+  <Class Name="D3DLab.Core.Test.VisualRenderSystem" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="28.25" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAQAAAAAAAAAAAQAAAAAAAAAAAAAAAAAABABAAAAABA=</HashCode>
       <FileName>Test\Systems.cs</FileName>
     </TypeIdentifier>
-    <Lollipop Position="0.2" />
+    <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="D3DLab.Core.Test.RenderTechniqueComponent">
     <Position X="24" Y="3" Width="3.25" />
@@ -95,38 +95,31 @@
       <FileName>Test\Builders.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="D3DLab.Core.Test.InputStates" Collapsed="true">
-    <Position X="28.25" Y="3.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Test\Component.cs</FileName>
-    </TypeIdentifier>
-  </Struct>
   <Interface Name="D3DLab.Core.Test.IComponent" Collapsed="true">
-    <Position X="28.25" Y="4.75" Width="1.5" />
+    <Position X="28.25" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Component.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="D3DLab.Core.Test.IEntityContext">
-    <Position X="19.5" Y="5.25" Width="1.5" />
+  <Interface Name="D3DLab.Core.Test.IEntityManager">
+    <Position X="12.5" Y="5.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Context.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="D3DLab.Core.Test.IContext">
-    <Position X="21.75" Y="5.25" Width="1.5" />
+    <Position X="12.5" Y="7.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAABAAAAAAAAAAAAAACEAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAABAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Context.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="D3DLab.Core.Test.ISystemContext">
-    <Position X="24" Y="7.75" Width="3.5" />
+  <Interface Name="D3DLab.Core.Test.ISystemContext" Collapsed="true">
+    <Position X="30" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAQAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAQAEAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Test\Context.cs</FileName>
     </TypeIdentifier>
   </Interface>

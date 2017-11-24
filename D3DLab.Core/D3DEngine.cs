@@ -40,12 +40,8 @@ namespace D3DLab.Core {
     }
     public class D3DEngine : ID3DEngine, IDisposable {
         private readonly Context context;
-
-        private BaseScene currentScene;
-
         private readonly FormsHost host;
-        //  private Render.Camera.OrthographicCamera camera;
-
+        private SharpDevice sharpDevice;
         private HelixToolkit.Wpf.SharpDX.EffectsManager effectsManager;
 
         public ViewportNotificator Notificator { get; private set; }
@@ -85,53 +81,12 @@ namespace D3DLab.Core {
                 });
                 //CompositionTarget.Rendering += OnCompositionTargetRendering;
             }));
-
-
-            //
         }
-
-        private SharpDevice sharpDevice;
 
         public void Init(WinFormsD3DControl control) {
             sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(control);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
-
-            currentScene = new BaseScene();
-            /*
-            var camera = new OrthographicCameraEntity();
-            camera.Data = new CameraData {
-                Position = new Vector3(0, 0, 300),//50253
-                LookDirection = new Vector3(0, 0, -300),
-                UpDirection = new Vector3(0, 1, 0),
-                NearPlaneDistance = 0,
-                FarPlaneDistance = 100500,
-                Width = 300
-            };
-
-
-            camera.AddComponent(new InputCameraBehavior(obj));
-            camera.AddComponent(new OrthographicCameraRenderComponent());
-            camera.AddComponent(new CameraViewsComponent());
-
-            camera.GetComponent<CameraViewsComponent>()
-                (com => com.SetCamera(CameraViewsComponent.CameraViews.TopView));
-
-            currentScene = new BaseScene();
-            currentScene.Data = new SceneData {
-                Viewport = obj
-            };
-
-            //CreateScene(camera);
-
-            currentScene
-                .GetComponent<VisualEntity>()
-                (com => com.AddComponent(new ManipulateInputComponent(obj)));
-            */
-            /*
-             * 
-             * NEW APPROACH
-             * 
-            */
+            
             context.AddSystem(new CameraInputSystem(control));
             context.CreateSystem<UpdateRenderTechniqueSystem>();
             context.CreateSystem<VisualRenderSystem>();
@@ -142,95 +97,13 @@ namespace D3DLab.Core {
             VisualModelBuilder.Build(context);
         }
 
-        private void CreateScene(OrthographicCameraEntity camera) {
-
-
-            //var directionalLight = new DirectionalLightEntity("DirectionalLight");
-            //directionalLight.Data = new DirectionalLightData {
-            //    Color = HelixToolkit.Wpf.SharpDX.VectorExtensions.ToColor4(Colors.White)
-            //};
-            //directionalLight.AddComponent(new DirectionalLightRenderComponent());
-            //            directionalLight.AddComponent(new DirectionalLightCameraObserver(camera));
-
-            //currentScene.AddComponent(directionalLight);
-            currentScene.AddComponent(camera);
-
-            //var path = @"Z:\DATABASE FOR TESTING\STL\Srew_retained_crown_bridge\screw retained.obj";
-            //              LoadFile(@"C:\STL_TO_ZZN_TEST\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
-            //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
-            //            LoadFile(@"C:\Storage\trash\[ZZN][N-599]screw retained.obj");
-            //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
-            //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
-            //            LoadFile(@"C:\Storage\trash\2016-09-16_00002-001-16-23-24-25-26-modelbase.obj");
-        }
-
-        private void LoadFile(string rec) {/*
-            var colors = new[] {
-                SharpDX.Color.Red,
-                SharpDX.Color.AliceBlue,
-                SharpDX.Color.Aqua,
-                SharpDX.Color.Beige,
-                SharpDX.Color.Blue,
-                SharpDX.Color.Brown,
-                SharpDX.Color.Yellow,
-                SharpDX.Color.Magenta,
-            };
-            var dic = new Dictionary<string, HelixToolkit.Wpf.SharpDX.MeshBuilder>();
-            HelixToolkit.Wpf.SharpDX.ObjReader readerA = new HelixToolkit.Wpf.SharpDX.ObjReader();
-            var res = readerA.Read(rec);
-            foreach (var gr in readerA.Groups) {
-                var key = gr.Name.Split(' ')[0];
-                HelixToolkit.Wpf.SharpDX.MeshBuilder value;
-                if (!dic.TryGetValue(key, out value)) {
-                    value = new HelixToolkit.Wpf.SharpDX.MeshBuilder(true, false);
-                    dic.Add(key, value);
-                }
-                value.Append(gr.MeshBuilder);
-            }
-            var index = 0;
-            foreach (var item in dic) {
-                var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
-                    AmbientColor = new Color4(),
-                    DiffuseColor = colors[index],
-                    SpecularColor = colors[index],
-                    EmissiveColor = new Color4(),
-                    ReflectiveColor = new Color4(),
-                    SpecularShininess = 100f
-                };
-                var mesh = new VisualEntity("object " + index);
-                mesh.Data = new VisualData {
-                    Geometry = item.Value.ToMeshGeometry3D(),
-                    Material = mat,
-                    BackMaterial = mat,
-                    RenderTechnique = HelixToolkit.Wpf.SharpDX.Techniques.RenderPhong
-                };
-                mesh.AddComponent(new VisualRenderComponent());
-                index++;
-                Notificator.Add(mesh);
-
-
-                currentScene.AddComponent(mesh);
-            }*/
-        }
         private void OnCompositionTargetRendering(object sender, EventArgs e) {
-            //                                    currentScene.Render();
-            //                        return;
-            var gr = new Graphics() {
+            context.Graphics = new Graphics() {
                 SharpDevice = sharpDevice,
                 EffectsManager = effectsManager,
             };
+            context.World = new World();
 
-            foreach (var child in currentScene.GetComponents<ComponentContainer>()) {
-                foreach (var rederable in child.GetComponents<IRenderComponent>()) {
-                    rederable.Update(gr);
-                }
-            }
-
-            var world = new World();
-            //currentScene.GetComponent<OrthographicCameraEntity>()(com => world.Camera = com.Data);
-
-
-            // var lightRenderContext = new LightRenderContext();
             var illuminationSettings = new IlluminationSettings();
 
             illuminationSettings.Ambient = 1;
@@ -246,23 +119,15 @@ namespace D3DLab.Core {
                 sharpDevice.Clear(bgColor);
 
                 //  lightRenderContext.ClearLights();
-                var variables = gr.Variables(Techniques.RenderLines);
+                var variables = context.Graphics.Variables(Techniques.RenderLines);
                 variables.LightAmbient.Set(new Color4((float)illuminationSettings.Ambient).ChangeAlpha(1f));
                 variables.IllumDiffuse.Set(new Color4((float)illuminationSettings.Diffuse).ChangeAlpha(1f));
                 variables.IllumShine.Set((float)illuminationSettings.Shine);
                 variables.IllumSpecular.Set(new Color4((float)illuminationSettings.Specular).ChangeAlpha(1f));
 
-                foreach (var child in currentScene.GetComponents<ComponentContainer>()) {
-                    foreach (var rederable in child.GetComponents<IRenderComponent>()) {
-                        rederable.Render(world, gr);
-                    }
-                }
-
-                context.Graphics = gr;
-                context.World = world;
                 try {
                     foreach (var sys in context.GetSystems()) {
-                        sys.Execute(context);
+                        sys.Execute(context, context);
                     }
                 } catch (Exception ex) {
                     ex.ToString();
@@ -274,7 +139,6 @@ namespace D3DLab.Core {
                     Thread.Sleep(1);
             }
             sharpDevice.Present();
-
         }
 
         private void RenderTest(WinFormsD3DControl form) {
@@ -429,7 +293,6 @@ namespace D3DLab.Core {
             effectsManager.Dispose();
             host.HandleCreated -= OnHandleCreated;
             host.Unloaded -= OnUnloaded;
-            currentScene.Dispose();
         }
     }
 }
