@@ -10,9 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace D3DLab.Core.Test {
-
-
-
+    
     public class CameraInputSystem : InputComponent, IComponentSystem, CameraInputSystem.IInputHandler {
         public interface IInputHandler : InputComponent.IHandler {
             bool Rotate(InputComponent.InputStateDate state);
@@ -219,8 +217,6 @@ namespace D3DLab.Core.Test {
         }
 
         private Matrix GetMatrixRotate3D(float dx, float dy, CameraBuilder.CameraComponent data) {
-            return Matrix.Identity;
-
             var v2Up = new Vector2(0, -1);
             var mouseMove = new Vector2(-dx, -dy);
             var angleLook = Vector2Extensions.AngleBetween(v2Up, mouseMove.Normalized()).ToRad();
