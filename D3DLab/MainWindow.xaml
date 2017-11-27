@@ -7,7 +7,7 @@
         xmlns:sharpDx="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=D3DLab.Helix"
         xmlns:host="clr-namespace:D3DLab.Core.Host;assembly=D3DLab.Core"
         mc:Ignorable="d"
-        Title="MainWindow" Height="480" Width="720">
+        Title="MainWindow" Height="720" Width="1200">
     <Window.Resources>
         <local:MainWindowViewModel x:Key="ViewModel" />
     </Window.Resources>
@@ -18,15 +18,15 @@
     <!--        <ResourceDictionary  Source="/D3DLab.Helix;component/Themes/Generic.xaml"></ResourceDictionary>-->
     <!--    </Window.Resources>-->
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <host:FormsHost x:Name="Host" Grid.Column="0" />
 
-        <host:FormsHost Loaded="OnLoaded" x:Name="Host" Grid.Column="0" />
-
-        <StackPanel Orientation="Vertical" Grid.Column="1">
-            
+        <StackPanel  Grid.Row="1" Orientation="Horizontal">
+            <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100"/>
         </StackPanel>
         
         <!--        <sharpDx:Viewport3DX  Visibility="Visible"-->

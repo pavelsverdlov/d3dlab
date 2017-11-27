@@ -8,8 +8,10 @@ namespace D3DLab.Core.Test {
     public sealed class Entity  {
         public string Tag { get; }
         private readonly List<IComponent> components;
+        readonly IComponentManager manager;
 
-        public Entity(string tag) {
+        public Entity(string tag, IComponentManager manager) {
+            this.manager = manager;
             Tag = tag;
             components = new List<IComponent>();
         }
@@ -18,7 +20,11 @@ namespace D3DLab.Core.Test {
         }
 
         public void AddComponent<T>(T component) where T : IComponent {
-            components.Add(component);
+            components.Add(manager.AddComponent(Tag, component));
+        }
+
+        public IEnumerable<IComponent> GetComponents() {
+            return components;
         }
     }
 }

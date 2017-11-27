@@ -12,6 +12,10 @@ using System.Threading.Tasks;
 namespace D3DLab.Core.Test {
     public sealed class GeometryComponent : Component {
         public HelixToolkit.Wpf.SharpDX.MeshGeometry3D Geometry { get; set; }
+
+        public override string ToString() {
+            return $"[Bounds:{Geometry.Bounds};Positions:{Geometry.Positions.Count};Indices:{Geometry.Indices.Count}]";
+        }
     }
     public sealed class MaterialComponent : Component {
         public HelixToolkit.Wpf.SharpDX.PhongMaterial Material { get; set; }
@@ -25,6 +29,9 @@ namespace D3DLab.Core.Test {
         public PhongTechniqueRenderComponent() {
             RenderTechnique = Techniques.RenderPhong;
         }
+        public override string ToString() {
+            return $"[{RenderTechnique.Name}]";
+        }
     }
 
     public sealed class TransformComponent : Component {
@@ -34,8 +41,8 @@ namespace D3DLab.Core.Test {
     //builders
 
     public static class VisualModelBuilder {
-        public static Entity Build(IEntityManager context) {
-            var geo = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null);
+        public static Entity Build(IEntityManager context, MeshGeometry3D geo, string tag) {
+            //var geo = new MeshGeometry3D(new Vector3[] { Vector3.Zero, Vector3.Zero + Vector3.UnitX * 100, Vector3.Zero + Vector3.UnitY * 100 }, new int[] { 0, 1, 2 }, null);
 
             var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
                 AmbientColor = new Color4(),
@@ -45,13 +52,14 @@ namespace D3DLab.Core.Test {
                 ReflectiveColor = new Color4(),
                 SpecularShininess = 100f
             };
+            
 
-            var entity = context.CreateEntity("triangle");
+            var entity = context.CreateEntity(tag);
             entity.AddComponent(new GeometryComponent() { Geometry = geo });
             entity.AddComponent(new MaterialComponent {
                 Material = mat,
                 BackMaterial = mat,
-                CullMaterial = CullMode.Back
+                CullMaterial = CullMode.Front
             });
             entity.AddComponent(new Test.PhongTechniqueRenderComponent ());
             entity.AddComponent(new Test.TransformComponent { Matrix = SharpDX.Matrix.Identity });
@@ -74,6 +82,9 @@ namespace D3DLab.Core.Test {
 
         public sealed class LightRenderComponent : Component {
             public Color4 Color { get; set; }
+            public override string ToString() {
+                return $"[Color:{Color}]";
+            }
         }
 
         public static Entity BuildDirectionalLight(IEntityManager context) {
@@ -127,6 +138,10 @@ namespace D3DLab.Core.Test {
 
             public Matrix GetFullMatrix(double aspectRatio) {
                 return Matrix.Add(CreateViewMatrix(), CreateProjectionMatrix(aspectRatio));
+            }
+
+            public override string ToString() {
+                return $"[Position:{Position};LookDirection:{LookDirection};UpDirection:{UpDirection};Width:{Width}]";
             }
         }
         public sealed class CameraTechniqueRenderComponent : PhongTechniqueRenderComponent {

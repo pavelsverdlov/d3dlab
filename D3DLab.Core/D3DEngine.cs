@@ -27,6 +27,7 @@ using Application = System.Windows.Application;
 using Buffer = System.Buffer;
 using Resource = SharpDX.DXGI.Resource;
 using D3DLab.Core.Test;
+using System.IO;
 
 //https://habrahabr.ru/post/199378/
 namespace D3DLab.Core {
@@ -38,7 +39,12 @@ namespace D3DLab.Core {
     public interface ID3DEngine {
         ViewportNotificator Notificator { get; }
     }
-    public class D3DEngine : ID3DEngine, IDisposable {
+
+    public interface I3DobjectLoader {
+        void LoadObj(Stream content);
+    }
+
+    public class D3DEngine : ID3DEngine, IDisposable, I3DobjectLoader {
         private readonly Context context;
         private readonly FormsHost host;
         private SharpDevice sharpDevice;
@@ -94,7 +100,7 @@ namespace D3DLab.Core {
             ViewportBuilder.Build(context);
             CameraBuilder.BuildOrthographicCamera(context);
             LightBuilder.BuildDirectionalLight(context);
-            VisualModelBuilder.Build(context);
+            //VisualModelBuilder.Build(context);
         }
 
         private void OnCompositionTargetRendering(object sender, EventArgs e) {
@@ -293,6 +299,30 @@ namespace D3DLab.Core {
             effectsManager.Dispose();
             host.HandleCreated -= OnHandleCreated;
             host.Unloaded -= OnUnloaded;
+        }
+
+        public void LoadObj(Stream content) {
+            HelixToolkit.Wpf.SharpDX.ObjReader readerA = new HelixToolkit.Wpf.SharpDX.ObjReader();
+            var res = readerA.Read(content);
+
+            var dic = new Dictionary<string, HelixToolkit.Wpf.SharpDX.MeshBuilder>();
+            foreach (var gr in readerA.Groups) {
+                var key = gr.Name.Split(' ')[0];
+                HelixToolkit.Wpf.SharpDX.MeshBuilder value;
+                if (!dic.TryGetValue(key, out value)) {
+                    value = new HelixToolkit.Wpf.SharpDX.MeshBuilder(true, false);
+                    dic.Add(key, value);
+                }
+                value.Append(gr.MeshBuilder);
+            }
+
+            var index = 0;
+            var builder = new MeshBuilder(true, false);
+            foreach (var item in dic) {
+                builder.Append(item.Value);
+            }
+            VisualModelBuilder.Build(context, builder.ToMeshGeometry3D(),"duck");
+
         }
     }
 }

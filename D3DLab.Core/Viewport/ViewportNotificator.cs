@@ -5,7 +5,7 @@ using D3DLab.Core.Visual3D;
 
 namespace D3DLab.Core.Viewport {
     public interface IViewportSubscriber { }
-    public interface IViewportAddSubscriber<in T> : IViewportSubscriber where T : ComponentContainer {
+    public interface IViewportAddSubscriber<in T> : IViewportSubscriber{
         void Add(T visual);
     }
 
@@ -23,10 +23,10 @@ namespace D3DLab.Core.Viewport {
             subscribers.Add(s);
         }
 
-        public void Add<T>(T visual) where T : ComponentContainer {
+        public void NotifyAdd<T>(T _object) where T : class{
             var handlers = subscribers.OfType<IViewportAddSubscriber<T>>();
             foreach (var handler in handlers) {
-                handler.Add(visual);
+                handler.Add(_object);
             }
         }
     }

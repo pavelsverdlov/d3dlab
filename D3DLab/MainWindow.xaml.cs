@@ -50,6 +50,7 @@ namespace D3DLab {
         }
         
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs) {
+            Loaded -= OnLoaded;
             var dc = DataContext as MainWindowViewModel;
             dc.Init(Host);
         }
