@@ -59,7 +59,7 @@ namespace D3DLab.Core.Test {
             entity.AddComponent(new MaterialComponent {
                 Material = mat,
                 BackMaterial = mat,
-                CullMaterial = CullMode.Front
+                CullMaterial = CullMode.Back
             });
             entity.AddComponent(new Test.PhongTechniqueRenderComponent ());
             entity.AddComponent(new Test.TransformComponent { Matrix = SharpDX.Matrix.Identity });
@@ -72,11 +72,15 @@ namespace D3DLab.Core.Test {
         public sealed class LightTechniqueRenderComponent : PhongTechniqueRenderComponent {
             public void Update(Graphics graphics, World world, Color4 color) {
                 var variables = graphics.Variables(this.RenderTechnique);
+
+                world.LightCount++;
+
                 variables.LightCount.Set(world.LightCount);
                 /// --- update lighting variables               
                 variables.LightDir.Set(-world.LookDirection);
                 variables.LightColor.Set(new[] { color });
                 variables.LightType.Set(new[] { 1 /* (int)Light3D.Type.Directional*/ });
+                
             }
         }
 

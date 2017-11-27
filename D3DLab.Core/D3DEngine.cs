@@ -321,7 +321,7 @@ namespace D3DLab.Core {
             foreach (var item in dic) {
                 builder.Append(item.Value);
             }
-            VisualModelBuilder.Build(context, builder.ToMeshGeometry3D(),"duck");
+            VisualModelBuilder.Build(context, builder.ToMeshGeometry3D(),"duck" + Guid.NewGuid().ToString());
 
         }
     }
