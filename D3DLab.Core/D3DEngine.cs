@@ -92,7 +92,9 @@ namespace D3DLab.Core {
         public void Init(WinFormsD3DControl control) {
             sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(control);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
+
             
+            context.AddSystem(new TargetingInputSystem(control));
             context.AddSystem(new CameraInputSystem(control));
             context.CreateSystem<UpdateRenderTechniqueSystem>();
             context.CreateSystem<VisualRenderSystem>();

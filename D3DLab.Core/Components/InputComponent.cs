@@ -147,12 +147,14 @@ namespace D3DLab.Core.Components {
                 this.control.MouseMove += OnMouseMove;
                 this.control.MouseWheel += OnMouseWheel;
                 this.control.MouseDoubleClick += OnMouseDoubleClick;
+                this.control.MouseLeave += OnMouseLeave;
+
                 this.control.KeyDown += OnKeyDown;
                 this.control.KeyUp += OnKeyUp;
                 this.control.Leave += OnLeave;
                 this.control.GotFocus += control_GotFocus;
                 this.control.LostFocus += control_LostFocus;
-                this.control.MouseLeave += OnMouseLeave;
+                
             }
 
             /*
@@ -176,7 +178,7 @@ namespace D3DLab.Core.Components {
 
             private void OnMouseLeave(object sender, EventArgs e) {
                 var btn = Control.MouseButtons;
-                //  state.Buttons = state.Buttons | e.Button;
+                //state.Buttons = state.Buttons | btn;
               
             }
 

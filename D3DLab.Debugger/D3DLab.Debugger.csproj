@@ -83,6 +83,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiAutoTest.cs" />
     <Compile Include="ScriptExetuter.cs" />
     <Compile Include="Windows\VisualTreeviewer.xaml.cs">
       <DependentUpon>VisualTreeviewer.xaml</DependentUpon>

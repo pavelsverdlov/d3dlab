@@ -10,7 +10,87 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace D3DLab.Core.Test {
-    
+    public sealed class TargetingInputSystem : InputComponent, IComponentSystem, TargetingInputSystem.IInputHandler {
+
+        public TargetingInputSystem(Control control) : base(control) {
+        }
+
+        public enum TargetingInputStates {
+            Idle = 0,
+            Target = 1
+        }
+        public interface IInputHandler : InputComponent.IHandler {
+            bool Target(InputComponent.InputStateDate state);
+        }
+
+        protected override InputState GetIdleState() {
+            var states = new StateDictionary();
+            states.Add((int)TargetingInputStates.Idle, s => new InputIdleState(s));
+            states.Add((int)TargetingInputStates.Target, s => new InputTargetState(s));
+
+            var router = new StateHandleProcessor<IInputHandler>(states, this);
+            router.SwitchTo((int)TargetingInputStates.Idle, new InputStateDate(control));
+            return router;
+        }
+
+        protected abstract class TargetingStateMachine : InputStateMachine {
+            protected TargetingStateMachine(StateProcessor processor) : base(processor) { }
+
+        }
+        protected sealed class InputTargetState : TargetingStateMachine {
+            public InputTargetState(StateProcessor processor) : base(processor) { }
+
+        }
+        protected sealed class InputIdleState : TargetingStateMachine {
+            public InputIdleState(StateProcessor processor) : base(processor) { }
+            public override bool OnMouseDown(InputStateDate state) {
+                switch (state.Buttons) {
+                    case MouseButtons.Left:
+                        SwitchTo((int)TargetingInputStates.Target, state);
+                        break;
+                }
+                return base.OnMouseDown(state);
+            }
+        }
+
+        public bool Target(InputStateDate state) {
+            return false;
+        }
+
+        private struct TargetInputState {//
+            public TargetingInputStates Type;
+            public InputStateDate Date;
+        }
+
+        private TargetInputState lastEvent;
+
+        public void Execute(IEntityManager emanager, IContext ctx) {
+            foreach (var entity in emanager.GetEntities()) {
+                var hitable = entity.GetComponent<HitableComponent>();
+                if (hitable == null) {
+                    continue;
+                }
+                switch (lastEvent.Type) {
+                    case TargetingInputStates.Target:
+                        var geo = entity.GetComponent<GeometryComponent>();
+
+                        var date = lastEvent.Date;
+
+                        //unproject 
+
+
+                        var ray = new Ray();
+                        if (ray.Intersects(geo.Geometry.Bounds)) {
+
+                        }
+
+                        break;
+                }
+            }
+        }
+    }
+
+
     public class CameraInputSystem : InputComponent, IComponentSystem, CameraInputSystem.IInputHandler {
         public interface IInputHandler : InputComponent.IHandler {
             bool Rotate(InputComponent.InputStateDate state);
@@ -116,8 +196,8 @@ namespace D3DLab.Core.Test {
         private struct CameraInputState {//
             public CameraInputStates Type;
             public InputStateDate Date;
-
         }
+
         public void Zoom(InputStateDate state) {
             events.Add(new CameraInputState { Date = state, Type = CameraInputStates.Zoom });
         }
@@ -182,12 +262,12 @@ namespace D3DLab.Core.Test {
                         //            CameraRotateMode rotateMode = CameraRotateMode.Rotate3D;
 
                         var matrixRotate = GetMatrixRotate3D(dx, dy, ccom);// rotateMode == CameraRotateMode.Rotate3D ? GetMatrixRotate3D(dx, dy) 
-                                                                     //                :
-                                                                     //                rotateMode == CameraRotateMode.RotateAroundX ? GetMatrixRotateAroundX(dx, dy) :
-                                                                     //                rotateMode == CameraRotateMode.RotateAroundY ? GetMatrixRotateAroundY(dx, dy) :
-                                                                     //                rotateMode == CameraRotateMode.RotateAroundZ ? GetMatrixRotateAroundZ(dx, dy) :
-                                                                     //                rotateMode == CameraRotateMode.RotateAroundZInverted ? GetMatrixRotateAroundZ(-dx, -dy)
-                                                                     //                : Matrix.Identity;
+                                                                           //                :
+                                                                           //                rotateMode == CameraRotateMode.RotateAroundX ? GetMatrixRotateAroundX(dx, dy) :
+                                                                           //                rotateMode == CameraRotateMode.RotateAroundY ? GetMatrixRotateAroundY(dx, dy) :
+                                                                           //                rotateMode == CameraRotateMode.RotateAroundZ ? GetMatrixRotateAroundZ(dx, dy) :
+                                                                           //                rotateMode == CameraRotateMode.RotateAroundZInverted ? GetMatrixRotateAroundZ(-dx, -dy)
+                                                                           //                : Matrix.Identity;
 
                         if (matrixRotate.IsIdentity) {
                             continue;

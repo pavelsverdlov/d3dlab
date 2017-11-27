@@ -38,6 +38,10 @@ namespace D3DLab.Core.Test {
         public Matrix Matrix { get; set; }
     }
     
+    public sealed class HitableComponent : Component {
+
+    }
+
     //builders
 
     public static class VisualModelBuilder {
