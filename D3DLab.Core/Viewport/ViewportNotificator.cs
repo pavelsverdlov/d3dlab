@@ -9,6 +9,10 @@ namespace D3DLab.Core.Viewport {
         void Add(T visual);
     }
 
+    public interface IViewportRenderSubscriber : IViewportSubscriber {
+        void Render();
+    }
+
     public interface IViewportNotificator {
         void Subscribe(IViewportSubscriber s);
     }
@@ -27,6 +31,12 @@ namespace D3DLab.Core.Viewport {
             var handlers = subscribers.OfType<IViewportAddSubscriber<T>>();
             foreach (var handler in handlers) {
                 handler.Add(_object);
+            }
+        }
+        public void NotifyRender() {
+            var handlers = subscribers.OfType<IViewportRenderSubscriber>();
+            foreach (var handler in handlers) {
+                handler.Render();
             }
         }
     }

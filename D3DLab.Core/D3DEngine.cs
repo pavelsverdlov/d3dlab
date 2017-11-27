@@ -145,6 +145,8 @@ namespace D3DLab.Core {
                     Thread.Sleep(1);
             }
             sharpDevice.Present();
+
+            Notificator.NotifyRender();
         }
 
         private void RenderTest(WinFormsD3DControl form) {

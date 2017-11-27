@@ -32,7 +32,7 @@ namespace D3DLab {
         public void Init(FormsHost host) {
             engine = new D3DEngine(host);
             engine.Notificator.Subscribe(subscriber);
-            
+
             VisualTreeviewer.Show();
         }
 
@@ -44,9 +44,9 @@ namespace D3DLab {
                 this.main = mainWindowViewModel;
             }
 
-            public event EventHandler CanExecuteChanged = (s,r) => { };
+            public event EventHandler CanExecuteChanged = (s, r) => { };
 
-            
+
             public bool CanExecute(object parameter) {
                 return true;
             }
@@ -57,7 +57,7 @@ namespace D3DLab {
         }
     }
 
-    public sealed class ViewportSubscriber : IViewportAddSubscriber<Entity>{
+    public sealed class ViewportSubscriber : IViewportAddSubscriber<Entity>, IViewportRenderSubscriber {
         private readonly MainWindowViewModel mv;
 
         public ViewportSubscriber(MainWindowViewModel mv) {
@@ -68,8 +68,12 @@ namespace D3DLab {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
                 mv.VisualTreeviewer.ViewModel.Add(entity);
             }));
-            
         }
-        
+
+        public void Render() {
+            App.Current.Dispatcher.BeginInvoke(new Action(() => {
+                mv.VisualTreeviewer.ViewModel.Refresh();
+            }));
+        }
     }
 }

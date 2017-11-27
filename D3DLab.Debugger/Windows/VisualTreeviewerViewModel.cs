@@ -14,8 +14,8 @@ namespace D3DLab.Debugger.Windows {
     public interface IEntityComponent {
         string Name { get; }
         string Value { get; }
-
-        IComponent GetPropertyObject();
+        
+        void Refresh();
     }
 
     public interface IVisualTreeEntity {
@@ -23,25 +23,32 @@ namespace D3DLab.Debugger.Windows {
         ObservableCollection<IEntityComponent> Components { get; }
         void Add(IEntityComponent com);
         void Clear();
+        void Refresh();
     }
 
     public sealed class ScriptComponent : D3DLab.Core.Test.IComponent {
-        public void Dispose() {}
+        public void Dispose() { }
 
     }
-    public class VisualProperty : IEntityComponent {
+    public class VisualProperty : IEntityComponent, System.ComponentModel.INotifyPropertyChanged {
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
         private IComponent com;
 
         public VisualProperty(IComponent com) {
             this.com = com;
         }
 
-        public string Name { get; set; }
+        public string Name { get { return com.ToString(); } }
 
         public string Value { get; set; }
 
         public IComponent GetPropertyObject() {
             return com;
+        }
+
+        public void Refresh() {
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Name)));
         }
     }
 
@@ -57,7 +64,7 @@ namespace D3DLab.Debugger.Windows {
         }
     }
 
-    public sealed class VisualTreeviewerViewModel: System.ComponentModel.INotifyPropertyChanged {
+    public sealed class VisualTreeviewerViewModel : System.ComponentModel.INotifyPropertyChanged {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
         string consoleText;
 
@@ -68,7 +75,7 @@ namespace D3DLab.Debugger.Windows {
 
             set {
                 consoleText = value;
-                PropertyChanged(this,new System.ComponentModel.PropertyChangedEventArgs(nameof(ConsoleText)));
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(ConsoleText)));
             }
         }
 
@@ -85,11 +92,11 @@ namespace D3DLab.Debugger.Windows {
         private class VisualTreeItem : IVisualTreeEntity {
             public string Name { get; set; }
 
-          //  public System.ComponentModel.ICollectionView Components { get; set; }
+            //  public System.ComponentModel.ICollectionView Components { get; set; }
             public ObservableCollection<IEntityComponent> Components { get; set; }
             public VisualTreeItem() {
                 Components = new ObservableCollection<IEntityComponent>();
-               // Components = CollectionViewSource.GetDefaultView(components);
+                // Components = CollectionViewSource.GetDefaultView(components);
             }
 
             public void Add(IEntityComponent com) {
@@ -98,8 +105,14 @@ namespace D3DLab.Debugger.Windows {
             public void Clear() {
                 Components.Clear();
             }
+
+            public void Refresh() {
+                foreach(var i in Components) {
+                    i.Refresh();
+                }
+            }
         }
-       
+
         /*
         private static IEnumerable<IVisualTreeEntity> Fill() {
             var props = new[] {
@@ -131,14 +144,20 @@ namespace D3DLab.Debugger.Windows {
                 };
 
                 foreach (var com in entity.GetComponents()) {
-                    found.Add(new VisualProperty(com) { Name = com.ToString(), Value = "value1" });
+                    found.Add(new VisualProperty(com));
                 }
                 items.Add(found);
             } else {
                 found.Clear();
                 foreach (var com in entity.GetComponents()) {
-                    found.Add(new VisualProperty(com) { Name = com.ToString(), Value = "value1" });
+                    found.Add(new VisualProperty(com));
                 }
+            }
+        }
+
+        public void Refresh() {
+            foreach(var item in items) {
+                item.Refresh();
             }
         }
 

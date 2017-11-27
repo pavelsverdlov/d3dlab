@@ -73,8 +73,8 @@ namespace D3DLab.Debugger {
                 return () => internalObject;
             }
 
-            IComponent IEntityComponent.GetPropertyObject() {
-                return null;
+            public void Refresh() {
+                throw new NotImplementedException();
             }
         }
 

@@ -18,15 +18,15 @@
     <Window.DataContext>
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
-    <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+    <!--<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">-->
         <TreeView Name="trvMenu" ItemsSource="{Binding Items}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Components}">
-                    <TextBlock Text="{Binding Name}" />
+                    <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
-        <!-- component properties -->
+        <!-- component properties
         <ContentControl Content="{Binding SelectedComponent}"/>
         <Button Content="Add Component"/>
         <TextBox Text="{Binding ConsoleText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -34,6 +34,6 @@
             TextWrapping="Wrap"
             AcceptsReturn="True"
             HorizontalScrollBarVisibility="Disabled"
-            VerticalScrollBarVisibility="Auto"/>
-    </StackPanel>
+            VerticalScrollBarVisibility="Auto"/> -->
+    <!--</StackPanel>-->
 </Window>
