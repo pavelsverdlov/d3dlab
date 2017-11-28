@@ -67,6 +67,7 @@ namespace D3DLab.Core.Test {
             });
             entity.AddComponent(new Test.PhongTechniqueRenderComponent ());
             entity.AddComponent(new Test.TransformComponent { Matrix = SharpDX.Matrix.Identity });
+            entity.AddComponent(new HitableComponent());
 
             return entity;
         }
@@ -107,6 +108,10 @@ namespace D3DLab.Core.Test {
         }
     }
     public static class CameraBuilder {
+        public enum CameraTypes {
+            Perspective,
+            Orthographic,
+        }
         public sealed class CameraComponent : Component {
             public Vector3 Position { get; set; }
             public Vector3 LookDirection { get; set; }
@@ -114,6 +119,7 @@ namespace D3DLab.Core.Test {
             public float NearPlaneDistance { get; set; }
             public int FarPlaneDistance { get; set; }
             public float Width { get; set; }
+            public CameraTypes CameraType = CameraTypes.Orthographic;
 
             public Matrix CreateViewMatrix() {
                 if (false) {// this.CreateLeftHandSystem) {

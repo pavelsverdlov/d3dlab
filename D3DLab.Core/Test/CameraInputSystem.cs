@@ -38,8 +38,32 @@ namespace D3DLab.Core.Test {
 
         }
         protected sealed class InputTargetState : TargetingStateMachine {
-            public InputTargetState(StateProcessor processor) : base(processor) { }
+            public InputTargetState(StateProcessor processor) : base(processor) {
+                
+            }
 
+            public override void EnterState(InputStateDate state) {
+                Processor.InvokeHandler<IInputHandler>(x => x.Target(state));
+            }
+
+            public override bool OnMouseDown(InputStateDate state) {
+                switch (state.Buttons) {
+                    case MouseButtons.Left:
+                        break;
+                }
+                return base.OnMouseDown(state);
+            }
+            public override bool OnMouseUp(InputStateDate state) {
+                if ((state.Buttons & MouseButtons.Left) != MouseButtons.Left) {
+                    SwitchTo((int)TargetingInputStates.Idle, state);
+                }
+
+                return base.OnMouseUp(state);
+            }
+            public override bool OnMouseMove(InputStateDate state) {
+                  
+                return true;
+            }
         }
         protected sealed class InputIdleState : TargetingStateMachine {
             public InputIdleState(StateProcessor processor) : base(processor) { }
@@ -54,6 +78,7 @@ namespace D3DLab.Core.Test {
         }
 
         public bool Target(InputStateDate state) {
+            lastEvent = new TargetInputState { Type = TargetingInputStates.Target, Date = state };
             return false;
         }
 
@@ -65,6 +90,7 @@ namespace D3DLab.Core.Test {
         private TargetInputState lastEvent;
 
         public void Execute(IEntityManager emanager, IContext ctx) {
+            return;
             foreach (var entity in emanager.GetEntities()) {
                 var hitable = entity.GetComponent<HitableComponent>();
                 if (hitable == null) {
@@ -73,23 +99,54 @@ namespace D3DLab.Core.Test {
                 switch (lastEvent.Type) {
                     case TargetingInputStates.Target:
                         var geo = entity.GetComponent<GeometryComponent>();
+                        var camera = emanager.GetEntities().Where(x => x.GetComponent<CameraBuilder.CameraComponent>() != null).First().GetComponent<CameraBuilder.CameraComponent>();
 
                         var date = lastEvent.Date;
 
-                        //unproject 
-
-
-                        var ray = new Ray();
+                        var ray = UnProject(date.CurrentPosition, ctx, camera);
                         if (ray.Intersects(geo.Geometry.Bounds)) {
 
+                            lastEvent = new TargetInputState();
                         }
 
                         break;
                 }
             }
         }
-    }
 
+        public static Ray UnProject(Vector2 point2d, IContext ctx, CameraBuilder.CameraComponent camera)//, out Vector3 pointNear, out Vector3 pointFar)
+        {
+            var p = new Vector3((float)point2d.X, (float)point2d.Y, 1);
+
+            var vp = ctx.World.ProjectionMatrix * ctx.World.GetViewportMatrix();
+            var vpi = Matrix.Invert(vp);
+            p.Z = 0;
+            Vector3.TransformCoordinate(ref p, ref vpi, out Vector3 zn);
+            p.Z = 1;
+            Vector3.TransformCoordinate(ref p, ref vpi, out Vector3 zf);
+            Vector3 r = zf - zn;
+            r.Normalize();
+
+            switch (camera.CameraType) {
+                case CameraBuilder.CameraTypes.Orthographic:
+                    if (double.IsNaN(zn.X) || double.IsNaN(zn.Y) || double.IsNaN(zn.Z)) {
+                        zn = new Vector3(0, 0, 0);
+                    }
+                    if (double.IsNaN(r.X) || double.IsNaN(r.Y) || double.IsNaN(r.Z) ||
+                        (r.X == 0 && r.Y == 0 && r.Z == 0)) {
+                        r = new Vector3(0, 0, 1);
+                    }
+                    //fix for not valid inverted matrix
+                    return new Ray(zn, r);
+                case CameraBuilder.CameraTypes.Perspective:
+                    return new Ray(camera.Position, r);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        
+    }
 
     public class CameraInputSystem : InputComponent, IComponentSystem, CameraInputSystem.IInputHandler {
         public interface IInputHandler : InputComponent.IHandler {

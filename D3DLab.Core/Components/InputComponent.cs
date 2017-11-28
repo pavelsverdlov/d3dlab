@@ -111,7 +111,7 @@ namespace D3DLab.Core.Components {
         }
 
         protected abstract class InputState {
-            public void EnterState(InputStateDate inputStateDate) {
+            public virtual void EnterState(InputStateDate inputStateDate) {
                 
             }
             public void LeaveState(InputStateDate inputStateDate) {
@@ -178,7 +178,7 @@ namespace D3DLab.Core.Components {
 
             private void OnMouseLeave(object sender, EventArgs e) {
                 var btn = Control.MouseButtons;
-                //state.Buttons = state.Buttons | btn;
+                state.Buttons = state.Buttons | btn;
               
             }
 

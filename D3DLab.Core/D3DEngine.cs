@@ -110,7 +110,8 @@ namespace D3DLab.Core {
                 SharpDevice = sharpDevice,
                 EffectsManager = effectsManager,
             };
-            context.World = new World();
+            context.World = new World(host.ActualWidth, host.ActualHeight);
+            
 
             var illuminationSettings = new IlluminationSettings();
 
