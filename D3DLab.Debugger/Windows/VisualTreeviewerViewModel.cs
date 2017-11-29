@@ -14,7 +14,7 @@ namespace D3DLab.Debugger.Windows {
     public interface IEntityComponent {
         string Name { get; }
         string Value { get; }
-        
+
         void Refresh();
     }
 
@@ -90,11 +90,15 @@ namespace D3DLab.Debugger.Windows {
         }
 
         private class VisualTreeItem : IVisualTreeEntity {
-            public string Name { get; set; }
+            public string Name { get { return entity.Tag; } }
 
             //  public System.ComponentModel.ICollectionView Components { get; set; }
             public ObservableCollection<IEntityComponent> Components { get; set; }
-            public VisualTreeItem() {
+
+            readonly Entity entity;
+
+            public VisualTreeItem(Entity entity) {
+                this.entity = entity;
                 Components = new ObservableCollection<IEntityComponent>();
                 // Components = CollectionViewSource.GetDefaultView(components);
             }
@@ -107,7 +111,7 @@ namespace D3DLab.Debugger.Windows {
             }
 
             public void Refresh() {
-                foreach(var i in Components) {
+                foreach (var i in Components) {
                     i.Refresh();
                 }
             }
@@ -139,10 +143,7 @@ namespace D3DLab.Debugger.Windows {
         public void Add(Entity entity) {
             var found = items.SingleOrDefault(x => x.Name == entity.Tag);
             if (found == null) {
-                found = new VisualTreeItem {
-                    Name = entity.Tag
-                };
-
+                found = new VisualTreeItem(entity);
                 foreach (var com in entity.GetComponents()) {
                     found.Add(new VisualProperty(com));
                 }
@@ -156,7 +157,7 @@ namespace D3DLab.Debugger.Windows {
         }
 
         public void Refresh() {
-            foreach(var item in items) {
+            foreach (var item in items) {
                 item.Refresh();
             }
         }

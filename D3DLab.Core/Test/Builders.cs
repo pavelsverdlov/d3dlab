@@ -51,6 +51,10 @@ namespace D3DLab.Core.Test {
             Material = mat;
             BackMaterial = mat;
         }
+
+        public override string ToString() {
+            return $"MaterialComponent[{Material.DiffuseColor}]";
+        }
     }
     public abstract class RenderTechniqueComponent : Component {
         public RenderTechnique RenderTechnique { get; set; }
