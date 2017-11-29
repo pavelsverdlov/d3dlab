@@ -26,10 +26,10 @@ namespace D3DLab.Debugger.Windows {
         void Refresh();
     }
 
-    public sealed class ScriptComponent : D3DLab.Core.Test.IComponent {
-        public void Dispose() { }
+    //public sealed class ScriptComponent : D3DLab.Core.Test.IComponent {
+    //    public void Dispose() { }
 
-    }
+    //}
     public class VisualProperty : IEntityComponent, System.ComponentModel.INotifyPropertyChanged {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 

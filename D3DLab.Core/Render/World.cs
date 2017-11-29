@@ -42,6 +42,8 @@ namespace D3DLab.Core.Render {
             this.actualHeight = actualHeight;
             this.actualWidth = actualWidth;
             WorldMatrix = Matrix.Identity;
+            ProjectionMatrix = Matrix.Identity;
+            ViewMatrix = Matrix.Identity;
         }
     }
 }

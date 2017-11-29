@@ -14,6 +14,7 @@ namespace D3DLab.Core.Test {
     }
     public interface IComponentManager {
         IComponent AddComponent(string tagEntity, IComponent com);
+        void RemoveComponent(string tagEntity, IComponent com);
     }
     public interface ISystemManager {
         TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem;
@@ -35,7 +36,7 @@ namespace D3DLab.Core.Test {
         public Entity CreateEntity(string tag) {
             var en = new Entity(tag, this);
             entities.Add(en);
-            d3DEngine.Notificator.NotifyAdd(en);
+            d3DEngine.Notificator.NotifyChange(en);
             components.Add(en.Tag, new List<IComponent>());
             return en;
         }
@@ -50,7 +51,7 @@ namespace D3DLab.Core.Test {
         public TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem {
             var sys = Activator.CreateInstance<TSystem>();
             systems.Add(sys);
-            d3DEngine.Notificator.NotifyAdd(sys);
+            d3DEngine.Notificator.NotifyChange(sys);
             return sys;
         }
         public IEnumerable<IComponentSystem> GetSystems() {
@@ -58,13 +59,18 @@ namespace D3DLab.Core.Test {
         }
         public void AddSystem(IComponentSystem system) {
             systems.Add(system);
-            d3DEngine.Notificator.NotifyAdd(system);
+            d3DEngine.Notificator.NotifyChange(system);
         }
 
         public IComponent AddComponent(string tagEntity, IComponent com) {
             components[tagEntity].Add(com);
-            d3DEngine.Notificator.NotifyAdd(entities.Single(x=>x.Tag == tagEntity));
+            //3DEngine.Notificator.NotifyChange(entities.Single(x=>x.Tag == tagEntity));
             return com;
+        }
+
+        public void RemoveComponent(string tagEntity, IComponent com) {
+            components[tagEntity].Remove(com);
+           // d3DEngine.Notificator.NotifyChange(entities.Single(x => x.Tag == tagEntity));
         }
 
         readonly D3DEngine d3DEngine;

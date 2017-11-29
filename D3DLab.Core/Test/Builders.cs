@@ -21,6 +21,36 @@ namespace D3DLab.Core.Test {
         public HelixToolkit.Wpf.SharpDX.PhongMaterial Material { get; set; }
         public HelixToolkit.Wpf.SharpDX.PhongMaterial BackMaterial { get; set; }
         public CullMode CullMaterial { get; set; }
+
+
+        public void Setected() {
+            var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
+                AmbientColor = new Color4(),
+                DiffuseColor = SharpDX.Color.Red,
+                SpecularColor = SharpDX.Color.Red,
+                EmissiveColor = new Color4(),
+                ReflectiveColor = new Color4(),
+                SpecularShininess = 100f
+            };
+
+
+            Material = mat;
+            BackMaterial = mat;
+        }
+        public void UnSetected() {
+            var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
+                AmbientColor = new Color4(),
+                DiffuseColor = SharpDX.Color.Blue,
+                SpecularColor = SharpDX.Color.Blue,
+                EmissiveColor = new Color4(),
+                ReflectiveColor = new Color4(),
+                SpecularShininess = 100f
+            };
+
+
+            Material = mat;
+            BackMaterial = mat;
+        }
     }
     public abstract class RenderTechniqueComponent : Component {
         public RenderTechnique RenderTechnique { get; set; }
@@ -39,6 +69,9 @@ namespace D3DLab.Core.Test {
     }
     
     public sealed class HitableComponent : Component {
+
+    }
+    public sealed class TargetedComponent : Component {
 
     }
 

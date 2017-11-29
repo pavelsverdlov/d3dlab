@@ -131,6 +131,10 @@
     <Compile Include="Test\Entity.cs" />
     <Compile Include="Test\CameraInputSystem.cs" />
     <Compile Include="Test\Systems.cs" />
+    <Compile Include="Test\TargetingInputSystem.cs" />
+    <Compile Include="Test\TargetSystem.cs" />
+    <Compile Include="Test\UpdateRenderTechniqueSystem.cs" />
+    <Compile Include="Test\VisualRenderSystem.cs" />
     <Compile Include="Viewport\ViewportNotificator.cs" />
     <Compile Include="Visual3D\DisposeEx.cs" />
   </ItemGroup>

@@ -63,6 +63,7 @@ namespace D3DLab.Debugger {
 
             public string Value => throw new NotImplementedException();
 
+            public Guid Guid => throw new NotImplementedException();
 
             object internalObject;
             public VisualProperty() {

@@ -9,6 +9,8 @@ namespace D3DLab.Core.Components {
     public abstract class Component : IComponent {
         private readonly string tag;
 
+        public Guid Guid => Guid.NewGuid();
+
         protected Component() {
             tag = this.GetType().Name;
         }

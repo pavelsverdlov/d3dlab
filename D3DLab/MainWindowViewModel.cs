@@ -57,7 +57,7 @@ namespace D3DLab {
         }
     }
 
-    public sealed class ViewportSubscriber : IViewportAddSubscriber<Entity>, IViewportRenderSubscriber {
+    public sealed class ViewportSubscriber : IViewportChangeSubscriber<Entity>, IViewportRenderSubscriber {
         private readonly MainWindowViewModel mv;
 
         public ViewportSubscriber(MainWindowViewModel mv) {

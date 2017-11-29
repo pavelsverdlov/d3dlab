@@ -22,9 +22,13 @@ namespace D3DLab.Core.Test {
         public void AddComponent<T>(T component) where T : IComponent {
             components.Add(manager.AddComponent(Tag, component));
         }
+        public void RemoveComponent(IComponent component) {
+            components.Remove(component);
+            manager.RemoveComponent(Tag, component);            
+        }
 
         public IEnumerable<IComponent> GetComponents() {
-            return components;
+            return components.ToList();
         }
     }
 }
