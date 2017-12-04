@@ -23,10 +23,12 @@
                     <host:FormsHost x:Name="Host" Grid.Column="0" />
                 </hwnd:HwndHostPresenter.HwndHost>
                 <hwnd:HwndHostPresenter.Adornment>
-                    <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White">
-                        <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
-                        <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
-                    </DockPanel>
+                    <Grid Background="#01ffffff" x:Name="overlay" IsHitTestVisible="True">
+                        <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White">
+                            <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
+                            <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
+                        </DockPanel>
+                    </Grid>
                 </hwnd:HwndHostPresenter.Adornment>
             </hwnd:HwndHostPresenter>
         </Grid>

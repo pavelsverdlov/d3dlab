@@ -1,7 +1,11 @@
+using System.Diagnostics;
 using System.Windows.Forms;
+using System.Windows.Input;
 using D3DLab.Core.Entities;
 using SharpDX;
 using HelixToolkit.Wpf.SharpDX;
+using Cursor = System.Windows.Forms.Cursor;
+using MouseEventArgs = System.Windows.Forms.MouseEventArgs;
 
 namespace D3DLab.Core.Render
 {
@@ -26,10 +30,24 @@ namespace D3DLab.Core.Render
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                MousePoint = control.PointToClient(Cursor.Position).ToVector2();
+
+
+
+                MousePoint = Mouse.GetPosition(System.Windows.Application.Current.MainWindow).ToVector2();
                 MouseButtons = Control.MouseButtons;
+                Debug.WriteLine(MousePoint);
+
+
+
             });
         }
+
+
+        //private MouseEventArgs FixMouse()
+        //{
+        //    //var position = Extensions.MouseEx.GetPosition();
+        //  //  return new MouseEventArgs(ea.Button, ea.Clicks, (int)position.X, (int)position.Y, ea.Delta);
+        //}
 
         public Matrix GetViewportMatrix()
         {
