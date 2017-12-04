@@ -62,12 +62,12 @@ namespace D3DLab.Core {
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
-            CompositionTarget.Rendering -= OnCompositionTargetRendering;
+            //CompositionTarget.Rendering -= OnCompositionTargetRendering;
             Dispose();
         }
         private void OnHandleCreated(WinFormsD3DControl obj) {
             Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                Init(obj);
+                Init(obj);  
                 //                RenderLoop.Run(obj, () => OnCompositionTargetRendering(null,null));
                 Task.Run(() => {
                     var total = TimeSpan.FromSeconds(1).TotalMilliseconds;
@@ -75,7 +75,7 @@ namespace D3DLab.Core {
                     var sw = new Stopwatch();
                     while (true) {
                         sw.Restart();
-                        OnCompositionTargetRendering(null, null);
+                        OnCompositionTargetRendering(obj, null);
                         sw.Stop();
                         // Debug.WriteLine("{0} FPS", (int)total / sw.ElapsedMilliseconds);
                         //                        sw.Stop();
@@ -98,7 +98,7 @@ namespace D3DLab.Core {
 
             context.AddSystem(new TargetingInputSystem(control));
             context.AddSystem(new TargetSystem());            
-
+            context.AddSystem(new Simple3DMovementSystem());
             context.CreateSystem<VisualRenderSystem>();
 
             ViewportBuilder.Build(context);
@@ -107,13 +107,13 @@ namespace D3DLab.Core {
             //VisualModelBuilder.Build(context);
         }
 
-        private void OnCompositionTargetRendering(object sender, EventArgs e) {
+        private void OnCompositionTargetRendering(WinFormsD3DControl control, EventArgs e) {
             context.Graphics = new Graphics() {
                 SharpDevice = sharpDevice,
                 EffectsManager = effectsManager,
             };
-            context.World = new World(host.ActualWidth, host.ActualHeight);
-            
+            context.World = new World(control, host.ActualWidth, host.ActualHeight);
+            context.World.UpdateInputState();
 
             var illuminationSettings = new IlluminationSettings();
 
