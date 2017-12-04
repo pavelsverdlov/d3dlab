@@ -86,6 +86,7 @@
     <Compile Include="Common\Disposable.cs" />
     <Compile Include="Components\Behaviors\CameraViewsComponent.cs" />
     <Compile Include="Components\Behaviors\ManipulateInputComponent.cs" />
+    <Compile Include="Test\Simple3DMovable.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\ComponentContainer.cs" />
     <Compile Include="Components\IHaveDependency.cs" />
@@ -130,6 +131,8 @@
     <Compile Include="Test\Context.cs" />
     <Compile Include="Test\Entity.cs" />
     <Compile Include="Test\CameraInputSystem.cs" />
+    <Compile Include="Test\Simple3DMovementCaptured.cs" />
+    <Compile Include="Test\Simple3DMovementSystem.cs" />
     <Compile Include="Test\Systems.cs" />
     <Compile Include="Test\TargetingInputSystem.cs" />
     <Compile Include="Test\TargetSystem.cs" />

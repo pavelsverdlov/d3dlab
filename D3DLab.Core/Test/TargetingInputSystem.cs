@@ -3,6 +3,7 @@ using SharpDX;
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using HelixToolkit.Wpf.SharpDX;
 
 namespace D3DLab.Core.Test {
     public sealed class TargetingInputSystem : InputComponent, IComponentSystem, TargetingInputSystem.IInputHandler {
@@ -75,11 +76,11 @@ namespace D3DLab.Core.Test {
         }
 
         public bool Target(InputStateDate state) {
-            lastEvent = new TargetInputState { Type = TargetingInputStates.Target, Date = state };
+            currentEvent = new TargetInputState { Type = TargetingInputStates.Target, Date = state };
             return false;
         }
         public void UnTarget(InputStateDate state) {
-            lastEvent = new TargetInputState();
+            currentEvent = new TargetInputState();
         }
 
         private struct TargetInputState {//
@@ -87,7 +88,8 @@ namespace D3DLab.Core.Test {
             public InputStateDate Date;
         }
 
-        private TargetInputState lastEvent;
+        private TargetInputState currentEvent;
+        private TargetInputState prevEvent;
 
         public void Execute(IEntityManager emanager, IContext ctx) {
             //return;
@@ -103,53 +105,27 @@ namespace D3DLab.Core.Test {
                 if (hitable == null) {
                     continue;
                 }
-                switch (lastEvent.Type) {
+                switch (currentEvent.Type) {
                     case TargetingInputStates.Target:
                         var geo = entity.GetComponent<GeometryComponent>();
                         var camera = emanager.GetEntities().Where(x => x.GetComponent<CameraBuilder.CameraComponent>() != null).First().GetComponent<CameraBuilder.CameraComponent>();
 
-                        var date = lastEvent.Date;
+                        var date = currentEvent.Date;
+                        var transform = entity.GetComponent<TransformComponent>();
+                        var ray = camera.UnProject(date.CurrentPosition, ctx);
+                        if (ray.Intersects(geo.Geometry.Transform(transform.Matrix).Bounds)) {
+                            var targetComponent = new TargetedComponent();
 
-                        var ray = UnProject(date.CurrentPosition, ctx, camera);
-                        if (ray.Intersects(geo.Geometry.Bounds)) {
-                            entity.AddComponent(new TargetedComponent());
+                            entity.AddComponent(targetComponent);
                         }
+
+                        prevEvent = currentEvent;
+
                         break;
                 }
             }
         }
 
-        public static Ray UnProject(Vector2 point2d, IContext ctx, CameraBuilder.CameraComponent camera)//, out Vector3 pointNear, out Vector3 pointFar)
-        {
-            var p = new Vector3((float)point2d.X, (float)point2d.Y, 1);
-
-            var vp = ctx.World.ViewMatrix * ctx.World.ProjectionMatrix * ctx.World.GetViewportMatrix();
-            var vpi = Matrix.Invert(vp);
-            p.Z = 0;
-            Vector3.TransformCoordinate(ref p, ref vpi, out Vector3 zn);
-            p.Z = 1;
-            Vector3.TransformCoordinate(ref p, ref vpi, out Vector3 zf);
-            Vector3 r = zf - zn;
-            r.Normalize();
-
-            switch (camera.CameraType) {
-                case CameraBuilder.CameraTypes.Orthographic:
-                    if (double.IsNaN(zn.X) || double.IsNaN(zn.Y) || double.IsNaN(zn.Z)) {
-                        zn = new Vector3(0, 0, 0);
-                    }
-                    if (double.IsNaN(r.X) || double.IsNaN(r.Y) || double.IsNaN(r.Z) ||
-                        (r.X == 0 && r.Y == 0 && r.Z == 0)) {
-                        r = new Vector3(0, 0, 1);
-                    }
-                    //fix for not valid inverted matrix
-                    return new Ray(zn, r);
-                case CameraBuilder.CameraTypes.Perspective:
-                    return new Ray(camera.Position, r);
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        
+     
     }
 }

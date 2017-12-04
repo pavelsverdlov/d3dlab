@@ -3,6 +3,7 @@ using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using SharpDX;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -118,22 +119,27 @@ namespace D3DLab.Core.Test {
         }
 
         public void Zoom(InputStateDate state) {
-            events.Add(new CameraInputState { Date = state, Type = CameraInputStates.Zoom });
+            events=new CameraInputState { Date = state, Type = CameraInputStates.Zoom };
         }
         public bool Rotate(InputStateDate state) {
-            events.Add(new CameraInputState { Date = state, Type = CameraInputStates.Rotate });
+            events=new CameraInputState { Date = state, Type = CameraInputStates.Rotate };
             return false;
         }
 
-        private List<CameraInputState> events = new List<CameraInputState>();
+        private CameraInputState events;
 
         public void Execute(IEntityManager emanager, IContext ctx) {
             foreach (var entity in emanager.GetEntities()) {
                 var ccom = entity.GetComponent<CameraBuilder.CameraComponent>();
-                if (ccom == null || !events.Any()) {
+               // Debug.WriteLine("object = {0}, events.Type = {1}", ccom?.Guid.ToString() ?? "Null", events.Type);
+                if (ccom == null || events.Type== CameraInputStates.Idle) {
+                  
                     continue;
                 }
-                var input = events.Last();
+
+               // Debug.WriteLine("HIT");
+                var input = events;
+                events = new CameraInputState();
                 var state = input.Date;
                 switch (input.Type) {
                     case CameraInputStates.Zoom:
@@ -165,14 +171,13 @@ namespace D3DLab.Core.Test {
                         ccom.UpDirection = ccom.UpDirection;
                         ccom.Position = ccom.Position + panVector;
                         ccom.Width = newWidth;
-                        events.Clear();
                         break;
                     case CameraInputStates.Rotate:
                         var p11 = state.ButtonsStates[MouseButtons.Right].PointDown;
                         var p2 = state.CurrentPosition;
 
                         var moveV = p2 - p11;
-                        if (moveV.Length() < 0.5f || moveV == Vector2.Zero) {
+                        if (moveV == Vector2.Zero) {
                             continue;
                         }
 
@@ -195,7 +200,6 @@ namespace D3DLab.Core.Test {
                         ccom.UpDirection = Vector3.TransformNormal(ccom.UpDirection.Normalized(), matrixRotate).Normalized();
                         ccom.LookDirection = Vector3.TransformNormal(ccom.LookDirection.Normalized(), matrixRotate).Normalized();
                         ccom.Position = Vector3.TransformCoordinate(ccom.Position, matrixRotate);
-                        events.Clear();
                         break;
                 }
 
