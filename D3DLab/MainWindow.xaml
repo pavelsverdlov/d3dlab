@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:D3DLab"
-        xmlns:sharpDx="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=D3DLab.Helix"
         xmlns:host="clr-namespace:D3DLab.Core.Host;assembly=D3DLab.Core"
+        xmlns:hwnd="clr-namespace:HwndExtensions.Host;assembly=D3DLab.UI"
+        xmlns:adorner="clr-namespace:HwndExtensions.Adorner;assembly=D3DLab.UI"
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1200">
     <Window.Resources>
@@ -14,32 +15,20 @@
     <Window.DataContext>
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
-    <!--    <Window.Resources>-->
-    <!--        <ResourceDictionary  Source="/D3DLab.Helix;component/Themes/Generic.xaml"></ResourceDictionary>-->
-    <!--    </Window.Resources>-->
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        
-        <host:FormsHost x:Name="Host" Grid.Column="0" />
 
-        <StackPanel  Grid.Row="1" Orientation="Horizontal">
-            <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100"/>
-        </StackPanel>
-        
-        <!--        <sharpDx:Viewport3DX  Visibility="Visible"-->
-        <!--                HorizontalAlignment="Stretch"-->
-        <!--                VerticalAlignment="Stretch"-->
-        <!--                x:Name="view1" -->
-        <!--                TextBrush="Black"           -->
-        <!--                ShowCoordinateSystem="False"-->
-        <!--                UseDefaultGestures="False"-->
-        <!--                IsInertiaEnabled="False"-->
-        <!--                BorderThickness="0"-->
-        <!--                IsChangeFieldOfViewEnabled="True" CameraRotationMode="Trackball" ZoomExtentsWhenLoaded="True" Orthographic="True"-->
-        <!--                ClipToBounds="false">-->
-        <!--        </sharpDx:Viewport3DX>-->
-    </Grid>
+    <adorner:HwndAdornerManager>
+        <Grid>
+            <hwnd:HwndHostPresenter>
+                <hwnd:HwndHostPresenter.HwndHost>
+                    <host:FormsHost x:Name="Host" Grid.Column="0" />
+                </hwnd:HwndHostPresenter.HwndHost>
+                <hwnd:HwndHostPresenter.Adornment>
+                    <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White">
+                        <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
+                        <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
+                    </DockPanel>
+                </hwnd:HwndHostPresenter.Adornment>
+            </hwnd:HwndHostPresenter>
+        </Grid>
+    </adorner:HwndAdornerManager>
 </Window>

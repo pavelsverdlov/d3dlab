@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab", "D3DLab\D3DLab.csproj", "{D7A21D57-4A41-444B-9462-1F0CD9459E28}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.Core2", "D3DLab.Core2\D3DLab.Core2.csproj", "{EDD351D9-8553-41AF-A210-8948F794841C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.Debugger", "D3DLab.Debugger\D3DLab.Debugger.csproj", "{3FC522C3-3533-4A12-A751-D784CB93FAF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.UI", "D3DLab.UI\D3DLab.UI.csproj", "{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,18 @@ Global
 		{3FC522C3-3533-4A12-A751-D784CB93FAF1}.Release|x64.Build.0 = Release|Any CPU
 		{3FC522C3-3533-4A12-A751-D784CB93FAF1}.Release|x86.ActiveCfg = Release|Any CPU
 		{3FC522C3-3533-4A12-A751-D784CB93FAF1}.Release|x86.Build.0 = Release|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Debug|x64.Build.0 = Debug|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Debug|x86.Build.0 = Debug|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|x64.ActiveCfg = Release|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|x64.Build.0 = Release|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|x86.ActiveCfg = Release|Any CPU
+		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

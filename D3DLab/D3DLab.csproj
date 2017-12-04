@@ -228,6 +228,10 @@
       <Project>{57d159ae-1afc-4bd4-95f5-fa81dad83fc4}</Project>
       <Name>D3DLab.Helix</Name>
     </ProjectReference>
+    <ProjectReference Include="..\D3DLab.UI\D3DLab.UI.csproj">
+      <Project>{336feb8a-de4f-4bdb-8322-fc594f19feef}</Project>
+      <Name>D3DLab.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="D3D\" />
