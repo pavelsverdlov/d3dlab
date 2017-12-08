@@ -46,10 +46,14 @@ namespace D3DLab.Core {
     }
 
     public class D3DEngine : ID3DEngine, IDisposable, I3DobjectLoader {
+        static double total = TimeSpan.FromSeconds(1).TotalMilliseconds;
+        static double time = (total / 60);
+
         private readonly Context context;
         private readonly FormsHost host;
         private readonly FrameworkElement overlay;
         private SharpDevice sharpDevice;
+        private readonly Stopwatch sw;
         private HelixToolkit.Wpf.SharpDX.EffectsManager effectsManager;
 
         public ViewportNotificator Notificator { get; private set; }
@@ -62,6 +66,8 @@ namespace D3DLab.Core {
             Notificator = new ViewportNotificator();
 
             context = new Context(this);
+
+            sw = new Stopwatch();
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
@@ -73,19 +79,8 @@ namespace D3DLab.Core {
                 Init(obj);  
                 //                RenderLoop.Run(obj, () => OnCompositionTargetRendering(null,null));
                 Task.Run(() => {
-                    var total = TimeSpan.FromSeconds(1).TotalMilliseconds;
-                    var time = (total / 60);
-                    var sw = new Stopwatch();
                     while (true) {
-                        sw.Restart();
                         OnCompositionTargetRendering(obj, null);
-                        sw.Stop();
-                        // Debug.WriteLine("{0} FPS", (int)total / sw.ElapsedMilliseconds);
-                        //                        sw.Stop();
-                        //                        if (sw.ElapsedMilliseconds < time) {
-                        //                            Thread.Sleep((int) (time- sw.ElapsedMilliseconds));
-                        //                        }
-                        //Application.DoEvents();
                     }
                 });
                 //CompositionTarget.Rendering += OnCompositionTargetRendering;
@@ -114,6 +109,8 @@ namespace D3DLab.Core {
         }
 
         private void OnCompositionTargetRendering(WinFormsD3DControl control, EventArgs e) {
+            sw.Restart();
+
             context.Graphics = new Graphics() {
                 SharpDevice = sharpDevice,
                 EffectsManager = effectsManager,
@@ -157,6 +154,15 @@ namespace D3DLab.Core {
             }
             sharpDevice.Present();
 
+            var perfomance = context.GetEntities()
+                .Single(x => x.GetComponent<ViewportBuilder.PerfomanceComponent>() != null)
+                .GetComponent<ViewportBuilder.PerfomanceComponent>();
+
+            sw.Stop();
+
+            perfomance.ElapsedMilliseconds = sw.ElapsedMilliseconds;
+            perfomance.FPS = (int)total / sw.ElapsedMilliseconds;
+           
             Notificator.NotifyRender(context.GetEntities().ToArray());
         }
 

@@ -84,6 +84,21 @@ namespace D3DLab.Debugger.Windows {
             }
         }
 
+        string title;
+        public string Title {
+            get {
+                return title;
+            }
+
+            set {
+                title = value;
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Title)));
+            }
+        }
+
+        
+
+
         public System.ComponentModel.ICollectionView Items { get; set; }
         public ObservableCollection<IVisualTreeEntity> items { get; set; }
         public IEntityComponent SelectedComponent { get; set; }
@@ -183,7 +198,8 @@ namespace D3DLab.Debugger.Windows {
         }
 
         public void Refresh(IEnumerable<Entity> entities) {
-            foreach(var en in entities) {
+            Title = $"Visual Tree [entities {entities.Count()}]";
+            foreach (var en in entities) {
                 if (hash.ContainsKey(en.Tag)){
                     var item = hash[en.Tag];
                     var existed = new HashSet<Guid>();
