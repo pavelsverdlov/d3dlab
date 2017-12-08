@@ -7,12 +7,9 @@ using HelixToolkit.Wpf.SharpDX;
 using Cursor = System.Windows.Forms.Cursor;
 using MouseEventArgs = System.Windows.Forms.MouseEventArgs;
 
-namespace D3DLab.Core.Render
-{
+namespace D3DLab.Core.Render {
 
-
-    public sealed class World
-    {
+    public sealed class World {
         public Matrix WorldMatrix { get; set; }
         public int LightCount { get; set; }
 
@@ -26,10 +23,8 @@ namespace D3DLab.Core.Render
         public Vector2 MousePoint { get; private set; }
 
 
-        public void UpdateInputState()
-        {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
+        public void UpdateInputState() {
+            System.Windows.Application.Current.Dispatcher.Invoke(() => {
 
 
 
@@ -49,8 +44,7 @@ namespace D3DLab.Core.Render
         //  //  return new MouseEventArgs(ea.Button, ea.Clicks, (int)position.X, (int)position.Y, ea.Delta);
         //}
 
-        public Matrix GetViewportMatrix()
-        {
+        public Matrix GetViewportMatrix() {
             return new Matrix(
                 (float)(actualWidth / 2),
                 0,
@@ -75,8 +69,7 @@ namespace D3DLab.Core.Render
         private readonly Control control;
         // public OrthographicCamera Camera { get; set; }
 
-        public World(Control control, double actualWidth, double actualHeight)
-        {
+        public World(Control control, double actualWidth, double actualHeight) {
             this.control = control;
             this.actualHeight = actualHeight;
             this.actualWidth = actualWidth;

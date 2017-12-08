@@ -10,13 +10,13 @@ using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
 
 namespace D3DLab.Core.Components.Behaviors {
-    public sealed class ManipulateInputComponent : InputComponent, IAttachTo<VisualEntity>, ManipulateInputComponent.IInputHandler {
+    public sealed class ManipulateInputComponent : InputObserver , IAttachTo<VisualEntity>, ManipulateInputComponent.IInputHandler {
         public enum InputStates {
             Idle,
             Translate
         }
         public interface IInputHandler : IHandler {
-            void Translate(InputStateDate state);
+            void Translate(InputStateData state);
         }
         private VisualEntity parent;
         public ManipulateInputComponent(Control control) : base(control) {}
@@ -27,14 +27,14 @@ namespace D3DLab.Core.Components.Behaviors {
             states.Add((int)InputStates.Translate, s => new InputTranslateState(s));
 
             var router = new StateHandleProcessor<IInputHandler>(states, this);
-            router.SwitchTo((int)InputStates.Idle, new InputStateDate(control));
+            router.SwitchTo((int)InputStates.Idle, new InputStateData());
             return router;
         }
         private sealed class InputIdleState : InputStateMachine {
             public InputIdleState(StateProcessor processor) : base(processor) { }
-            public override bool OnMouseDown(InputStateDate state) {
+            public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
-                    case MouseButtons.Left:
+                    case GeneralMouseButtons.Left:
                         SwitchTo((int)InputStates.Translate, state);
                         break;
                 }
@@ -48,18 +48,18 @@ namespace D3DLab.Core.Components.Behaviors {
 
             }
 
-            public override bool OnMouseDown(InputStateDate state) {
+            public override bool OnMouseDown(InputStateData state) {
                 return base.OnMouseDown(state);
             }
 
-            public override bool OnMouseUp(InputStateDate state) {
-                if (!state.IsPressed(MouseButtons.Left)) {
+            public override bool OnMouseUp(InputStateData state) {
+                if (!state.IsPressed(GeneralMouseButtons.Left)) {
                     SwitchTo((int)InputStates.Idle, state);
                 }
                 return base.OnMouseUp(state);
             }
 
-            public override bool OnMouseMove(InputStateDate state) {
+            public override bool OnMouseMove(InputStateData state) {
                 Processor.InvokeHandler<IInputHandler>(x=>x.Translate(state));
                 return true;
             }
@@ -69,7 +69,7 @@ namespace D3DLab.Core.Components.Behaviors {
             matrix = Matrix.Identity;
         }
 
-        public void Translate(InputStateDate state) {
+        public void Translate(InputStateData state) {
             var visual = parent;
             var scene = visual.Parent;
             var camera = scene.GetComponents<ICameraComponent>().Single().Data;
@@ -92,7 +92,7 @@ namespace D3DLab.Core.Components.Behaviors {
 //            var endRay = scene.UnProject(state.CurrentPosition);
 //            endRay.Direction *= -1;
 
-            var startRay = scene.Point2DtoRay3D(state.ButtonsStates[MouseButtons.Left].PointDown);
+            var startRay = scene.Point2DtoRay3D(state.ButtonsStates[GeneralMouseButtons.Left].PointDown);
             var endRay = scene.Point2DtoRay3D(state.CurrentPosition);
             startRay.Direction *= -1;
             endRay.Direction *= -1;

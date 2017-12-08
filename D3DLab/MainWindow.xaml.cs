@@ -52,7 +52,7 @@ namespace D3DLab {
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs) {
             Loaded -= OnLoaded;
             var dc = DataContext as MainWindowViewModel;
-            dc.Init(Host);
+            dc.Init(Host, overlay);
         }
 
 //        private void UIElement_OnLoaded(object sender, RoutedEventArgs e) {

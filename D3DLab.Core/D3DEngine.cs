@@ -28,6 +28,7 @@ using Buffer = System.Buffer;
 using Resource = SharpDX.DXGI.Resource;
 using D3DLab.Core.Test;
 using System.IO;
+using System.Linq;
 
 //https://habrahabr.ru/post/199378/
 namespace D3DLab.Core {
@@ -47,13 +48,15 @@ namespace D3DLab.Core {
     public class D3DEngine : ID3DEngine, IDisposable, I3DobjectLoader {
         private readonly Context context;
         private readonly FormsHost host;
+        private readonly FrameworkElement overlay;
         private SharpDevice sharpDevice;
         private HelixToolkit.Wpf.SharpDX.EffectsManager effectsManager;
 
         public ViewportNotificator Notificator { get; private set; }
 
-        public D3DEngine(FormsHost host) {
+        public D3DEngine(FormsHost host, FrameworkElement overlay) {
             this.host = host;
+            this.overlay = overlay;
             host.HandleCreated += OnHandleCreated;
             host.Unloaded += OnUnloaded;
             Notificator = new ViewportNotificator();
@@ -89,16 +92,19 @@ namespace D3DLab.Core {
             }));
         }
 
+        CurrentInputObserver input;
+
         public void Init(WinFormsD3DControl control) {
             sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(control);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
-            
-            context.AddSystem(new CameraInputSystem(control));
+
+            input = new CurrentInputObserver(Application.Current.MainWindow, context);
+
+            context.CreateSystem<CameraSystem>();
             context.CreateSystem<UpdateRenderTechniqueSystem>();
 
-            context.AddSystem(new TargetingInputSystem(control));
-            context.AddSystem(new TargetSystem());            
-            context.AddSystem(new Simple3DMovementSystem());
+            context.CreateSystem<TargetingSystem>();
+            context.CreateSystem<Simple3DMovementSystem>();
             context.CreateSystem<VisualRenderSystem>();
 
             ViewportBuilder.Build(context);
@@ -151,7 +157,7 @@ namespace D3DLab.Core {
             }
             sharpDevice.Present();
 
-            Notificator.NotifyRender();
+            Notificator.NotifyRender(context.GetEntities().ToArray());
         }
 
         private void RenderTest(WinFormsD3DControl form) {

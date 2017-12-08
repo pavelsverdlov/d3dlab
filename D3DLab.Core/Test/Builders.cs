@@ -71,6 +71,10 @@ namespace D3DLab.Core.Test {
 
     public sealed class TransformComponent : Component {
         public Matrix Matrix { get; set; }
+
+        public override string ToString() {
+            return $"Matrix[{Matrix.ToString()}]";
+        }
     }
     
     public sealed class HitableComponent : Component {
