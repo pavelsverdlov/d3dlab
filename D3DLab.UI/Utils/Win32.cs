@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace HwndExtensions.Utils {
+namespace D3DLab.UI.Utils {
     [StructLayout(LayoutKind.Sequential)]
     public struct POINT {
         public int X;
@@ -84,6 +84,8 @@ namespace HwndExtensions.Utils {
 
         [DllImport("user32.dll")]
         public static extern int SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        public const int MA_NOACTIVATE = 0x0003;
 
         public const int
             GWL_STYLE = -16,

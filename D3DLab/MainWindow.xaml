@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:D3DLab"
         xmlns:host="clr-namespace:D3DLab.Core.Host;assembly=D3DLab.Core"
-        xmlns:hwnd="clr-namespace:HwndExtensions.Host;assembly=D3DLab.UI"
-        xmlns:adorner="clr-namespace:HwndExtensions.Adorner;assembly=D3DLab.UI"
+        xmlns:controls="clr-namespace:D3DLab.UI.Controls;assembly=D3DLab.UI"
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1200">
     <Window.Resources>
@@ -16,19 +15,14 @@
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
 
-    <adorner:HwndAdornerManager>
-        <Grid>
-            <hwnd:HwndHostPresenter>
-                <hwnd:HwndHostPresenter.HwndHost>
-                    <host:FormsHost x:Name="Host" Grid.Column="0" />
-                </hwnd:HwndHostPresenter.HwndHost>
-                <hwnd:HwndHostPresenter.Adornment>
-                    <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White">
-                        <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
-                        <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
-                    </DockPanel>
-                </hwnd:HwndHostPresenter.Adornment>
-            </hwnd:HwndHostPresenter>
-        </Grid>
-    </adorner:HwndAdornerManager>
+    <Grid>
+        <host:FormsHost x:Name="Host" />
+
+        <controls:OverlayPanel>
+            <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White">
+                <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
+                <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
+            </DockPanel>
+        </controls:OverlayPanel>
+    </Grid>
 </Window>
