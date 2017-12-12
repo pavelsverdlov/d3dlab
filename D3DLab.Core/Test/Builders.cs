@@ -287,10 +287,20 @@ namespace D3DLab.Core.Test {
             }
         }
 
+        public sealed class InputInfoComponent : Component {
+            public double EventCount { get; set; }
+
+
+            public override string ToString() {
+                return $"InputInfo[EventCount:{EventCount}";
+            }
+        }
+
         public static Entity Build(IEntityManager context) {
             var view = context.CreateEntity("Viewport");
 
             view.AddComponent(new PerfomanceComponent());
+            view.AddComponent(new InputInfoComponent());
 
             return view;
         }

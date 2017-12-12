@@ -118,6 +118,12 @@ namespace D3DLab.Core {
             context.World = new World(control, host.ActualWidth, host.ActualHeight);
             context.World.UpdateInputState();
 
+            var inputInfo = context.GetEntities()
+               .Single(x => x.GetComponent<ViewportBuilder.PerfomanceComponent>() != null)
+               .GetComponent<ViewportBuilder.InputInfoComponent>();
+
+            inputInfo.EventCount = context.Events.Count;
+
             var illuminationSettings = new IlluminationSettings();
 
             illuminationSettings.Ambient = 1;
@@ -145,6 +151,7 @@ namespace D3DLab.Core {
                     }
                 } catch (Exception ex) {
                     ex.ToString();
+                    throw ex;
                 }
                 sharpDevice.Device.ImmediateContext.End(queryForCompletion);
 
