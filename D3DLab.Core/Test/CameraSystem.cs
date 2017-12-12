@@ -29,6 +29,7 @@ namespace D3DLab.Core.Test {
             var state = ev.Data;
             switch (ev.Type) {
                 case AllInputStates.Zoom:
+                    ctx.RemoveEvent(ev);
 
                     var panK = ccom.Width / ctx.Graphics.SharpDevice.Width;
 
@@ -58,10 +59,10 @@ namespace D3DLab.Core.Test {
                     ccom.Position = ccom.Position + panVector;
                     ccom.Width = newWidth;
 
-                    ctx.RemoveEvent(ev);
-
                     break;
                 case AllInputStates.Rotate:
+                    ctx.RemoveEvent(ev);
+
                     var p11 = state.ButtonsStates[GeneralMouseButtons.Right].PointDown;
                     var p2 = state.CurrentPosition;
 
@@ -90,7 +91,7 @@ namespace D3DLab.Core.Test {
                     ccom.LookDirection = Vector3.TransformNormal(ccom.LookDirection.Normalized(), matrixRotate).Normalized();
                     ccom.Position = Vector3.TransformCoordinate(ccom.Position, matrixRotate);
 
-                    ctx.RemoveEvent(ev);
+
                     break;
             }
         }
