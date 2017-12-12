@@ -18,32 +18,32 @@ namespace D3DLab.Core.Test {
             foreach (var entity in emanager.GetEntities()) {
 
                 var movable = entity.GetComponent<Simple3DMovable>();
+
+                if (movable == null) { continue; }
+
                 var transformComponent = entity.GetComponent<TransformComponent>();
+                var target = entity.GetComponent<TargetedComponent>();
+                var captured = entity.GetComponent<Simple3DMovementCaptured>();
 
-                if (movable != null && transformComponent != null) {
-
-                    var captured = entity.GetComponent<Simple3DMovementCaptured>();
-                    var target = entity.GetComponent<TargetedComponent>();
-                    var isLeftButton = ctx.World.MouseButtons == MouseButtons.Left;
-
-                    if (!isLeftButton && target == null) {
-                        entity.RemoveComponent(captured);
-                    } else {
-                        if (captured != null) {
-                            var deltaMovement = Matrix.Identity;
-
-                            var camera = emanager.GetEntities().Where(x => x.GetComponent<CameraBuilder.CameraComponent>() != null).First().GetComponent<CameraBuilder.CameraComponent>();
-                            var rayCurrent = camera.UnProject(-ctx.World.MousePoint, ctx);
-                            var rayPrev = camera.UnProject(-PreviousMouse, ctx);
-                            var deltaVector = rayPrev.Position - rayCurrent.Position;
-                            deltaMovement = Matrix.Translation(deltaVector);
-                            transformComponent.Matrix *= deltaMovement;
-                        } else if (target != null) {
-                            entity.AddComponent(new Simple3DMovementCaptured());
-                        }
-                        PreviousMouse = ctx.World.MousePoint;
-                    }
+                if (target == null) { // moving was finished
+                    entity.RemoveComponent(captured);
+                    continue;
                 }
+
+                if (captured != null) {//already in moving
+                    var deltaMovement = Matrix.Identity;
+
+                    var camera = emanager.GetEntities().Where(x => x.GetComponent<CameraBuilder.CameraComponent>() != null).First().GetComponent<CameraBuilder.CameraComponent>();
+                    var rayCurrent = camera.UnProject(-ctx.World.MousePoint, ctx);
+                    var rayPrev = camera.UnProject(-PreviousMouse, ctx);
+                    var deltaVector = rayPrev.Position - rayCurrent.Position;
+                    deltaMovement = Matrix.Translation(deltaVector);
+                    transformComponent.Matrix *= deltaMovement;
+                } else {//start moving
+                    entity.AddComponent(new Simple3DMovementCaptured());
+                }
+
+                PreviousMouse = ctx.World.MousePoint;
             }
         }
 
