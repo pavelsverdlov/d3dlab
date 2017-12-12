@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using D3DLab.Core.Components;
 
 namespace D3DLab.Core.Test {
     public sealed class GeometryComponent : Component {
@@ -70,13 +71,16 @@ namespace D3DLab.Core.Test {
 
     public sealed class TransformComponent : Component {
         public Matrix Matrix { get; set; }
+
+        public override string ToString() {
+            return $"Matrix[{Matrix.ToString()}]";
+        }
     }
-    
+
     public sealed class HitableComponent : Component {
 
     }
     public sealed class TargetedComponent : Component {
-
     }
 
     //builders
@@ -93,7 +97,7 @@ namespace D3DLab.Core.Test {
                 ReflectiveColor = new Color4(),
                 SpecularShininess = 100f
             };
-            
+
 
             var entity = context.CreateEntity(tag);
             entity.AddComponent(new GeometryComponent() { Geometry = geo });
@@ -102,9 +106,10 @@ namespace D3DLab.Core.Test {
                 BackMaterial = mat,
                 CullMaterial = CullMode.Back
             });
-            entity.AddComponent(new Test.PhongTechniqueRenderComponent ());
+            entity.AddComponent(new Test.PhongTechniqueRenderComponent());
             entity.AddComponent(new Test.TransformComponent { Matrix = SharpDX.Matrix.Identity });
             entity.AddComponent(new HitableComponent());
+            entity.AddComponent(new Simple3DMovable());
 
             return entity;
         }
@@ -122,7 +127,7 @@ namespace D3DLab.Core.Test {
                 variables.LightDir.Set(-world.LookDirection);
                 variables.LightColor.Set(new[] { color });
                 variables.LightType.Set(new[] { 1 /* (int)Light3D.Type.Directional*/ });
-                
+
             }
         }
 
@@ -194,13 +199,47 @@ namespace D3DLab.Core.Test {
             public override string ToString() {
                 return $"[Position:{Position};LookDirection:{LookDirection};UpDirection:{UpDirection};Width:{Width}]";
             }
+
+
+            public Ray UnProject(Vector2 point2d, IContext ctx)//, out Vector3 pointNear, out Vector3 pointFar)
+            {
+                var p = new Vector3((float)point2d.X, (float)point2d.Y, 1);
+
+                var vp = ctx.World.ViewMatrix * ctx.World.ProjectionMatrix * ctx.World.GetViewportMatrix();
+                var vpi = Matrix.Invert(vp);
+                p.Z = 0;
+                Vector3.TransformCoordinate(ref p, ref vpi, out Vector3 zn);
+                p.Z = 1;
+                Vector3.TransformCoordinate(ref p, ref vpi, out Vector3 zf);
+                Vector3 r = zf - zn;
+                r.Normalize();
+
+                switch (this.CameraType) {
+                    case CameraBuilder.CameraTypes.Orthographic:
+                        if (double.IsNaN(zn.X) || double.IsNaN(zn.Y) || double.IsNaN(zn.Z)) {
+                            zn = new Vector3(0, 0, 0);
+                        }
+                        if (double.IsNaN(r.X) || double.IsNaN(r.Y) || double.IsNaN(r.Z) ||
+                            (r.X == 0 && r.Y == 0 && r.Z == 0)) {
+                            r = new Vector3(0, 0, 1);
+                        }
+                        //fix for not valid inverted matrix
+                        return new Ray(zn, r);
+                    case CameraBuilder.CameraTypes.Perspective:
+                        return new Ray(this.Position, r);
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+
+
         }
         public sealed class CameraTechniqueRenderComponent : PhongTechniqueRenderComponent {
 
             public void Update(Graphics graphics, World world, CameraComponent camera) {
                 var variables = graphics.Variables(this.RenderTechnique);
                 var aspectRatio = (float)graphics.SharpDevice.Width / graphics.SharpDevice.Height;
-                
+
                 var projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
                 var viewMatrix = camera.CreateViewMatrix();
                 var viewport = Vector4.Zero;
@@ -237,10 +276,21 @@ namespace D3DLab.Core.Test {
         }
     }
     public static class ViewportBuilder {
+
+        public sealed class PerfomanceComponent : Component {
+            public double ElapsedMilliseconds { get; set; }
+            public double FPS { get; set; }
+
+
+            public override string ToString() {
+                return $"Perfomance[ElapsedMilliseconds:{ElapsedMilliseconds} FPS:{FPS}]";
+            }
+        }
+
         public static Entity Build(IEntityManager context) {
             var view = context.CreateEntity("Viewport");
 
-           // view.AddComponent();
+            view.AddComponent(new PerfomanceComponent());
 
             return view;
         }

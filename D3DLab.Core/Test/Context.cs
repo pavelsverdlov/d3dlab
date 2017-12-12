@@ -1,4 +1,5 @@
 ﻿using D3DLab.Core.Entities;
+using D3DLab.Core.Input;
 using D3DLab.Core.Render;
 using System;
 using System.Collections.Generic;
@@ -19,16 +20,43 @@ namespace D3DLab.Core.Test {
     public interface ISystemManager {
         TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem;
         IEnumerable<IComponentSystem> GetSystems();
-        void AddSystem(IComponentSystem system);
+        //void AddSystem(IComponentSystem system);
     }
 
-    public interface IContext {
+    public interface IInputContext {
+        List<InputEventState> Events { get; }
+        void AddEvent(InputEventState inputEventState);
+        void RemoveEvent(InputEventState inputEventState);
+    }
+
+    public interface IContext : IInputContext{
         Graphics Graphics { get; }
         World World { get; }
     }
 
+    public enum AllInputStates {
+        Idle = 0,
+        Rotate = 1,
+        Pan = 2,
+        Zoom = 3,
+        Target = 4,
+        UnTarget = 5
+    }
 
-    public class Context : IContext, ISystemManager, IEntityManager, IComponentManager {
+    public class Context : IContext, ISystemManager, IEntityManager, IComponentManager, IInputContext {
+
+        #region IInputContext
+        
+        public List<InputEventState> Events { get; }
+        public void AddEvent(InputEventState ev) {
+            Events.Add(ev);
+        }
+        public void RemoveEvent(InputEventState ev) {
+            Events.Remove(ev);
+        }
+
+        #endregion
+
         readonly List<Entity> entities = new List<Entity>();
         readonly Dictionary<string, List<IComponent>> components = new Dictionary<string, List<IComponent>>();
         readonly List<IComponentSystem> systems = new List<IComponentSystem>();
@@ -43,10 +71,10 @@ namespace D3DLab.Core.Test {
         
         public Graphics Graphics { get; set; }
         public World World { get; set; }
-
         public IEnumerable<Entity> GetEntities() {
             return entities;
         }
+
 
         public TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem {
             var sys = Activator.CreateInstance<TSystem>();
@@ -57,10 +85,10 @@ namespace D3DLab.Core.Test {
         public IEnumerable<IComponentSystem> GetSystems() {
             return systems;
         }
-        public void AddSystem(IComponentSystem system) {
-            systems.Add(system);
-            d3DEngine.Notificator.NotifyChange(system);
-        }
+        //public void AddSystem(IComponentSystem system) {
+        //    systems.Add(system);
+        //    d3DEngine.Notificator.NotifyChange(system);
+        //}
 
         public IComponent AddComponent(string tagEntity, IComponent com) {
             components[tagEntity].Add(com);
@@ -73,10 +101,13 @@ namespace D3DLab.Core.Test {
            // d3DEngine.Notificator.NotifyChange(entities.Single(x => x.Tag == tagEntity));
         }
 
+      
+
         readonly D3DEngine d3DEngine;
 
         public Context(D3DEngine d3DEngine) {
             this.d3DEngine = d3DEngine;
+            Events = new List<InputEventState>();
         }
     }
 

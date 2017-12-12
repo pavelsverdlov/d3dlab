@@ -12,7 +12,7 @@ namespace D3DLab.Core.Viewport {
     }
 
     public interface IViewportRenderSubscriber : IViewportSubscriber {
-        void Render();
+        void Render(IEnumerable<Entity> entities);
     }
 
     public interface IViewportNotificator {
@@ -35,10 +35,10 @@ namespace D3DLab.Core.Viewport {
                 handler.Add(_object);
             }
         }
-        public void NotifyRender() {
+        public void NotifyRender(IEnumerable<Entity> entities) {
             var handlers = subscribers.OfType<IViewportRenderSubscriber>();
             foreach (var handler in handlers) {
-                handler.Render();
+                handler.Render(entities);
             }
         }
     }

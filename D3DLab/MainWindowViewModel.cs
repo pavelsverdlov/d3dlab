@@ -12,6 +12,7 @@ using D3DLab.Debugger.Windows;
 using D3DLab.Core.Test;
 using System.Windows.Input;
 using D3DLab.Properties;
+using System.Windows;
 
 namespace D3DLab {
     public sealed class MainWindowViewModel {
@@ -29,8 +30,8 @@ namespace D3DLab {
             subscriber = new ViewportSubscriber(this);
         }
 
-        public void Init(FormsHost host) {
-            engine = new D3DEngine(host);
+        public void Init(FormsHost host, FrameworkElement overlay) {
+            engine = new D3DEngine(host, overlay);
             engine.Notificator.Subscribe(subscriber);
 
             VisualTreeviewer.Show();
@@ -70,9 +71,9 @@ namespace D3DLab {
             }));
         }
 
-        public void Render() {
+        public void Render(IEnumerable<Entity> entities) {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.ViewModel.Refresh();
+                mv.VisualTreeviewer.ViewModel.Refresh(entities);
             }));
         }
     }

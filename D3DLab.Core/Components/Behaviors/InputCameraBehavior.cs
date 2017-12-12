@@ -15,8 +15,8 @@ namespace D3DLab.Core.Components.Behaviors {
             Zoom = 3
         }
         public interface IInputHandler : IHandler{
-            bool Rotate(InputStateDate state);
-            void Zoom(InputStateDate state);
+            bool Rotate(InputStateData state);
+            void Zoom(InputStateData state);
         }
        
         protected abstract class CameraStateMachine : InputStateMachine {
@@ -26,22 +26,22 @@ namespace D3DLab.Core.Components.Behaviors {
 
         protected sealed class InputIdleState : CameraStateMachine {
             public InputIdleState(StateProcessor processor) : base(processor) {}
-            public override bool OnMouseDown(InputStateDate state) {
+            public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
-                    case MouseButtons.Left | MouseButtons.Right:
+                    case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
                         SwitchTo((int)InputStates.Pan, state);
                         break;
-                    case MouseButtons.Right:
+                    case GeneralMouseButtons.Right:
                         SwitchTo((int)InputStates.Rotate, state);
                         break;
-                    case MouseButtons.Middle:
-                        //    SwitchTo(InputControllerState.DownMiddle, state);
-                        break;
+                    //case GeneralMouseButtons.Middle:
+                    //    //    SwitchTo(InputControllerState.DownMiddle, state);
+                    //    break;
                 }
                 return base.OnMouseDown(state);
             }
 
-            public override bool OnMouseWheel(InputStateDate state) {
+            public override bool OnMouseWheel(InputStateData state) {
                 SwitchTo((int)InputStates.Zoom, state);
                 return base.OnMouseWheel(state);
             }
@@ -51,24 +51,24 @@ namespace D3DLab.Core.Components.Behaviors {
             public InputRotateState(StateProcessor processor) : base(processor) {
                 // Cursor.Hide();
             }
-            public override bool OnMouseUp(InputStateDate state) {
-                if ((state.Buttons & MouseButtons.Right) != MouseButtons.Right) {
+            public override bool OnMouseUp(InputStateData state) {
+                if ((state.Buttons & GeneralMouseButtons.Right) != GeneralMouseButtons.Right) {
                     Cursor.Show();
                     SwitchTo((int)InputStates.Idle, state);
                 }
                 
                 return base.OnMouseUp(state);
             }
-            public override bool OnMouseDown(InputStateDate state) {
+            public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
-                    case MouseButtons.Left | MouseButtons.Right:
+                    case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
                         SwitchTo((int)InputStates.Pan, state);
                         break;
                 }
                 return base.OnMouseDown(state);
             }
-            public override bool OnMouseMove(InputStateDate state) {
-                Cursor.Position = state.ButtonsStates[MouseButtons.Right].CursorPointDown;
+            public override bool OnMouseMove(InputStateData state) {
+                Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPointDown;
                 Processor.InvokeHandler<IInputHandler>(x=>x.Rotate(state));
                 return true;
             }
@@ -76,8 +76,8 @@ namespace D3DLab.Core.Components.Behaviors {
         protected sealed class InputPanState : CameraStateMachine {
             public InputPanState(StateProcessor processor) : base(processor) {
             }
-            public override bool OnMouseUp(InputStateDate state) {
-                if ((state.Buttons & MouseButtons.Right) != MouseButtons.Right) {
+            public override bool OnMouseUp(InputStateData state) {
+                if ((state.Buttons & GeneralMouseButtons.Right) != GeneralMouseButtons.Right) {
                     Cursor.Show();
                     SwitchTo((int)InputStates.Idle, state);
                 }
@@ -88,12 +88,12 @@ namespace D3DLab.Core.Components.Behaviors {
 
         protected sealed class InputZoomState : CameraStateMachine {
             public InputZoomState(StateProcessor processor) : base(processor) {}
-            public override bool OnMouseWheel(InputStateDate state) {
+            public override bool OnMouseWheel(InputStateData state) {
                 Processor.InvokeHandler<IInputHandler>(x => x.Zoom(state));
                 return true;
             }
 
-            public override bool OnMouseMove(InputStateDate state) {
+            public override bool OnMouseMove(InputStateData state) {
                 SwitchTo((int)InputStates.Idle, state);
                 return false;
             }
@@ -107,7 +107,7 @@ namespace D3DLab.Core.Components.Behaviors {
             states.Add((int)InputStates.Zoom, s => new InputZoomState(s));
 
             var router = new StateHandleProcessor<IInputHandler>(states, this);
-            router.SwitchTo((int)InputStates.Idle, new InputStateDate(control));
+            router.SwitchTo((int)InputStates.Idle, new InputStateData());
             return router;
         }
 
@@ -121,7 +121,7 @@ namespace D3DLab.Core.Components.Behaviors {
 
         static float kr = -0.35f;
 
-        public void Zoom(InputStateDate state) {
+        public void Zoom(InputStateData state) {
             var panK = Parent.Data.Width / state.ControlWidth;
 
             int delta = state.Delta;
@@ -166,7 +166,7 @@ namespace D3DLab.Core.Components.Behaviors {
         }
 
 
-        public bool Rotate(InputStateDate state) {
+        public bool Rotate(InputStateData state) {
             var p1 = state.ButtonsStates[MouseButtons.Right].PointDown;
             var p2 = state.CurrentPosition;
 

@@ -28,6 +28,7 @@ using Buffer = System.Buffer;
 using Resource = SharpDX.DXGI.Resource;
 using D3DLab.Core.Test;
 using System.IO;
+using System.Linq;
 
 //https://habrahabr.ru/post/199378/
 namespace D3DLab.Core {
@@ -45,60 +46,60 @@ namespace D3DLab.Core {
     }
 
     public class D3DEngine : ID3DEngine, IDisposable, I3DobjectLoader {
+        static double total = TimeSpan.FromSeconds(1).TotalMilliseconds;
+        static double time = (total / 60);
+
         private readonly Context context;
         private readonly FormsHost host;
+        private readonly FrameworkElement overlay;
         private SharpDevice sharpDevice;
+        private readonly Stopwatch sw;
         private HelixToolkit.Wpf.SharpDX.EffectsManager effectsManager;
 
         public ViewportNotificator Notificator { get; private set; }
 
-        public D3DEngine(FormsHost host) {
+        public D3DEngine(FormsHost host, FrameworkElement overlay) {
             this.host = host;
+            this.overlay = overlay;
             host.HandleCreated += OnHandleCreated;
             host.Unloaded += OnUnloaded;
             Notificator = new ViewportNotificator();
 
             context = new Context(this);
+
+            sw = new Stopwatch();
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
-            CompositionTarget.Rendering -= OnCompositionTargetRendering;
+            //CompositionTarget.Rendering -= OnCompositionTargetRendering;
             Dispose();
         }
         private void OnHandleCreated(WinFormsD3DControl obj) {
             Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                Init(obj);
+                Init(obj);  
                 //                RenderLoop.Run(obj, () => OnCompositionTargetRendering(null,null));
                 Task.Run(() => {
-                    var total = TimeSpan.FromSeconds(1).TotalMilliseconds;
-                    var time = (total / 60);
-                    var sw = new Stopwatch();
                     while (true) {
-                        sw.Restart();
-                        OnCompositionTargetRendering(null, null);
-                        sw.Stop();
-                        // Debug.WriteLine("{0} FPS", (int)total / sw.ElapsedMilliseconds);
-                        //                        sw.Stop();
-                        //                        if (sw.ElapsedMilliseconds < time) {
-                        //                            Thread.Sleep((int) (time- sw.ElapsedMilliseconds));
-                        //                        }
-                        //Application.DoEvents();
+                        OnCompositionTargetRendering(obj, null);
                     }
                 });
                 //CompositionTarget.Rendering += OnCompositionTargetRendering;
             }));
         }
 
+        CurrentInputObserver input;
+
         public void Init(WinFormsD3DControl control) {
             sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(control);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
-            
-            context.AddSystem(new CameraInputSystem(control));
+
+            input = new CurrentInputObserver(Application.Current.MainWindow, context);
+
+            context.CreateSystem<CameraSystem>();
             context.CreateSystem<UpdateRenderTechniqueSystem>();
 
-            context.AddSystem(new TargetingInputSystem(control));
-            context.AddSystem(new TargetSystem());            
-
+            context.CreateSystem<TargetingSystem>();
+            context.CreateSystem<Simple3DMovementSystem>();
             context.CreateSystem<VisualRenderSystem>();
 
             ViewportBuilder.Build(context);
@@ -107,13 +108,15 @@ namespace D3DLab.Core {
             //VisualModelBuilder.Build(context);
         }
 
-        private void OnCompositionTargetRendering(object sender, EventArgs e) {
+        private void OnCompositionTargetRendering(WinFormsD3DControl control, EventArgs e) {
+            sw.Restart();
+
             context.Graphics = new Graphics() {
                 SharpDevice = sharpDevice,
                 EffectsManager = effectsManager,
             };
-            context.World = new World(host.ActualWidth, host.ActualHeight);
-            
+            context.World = new World(control, host.ActualWidth, host.ActualHeight);
+            context.World.UpdateInputState();
 
             var illuminationSettings = new IlluminationSettings();
 
@@ -151,7 +154,16 @@ namespace D3DLab.Core {
             }
             sharpDevice.Present();
 
-            Notificator.NotifyRender();
+            var perfomance = context.GetEntities()
+                .Single(x => x.GetComponent<ViewportBuilder.PerfomanceComponent>() != null)
+                .GetComponent<ViewportBuilder.PerfomanceComponent>();
+
+            sw.Stop();
+
+            perfomance.ElapsedMilliseconds = sw.ElapsedMilliseconds;
+            perfomance.FPS = (int)total / sw.ElapsedMilliseconds;
+           
+            Notificator.NotifyRender(context.GetEntities().ToArray());
         }
 
         private void RenderTest(WinFormsD3DControl form) {
