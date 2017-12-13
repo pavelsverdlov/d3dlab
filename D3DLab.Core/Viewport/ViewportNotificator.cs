@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using D3DLab.Core.Components;
 using D3DLab.Core.Test;
-using D3DLab.Core.Visual3D;
 
 namespace D3DLab.Core.Viewport {
     public interface IViewportSubscriber { }

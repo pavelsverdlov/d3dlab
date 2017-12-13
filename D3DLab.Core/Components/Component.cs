@@ -1,43 +1,27 @@
-﻿using D3DLab.Core.Test;
+﻿using D3DLab.Core.Render;
+using SharpDX;
+using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace D3DLab.Core.Components {
-    public abstract class Component : IComponent {
-        private readonly string tag;
+namespace D3DLab.Core.Common {
+    public interface ID3DComponent : IDisposable {
+        Guid Guid { get; }
+    }
+    
+    public abstract class D3DComponent : ID3DComponent {
+        public Guid Guid { get; }
 
-        public Guid Guid => Guid.NewGuid();
-
-        protected Component() {
-            tag = this.GetType().Name;
-        }
-        protected Component(string tag) {
-            this.tag = tag;
-        }
-
-        public virtual void Dispose() {}
-
-        public void AttachTo<T>(T parent) where T : Component {
-            var attachment = this as IAttachTo<T>;
-            attachment?.OnAttach(parent);
-        }
-        protected void AttachToParent(ICanAttach com, dynamic parent) {
-            com.AttachTo(parent);
+        protected D3DComponent() {
+            Guid = Guid.NewGuid();
         }
 
-        /// <summary>
-        /// this method should invoke before rendering 
-        /// all getting data from scene can be handled in update because it is no effection in scene 
-        /// all effect will be after render
-        /// (World& world, Graphics& graphics)
-        /// </summary>
-        public virtual void Update() { }
+        public void Dispose() {
 
-        public override string ToString() {
-            return $"[Component {tag}]";
         }
     }
 }

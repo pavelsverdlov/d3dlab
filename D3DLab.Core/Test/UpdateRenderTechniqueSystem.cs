@@ -1,4 +1,6 @@
-﻿namespace D3DLab.Core.Test {
+﻿using D3DLab.Core.Components;
+
+namespace D3DLab.Core.Test {
     public class UpdateRenderTechniqueSystem : IComponentSystem {
         public void Execute(IEntityManager emanager, IContext ctx) {
             foreach (var entity in emanager.GetEntities()) {

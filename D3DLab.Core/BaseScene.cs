@@ -1,14 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using D3DLab.Core.Components;
-using D3DLab.Core.Entities;
-using SharpDX;
-using Matrix = SharpDX.Matrix;
-
-namespace D3DLab.Core {
+﻿namespace D3DLab.Core {/*
     public sealed class SceneData {
         public IViewportControl Viewport { get; set; }
     }
@@ -143,7 +133,7 @@ namespace D3DLab.Core {
             //                var bitmap = GenerateBackGroundBitmapSource(Background, 100, 100);
             //                backGroundRenderData.Material = new PhongMaterial() { DiffuseMap = bitmap };
             //            }
-        }*/
+        }
 
         private static BitmapSource GenerateBackGroundBitmapSource(Brush brush, int height, int width) {
 
@@ -163,5 +153,5 @@ namespace D3DLab.Core {
         }
         
     }
-
+    */
 }

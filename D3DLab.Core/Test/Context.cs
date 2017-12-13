@@ -1,4 +1,4 @@
-﻿using D3DLab.Core.Entities;
+﻿using D3DLab.Core.Common;
 using D3DLab.Core.Input;
 using D3DLab.Core.Render;
 using System;
@@ -14,8 +14,8 @@ namespace D3DLab.Core.Test {
         IEnumerable<Entity> GetEntities();
     }
     public interface IComponentManager {
-        IComponent AddComponent(string tagEntity, IComponent com);
-        void RemoveComponent(string tagEntity, IComponent com);
+        ID3DComponent AddComponent(string tagEntity, ID3DComponent com);
+        void RemoveComponent(string tagEntity, ID3DComponent com);
     }
     public interface ISystemManager {
         TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem;
@@ -58,14 +58,14 @@ namespace D3DLab.Core.Test {
         #endregion
 
         readonly List<Entity> entities = new List<Entity>();
-        readonly Dictionary<string, List<IComponent>> components = new Dictionary<string, List<IComponent>>();
+        readonly Dictionary<string, List<ID3DComponent>> components = new Dictionary<string, List<ID3DComponent>>();
         readonly List<IComponentSystem> systems = new List<IComponentSystem>();
                 
         public Entity CreateEntity(string tag) {
             var en = new Entity(tag, this);
             entities.Add(en);
             d3DEngine.Notificator.NotifyChange(en);
-            components.Add(en.Tag, new List<IComponent>());
+            components.Add(en.Tag, new List<ID3DComponent>());
             return en;
         }
         
@@ -90,13 +90,13 @@ namespace D3DLab.Core.Test {
         //    d3DEngine.Notificator.NotifyChange(system);
         //}
 
-        public IComponent AddComponent(string tagEntity, IComponent com) {
+        public ID3DComponent AddComponent(string tagEntity, ID3DComponent com) {
             components[tagEntity].Add(com);
             //3DEngine.Notificator.NotifyChange(entities.Single(x=>x.Tag == tagEntity));
             return com;
         }
 
-        public void RemoveComponent(string tagEntity, IComponent com) {
+        public void RemoveComponent(string tagEntity, ID3DComponent com) {
             components[tagEntity].Remove(com);
            // d3DEngine.Notificator.NotifyChange(entities.Single(x => x.Tag == tagEntity));
         }

@@ -3,31 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using D3DLab.Core.Common;
 
 namespace D3DLab.Core.Test {
     public sealed class Entity  {
         public string Tag { get; }
-        private readonly List<IComponent> components;
+        private readonly List<ID3DComponent> components;
         readonly IComponentManager manager;
 
         public Entity(string tag, IComponentManager manager) {
             this.manager = manager;
             Tag = tag;
-            components = new List<IComponent>();
+            components = new List<ID3DComponent>();
         }
-        public T GetComponent<T>() where T : IComponent {
+        public T GetComponent<T>() where T : ID3DComponent {
             return components.OfType<T>().FirstOrDefault();
         }
 
-        public void AddComponent<T>(T component) where T : IComponent {
+        public void AddComponent<T>(T component) where T : ID3DComponent {
             components.Add(manager.AddComponent(Tag, component));
         }
-        public void RemoveComponent(IComponent component) {
+        public void RemoveComponent(ID3DComponent component) {
             components.Remove(component);
             manager.RemoveComponent(Tag, component);            
         }
 
-        public IEnumerable<IComponent> GetComponents() {
+        public IEnumerable<ID3DComponent> GetComponents() {
             return components.ToList();
         }
     }

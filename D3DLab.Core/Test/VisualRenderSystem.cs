@@ -1,12 +1,39 @@
-﻿using D3DLab.Core.Render;
-using D3DLab.Core.Render.Components;
+﻿using D3DLab.Core.Components;
+using D3DLab.Core.Render;
 using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using System;
 
 namespace D3DLab.Core.Test {
     public class VisualRenderSystem : IComponentSystem {
+        public abstract class VisualRenderData : IDisposable {
+            public global::SharpDX.Direct3D11.Buffer VertexBuffer;
+            public global::SharpDX.Direct3D11.Buffer IndexBuffer;
+
+            public virtual void Dispose() {
+                VertexBuffer.Dispose();
+                IndexBuffer.Dispose();
+            }
+        }
+        public sealed class RenderData : VisualRenderData {
+            public readonly global::SharpDX.Direct3D11.Buffer InstanceBuffer;
+            public readonly RasterizerState RasterState;
+
+            public DuplexMaterialRenderData MaterialData;
+
+            public RenderData() {
+                InstanceBuffer = null;
+                RasterState = null;
+            }
+
+            public override void Dispose() {
+                base.Dispose();
+                MaterialData.Dispose();
+            }
+        }
+
         public void Execute(IEntityManager emanager, IContext ctx) {
             foreach (var entity in emanager.GetEntities()) {
                 var render = entity.GetComponent<PhongTechniqueRenderComponent>();               

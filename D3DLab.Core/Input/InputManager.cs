@@ -149,7 +149,7 @@ namespace D3DLab.Core.Input {
             states.Add((int)AllInputStates.Idle, s => new InputIdleState(s));
             states.Add((int)AllInputStates.Rotate, s => new InputRotateState(s));
             states.Add((int)AllInputStates.Zoom, s => new InputZoomState(s));
-            states.Add((int)AllInputStates.Pan, s => new InputPanState(s));
+            //states.Add((int)AllInputStates.Pan, s => new InputPanState(s));
 
             states.Add((int)AllInputStates.Target, s => new InputTargetState(s));
 

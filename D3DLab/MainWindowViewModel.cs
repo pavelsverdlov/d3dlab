@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using D3DLab.Core;
-using D3DLab.Core.Components;
 using D3DLab.Core.Host;
 using D3DLab.Core.Viewport;
 using D3DLab.Core.Visual3D;

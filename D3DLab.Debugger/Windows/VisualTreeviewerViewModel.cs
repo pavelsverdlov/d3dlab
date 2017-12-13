@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using D3DLab.Core.Test;
 using System.Windows.Data;
+using D3DLab.Core.Common;
 
 namespace D3DLab.Debugger.Windows {
     public interface IVisualEntity {
@@ -25,7 +26,7 @@ namespace D3DLab.Debugger.Windows {
         void Add(IEntityComponent com);
         void Remove(IEntityComponent com);
         void Clear();
-        bool TryRefresh(IComponent com);
+        bool TryRefresh(ID3DComponent com);
         //void Refresh();
     }
 
@@ -36,9 +37,9 @@ namespace D3DLab.Debugger.Windows {
     public class VisualProperty : IEntityComponent, System.ComponentModel.INotifyPropertyChanged {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
-        private IComponent com;
+        private ID3DComponent com;
 
-        public VisualProperty(IComponent com) {
+        public VisualProperty(ID3DComponent com) {
             this.com = com;
         }
 
@@ -48,7 +49,7 @@ namespace D3DLab.Debugger.Windows {
 
         public string Value { get; set; }
 
-        public IComponent GetPropertyObject() {
+        public ID3DComponent GetPropertyObject() {
             return com;
         }
 
@@ -141,7 +142,7 @@ namespace D3DLab.Debugger.Windows {
                 hash.Remove(com.Guid);
             }
 
-            public bool TryRefresh(IComponent com) {
+            public bool TryRefresh(ID3DComponent com) {
                 if (!hash.ContainsKey(com.Guid)) {
                     return false;
                 }

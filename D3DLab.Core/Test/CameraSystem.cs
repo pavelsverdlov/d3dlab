@@ -1,11 +1,8 @@
-﻿using D3DLab.Core.Components;
-using D3DLab.Core.Input;
+﻿using D3DLab.Core.Input;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using SharpDX;
-using System;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace D3DLab.Core.Test {
     public class CameraSystem : IComponentSystem {

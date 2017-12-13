@@ -1,10 +1,8 @@
-﻿using D3DLab.Core.Components;
-using SharpDX;
-using System;
+﻿using SharpDX;
 using System.Linq;
-using System.Windows.Forms;
 using HelixToolkit.Wpf.SharpDX;
 using D3DLab.Core.Input;
+using D3DLab.Core.Components;
 
 namespace D3DLab.Core.Test {
     public sealed class TargetingSystem : IComponentSystem {

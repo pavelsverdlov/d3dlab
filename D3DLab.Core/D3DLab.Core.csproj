@@ -84,27 +84,19 @@
   <ItemGroup>
     <Compile Include="BaseScene.cs" />
     <Compile Include="Common\Disposable.cs" />
-    <Compile Include="Components\Behaviors\CameraViewsComponent.cs" />
+    <Compile Include="Components\GeometryComponent.cs" />
+    <Compile Include="Components\MaterialComponent.cs" />
+    <Compile Include="Components\Movable.cs" />
+    <Compile Include="Components\Rendrable.cs" />
+    <Compile Include="Components\Transformable.cs" />
+    <Compile Include="Entities\ViewportBuilder.cs" />
+    <Compile Include="Entities\CameraBuilder.cs" />
+    <Compile Include="Entities\LightBuilder.cs" />
+    <Compile Include="Entities\VisualModelBuilder.cs" />
     <Compile Include="Test\CameraSystem.cs" />
-    <Compile Include="Test\Simple3DMovable.cs" />
-    <Compile Include="Components\Component.cs" />
-    <Compile Include="Components\ComponentContainer.cs" />
-    <Compile Include="Components\IHaveDependency.cs" />
-    <Compile Include="Common\InputBehaviourTree.cs" />
     <Compile Include="Input\InputObserver.cs" />
-    <Compile Include="Entities\DirectionalLightEntity.cs" />
-    <Compile Include="Entities\Entity.cs" />
-    <Compile Include="Entities\LineEntity.cs" />
-    <Compile Include="Entities\OrthographicCameraEntity.cs" />
-    <Compile Include="Entities\SceneAttachedEntity.cs" />
-    <Compile Include="Entities\VisualEntity.cs" />
-    <Compile Include="Render\Components\DirectionalLightRenderComponent.cs" />
-    <Compile Include="Components\Render\RenderComponent.cs" />
-    <Compile Include="Render\Components\LineRenderComponent.cs" />
-    <Compile Include="Render\Components\VisualRenderComponent.cs" />
-    <Compile Include="Render\IRenderComponent.cs" />
+    <Compile Include="Components\VisaualLineComponent.cs" />
     <Compile Include="Render\Graphics.cs" />
-    <Compile Include="Components\Render\InternalComponentsRender.cs" />
     <Compile Include="Render\World.cs" />
     <Compile Include="D3DEngine.cs" />
     <Compile Include="Events\EventRegistry.cs" />
@@ -121,16 +113,12 @@
     <Compile Include="Input\InputSupportToEvents.cs" />
     <Compile Include="Input\MouseKeyboardMessageFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Render\BaseRenderer.cs" />
-    <Compile Include="Render\Components\OrthographicCameraRenderComponent.cs" />
     <Compile Include="Render\DuplexMaterialRenderData.cs" />
     <Compile Include="Render\MaterialRenderData.cs" />
-    <Compile Include="Test\Builders.cs" />
-    <Compile Include="Test\Component.cs" />
+    <Compile Include="Components\Component.cs" />
     <Compile Include="Test\Context.cs" />
     <Compile Include="Test\Entity.cs" />
     <Compile Include="Input\InputManager.cs" />
-    <Compile Include="Test\Simple3DMovementCaptured.cs" />
     <Compile Include="Test\Simple3DMovementSystem.cs" />
     <Compile Include="Test\Systems.cs" />
     <Compile Include="Test\TargetingSystem.cs" />
@@ -142,7 +130,6 @@
   <ItemGroup>
     <Folder Include="D3D\_11\" />
     <Folder Include="File\" />
-    <Folder Include="Render\Shader\" />
     <Folder Include="View\" />
   </ItemGroup>
   <ItemGroup>
