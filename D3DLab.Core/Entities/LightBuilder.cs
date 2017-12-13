@@ -2,6 +2,7 @@
 using SharpDX;
 using D3DLab.Core.Common;
 using D3DLab.Core.Components;
+using D3DLab.Core.Entities;
 
 namespace D3DLab.Core.Test {
     public static class LightBuilder {

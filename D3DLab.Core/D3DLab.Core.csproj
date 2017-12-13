@@ -89,6 +89,7 @@
     <Compile Include="Components\Movable.cs" />
     <Compile Include="Components\Rendrable.cs" />
     <Compile Include="Components\Transformable.cs" />
+    <Compile Include="Entities\ArrowBuilder.cs" />
     <Compile Include="Entities\ViewportBuilder.cs" />
     <Compile Include="Entities\CameraBuilder.cs" />
     <Compile Include="Entities\LightBuilder.cs" />
@@ -117,7 +118,7 @@
     <Compile Include="Render\MaterialRenderData.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Test\Context.cs" />
-    <Compile Include="Test\Entity.cs" />
+    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Test\Simple3DMovementSystem.cs" />
     <Compile Include="Test\Systems.cs" />

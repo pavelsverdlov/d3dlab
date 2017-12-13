@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using D3DLab.Core.Common;
+using D3DLab.Core.Test;
 
-namespace D3DLab.Core.Test {
+namespace D3DLab.Core.Entities {
     public sealed class Entity  {
         public string Tag { get; }
         private readonly List<ID3DComponent> components;

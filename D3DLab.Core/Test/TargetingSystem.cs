@@ -3,6 +3,7 @@ using System.Linq;
 using HelixToolkit.Wpf.SharpDX;
 using D3DLab.Core.Input;
 using D3DLab.Core.Components;
+using D3DLab.Core.Entities;
 
 namespace D3DLab.Core.Test {
     public sealed class TargetingSystem : IComponentSystem {

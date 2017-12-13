@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using D3DLab.Core.Entities;
 using D3DLab.Core.Test;
 
 namespace D3DLab.Core.Viewport {

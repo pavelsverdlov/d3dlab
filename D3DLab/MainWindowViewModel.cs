@@ -12,6 +12,7 @@ using D3DLab.Core.Test;
 using System.Windows.Input;
 using D3DLab.Properties;
 using System.Windows;
+using D3DLab.Core.Entities;
 
 namespace D3DLab {
     public sealed class MainWindowViewModel {

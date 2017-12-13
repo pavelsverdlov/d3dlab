@@ -1,4 +1,5 @@
 ﻿using D3DLab.Core.Common;
+using D3DLab.Core.Entities;
 using D3DLab.Core.Input;
 using D3DLab.Core.Render;
 using System;

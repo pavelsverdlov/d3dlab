@@ -1,7 +1,7 @@
 ﻿using D3DLab.Core.Common;
 
 namespace D3DLab.Core.Components {
-    public sealed class GeometryComponent : D3DComponent {
+    public class GeometryComponent : D3DComponent {
         public HelixToolkit.Wpf.SharpDX.MeshGeometry3D Geometry { get; set; }
 
         public override string ToString() {

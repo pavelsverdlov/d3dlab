@@ -100,6 +100,7 @@ namespace D3DLab.Core {
             ViewportBuilder.Build(context);
             CameraBuilder.BuildOrthographicCamera(context);
             LightBuilder.BuildDirectionalLight(context);
+            ArrowBuilder.Build(context);
             //VisualModelBuilder.Build(context);
         }
 

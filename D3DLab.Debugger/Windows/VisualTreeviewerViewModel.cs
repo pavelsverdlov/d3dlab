@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using D3DLab.Core.Test;
 using System.Windows.Data;
 using D3DLab.Core.Common;
+using D3DLab.Core.Entities;
 
 namespace D3DLab.Debugger.Windows {
     public interface IVisualEntity {
