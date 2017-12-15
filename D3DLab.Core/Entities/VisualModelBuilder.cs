@@ -34,7 +34,7 @@ namespace D3DLab.Core.Test {
             });
             entity.AddComponent(new PhongTechniqueRenderComponent());
             //var tr = new Test.TransformComponent { Matrix = Matrix.Translation(new Vector3((float)random.Next(100, 500), (float)random.Next(100, 500), (float)random.Next(100, 500))) };
-            var tr = new TransformComponent { Matrix = Matrix.Identity };
+            var tr = new TransformComponent ();
 
             //if(TransformComponent != null) {
             //    entity.AddComponent(new RefTransformComponent(TransformComponent, Matrix.Translation(new Vector3((float)random.Next(100, 300), (float)random.Next(100, 300), (float)random.Next(100, 300)))));
@@ -43,7 +43,7 @@ namespace D3DLab.Core.Test {
             //}            
             // entity.AddComponent(TransformComponent);
             entity.AddComponent(new HitableComponent());
-            entity.AddComponent(new Simple3DMovable());
+            entity.AddComponent(new ManipulationComponent());
 
             TransformComponent = tr;
 

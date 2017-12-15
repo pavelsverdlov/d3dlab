@@ -94,14 +94,14 @@ namespace D3DLab.Core {
             context.CreateSystem<UpdateRenderTechniqueSystem>();
 
             context.CreateSystem<TargetingSystem>();
-            context.CreateSystem<Simple3DMovementSystem>();
+            context.CreateSystem<MovementSystem>();
             context.CreateSystem<VisualRenderSystem>();
 
             ViewportBuilder.Build(context);
             CameraBuilder.BuildOrthographicCamera(context);
             LightBuilder.BuildDirectionalLight(context);
-            ArrowBuilder.Build(context);
-            //VisualModelBuilder.Build(context);
+           
+
         }
 
         private void OnCompositionTargetRendering(WinFormsD3DControl control, EventArgs e) {
@@ -343,8 +343,12 @@ namespace D3DLab.Core {
             foreach (var item in dic) {
                 builder.Append(item.Value);
             }
-            VisualModelBuilder.Build(context, builder.ToMeshGeometry3D(),"duck" + Guid.NewGuid().ToString());
+            var duck = VisualModelBuilder.Build(context, builder.ToMeshGeometry3D(),"duck" + Guid.NewGuid().ToString());
+            var arrow = ArrowBuilder.Build(context);
 
+            var interactor = new EntityInteractor();
+            interactor.ManipulateInteractingTwoWays(duck, arrow);
+            //interactor.ManipulateInteracting(arrow, duck);
         }
     }
 }

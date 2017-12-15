@@ -7,28 +7,25 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Core.Components {
-    //public sealed class RefTransformComponent : TransformComponent {
-    //    public override Matrix Matrix {
-    //        get {
-    //            return _ref.Matrix * matrix;
-    //        }
-    //        set {
-    //            matrix = value;
-    //        }
-    //    }
+    public sealed class RefTransformComponent : TransformComponent {
+        private readonly TransformComponent current;
+        TransformComponent _ref;
 
-    //    private Matrix matrix;
+        public RefTransformComponent(TransformComponent current) {
+            this.current = current;
+        }
+        public override void AddDeltaMatrix(Matrix m) {
+            _ref.Matrix *= m;
+            Matrix = current.Matrix * _ref.Matrix;
+        }
 
-    //    readonly TransformComponent _ref;
+        public void AddRefTransform(TransformComponent _ref) {
+            this._ref = _ref;
+        }
+    }
 
-    //    public RefTransformComponent(TransformComponent _ref, Matrix current) {
-    //        this._ref = _ref;
-    //        matrix = current;
-    //    }
-
-    //}
     public class TransformComponent : D3DComponent {
-        public Matrix Matrix { get; set; }
+        public Matrix Matrix { get; protected internal set; }
 
         public TransformComponent() {
             Matrix = Matrix.Identity;
@@ -37,5 +34,10 @@ namespace D3DLab.Core.Components {
         public override string ToString() {
             return $"Matrix[{Matrix.ToString()}]";
         }
+
+        public virtual void AddDeltaMatrix(Matrix m) {
+            Matrix *= m;
+        }
+
     }
 }

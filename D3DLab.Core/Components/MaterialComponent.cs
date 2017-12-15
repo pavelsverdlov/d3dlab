@@ -13,6 +13,7 @@ namespace D3DLab.Core.Components {
         public HelixToolkit.Wpf.SharpDX.PhongMaterial BackMaterial { get; set; }
         public CullMode CullMaterial { get; set; }
 
+        private HelixToolkit.Wpf.SharpDX.PhongMaterial normal;
 
         public void Setected() {
             var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
@@ -23,24 +24,16 @@ namespace D3DLab.Core.Components {
                 ReflectiveColor = new Color4(),
                 SpecularShininess = 100f
             };
-
+            if (normal == null) {
+                normal = Material;
+            }
 
             Material = mat;
             BackMaterial = mat;
         }
         public void UnSetected() {
-            var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
-                AmbientColor = new Color4(),
-                DiffuseColor = SharpDX.Color.Blue,
-                SpecularColor = SharpDX.Color.Blue,
-                EmissiveColor = new Color4(),
-                ReflectiveColor = new Color4(),
-                SpecularShininess = 100f
-            };
-
-
-            Material = mat;
-            BackMaterial = mat;
+            Material = normal;
+            BackMaterial = normal;
         }
 
         public override string ToString() {

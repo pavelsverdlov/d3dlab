@@ -16,8 +16,8 @@ namespace D3DLab.Core.Entities {
 
             var arrow = new LineGeometryComponent {
                 Start = Vector3.Zero,
-                End = Vector3.Zero + Vector3.UnitZ * 50,
-                Diameter = 1
+                End = Vector3.Zero + Vector3.UnitZ * 300,
+                Diameter = 10
             };
             arrow.RefreshGeometry();
             entity.AddComponent(arrow);
@@ -38,6 +38,10 @@ namespace D3DLab.Core.Entities {
 
             entity.AddComponent(new PhongTechniqueRenderComponent());
             entity.AddComponent(new TransformComponent());
+
+            entity.AddComponent(new HitableComponent());
+
+            entity.AddComponent(new ZManipulateComponent());            
 
             return entity;
         }
