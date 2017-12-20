@@ -92,6 +92,7 @@ namespace D3DLab.Core.Test {
         //}
 
         public ID3DComponent AddComponent(string tagEntity, ID3DComponent com) {
+            com.EntityTag = tagEntity;
             components[tagEntity].Add(com);
             //3DEngine.Notificator.NotifyChange(entities.Single(x=>x.Tag == tagEntity));
             return com;

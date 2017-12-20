@@ -98,7 +98,7 @@ namespace D3DLab.Core.Test {
             var immediateContext = device.Device.ImmediateContext;
             // base.RenderCore(renderContext);
             // --- set constant paramerers             
-            var worldMatrix = transform.Matrix * Matrix.Identity;
+            var worldMatrix = transform.GetMatrix() * Matrix.Identity;
 
             // variables
             variables.World.SetMatrix(ref worldMatrix);

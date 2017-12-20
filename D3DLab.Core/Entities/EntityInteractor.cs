@@ -1,4 +1,6 @@
 ﻿using D3DLab.Core.Components;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace D3DLab.Core.Entities {
     public class EntityInteractor {
@@ -6,7 +8,7 @@ namespace D3DLab.Core.Entities {
             var ptc = parent.GetComponent<TransformComponent>();
             var ctc = child.GetComponent<TransformComponent>();
 
-            var refCom = new RefTransformComponent(ctc);
+            var refCom = new HierarchicalTransformComponent(ctc);
 
             refCom.AddRefTransform(ptc);
 
@@ -14,21 +16,23 @@ namespace D3DLab.Core.Entities {
             child.AddComponent(refCom);
         }
 
-        public void ManipulateInteractingTwoWays(Entity one, Entity two) {
-            var ptc = one.GetComponent<TransformComponent>();
-            var ctc = two.GetComponent<TransformComponent>();
+        public void ManipulateInteractingTwoWays(Entity owner, IEnumerable<Entity> children) {
+            var ownerTC = owner.GetComponent<TransformComponent>();
+            var ownerRTC = new HierarchicalTransformComponent(ownerTC);
 
-            var refCom1 = new RefTransformComponent(ptc);
-            var refCom2 = new RefTransformComponent(ctc);
+            foreach (var child in children) {
+                var ctc = child.GetComponent<TransformComponent>();
+                
+                child.RemoveComponent(ctc);
+                //each child has ref to owner transform component 
+                //thant means child can't change own transform directly only throught the parent transform component
+                child.AddComponent(ownerRTC);
 
-            refCom1.AddRefTransform(refCom2);
-            refCom2.AddRefTransform(refCom1);
-            
-            two.RemoveComponent(ctc);
-            two.AddComponent(refCom1);
+                ownerRTC.AddRefTransform(ctc);
+            }
 
-            one.RemoveComponent(ptc);
-            one.AddComponent(refCom2);
+            owner.RemoveComponent(ownerTC);
+            owner.AddComponent(ownerRTC);
         }
     }
 }

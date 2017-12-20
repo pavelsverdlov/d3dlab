@@ -7,20 +7,30 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Core.Components {
-    public sealed class RefTransformComponent : TransformComponent {
-        private readonly TransformComponent current;
-        TransformComponent _ref;
+    public sealed class HierarchicalTransformComponent : TransformComponent {
+        private readonly TransformComponent originalParent;
+        private readonly List<TransformComponent> children;
+        Matrix delta;
 
-        public RefTransformComponent(TransformComponent current) {
-            this.current = current;
+        public HierarchicalTransformComponent(TransformComponent parent) {
+            this.originalParent = parent;
+            children = new List<TransformComponent>();
+            delta = Matrix.Identity;
         }
         public override void AddDeltaMatrix(Matrix m) {
-            _ref.Matrix *= m;
-            Matrix = current.Matrix * _ref.Matrix;
+            children.ForEach(x=>x.AddDeltaMatrix(m));
+            delta *= m;
         }
 
         public void AddRefTransform(TransformComponent _ref) {
-            this._ref = _ref;
+            children.Add(_ref);
+        }
+
+        public override Matrix GetMatrix() {
+            return originalParent.Matrix * delta;
+        }
+        public override string ToString() {
+            return $"HierarchicalTransform[Matrix:{Matrix.ToString()}; Children:{children.Count}]";
         }
     }
 
@@ -32,11 +42,15 @@ namespace D3DLab.Core.Components {
         }
 
         public override string ToString() {
-            return $"Matrix[{Matrix.ToString()}]";
+            return $"Transform[Matrix:{Matrix.ToString()}]";
         }
 
         public virtual void AddDeltaMatrix(Matrix m) {
             Matrix *= m;
+        }
+
+        public virtual Matrix GetMatrix() {
+            return Matrix;
         }
 
     }

@@ -35,7 +35,7 @@ namespace D3DLab.Core.Test {
 
                     var bounds = geo.Geometry.Bounds;
 
-                    var invert = transform.Matrix.Inverted();
+                    var invert = transform.GetMatrix().Inverted();
                     var trRay = new Ray(Vector3.TransformCoordinate(ray.Position, invert),Vector3.TransformNormal(ray.Direction, invert));
                     
                     if (trRay.Intersects(bounds)) {

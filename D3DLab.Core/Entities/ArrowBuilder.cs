@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace D3DLab.Core.Entities {
     public static class ArrowBuilder {
-        public static Entity Build(IEntityManager context) {
+        public static Entity Build(IEntityManager context, Vector3 axis, SharpDX.Color color) {
             var entity = context.CreateEntity("Arrow" + Guid.NewGuid());
 
 
             var arrow = new LineGeometryComponent {
-                Start = Vector3.Zero,
-                End = Vector3.Zero + Vector3.UnitZ * 300,
+                Start = Vector3.Zero - axis * 300,
+                End = Vector3.Zero + axis * 300,
                 Diameter = 10
             };
             arrow.RefreshGeometry();
@@ -24,8 +24,8 @@ namespace D3DLab.Core.Entities {
 
             var mat = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
                 AmbientColor = new Color4(),
-                DiffuseColor = SharpDX.Color.Yellow,
-                SpecularColor = SharpDX.Color.Yellow,
+                DiffuseColor = color,
+                SpecularColor = color,
                 EmissiveColor = new Color4(),
                 ReflectiveColor = new Color4(),
                 SpecularShininess = 100f
@@ -41,7 +41,7 @@ namespace D3DLab.Core.Entities {
 
             entity.AddComponent(new HitableComponent());
 
-            entity.AddComponent(new ZManipulateComponent());            
+            entity.AddComponent(new AxisManipulateComponent(axis));            
 
             return entity;
         }

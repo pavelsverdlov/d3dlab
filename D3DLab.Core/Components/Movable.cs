@@ -24,13 +24,19 @@ namespace D3DLab.Core.Components {
         }
     }
 
-    public class ZManipulateComponent : ManipulationComponent {
+    public class AxisManipulateComponent : ManipulationComponent {
+        readonly Vector3 axis;
+
+        public AxisManipulateComponent(Vector3 axis) {
+            this.axis = axis;
+        }
+
         public override Matrix CalculateDelta(Input i) {
             var deltaVector = i.PrevRay.Position - i.CurrentRay.Position;
 
-            var lenght = Vector3.Dot(Vector3.UnitZ, deltaVector);
+            var lenght = Vector3.Dot(axis, deltaVector);
             
-            return Matrix.Translation(Vector3.UnitZ*lenght);
+            return Matrix.Translation(axis * lenght);
         }
     }
 

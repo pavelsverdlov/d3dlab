@@ -344,10 +344,14 @@ namespace D3DLab.Core {
                 builder.Append(item.Value);
             }
             var duck = VisualModelBuilder.Build(context, builder.ToMeshGeometry3D(),"duck" + Guid.NewGuid().ToString());
-            var arrow = ArrowBuilder.Build(context);
+            var arrowz = ArrowBuilder.Build(context, Vector3.UnitZ, SharpDX.Color.Yellow);
+            var arrowx = ArrowBuilder.Build(context, Vector3.UnitX, SharpDX.Color.Blue);
+            var arrowy = ArrowBuilder.Build(context, Vector3.UnitY, SharpDX.Color.Green);
 
             var interactor = new EntityInteractor();
-            interactor.ManipulateInteractingTwoWays(duck, arrow);
+            interactor.ManipulateInteractingTwoWays(duck, new[] { arrowz, arrowx , arrowy });
+            //interactor.ManipulateInteractingTwoWays(duck, arrowx);
+            //interactor.ManipulateInteractingTwoWays(duck, arrowy);
             //interactor.ManipulateInteracting(arrow, duck);
         }
     }
