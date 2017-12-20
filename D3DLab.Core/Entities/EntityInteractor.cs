@@ -1,38 +1,36 @@
 ﻿using D3DLab.Core.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace D3DLab.Core.Entities {
     public class EntityInteractor {
         public void ManipulateInteractingOneWay(Entity parent, Entity child) {
-            var ptc = parent.GetComponent<TransformComponent>();
-            var ctc = child.GetComponent<TransformComponent>();
-
-            var refCom = new HierarchicalTransformComponent(ctc);
-
-            refCom.AddRefTransform(ptc);
-
-            child.RemoveComponent(ctc);
-            child.AddComponent(refCom);
+            throw new NotImplementedException();
         }
 
-        public void ManipulateInteractingTwoWays(Entity owner, IEnumerable<Entity> children) {
-            var ownerTC = owner.GetComponent<TransformComponent>();
-            var ownerRTC = new HierarchicalTransformComponent(ownerTC);
+        public void ManipulateInteractingTwoWays(IEnumerable<Entity> refs) {
+            var tr = new List<TransformComponent>();
+            var ttr = new List<TransformComponentTwoWays>();
 
-            foreach (var child in children) {
-                var ctc = child.GetComponent<TransformComponent>();
-                
-                child.RemoveComponent(ctc);
-                //each child has ref to owner transform component 
-                //thant means child can't change own transform directly only throught the parent transform component
-                child.AddComponent(ownerRTC);
+            foreach (var _ref in refs) {
+                var ownTCom = _ref.GetComponent<TransformComponent>();
+                var ownTTCom = new TransformComponentTwoWays(ownTCom);
 
-                ownerRTC.AddRefTransform(ctc);
+                tr.Add(ownTCom);
+                ttr.Add(ownTTCom);
+
+                _ref.RemoveComponent(ownTCom);
+                _ref.AddComponent(ownTTCom);
+            }
+            //each child has ref to owner transform component 
+            //thant means child change all refs transform as own 
+            foreach (var t in ttr) {
+                foreach (var tt in tr) {
+                    t.AddRefTransform(tt);
+                }
             }
 
-            owner.RemoveComponent(ownerTC);
-            owner.AddComponent(ownerRTC);
         }
     }
 }

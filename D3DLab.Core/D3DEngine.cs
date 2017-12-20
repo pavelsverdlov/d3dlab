@@ -349,7 +349,7 @@ namespace D3DLab.Core {
             var arrowy = ArrowBuilder.Build(context, Vector3.UnitY, SharpDX.Color.Green);
 
             var interactor = new EntityInteractor();
-            interactor.ManipulateInteractingTwoWays(duck, new[] { arrowz, arrowx , arrowy });
+            interactor.ManipulateInteractingTwoWays(new[] { duck, arrowz, arrowx , arrowy });
             //interactor.ManipulateInteractingTwoWays(duck, arrowx);
             //interactor.ManipulateInteractingTwoWays(duck, arrowy);
             //interactor.ManipulateInteracting(arrow, duck);
