@@ -1,4 +1,5 @@
-﻿using D3DLab.Core.Render;
+﻿using D3DLab.Core.Entities;
+using D3DLab.Core.Render;
 using SharpDX;
 using SharpDX.Direct3D11;
 using System;
@@ -10,16 +11,16 @@ using System.Windows.Forms;
 
 namespace D3DLab.Core.Common {
     public interface ID3DComponent : IDisposable {
-        Guid Guid { get; }
-        string EntityTag { get; set; }
+        ElementTag Tag { get; }
+        ElementTag EntityTag { get; set; }
     }
 
     public abstract class D3DComponent : ID3DComponent {
-        public Guid Guid { get; }
-        public string EntityTag { get; set; }
+        public ElementTag Tag { get; }
+        public ElementTag EntityTag { get; set; }
 
         protected D3DComponent() {
-            Guid = Guid.NewGuid();
+            Tag = new ElementTag(Guid.NewGuid().ToString());
         }
 
         public void Dispose() {

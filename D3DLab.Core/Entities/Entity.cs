@@ -7,30 +7,56 @@ using D3DLab.Core.Common;
 using D3DLab.Core.Test;
 
 namespace D3DLab.Core.Entities {
+    public struct ElementTag : IEquatable<ElementTag> {
+        readonly string tag;      
+        public ElementTag(string tag) {
+            this.tag = tag;
+        }
+
+        public override bool Equals(object obj) {
+            return obj is ElementTag && Equals((ElementTag)obj);
+        }
+        public bool Equals(ElementTag other) {
+            return tag == other.tag;
+        }
+        public override int GetHashCode() {
+            var hashCode = -1778964077;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(tag);
+            return hashCode;
+        }
+        public override string ToString() {
+            return tag;
+        }
+        public static bool operator ==(ElementTag x, ElementTag y) {
+            return x.Equals(y);
+        }
+        public static bool operator !=(ElementTag x, ElementTag y) {
+            return !x.Equals(y);
+        }
+    }
+
     public sealed class Entity  {
-        public string Tag { get; }
-        private readonly List<ID3DComponent> components;
+        public ElementTag Tag { get; }
         readonly IComponentManager manager;
 
-        public Entity(string tag, IComponentManager manager) {
+        public Entity(ElementTag tag, IComponentManager manager) {
             this.manager = manager;
-            Tag = tag;
-            components = new List<ID3DComponent>();
+            Tag =tag;
         }
         public T GetComponent<T>() where T : ID3DComponent {
-            return components.OfType<T>().FirstOrDefault();
+            return manager.GetComponent<T>(Tag);
         }
 
         public void AddComponent<T>(T component) where T : ID3DComponent {
-            components.Add(manager.AddComponent(Tag, component));
+            manager.AddComponent(Tag, component);
         }
         public void RemoveComponent(ID3DComponent component) {
-            components.Remove(component);
             manager.RemoveComponent(Tag, component);            
         }
 
         public IEnumerable<ID3DComponent> GetComponents() {
-            return components.ToList();
+            return manager.GetComponents(Tag);
         }
     }
 }

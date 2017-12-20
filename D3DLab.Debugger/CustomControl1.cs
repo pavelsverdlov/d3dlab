@@ -58,27 +58,6 @@ namespace D3DLab.Debugger {
         }
 
        
-        class VisualProperty : IEntityComponent {
-            public string Name => throw new NotImplementedException();
-
-            public string Value => throw new NotImplementedException();
-
-            public Guid Guid => throw new NotImplementedException();
-
-            object internalObject;
-            public VisualProperty() {
-                internalObject = new CustomControl1();
-            }
-
-            public Func<object> GetPropertyObject() {
-                return () => internalObject;
-            }
-
-            public void Refresh() {
-                throw new NotImplementedException();
-            }
-        }
-
     
 
         public interface IImmediateWindow { }

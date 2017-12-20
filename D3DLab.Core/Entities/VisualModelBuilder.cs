@@ -25,7 +25,7 @@ namespace D3DLab.Core.Test {
             var random = new Random();
 
 
-            var entity = context.CreateEntity(tag);
+            var entity = context.CreateEntity(new ElementTag(tag));
             entity.AddComponent(new GeometryComponent() { Geometry = geo });
             entity.AddComponent(new MaterialComponent {
                 Material = mat,

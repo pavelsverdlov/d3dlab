@@ -117,7 +117,7 @@ namespace D3DLab.Core.Test {
             }
         }
         public static Entity BuildOrthographicCamera(IEntityManager context) {
-            var entity = context.CreateEntity("OrthographicCamera");
+            var entity = context.CreateEntity(new ElementTag("OrthographicCamera"));
 
             entity.AddComponent(new CameraComponent {
                 Position = new Vector3(0, 0, 300),//50253

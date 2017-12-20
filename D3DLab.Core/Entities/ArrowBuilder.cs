@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace D3DLab.Core.Entities {
     public static class ArrowBuilder {
         public static Entity Build(IEntityManager context, Vector3 axis, SharpDX.Color color) {
-            var entity = context.CreateEntity("Arrow" + Guid.NewGuid());
+            var entity = context.CreateEntity(new ElementTag("Arrow" + Guid.NewGuid()));
 
 
             var arrow = new LineGeometryComponent {

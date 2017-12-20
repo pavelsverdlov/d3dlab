@@ -30,7 +30,7 @@ namespace D3DLab.Core.Test {
         }
 
         public static Entity BuildDirectionalLight(IEntityManager context) {
-            var entity = context.CreateEntity("DirectionalLight");
+            var entity = context.CreateEntity(new ElementTag("DirectionalLight"));
 
             entity.AddComponent(new LightTechniqueRenderComponent());
             entity.AddComponent(new LightRenderComponent {

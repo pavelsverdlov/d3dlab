@@ -14,7 +14,7 @@ namespace D3DLab.Debugger.Windows {
 
     }
     public interface IEntityComponent {
-        Guid Guid { get; }
+        ElementTag Guid { get; }
         string Name { get; }
         string Value { get; }
 
@@ -22,7 +22,7 @@ namespace D3DLab.Debugger.Windows {
     }
 
     public interface IVisualTreeEntity {
-        string Name { get; }
+        ElementTag Name { get; }
         ObservableCollection<IEntityComponent> Components { get; }
         void Add(IEntityComponent com);
         void Remove(IEntityComponent com);
@@ -46,7 +46,7 @@ namespace D3DLab.Debugger.Windows {
 
         public string Name { get { return com.ToString(); } }
 
-        public Guid Guid { get { return com.Guid; } }
+        public ElementTag Guid { get { return com.Tag; } }
 
         public string Value { get; set; }
 
@@ -105,29 +105,29 @@ namespace D3DLab.Debugger.Windows {
         public ObservableCollection<IVisualTreeEntity> items { get; set; }
         public IEntityComponent SelectedComponent { get; set; }
 
-        private readonly Dictionary<string, IVisualTreeEntity> hash;
+        private readonly Dictionary<ElementTag, IVisualTreeEntity> hash;
 
         public VisualTreeviewerViewModel() {
             items = new ObservableCollection<IVisualTreeEntity>();
             Items = CollectionViewSource.GetDefaultView(items);
-            hash = new Dictionary<string, IVisualTreeEntity>();
+            hash = new Dictionary<ElementTag, IVisualTreeEntity>();
             //SelectedComponent = Items.First().Properties.First();
         }
 
         private class VisualTreeItem : IVisualTreeEntity {
-            public string Name { get { return entity.Tag; } }
+            public ElementTag Name { get { return entity.Tag; } }
 
             //  public System.ComponentModel.ICollectionView Components { get; set; }
             public ObservableCollection<IEntityComponent> Components { get; set; }
 
-            private readonly Dictionary<Guid, IEntityComponent> hash;
+            private readonly Dictionary<ElementTag, IEntityComponent> hash;
 
             readonly Entity entity;
 
             public VisualTreeItem(Entity entity) {
                 this.entity = entity;
                 Components = new ObservableCollection<IEntityComponent>();
-                hash = new Dictionary<Guid, IEntityComponent>();
+                hash = new Dictionary<ElementTag, IEntityComponent>();
                 // Components = CollectionViewSource.GetDefaultView(components);
             }
 
@@ -144,10 +144,10 @@ namespace D3DLab.Debugger.Windows {
             }
 
             public bool TryRefresh(ID3DComponent com) {
-                if (!hash.ContainsKey(com.Guid)) {
+                if (!hash.ContainsKey(com.Tag)) {
                     return false;
                 }
-                hash[com.Guid].Refresh();
+                hash[com.Tag].Refresh();
                 return true;
             }
             
@@ -204,13 +204,13 @@ namespace D3DLab.Debugger.Windows {
             foreach (var en in entities) {
                 if (hash.ContainsKey(en.Tag)){
                     var item = hash[en.Tag];
-                    var existed = new HashSet<Guid>();
+                    var existed = new HashSet<ElementTag>();
                     var coms = en.GetComponents();
                     foreach (var com in coms) {
                         if (!item.TryRefresh(com)) {
                             item.Add(new VisualProperty(com));
                         }
-                        existed.Add(com.Guid);
+                        existed.Add(com.Tag);
                     }
                     //clear removed
                     foreach (var com in item.Components.ToArray()) {

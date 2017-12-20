@@ -11,12 +11,15 @@ using System.Threading.Tasks;
 namespace D3DLab.Core.Test {
 
     public interface IEntityManager {
-        Entity CreateEntity(string tag);
+        Entity CreateEntity(ElementTag tag);
         IEnumerable<Entity> GetEntities();
+        Entity GetEntity(ElementTag tag);
     }
     public interface IComponentManager {
-        ID3DComponent AddComponent(string tagEntity, ID3DComponent com);
-        void RemoveComponent(string tagEntity, ID3DComponent com);
+        ID3DComponent AddComponent(ElementTag tagEntity, ID3DComponent com);
+        void RemoveComponent(ElementTag tagEntity, ID3DComponent com);
+        T GetComponent<T>(ElementTag tagEntity) where T : ID3DComponent;
+        IEnumerable<ID3DComponent> GetComponents(ElementTag tagEntity);
     }
     public interface ISystemManager {
         TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem;
@@ -58,23 +61,54 @@ namespace D3DLab.Core.Test {
 
         #endregion
 
-        readonly List<Entity> entities = new List<Entity>();
-        readonly Dictionary<string, List<ID3DComponent>> components = new Dictionary<string, List<ID3DComponent>>();
+        #region IEntityManager
+
+        readonly Dictionary<ElementTag, Entity> entities = new Dictionary<ElementTag, Entity>();
+        readonly Dictionary<ElementTag, List<ID3DComponent>> components = new Dictionary<ElementTag, List<ID3DComponent>>();
         readonly List<IComponentSystem> systems = new List<IComponentSystem>();
-                
-        public Entity CreateEntity(string tag) {
+
+        public Entity CreateEntity(ElementTag tag) {
             var en = new Entity(tag, this);
-            entities.Add(en);
+            entities.Add(tag, en);
             d3DEngine.Notificator.NotifyChange(en);
             components.Add(en.Tag, new List<ID3DComponent>());
             return en;
         }
-        
+        public IEnumerable<Entity> GetEntities() {
+            return entities.Values;
+        }
+        public Entity GetEntity(ElementTag tag) {
+            return entities[tag];
+        }
+
+        #endregion
+
+        #region IComponentManager
+
+        public ID3DComponent AddComponent(ElementTag tagEntity, ID3DComponent com) {
+            com.EntityTag = tagEntity;
+            components[tagEntity].Add(com);
+            return com;
+        }
+
+        public void RemoveComponent(ElementTag tagEntity, ID3DComponent com) {
+            components[tagEntity].Remove(com);
+        }
+
+        public T GetComponent<T>(ElementTag tagEntity) where T : ID3DComponent {
+            return components[tagEntity].OfType<T>().FirstOrDefault();
+        }
+        public IEnumerable<ID3DComponent> GetComponents(ElementTag tagEntity) {
+            return components[tagEntity];
+        }
+
+        #endregion
+
+
+
         public Graphics Graphics { get; set; }
         public World World { get; set; }
-        public IEnumerable<Entity> GetEntities() {
-            return entities;
-        }
+      
 
 
         public TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem {
@@ -86,24 +120,17 @@ namespace D3DLab.Core.Test {
         public IEnumerable<IComponentSystem> GetSystems() {
             return systems;
         }
+
+       
+
         //public void AddSystem(IComponentSystem system) {
         //    systems.Add(system);
         //    d3DEngine.Notificator.NotifyChange(system);
         //}
 
-        public ID3DComponent AddComponent(string tagEntity, ID3DComponent com) {
-            com.EntityTag = tagEntity;
-            components[tagEntity].Add(com);
-            //3DEngine.Notificator.NotifyChange(entities.Single(x=>x.Tag == tagEntity));
-            return com;
-        }
 
-        public void RemoveComponent(string tagEntity, ID3DComponent com) {
-            components[tagEntity].Remove(com);
-           // d3DEngine.Notificator.NotifyChange(entities.Single(x => x.Tag == tagEntity));
-        }
 
-      
+
 
         readonly D3DEngine d3DEngine;
 

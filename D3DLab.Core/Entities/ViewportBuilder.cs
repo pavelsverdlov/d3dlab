@@ -24,7 +24,7 @@ namespace D3DLab.Core.Test {
         }
 
         public static Entity Build(IEntityManager context) {
-            var view = context.CreateEntity("Viewport");
+            var view = context.CreateEntity(new ElementTag("Viewport"));
 
             view.AddComponent(new PerfomanceComponent());
             view.AddComponent(new InputInfoComponent());
