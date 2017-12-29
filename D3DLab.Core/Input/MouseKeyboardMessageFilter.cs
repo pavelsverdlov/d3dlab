@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace D3DLab.Core.Input {
     public interface IControlWndMessageRiser {
-        void WndProc(ref System.Windows.Forms.Message m);
+        void WndProc(ref Message m);
     }
 
-    public sealed class MouseKeyboardMessageFilter : System.Windows.Forms.IMessageFilter, IDisposable {
+    public sealed class MouseKeyboardMessageFilter : IMessageFilter, IDisposable {
         enum WndMessages {
             WM_KEYDOWN = 0x0100,
             WM_KEYUP = 0x0101,
@@ -24,15 +21,15 @@ namespace D3DLab.Core.Input {
             WM_MOUSEWHEEL = 0x020A,
         }
 
-        private readonly System.Windows.Forms.Control owner;
-        public MouseKeyboardMessageFilter(System.Windows.Forms.Control owner) {
+        private readonly Control owner;
+        public MouseKeyboardMessageFilter(Control owner) {
             this.owner = owner;
-           // System.Windows.Forms.Application.AddMessageFilter(this);
+           // Application.AddMessageFilter(this);
             owner.Disposed += owner_Disposed;
         }
 
         public void Dispose() {
-            System.Windows.Forms.Application.RemoveMessageFilter(this);
+            Application.RemoveMessageFilter(this);
         }
 
         void owner_Disposed(object sender, System.EventArgs e) {
@@ -52,7 +49,7 @@ namespace D3DLab.Core.Input {
             return false;
         }
 
-        public bool PreFilterMessage(ref System.Windows.Forms.Message m) {
+        public bool PreFilterMessage(ref Message m) {
             if (!owner.Visible || !owner.IsHandleCreated)
                 return false;
 

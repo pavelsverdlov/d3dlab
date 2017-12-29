@@ -1,10 +1,12 @@
-﻿using D3DLab.Core.Input;
+﻿using D3DLab.Core.Context;
+using D3DLab.Core.Input;
 using D3DLab.Core.Test;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 
 namespace D3DLab.Core.Input {
@@ -30,7 +32,7 @@ namespace D3DLab.Core.Input {
                 switch (state.Buttons) {
                     //camera
                     case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
-                        SwitchTo((int)AllInputStates.Pan, state);
+                       // SwitchTo((int)AllInputStates.Pan, state);
                         break;
                     case GeneralMouseButtons.Right:
                         SwitchTo((int)AllInputStates.Rotate, state);
@@ -70,7 +72,7 @@ namespace D3DLab.Core.Input {
             public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
                     case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
-                        SwitchTo((int)AllInputStates.Pan, state);
+                        //SwitchTo((int)AllInputStates.Pan, state);
                         break;
                 }
                 return base.OnMouseDown(state);
@@ -155,6 +157,7 @@ namespace D3DLab.Core.Input {
 
             var router = new StateHandleProcessor<ICameraInputHandler>(states, this);
             router.SwitchTo((int)AllInputStates.Idle, new InputStateData());
+
             return router;
         }
 
@@ -162,12 +165,12 @@ namespace D3DLab.Core.Input {
             protected CurrentStateMachine(StateProcessor processor) : base(processor) { }
         }
 
-        readonly IInputContext context;
+        readonly IInputManager context;
 
-        public CurrentInputObserver(Control control, IInputContext context) : base(control) {
-            this.context = context;
-        }
-        public CurrentInputObserver(System.Windows.FrameworkElement control, IInputContext context) : base(control) {
+        //public CurrentInputObserver(Control control, IInputmanager context) : base(control) {
+        //    this.context = context;
+        //}
+        public CurrentInputObserver(FrameworkElement control, IInputManager context) : base(control) {
             this.context = context;
         }
         public void Zoom(InputStateData state) {

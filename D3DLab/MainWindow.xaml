@@ -33,11 +33,14 @@
                     <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
                     <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
                 </DockPanel>
-                <ListBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="Black" Width="200"
+                <ListBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="Black" Width="200" Opacity="0.8"
                          ItemsSource="{Binding Items}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding}" Foreground="White"/>
+                            <DockPanel>
+                                <CheckBox Command="{Binding VisiblityChanged}" CommandParameter="{Binding IsChecked}"/>
+                                <TextBlock Text="{Binding Header}" Foreground="White"/>
+                            </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

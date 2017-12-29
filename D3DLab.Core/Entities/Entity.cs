@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using D3DLab.Core.Common;
+using D3DLab.Core.Context;
 using D3DLab.Core.Test;
 
 namespace D3DLab.Core.Entities {
@@ -54,7 +55,9 @@ namespace D3DLab.Core.Entities {
         public void RemoveComponent(ID3DComponent component) {
             manager.RemoveComponent(Tag, component);            
         }
-
+        public bool Has<T>() where T : ID3DComponent {
+            return manager.Has<T>(Tag);
+        }
         public IEnumerable<ID3DComponent> GetComponents() {
             return manager.GetComponents(Tag);
         }

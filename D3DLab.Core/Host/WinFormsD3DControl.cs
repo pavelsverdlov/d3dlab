@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using D3DLab.Core.Input;
+﻿using D3DLab.Core.Input;
 using SharpDX;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace D3DLab.Core.Host {
-    public sealed class WinFormsD3DControl : System.Windows.Forms.UserControl , IControlWndMessageRiser, IViewportControl {
+    public sealed class WinFormsD3DControl : UserControl , IControlWndMessageRiser{
        // public event Action HandleCreated = () => { };
         public WinFormsD3DControl() {
             BackColor = System.Drawing.Color.Black;
@@ -23,10 +19,10 @@ namespace D3DLab.Core.Host {
             base.DestroyHandle();
         }
 
-        void IControlWndMessageRiser.WndProc(ref System.Windows.Forms.Message m) { 
+        void IControlWndMessageRiser.WndProc(ref Message m) { 
             WndProc(ref m);
         }
-        protected override System.Windows.Forms.CreateParams CreateParams {
+        protected override CreateParams CreateParams {
             get {
                 var prms = base.CreateParams;
                 prms.Style |= 0x00010000; //WS_TABSTOP

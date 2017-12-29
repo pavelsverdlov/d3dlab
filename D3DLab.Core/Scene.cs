@@ -24,44 +24,30 @@ using Resource = SharpDX.DXGI.Resource;
 using D3DLab.Core.Test;
 using System.IO;
 using System.Linq;
+using D3DLab.Core.Context;
 
 //https://habrahabr.ru/post/199378/
 namespace D3DLab.Core {
-    public interface IViewportControl {
-        SharpDX.Matrix GetViewportTransform();
-        int Width { get; }
-        int Height { get; }
-    }
-    public interface ID3DEngine {
-        ViewportNotificator Notificator { get; }
-    }
 
-
-   
-
-    public class D3DEngine : ID3DEngine, IDisposable {
-        public IEntityManager EntityManager { get { return context; } }
-
+    public class Scene : IDisposable {
         static double total = TimeSpan.FromSeconds(1).TotalMilliseconds;
         static double time = (total / 60);
 
-        private readonly Context context;
+        public ContextStateProcessor Context { get; private set; }
         private readonly FormsHost host;
         private readonly FrameworkElement overlay;
         private SharpDevice sharpDevice;
         private readonly Stopwatch sw;
         private HelixToolkit.Wpf.SharpDX.EffectsManager effectsManager;
+        private readonly IViewportRendeNotify notify;
 
-        public ViewportNotificator Notificator { get; private set; }
-
-        public D3DEngine(FormsHost host, FrameworkElement overlay) {
+        public Scene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IViewportRendeNotify notify) {
             this.host = host;
             this.overlay = overlay;
             host.HandleCreated += OnHandleCreated;
             host.Unloaded += OnUnloaded;
-            Notificator = new ViewportNotificator();
-
-            context = new Context(this);
+            this.Context = context;
+            this.notify = notify;
 
             sw = new Stopwatch();
         }
@@ -89,37 +75,42 @@ namespace D3DLab.Core {
             sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(control);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
 
-            input = new CurrentInputObserver(Application.Current.MainWindow, context);
+            input = new CurrentInputObserver(Application.Current.MainWindow, Context.GetInutManager());
 
-            context.CreateSystem<CameraSystem>();
-            context.CreateSystem<UpdateRenderTechniqueSystem>();
+            var sysmanager = Context.GetSystemManager();
 
-            context.CreateSystem<TargetingSystem>();
-            context.CreateSystem<MovementSystem>();
-            context.CreateSystem<VisualRenderSystem>();
+            sysmanager.CreateSystem<CameraSystem>();
+            sysmanager.CreateSystem<UpdateRenderTechniqueSystem>();
 
-            ViewportBuilder.Build(context);
-            CameraBuilder.BuildOrthographicCamera(context);
-            LightBuilder.BuildDirectionalLight(context);
-           
+            sysmanager.CreateSystem<TargetingSystem>();
+            sysmanager.CreateSystem<MovementSystem>();
+            sysmanager.CreateSystem<VisualRenderSystem>();
 
+            ViewportBuilder.Build(Context.GetEntityManager());
+            CameraBuilder.BuildOrthographicCamera(Context.GetEntityManager());
+            LightBuilder.BuildDirectionalLight(Context.GetEntityManager());
         }
 
         private void OnCompositionTargetRendering(WinFormsD3DControl control, EventArgs e) {
             sw.Restart();
 
-            context.Graphics = new Graphics() {
+            var sm = Context.GetSystemManager();
+            var im = Context.GetInutManager();
+            var em = Context.GetEntityManager();
+            var port = new D3DLab.Core.Context.Viewport();
+
+            port.Graphics = new Graphics() {
                 SharpDevice = sharpDevice,
                 EffectsManager = effectsManager,
             };
-            context.World = new World(control, host.ActualWidth, host.ActualHeight);
-            context.World.UpdateInputState();
+            port.World = new World(control, host.ActualWidth, host.ActualHeight);
+            port.World.UpdateInputState();
 
-            var inputInfo = context.GetEntities()
+            var inputInfo = Context.GetEntityManager().GetEntities()
                .Single(x => x.GetComponent<ViewportBuilder.PerfomanceComponent>() != null)
                .GetComponent<ViewportBuilder.InputInfoComponent>();
 
-            inputInfo.EventCount = context.Events.Count;
+            inputInfo.EventCount = im.Events.Count;
 
             var illuminationSettings = new IlluminationSettings();
 
@@ -136,15 +127,15 @@ namespace D3DLab.Core {
                 sharpDevice.Clear(bgColor);
 
                 //  lightRenderContext.ClearLights();
-                var variables = context.Graphics.Variables(Techniques.RenderLines);
+                var variables = port.Graphics.Variables(Techniques.RenderLines);
                 variables.LightAmbient.Set(new Color4((float)illuminationSettings.Ambient).ChangeAlpha(1f));
                 variables.IllumDiffuse.Set(new Color4((float)illuminationSettings.Diffuse).ChangeAlpha(1f));
                 variables.IllumShine.Set((float)illuminationSettings.Shine);
                 variables.IllumSpecular.Set(new Color4((float)illuminationSettings.Specular).ChangeAlpha(1f));
 
                 try {
-                    foreach (var sys in context.GetSystems()) {
-                        sys.Execute(context, context);
+                    foreach (var sys in sm.GetSystems()) {
+                        sys.Execute(em, im, port);
                     }
                 } catch (Exception ex) {
                     ex.ToString();
@@ -158,7 +149,7 @@ namespace D3DLab.Core {
             }
             sharpDevice.Present();
 
-            var perfomance = context.GetEntities()
+            var perfomance = em.GetEntities()
                 .Single(x => x.GetComponent<ViewportBuilder.PerfomanceComponent>() != null)
                 .GetComponent<ViewportBuilder.PerfomanceComponent>();
 
@@ -166,8 +157,8 @@ namespace D3DLab.Core {
 
             perfomance.ElapsedMilliseconds = sw.ElapsedMilliseconds;
             perfomance.FPS = (int)total / sw.ElapsedMilliseconds;
-           
-            Notificator.NotifyRender(context.GetEntities().ToArray());
+
+            notify.NotifyRender(em.GetEntities().ToArray());
         }
         
         public void Dispose() {

@@ -1,4 +1,5 @@
 ﻿using D3DLab.Core.Components;
+using D3DLab.Core.Context;
 using D3DLab.Core.Render;
 using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
@@ -34,7 +35,7 @@ namespace D3DLab.Core.Test {
             }
         }
 
-        public void Execute(IEntityManager emanager, IContext ctx) {
+        public void Execute(IEntityManager emanager, IInputManager input, IViewportContext ctx) {
             foreach (var entity in emanager.GetEntities()) {
                 var render = entity.GetComponent<PhongTechniqueRenderComponent>();               
                 var material = entity.GetComponent<MaterialComponent>();

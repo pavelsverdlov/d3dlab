@@ -1,4 +1,5 @@
 ﻿using D3DLab.Core.Common;
+using D3DLab.Core.Context;
 using D3DLab.Core.Entities;
 
 namespace D3DLab.Core.Test {

@@ -18,12 +18,13 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.IO;
 using SharpDX;
+using D3DLab.Core.Context;
 
 namespace D3DLab {
    
     public sealed class MainWindowViewModel {
         private SceneView scene;
-        private readonly ViewportSubscriber subscriber;
+        private readonly ViewportNotificator notificator;
 
         public VisualTreeviewerPopup VisualTreeviewer { get; set; }
         public ICommand LoadDuck { get; set; }
@@ -34,16 +35,22 @@ namespace D3DLab {
         public MainWindowViewModel() {
             LoadDuck = new Command(this);
             VisualTreeviewer = new VisualTreeviewerPopup();
-            subscriber = new ViewportSubscriber(this);
+            
             items = new ObservableCollection<LoadedItem>();
             Items = CollectionViewSource.GetDefaultView(items);
-            
+            notificator = new ViewportNotificator();
+
+            notificator.Subscribe(new ViewportSubscriber(this));
         }
 
         public void Init(FormsHost host, FrameworkElement overlay) {
-            scene = new SceneView(host, overlay);
-            scene.Notificator.Subscribe(subscriber);
+            var context = new ContextStateProcessor(notificator);
+            context.AddState(0, x => new GenneralContextState(x));
 
+            context.SwitchTo(0);
+
+            scene = new SceneView(host, overlay, context, notificator);
+            
             VisualTreeviewer.Show();
         }
 
@@ -69,6 +76,11 @@ namespace D3DLab {
         }
     }
 
+    public sealed class GenneralContextState : BaseContextState {
+        public GenneralContextState(ContextStateProcessor processor) : base(processor) {
+        }
+    }
+
     public sealed class ViewportSubscriber : IViewportChangeSubscriber<Entity>, IViewportRenderSubscriber {
         private readonly MainWindowViewModel mv;
 
@@ -76,7 +88,7 @@ namespace D3DLab {
             this.mv = mv;
         }
 
-        public void Add(Entity entity) {
+        public void Change(Entity entity) {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
                 mv.VisualTreeviewer.ViewModel.Add(entity);
             }));
@@ -90,20 +102,64 @@ namespace D3DLab {
     }
 
     public sealed class LoadedItem {
+        public ICommand VisiblityChanged { get; set; }
+        public string Header { get { return duckTag.ToString(); } }
+
         public LoadedItem() { }
 
         readonly ElementTag duckTag;
+        readonly IEntityManager emanager;
 
         public LoadedItem(IEntityManager emanager, ElementTag duckTag, ElementTag arrowZtag, ElementTag arrowXtag, ElementTag arrowYtag) {
+            this.emanager = emanager;
             this.duckTag = duckTag;
+            VisiblityChanged = new Command(this);
         }
         public override string ToString() {
             return duckTag.ToString();
         }
+
+        private class Command : ICommand {
+            private LoadedItem item;
+            private readonly InvisibleComponent com;
+
+            public Command(LoadedItem item) {
+                this.item = item;
+                com = new InvisibleComponent();
+            }
+
+            public event EventHandler CanExecuteChanged = (s, r) => { };
+
+
+            public bool CanExecute(object parameter) {
+                return true;
+            }
+
+            public void Execute(object parameter) {
+                var _checked = (bool?)parameter;
+                if (!_checked.HasValue) {
+                    return;
+                }
+                var tag = item.duckTag;
+                if (_checked.Value) {
+                    item.emanager.GetEntity(tag).AddComponent(com);
+                    item.emanager.SetFilter(x => !x.Has<InvisibleComponent>());
+                } else {
+                    item.emanager.GetEntity(tag).RemoveComponent(com);
+                    item.emanager.SetFilter(x => true);
+                }
+            }
+
+            public sealed class InvisibleComponent : Core.Common.D3DComponent {
+
+            }
+        }
     }
 
-    public sealed class SceneView : D3DEngine {
-        public SceneView(FormsHost host, FrameworkElement overlay) : base(host, overlay) {
+    public sealed class SceneView : Scene {
+
+        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IViewportRendeNotify notify) : base(host, overlay, context, notify) {
+
         }
 
         public LoadedItem LoadObj(Stream content) {
@@ -126,10 +182,13 @@ namespace D3DLab {
             foreach (var item in dic) {
                 builder.Append(item.Value);
             }
-            var duck = VisualModelBuilder.Build(EntityManager, builder.ToMeshGeometry3D(), "duck" + Guid.NewGuid().ToString());
-            var arrowz = ArrowBuilder.Build(EntityManager, Vector3.UnitZ, SharpDX.Color.Yellow);
-            var arrowx = ArrowBuilder.Build(EntityManager, Vector3.UnitX, SharpDX.Color.Blue);
-            var arrowy = ArrowBuilder.Build(EntityManager, Vector3.UnitY, SharpDX.Color.Green);
+
+            var entityManager = Context.GetEntityManager();
+
+            var duck = VisualModelBuilder.Build(entityManager, builder.ToMeshGeometry3D(), "duck" + Guid.NewGuid().ToString());
+            var arrowz = ArrowBuilder.Build(entityManager, Vector3.UnitZ, SharpDX.Color.Yellow);
+            var arrowx = ArrowBuilder.Build(entityManager, Vector3.UnitX, SharpDX.Color.Blue);
+            var arrowy = ArrowBuilder.Build(entityManager, Vector3.UnitY, SharpDX.Color.Green);
             var entities = new[] { duck, arrowz, arrowx, arrowy };
             var interactor = new EntityInteractor();
             interactor.ManipulateInteractingTwoWays(entities);
@@ -137,7 +196,9 @@ namespace D3DLab {
             //interactor.ManipulateInteractingTwoWays(duck, arrowy);
             //interactor.ManipulateInteracting(arrow, duck);
 
-            return new LoadedItem(EntityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);
+            return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);
         }
+
+
     }
 }

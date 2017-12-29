@@ -1,4 +1,6 @@
-﻿using D3DLab.Core.Input;
+﻿using D3DLab.Core.Components;
+using D3DLab.Core.Context;
+using D3DLab.Core.Input;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using SharpDX;
@@ -6,27 +8,27 @@ using System.Linq;
 
 namespace D3DLab.Core.Test {
     public class CameraSystem : IComponentSystem {
-        public void Execute(IEntityManager emanager, IContext ctx) {
+        public void Execute(IEntityManager emanager, IInputManager input, IViewportContext ctx) {
             foreach (var entity in emanager.GetEntities()) {
                 var ccom = entity.GetComponent<CameraBuilder.CameraComponent>();
                 // Debug.WriteLine("object = {0}, events.Type = {1}", ccom?.Guid.ToString() ?? "Null", events.Type);
-                if (ccom == null || !ctx.Events.Any()) {
+                if (ccom == null || !input.Events.Any()) {
                     continue;
                 }
 
                 // Debug.WriteLine("HIT");
-                var events = ctx.Events.ToArray();
+                var events = input.Events.ToArray();
                 foreach (var ev in events) {
-                    Handle(ev, ccom, ctx);
+                    Handle(ev, ccom, input, ctx);
                 }
             }
         }
         
-        private void Handle(InputEventState ev, CameraBuilder.CameraComponent ccom,IContext ctx) {
+        private void Handle(InputEventState ev, CameraBuilder.CameraComponent ccom, IInputManager input, IViewportContext ctx) {
             var state = ev.Data;
             switch (ev.Type) {
                 case AllInputStates.Zoom:
-                    ctx.RemoveEvent(ev);
+                    input.RemoveEvent(ev);
 
                     var panK = ccom.Width / ctx.Graphics.SharpDevice.Width;
 
@@ -58,7 +60,7 @@ namespace D3DLab.Core.Test {
 
                     break;
                 case AllInputStates.Rotate:
-                    ctx.RemoveEvent(ev);
+                    input.RemoveEvent(ev);
 
                     var p11 = state.ButtonsStates[GeneralMouseButtons.Right].PointDown;
                     var p2 = state.CurrentPosition;

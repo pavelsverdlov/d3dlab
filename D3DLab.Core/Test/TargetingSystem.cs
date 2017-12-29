@@ -4,26 +4,26 @@ using HelixToolkit.Wpf.SharpDX;
 using D3DLab.Core.Input;
 using D3DLab.Core.Components;
 using D3DLab.Core.Entities;
+using D3DLab.Core.Context;
 
 namespace D3DLab.Core.Test {
     public sealed class TargetingSystem : IComponentSystem {
 
-        public void Execute(IEntityManager emanager, IContext ctx) {
-            var input = ctx;
+        public void Execute(IEntityManager emanager, IInputManager input, IViewportContext ctx) {
             //return;
             foreach (var entity in emanager.GetEntities()) {
                 var hitable = entity.GetComponent<HitableComponent>();                
                 if (hitable == null || !input.Events.Any()) {
                     continue;
                 }
-                var events = ctx.Events.ToArray();
+                var events = input.Events.ToArray();
                 foreach (var ev in events) {
-                    Handle(ev, emanager, entity, ctx);
+                    Handle(ev, emanager, entity, input, ctx);
                 }                
             }
         }
 
-        private void Handle(InputEventState ev, IEntityManager emanager, Entity entity, IContext ctx) {
+        private void Handle(InputEventState ev, IEntityManager emanager, Entity entity, IInputManager input, IViewportContext ctx) {
             switch (ev.Type) {
                 case AllInputStates.Target:
                     var geo = entity.GetComponent<GeometryComponent>();
@@ -42,7 +42,7 @@ namespace D3DLab.Core.Test {
                         entity.AddComponent(new TargetedComponent());
                         entity.GetComponent<MaterialComponent>().Setected();
 
-                        ctx.RemoveEvent(ev);
+                        input.RemoveEvent(ev);
                     }
                     break;
                 case AllInputStates.UnTarget:
@@ -52,7 +52,7 @@ namespace D3DLab.Core.Test {
                         entity.GetComponent<MaterialComponent>().UnSetected();
                         entity.RemoveComponent(targeted);
 
-                        ctx.RemoveEvent(ev);
+                        input.RemoveEvent(ev);
                     }
                     break;
             }

@@ -4,6 +4,7 @@ using System;
 using D3DLab.Core.Common;
 using D3DLab.Core.Components;
 using D3DLab.Core.Entities;
+using D3DLab.Core.Context;
 
 namespace D3DLab.Core.Test {
     public static class CameraBuilder {
@@ -58,7 +59,7 @@ namespace D3DLab.Core.Test {
             }
 
 
-            public Ray UnProject(Vector2 point2d, IContext ctx)//, out Vector3 pointNear, out Vector3 pointFar)
+            public Ray UnProject(Vector2 point2d, IViewportContext ctx)//, out Vector3 pointNear, out Vector3 pointFar)
             {
                 var p = new Vector3((float)point2d.X, (float)point2d.Y, 1);
 

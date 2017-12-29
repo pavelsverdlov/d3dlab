@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using D3DLab.Core.Components;
+using D3DLab.Core.Context;
 using D3DLab.Core.Render;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
@@ -15,7 +16,7 @@ namespace D3DLab.Core.Test {
         private object lastPoint;
 
 
-        public void Execute(IEntityManager emanager, IContext ctx) {
+        public void Execute(IEntityManager emanager,IInputManager input, IViewportContext ctx) {
             foreach (var entity in emanager.GetEntities()) {
 
                 var movable = entity.GetComponent<ManipulationComponent>();
