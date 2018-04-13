@@ -1,15 +1,12 @@
-﻿using SharpDX;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using System.Numerics;
+using Veldrid.Utilities;
 
 namespace D3DLab.Debugger {
 
     public interface IAutomationEntity {
         BoundingBox Bounds { get; }
-        Matrix Matrix { get; set; }
+        Matrix4x4 Matrix { get; set; }
         
     }
     public interface IAutomationViewport {
@@ -48,7 +45,7 @@ namespace D3DLab.Debugger {
             //move out of blank
             var blankCorner = Vector3.UnitX * 95 / 2;
             var center = Vector3.Zero;
-            rec.Matrix = Matrix.Translation((blankCorner- center)*0.5f);
+            rec.Matrix = Matrix4x4.CreateTranslation((blankCorner- center)*0.5f);
 
             //pres "save and start CAM"
             //should be popup error

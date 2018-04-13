@@ -1,30 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using D3DLab.Core;
-using D3DLab.Core.Host;
-using D3DLab.Core.Viewport;
-using D3DLab.Core.Visual3D;
 using D3DLab.Debugger.Windows;
-using D3DLab.Core.Test;
 using System.Windows.Input;
-using D3DLab.Properties;
 using System.Windows;
-using D3DLab.Core.Entities;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.IO;
-using SharpDX;
-using D3DLab.Core.Context;
+using D3DLab.Std.Engine.Core;
+using D3DLab.Wpf.Engine.App.Host;
+using System.Numerics;
 
 namespace D3DLab {
-   
+
     public sealed class MainWindowViewModel {
         private SceneView scene;
-        private readonly ViewportNotificator notificator;
+        private readonly EngineNotificator notificator;
 
         public VisualTreeviewerPopup VisualTreeviewer { get; set; }
         public ICommand LoadDuck { get; set; }
@@ -38,7 +29,7 @@ namespace D3DLab {
             
             items = new ObservableCollection<LoadedItem>();
             Items = CollectionViewSource.GetDefaultView(items);
-            notificator = new ViewportNotificator();
+            notificator = new EngineNotificator();
 
             notificator.Subscribe(new ViewportSubscriber(this));
         }
@@ -81,7 +72,7 @@ namespace D3DLab {
         }
     }
 
-    public sealed class ViewportSubscriber : IViewportChangeSubscriber<Entity>, IViewportRenderSubscriber {
+    public sealed class ViewportSubscriber : IManagerChangeSubscriber<Entity>, IEntityRenderSubscriber {
         private readonly MainWindowViewModel mv;
 
         public ViewportSubscriber(MainWindowViewModel mv) {
@@ -141,28 +132,54 @@ namespace D3DLab {
                     return;
                 }
                 var tag = item.duckTag;
-                if (_checked.Value) {
-                    item.emanager.GetEntity(tag).AddComponent(com);
-                    item.emanager.SetFilter(x => !x.Has<InvisibleComponent>());
-                } else {
-                    item.emanager.GetEntity(tag).RemoveComponent(com);
-                    item.emanager.SetFilter(x => true);
-                }
+                //if (_checked.Value) {
+                //    item.emanager.GetEntity(tag).AddComponent(com);
+                //    item.emanager.SetFilter(x => !x.Has<InvisibleComponent>());
+                //} else {
+                //    item.emanager.GetEntity(tag).RemoveComponent(com);
+                //    item.emanager.SetFilter(x => true);
+                //}
             }
 
-            public sealed class InvisibleComponent : Core.Common.D3DComponent {
+            public sealed class InvisibleComponent : D3DComponent {
 
             }
         }
     }
 
-    public sealed class SceneView : Scene {
+    public sealed class SceneView : Wpf.Engine.App.Scene {
 
-        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IViewportRendeNotify notify) : base(host, overlay, context, notify) {
+        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify) 
+            : base(host, overlay, context, notify) {
+
+
+            //try {
+            //    Fwk.ImageSharp.ImagePr.Load(Path.Combine(AppContext.BaseDirectory, "Textures", "spnza_bricks_a_diff.png"));
+            //} catch (Exception ex) {
+            //    ex.ToString();
+            //}
+
+            var center = new Vector3();
+            var point = new Vector3(10, 10, 10);
+            var res = point + center;
+
+            //var v = new Vector3(10, 10, 10) + new Vector3(5, 20, 0);
+            //var v = new Vector3(5, 20, 0) - new Vector3(10, 10, 10);
+            //var normal = v;
+            //normal.Normalize();
+
+            //var point1 = new Vector3(5, 20, 0) - normal * v.Length()/2;
+            //var point2 = new Vector3(10, 10, 10) + normal * v.Length() / 2;
+
+            
 
         }
 
+       
+
         public LoadedItem LoadObj(Stream content) {
+            return null;
+            /*
             HelixToolkit.Wpf.SharpDX.ObjReader readerA = new HelixToolkit.Wpf.SharpDX.ObjReader();
             var res = readerA.Read(content);
 
@@ -196,7 +213,7 @@ namespace D3DLab {
             //interactor.ManipulateInteractingTwoWays(duck, arrowy);
             //interactor.ManipulateInteracting(arrow, duck);
 
-            return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);
+            return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);*/
         }
 
 

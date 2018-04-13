@@ -5,10 +5,12 @@ using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using SharpDX;
 using System.Linq;
+using D3DLab.Std.Engine.Core.Input;
 
 namespace D3DLab.Core.Test {
     public class CameraSystem : IComponentSystem {
-        public void Execute(IEntityManager emanager, IInputManager input, IViewportContext ctx) {
+        public IViewportContext ctx {get; set;}
+        public void Execute(IEntityManager emanager, InputSnapshot input) {
             foreach (var entity in emanager.GetEntities()) {
                 var ccom = entity.GetComponent<CameraBuilder.CameraComponent>();
                 // Debug.WriteLine("object = {0}, events.Type = {1}", ccom?.Guid.ToString() ?? "Null", events.Type);
@@ -19,14 +21,14 @@ namespace D3DLab.Core.Test {
                 // Debug.WriteLine("HIT");
                 var events = input.Events.ToArray();
                 foreach (var ev in events) {
-                    Handle(ev, ccom, input, ctx);
+                    Handle(ev, ccom, input);
                 }
             }
         }
         
-        private void Handle(InputEventState ev, CameraBuilder.CameraComponent ccom, IInputManager input, IViewportContext ctx) {
+        private void Handle(InputEventState ev, CameraBuilder.CameraComponent ccom, InputSnapshot input) {
             var state = ev.Data;
-            switch (ev.Type) {
+            switch ((AllInputStates)ev.Type) {
                 case AllInputStates.Zoom:
                     input.RemoveEvent(ev);
 
@@ -66,7 +68,7 @@ namespace D3DLab.Core.Test {
                     var p2 = state.CurrentPosition;
 
                     var moveV = p2 - p11;
-                    if (moveV == Vector2.Zero) {
+                    if (moveV.ToSharpDX() == Vector2.Zero) {
                         return;
                     }
 

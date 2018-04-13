@@ -1,0 +1,16 @@
+﻿using D3DLab.Std.Engine.Core.Input;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace D3DLab.Std.Engine {
+    public interface IAppWindow {
+        float Width { get; }
+        float Height { get; }
+        bool IsActive { get; }
+
+        IntPtr Handle { get; }
+
+        InputSnapshot GetShapshot();
+    }
+}

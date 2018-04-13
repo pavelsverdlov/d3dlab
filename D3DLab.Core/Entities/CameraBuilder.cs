@@ -5,6 +5,7 @@ using D3DLab.Core.Common;
 using D3DLab.Core.Components;
 using D3DLab.Core.Entities;
 using D3DLab.Core.Context;
+using D3DLab.Std.Engine.Core;
 
 namespace D3DLab.Core.Test {
     public static class CameraBuilder {

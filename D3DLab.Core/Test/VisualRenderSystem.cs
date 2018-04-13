@@ -35,7 +35,9 @@ namespace D3DLab.Core.Test {
             }
         }
 
-        public void Execute(IEntityManager emanager, IInputManager input, IViewportContext ctx) {
+        public IViewportContext ctx { get; set; }
+
+        public void Execute(IEntityManager emanager, InputSnapshot input) {
             foreach (var entity in emanager.GetEntities()) {
                 var render = entity.GetComponent<PhongTechniqueRenderComponent>();               
                 var material = entity.GetComponent<MaterialComponent>();

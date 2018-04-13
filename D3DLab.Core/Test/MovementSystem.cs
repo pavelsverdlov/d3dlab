@@ -15,8 +15,9 @@ namespace D3DLab.Core.Test {
     public class MovementSystem : IComponentSystem {
         private object lastPoint;
 
+        public IViewportContext ctx { get; set; }
 
-        public void Execute(IEntityManager emanager,IInputManager input, IViewportContext ctx) {
+        public void Execute(IEntityManager emanager, InputSnapshot input) {
             foreach (var entity in emanager.GetEntities()) {
 
                 var movable = entity.GetComponent<ManipulationComponent>();

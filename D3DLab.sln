@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab", "D3DLab\D3DLab.csproj", "{D7A21D57-4A41-444B-9462-1F0CD9459E28}"
 EndProject
@@ -14,6 +14,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.Debugger", "D3DLab.Debugger\D3DLab.Debugger.csproj", "{3FC522C3-3533-4A12-A751-D784CB93FAF1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.UI", "D3DLab.UI\D3DLab.UI.csproj", "{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SvP.Standard.Engine.Core", "SvP.Standard.Engine.Core\SvP.Standard.Engine.Core.csproj", "{C01C34DF-98C9-468D-9F30-058D6A633E8C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Veldrid", "Veldrid", "{A9F1C03E-783A-4593-84A5-E5BF5E7AA8A8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SvP.Engine", "..\CrazyCore-master\code\ge\ext\veldrid\src\SvP.Engine\SvP.Engine.csproj", "{43FE1018-602C-40FD-8619-D9EC92BD4209}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,9 +103,36 @@ Global
 		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|x64.Build.0 = Release|Any CPU
 		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|x86.ActiveCfg = Release|Any CPU
 		{336FEB8A-DE4F-4BDB-8322-FC594F19FEEF}.Release|x86.Build.0 = Release|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Debug|x64.Build.0 = Debug|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Debug|x86.Build.0 = Debug|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Release|x64.ActiveCfg = Release|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Release|x64.Build.0 = Release|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Release|x86.ActiveCfg = Release|Any CPU
+		{C01C34DF-98C9-468D-9F30-058D6A633E8C}.Release|x86.Build.0 = Release|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Debug|x64.Build.0 = Debug|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Debug|x86.Build.0 = Debug|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Release|x64.ActiveCfg = Release|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Release|x64.Build.0 = Release|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Release|x86.ActiveCfg = Release|Any CPU
+		{43FE1018-602C-40FD-8619-D9EC92BD4209}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{43FE1018-602C-40FD-8619-D9EC92BD4209} = {A9F1C03E-783A-4593-84A5-E5BF5E7AA8A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BE8E1CFA-EE77-473A-8CDE-B23588044531}

@@ -4,10 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:D3DLab"
-        xmlns:host="clr-namespace:D3DLab.Core.Host;assembly=D3DLab.Core"
+        xmlns:host="clr-namespace:D3DLab.Wpf.Engine.App.Host;assembly=D3DLab.Wpf.Engine.App"
         xmlns:controls="clr-namespace:D3DLab.UI.Controls;assembly=D3DLab.UI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1200">
+        Title="MainWindow" Height="540" Width="960">
     <Window.Resources>
         <local:MainWindowViewModel x:Key="ViewModel" />
     </Window.Resources>
@@ -44,11 +44,12 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-            </Grid>            
+            </Grid>
         </controls:OverlayPanel>
 
         <controls:OverlayPanel>
             <Grid Background="#01ffffff" x:Name="overlay" />
         </controls:OverlayPanel>
+
     </Grid>
 </Window>

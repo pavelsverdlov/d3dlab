@@ -1,13 +1,9 @@
-﻿using System;
+﻿using D3DLab.Std.Engine.Core;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using D3DLab.Core.Test;
 using System.Windows.Data;
-using D3DLab.Core.Common;
-using D3DLab.Core.Entities;
 
 namespace D3DLab.Debugger.Windows {
     public interface IVisualEntity {

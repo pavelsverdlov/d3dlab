@@ -3,7 +3,8 @@ using D3DLab.Core.Context;
 
 namespace D3DLab.Core.Test {
     public class UpdateRenderTechniqueSystem : IComponentSystem {
-        public void Execute(IEntityManager emanager, IInputManager input, IViewportContext ctx) {
+        public IViewportContext ctx { get; set; }
+        public void Execute(IEntityManager emanager, InputSnapshot input) {
             foreach (var entity in emanager.GetEntities()) {
                 var tech = entity.GetComponent<RenderTechniqueComponent>();
                 if(tech == null) {

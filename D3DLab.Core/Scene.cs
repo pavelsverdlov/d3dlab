@@ -1,30 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
-using D3DLab.Core.Entities;
 using D3DLab.Core.Host;
 using D3DLab.Core.Input;
-using D3DLab.Core.Render;
-using D3DLab.Core.Viewport;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.WinForms;
 using SharpDX;
-using SharpDX.D3DCompiler;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using SharpDX.Windows;
 using Application = System.Windows.Application;
-using Buffer = System.Buffer;
-using Resource = SharpDX.DXGI.Resource;
 using D3DLab.Core.Test;
-using System.IO;
 using System.Linq;
 using D3DLab.Core.Context;
+using D3DLab.Std.Engine.Core;
 
 //https://habrahabr.ru/post/199378/
 namespace D3DLab.Core {
@@ -39,9 +27,10 @@ namespace D3DLab.Core {
         private SharpDevice sharpDevice;
         private readonly Stopwatch sw;
         private HelixToolkit.Wpf.SharpDX.EffectsManager effectsManager;
-        private readonly IViewportRendeNotify notify;
+        private readonly IEntityRenderNotify notify;
+        readonly D3DLab.Core.Context.Viewport port;
 
-        public Scene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IViewportRendeNotify notify) {
+        public Scene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify) {
             this.host = host;
             this.overlay = overlay;
             host.HandleCreated += OnHandleCreated;
@@ -50,6 +39,7 @@ namespace D3DLab.Core {
             this.notify = notify;
 
             sw = new Stopwatch();
+            port = new D3DLab.Core.Context.Viewport();
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
@@ -75,16 +65,16 @@ namespace D3DLab.Core {
             sharpDevice = new HelixToolkit.Wpf.SharpDX.WinForms.SharpDevice(control);
             effectsManager = new HelixToolkit.Wpf.SharpDX.EffectsManager(sharpDevice.Device);
 
-            input = new CurrentInputObserver(Application.Current.MainWindow, Context.GetInutManager());
+            input = new CurrentInputObserver(Application.Current.MainWindow, new WPFInputPublisher(Application.Current.MainWindow));
 
             var sysmanager = Context.GetSystemManager();
 
-            sysmanager.CreateSystem<CameraSystem>();
-            sysmanager.CreateSystem<UpdateRenderTechniqueSystem>();
+            sysmanager.CreateSystem<CameraSystem>().ctx = port;
+            sysmanager.CreateSystem<UpdateRenderTechniqueSystem>().ctx = port;
 
-            sysmanager.CreateSystem<TargetingSystem>();
-            sysmanager.CreateSystem<MovementSystem>();
-            sysmanager.CreateSystem<VisualRenderSystem>();
+            sysmanager.CreateSystem<TargetingSystem>().ctx = port;
+            sysmanager.CreateSystem<MovementSystem>().ctx = port;
+            sysmanager.CreateSystem<VisualRenderSystem>().ctx = port;
 
             ViewportBuilder.Build(Context.GetEntityManager());
             CameraBuilder.BuildOrthographicCamera(Context.GetEntityManager());
@@ -94,11 +84,11 @@ namespace D3DLab.Core {
         private void OnCompositionTargetRendering(WinFormsD3DControl control, EventArgs e) {
             sw.Restart();
 
-            var sm = Context.GetSystemManager();
-            var im = Context.GetInutManager();
-            var em = Context.GetEntityManager();
-            var port = new D3DLab.Core.Context.Viewport();
+            var inputstapshot = input.GetInputSnapshot();
 
+            var sm = Context.GetSystemManager();
+            var em = Context.GetEntityManager();
+            
             port.Graphics = new Graphics() {
                 SharpDevice = sharpDevice,
                 EffectsManager = effectsManager,
@@ -110,7 +100,7 @@ namespace D3DLab.Core {
                .Single(x => x.GetComponent<ViewportBuilder.PerfomanceComponent>() != null)
                .GetComponent<ViewportBuilder.InputInfoComponent>();
 
-            inputInfo.EventCount = im.Events.Count;
+            inputInfo.EventCount = inputstapshot.Events.Count;
 
             var illuminationSettings = new IlluminationSettings();
 
@@ -119,6 +109,8 @@ namespace D3DLab.Core {
             illuminationSettings.Specular = 1;
             illuminationSettings.Shine = 1;
             illuminationSettings.Light = 1;
+
+            var snapshot = new SceneSnapshot(em, inputstapshot);
 
             using (var queryForCompletion = new SharpDX.Direct3D11.Query(sharpDevice.Device, new SharpDX.Direct3D11.QueryDescription() { Type = SharpDX.Direct3D11.QueryType.Event, Flags = SharpDX.Direct3D11.QueryFlags.None })) {
 
@@ -135,7 +127,7 @@ namespace D3DLab.Core {
 
                 try {
                     foreach (var sys in sm.GetSystems()) {
-                        sys.Execute(em, im, port);
+                        sys.Execute(em, inputstapshot);
                     }
                 } catch (Exception ex) {
                     ex.ToString();

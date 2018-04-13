@@ -8,20 +8,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using D3DLab.Std.Engine.Core.Input;
+using D3DLab.Std.Engine.Core;
 
 namespace D3DLab.Core.Input {
 
-    public class CurrentInputObserver : D3DLab.Core.Input.InputObserver, 
+    public class CurrentInputObserver : InputObserver, 
         CurrentInputObserver.ICameraInputHandler, CurrentInputObserver.ITargetingInputHandler {
 
         public interface ICameraInputHandler : InputObserver .IHandler {
-            bool Rotate(InputObserver .InputStateData state);
-            void Zoom(InputObserver .InputStateData state);
+            bool Rotate(InputStateData state);
+            void Zoom(InputStateData state);
             void Pan(InputStateData state);
         }
 
         public interface ITargetingInputHandler : InputObserver .IHandler {
-            bool Target(InputObserver .InputStateData state);
+            bool Target(InputStateData state);
             void UnTarget(InputStateData state);
         }
         
@@ -78,7 +80,7 @@ namespace D3DLab.Core.Input {
                 return base.OnMouseDown(state);
             }
             public override bool OnMouseMove(InputStateData state) {
-                Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPointDown;
+                Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPointDown.ToDrawingPoint();
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Rotate(state));
                 return true;
             }
@@ -165,39 +167,33 @@ namespace D3DLab.Core.Input {
             protected CurrentStateMachine(StateProcessor processor) : base(processor) { }
         }
 
-        readonly IInputManager context;
-
-        //public CurrentInputObserver(Control control, IInputmanager context) : base(control) {
-        //    this.context = context;
-        //}
-        public CurrentInputObserver(FrameworkElement control, IInputManager context) : base(control) {
-            this.context = context;
+        
+        readonly FrameworkElement control;
+        
+        public CurrentInputObserver(FrameworkElement control, IInputPublisher publisher) : base(publisher) {
+            this.currentSnapshot = new InputSnapshot();
+            this.control = control;
         }
         public void Zoom(InputStateData state) {
-            context.AddEvent(new InputEventState { Data = state, Type = AllInputStates.Zoom });
+            currentSnapshot.AddEvent(new InputEventState { Data = state, Type = (int)AllInputStates.Zoom });
         }
         public bool Rotate(InputStateData state) {
-            context.AddEvent(new InputEventState { Data = state, Type = AllInputStates.Rotate });
+            currentSnapshot.AddEvent(new InputEventState { Data = state, Type = (int)AllInputStates.Rotate });
             return false;
         }
         public void Pan(InputStateData state) {
-            context.AddEvent(new InputEventState { Data = state, Type = AllInputStates.Zoom });
+            currentSnapshot.AddEvent(new InputEventState{ Data = state, Type = (int)AllInputStates.Zoom });
         }
 
         public bool Target(InputStateData state) {
-            context.AddEvent(new InputEventState { Type = AllInputStates.Target, Data = state });
+            currentSnapshot.AddEvent(new InputEventState { Type = (int)AllInputStates.Target, Data = state });
             return false;
         }
         public void UnTarget(InputStateData state) {
-            context.AddEvent(new InputEventState { Type = AllInputStates.UnTarget, Data = state });
+            currentSnapshot.AddEvent(new InputEventState { Type = (int)AllInputStates.UnTarget, Data = state });
         }
         
 
         private InputEventState events;        
-    }
-    
-    public struct InputEventState {//
-        public AllInputStates Type { get; set; }
-        public InputObserver.InputStateData Data { get; set; }
     }
 }
