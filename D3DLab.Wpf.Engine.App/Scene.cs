@@ -1,6 +1,8 @@
 ﻿using D3DLab.Std.Engine;
+using D3DLab.Std.Engine.Components;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Input;
+using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Entities;
 using D3DLab.Std.Engine.Systems;
 using D3DLab.Wpf.Engine.App.Host;
@@ -48,7 +50,7 @@ namespace D3DLab.Wpf.Engine.App {
 
         private Game game;
         private GameWindow window;
-        
+
         public ContextStateProcessor Context { get; }
 
         public Scene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify) {
@@ -69,30 +71,40 @@ namespace D3DLab.Wpf.Engine.App {
             window = new GameWindow(win, input);
             game = new Game(window, Context);
 
-            Task.Run(() => {
+            Test();
 
-                Test();
-
-                //systems initialization
-                foreach (var sys in Context.GetSystemManager().GetSystems()) {
-                    switch (sys) {
-                        case IRenderSystemInit rsys:
-                            rsys.Init(game.gd, game.factory, window);
-                            break;
-                    }
+            //systems initialization
+            foreach (var sys in Context.GetSystemManager().GetSystems()) {
+                switch (sys) {
+                    case IRenderSystemInit rsys:
+                        rsys.Init(game.gd, game.factory, window);
+                        break;
                 }
-                game.Run(notify);
-            });
+            }
+            game.Run(notify);
+
         }
 
         private void Test() {
             try {
-                ShaderInfo[] shaders = {
-                    new ShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube"),
-                        Stage = ShaderStages.Vertex, EntryPoint = "VS" },
-                    new ShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders","Cube"),
-                        Stage = ShaderStages.Fragment, EntryPoint = "FS"}
+                ShaderInfo[] cubeShaders = {
+                    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube")}-{ShaderStages.Vertex}.hlsl",
+                        Stage = ShaderStages.Vertex.ToString(), EntryPoint = "VS" },
+                    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube")}-{ShaderStages.Fragment}.hlsl",
+                        Stage = ShaderStages.Fragment.ToString(), EntryPoint = "FS"}
                 };
+                ShaderInfo[] lineShaders = {
+                    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line")}-{ShaderStages.Vertex}.hlsl",
+                        Stage = ShaderStages.Vertex.ToString(), EntryPoint = "VShaderLines" },
+                    //new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line")}-{ShaderStages.Geometry}.hlsl",
+                    //    Stage = ShaderStages.Geometry.ToString(), EntryPoint = "GShaderLines"},
+                     new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line")}-{ShaderStages.Fragment}.hlsl",
+                        Stage = ShaderStages.Fragment.ToString(), EntryPoint = "PShaderLinesFade"}
+                };
+
+                //if (Directory.Exists(Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line"))) {
+                //    Directory.Delete(Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line"), true);
+                //}
 
                 var mb = new Std.Engine.Helpers.MeshBulder();
 
@@ -108,17 +120,17 @@ namespace D3DLab.Wpf.Engine.App {
                 };
 
                 var box = mb.BuildBox(Vector3.Zero, 1, 1, 1);
+                //var geo = Context.GetEntityManager()
+                //    .CreateEntity(new ElementTag(Guid.NewGuid().ToString()))
+                //    .AddComponent(new TexturedGeometryGraphicsComponent(cubeShaders, box, image) {
+                //        Matrix = Matrix4x4.Identity//.CreateTranslation(Vector3.UnitX * 1)
+                //    });
+
                 var geo = Context.GetEntityManager()
                     .CreateEntity(new ElementTag(Guid.NewGuid().ToString()))
-                    .AddComponent(new TexturedGeometryGraphicsComponent(shaders, box, image) {
-                        Matrix = Matrix4x4.CreateTranslation(Vector3.UnitX * 1)
-                    });
-
-                var geo1 = Context.GetEntityManager()
-                    .CreateEntity(new ElementTag(Guid.NewGuid().ToString()))
-                    .AddComponent(new TexturedGeometryGraphicsComponent(shaders, mb.BuildSphere(Vector3.Zero, 1), image) {
-                        Matrix = Matrix4x4.CreateTranslation(Vector3.UnitY * -1)
-                    });
+                    .AddComponent(new LineGeometryGraphicsComponent(lineShaders, box
+                    // new Std.Engine.Helpers.LineBuilder().Build(box.Positions.GetRange(0,3))
+                    ));
 
                 var smanager = Context.GetSystemManager();
                 smanager.CreateSystem<VeldridRenderSystem>();
@@ -127,8 +139,8 @@ namespace D3DLab.Wpf.Engine.App {
                 Context.EntityOrder
                     .RegisterOrder<VeldridRenderSystem>(camera.Tag, 0)
                     .RegisterOrder<InputSystem>(camera.Tag, 0)
-                    .RegisterOrder<VeldridRenderSystem>(geo.Tag, 1)
-                    .RegisterOrder<VeldridRenderSystem>(geo1.Tag, 2);
+                    //.RegisterOrder<VeldridRenderSystem>(geo.Tag, 1);
+                    .RegisterOrder<VeldridRenderSystem>(geo.Tag, 2);
 
             } catch (Exception ex) {
                 ex.ToString();

@@ -8,7 +8,7 @@ namespace D3DLab.Std.Engine.Core.Input {
         protected readonly InputStateData state;
         public BaseInputPublisher() {
             subscribers = new List<InputObserver>();
-            state = new InputStateData();
+            state = InputStateData.Create();
         }
 
         public void Subscrube(InputObserver s) {

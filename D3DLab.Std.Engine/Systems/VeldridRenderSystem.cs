@@ -5,6 +5,7 @@ using Veldrid.Utilities;
 using System.Linq;
 using D3DLab.Std.Engine.Input;
 using D3DLab.Std.Engine.Core.Input;
+using D3DLab.Std.Engine.Components;
 
 namespace D3DLab.Std.Engine.Systems {
     public interface IRenderSystemInit {
@@ -24,7 +25,6 @@ namespace D3DLab.Std.Engine.Systems {
 
         public void Execute(SceneSnapshot snapshot) {
             IEntityManager emanager = snapshot.State.GetEntityManager();
-            InputSnapshot input = snapshot.Snapshot;
 
             using (var _cl = factory.CreateCommandList()) {
                 _cl.Begin();

@@ -25,43 +25,57 @@ namespace D3DLab.Std.Engine.Core.Input {
 
     #region input data
 
-    public sealed class ButtonsState {
-        // private readonly Control control;
-
-        public ButtonsState() {
-            //this.control = control;
-        }
-
-        public Vector2 PointDown { get; set; } //=> control.PointToClient(CursorPointDown).ToVector2();
+    public struct ButtonsState {
+        public Vector2 PointDown { get; set; }
         public WindowPoint CursorPointDown { get; set; }
     }
-    public sealed class InputStateData {
-        // private readonly Control control;
+    public class InputStateData {
         public GeneralMouseButtons Buttons { get; set; }
-
         public Vector2 CurrentPosition { get; set; }//=> control.PointToClient(CursorCurrentPosition).ToVector2();
-
         public WindowPoint CursorCurrentPosition { get; set; }
-
         public int Delta { get; set; }
+        public Dictionary<GeneralMouseButtons, ButtonsState> ButtonsStates {
+            get {
+                return buttonsStates;
+            }
+        }
 
-        // public float ControlWidth => control.Width;
-        //   public float ControlHeight => control.Height;
-
-        public IReadOnlyDictionary<GeneralMouseButtons, ButtonsState> ButtonsStates => buttonsStates;
-        private readonly Dictionary<GeneralMouseButtons, ButtonsState> buttonsStates;
+        readonly Dictionary<GeneralMouseButtons, ButtonsState> buttonsStates;
         public bool IsPressed(GeneralMouseButtons button) {
             return (Buttons & button) == button;
         }
 
-        public InputStateData() {
-            // this.control = control;
-            buttonsStates = new Dictionary<GeneralMouseButtons, ButtonsState>();
-            buttonsStates.Add(GeneralMouseButtons.Right, new ButtonsState());
-            buttonsStates.Add(GeneralMouseButtons.Left, new ButtonsState());
-            buttonsStates.Add(GeneralMouseButtons.Middle, new ButtonsState());
+        public InputStateData(Dictionary<GeneralMouseButtons, ButtonsState> buttonsStates) {
+            this.buttonsStates = buttonsStates;
+            Delta = 0;
+            CurrentPosition = Vector2.Zero;
+            CursorCurrentPosition = new WindowPoint();
+            Buttons = GeneralMouseButtons.None;
+        }
+
+        public static InputStateData Create() {
+            var buttonsStates = new Dictionary<GeneralMouseButtons, ButtonsState> {
+                { GeneralMouseButtons.Right, new ButtonsState() },
+                { GeneralMouseButtons.Left, new ButtonsState() },
+                { GeneralMouseButtons.Middle, new ButtonsState() }
+            };
+            return new InputStateData(buttonsStates);
+        }
+
+        public InputStateData Clone() {
+            var buttonsStates = new Dictionary<GeneralMouseButtons, ButtonsState>();
+            foreach (var i in this.buttonsStates) {
+                buttonsStates.Add(i.Key, i.Value);
+            }
+            var cloned = new InputStateData(buttonsStates);
+            cloned.Buttons = Buttons;
+            cloned.CurrentPosition = CurrentPosition;
+            cloned.CursorCurrentPosition = CursorCurrentPosition;
+            cloned.Delta = Delta;
+
+            return cloned;
         }
     }
-    
+
     #endregion
 }

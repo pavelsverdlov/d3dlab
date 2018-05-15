@@ -1,19 +1,21 @@
 ﻿using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Input;
+using D3DLab.Std.Engine.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using Veldrid.Utilities;
 
 namespace D3DLab.Std.Engine.Input {
-    public sealed class CameraZoomCommand : IInputCommand {
+    public class CameraZoomCommand : IInputCommand {
         const float scrollSpeed = 0.5f;
-        readonly InputStateData istate;
+        readonly InputStateData state;
 
         public CameraZoomCommand(InputStateData state) {
-            this.istate = state;
+            this.state = state;
         }
 
         public bool Execute(Entity entity) {
@@ -21,49 +23,105 @@ namespace D3DLab.Std.Engine.Input {
             if (!find.Any()) {
                 return false;
             }
-            
             var ccom = find.First();
-            var state = istate;
-
             var delta = state.Delta;
-            /*
-            var PanK = 1;
 
-            var x = state.CursorCurrentPosition.X;
-            var y = state.CursorCurrentPosition.Y;
-
-            var kx = x / ccom.VWidth;
-            var ky = y / ccom.VHeight;
-
-            var p1 = new Vector2(x * PanK, y * PanK);
-            var p0 = new Vector2(ccom.VWidth * 0.5f * PanK, ccom.VHeight * 0.5f * PanK);
-
-            var d = 1 - delta * 0.001f;
-            var prevWidth = ccom.Width;
-
-            var newWidth = ccom.Width * d;
-            d = newWidth / prevWidth;
-
-            var pan = (p1 - p0) * (d - 1);
-
-            var left = Vector3.Cross(ccom.UpDirection.Normalize(), ccom.LookDirection.Normalize());
-            left.Normalize();
-
-            var panVector = left * pan.X + ccom.UpDirection.Normalize() * pan.Y;
-
-            ccom.Width = newWidth;
-            ccom.Position = ccom.Position + panVector;
-            */
-            //ccom.UpdatePerspectiveMatrix();
-
-            //ccom.Position = ccom.Position + ccom.LookDirection*2;
-
-            //ccom.UpdateViewMatrix();
-            var nscale = ccom.Scale + (delta * 0.001f);// * (float)Math.Sin(delta)
+            var nscale = ccom.Scale + (delta * 0.001f);
             if (nscale > 0) {
                 ccom.Scale = nscale;
-                ccom.UpdatePerspectiveMatrix();
             }
+
+            return true;
+        }
+    }
+
+    public class CameraRotateCommand : IInputCommand {
+        readonly InputStateData state;
+
+        public CameraRotateCommand(InputStateData state) {
+            this.state = state;
+        }
+
+        public bool Execute(Entity entity) {
+            var find = entity.GetComponents<CameraBuilder.CameraComponent>();
+            if (!find.Any()) {
+                return false;
+            }
+            var ccom = find.First();
+
+            var p11 = state.ButtonsStates[GeneralMouseButtons.Right].PointDown;
+            var p2 = state.CurrentPosition;
+
+            var moveV = p2 - p11;
+            if (moveV == Vector2.Zero) {
+                return false;
+            }
+            var v2Up = new Vector2(0, -1);
+            var mouseMove = moveV;
+            var angleLook = v2Up.AngleRad(mouseMove.Normalize());
+
+            //Console.WriteLine($"Angle 2D: {v2Up.Angle(mouseMove.Normalize())}");
+
+            var look = ccom.LookDirection.Normalize();
+            var up = ccom.UpDirection.Normalize();
+
+            var rotatedUp = Vector3.TransformNormal(up, Matrix4x4.CreateFromAxisAngle(look, angleLook));
+            var cross = Vector3.Cross(look, rotatedUp);
+
+            var angle = mouseMove.Length();
+
+            var movetozero = Matrix4x4.CreateTranslation(ccom.RotatePoint * -1f);
+            var rotate = Matrix4x4.CreateFromAxisAngle(cross, angle.ToRad());
+            var returntocenter = Matrix4x4.CreateTranslation(ccom.RotatePoint);
+            var matrixRotate = movetozero * rotate * returntocenter;
+
+            if (matrixRotate.IsIdentity) {
+                return false;
+            }
+
+            ccom.UpDirection = Vector3.TransformNormal(ccom.UpDirection.Normalize(), matrixRotate).Normalize();
+            ccom.LookDirection = Vector3.TransformNormal(ccom.LookDirection.Normalize(), matrixRotate).Normalize();
+            ccom.Position = Vector3.Transform(ccom.Position, matrixRotate);
+
+            return true;
+        }
+    }
+
+    public class ZoomToObjectCommand : IInputCommand {
+        readonly BoundingBox box;
+
+        public ZoomToObjectCommand(BoundingBox box) {
+            this.box = box;
+        }
+
+        public bool Execute(Entity entity) {
+            var find = entity.GetComponents<CameraBuilder.CameraComponent>();
+            if (!find.Any()) {
+                return false;
+            }
+            var com = find.First();
+
+            var x = box.SizeX();
+            var y = box.SizeY();
+            var ratio = x / y;
+            var max = Math.Max(box.SizeX(), box.SizeY()) * 1.2f;
+
+            com.Position = box.GetCenter() + Vector3.UnitZ * max;
+            com.RotatePoint = box.GetCenter();
+            com.Width = max;
+            com.LookDirection = new Vector3(0, 0, -3);
+            com.UpDirection = new Vector3(0, 1, 0);
+            com.Scale = 1;
+            // com.LookDirection = -Vector3.UnitZ * max;
+
+            //ccom.Width *= box.SizeX() / viewport.ActualWidth;
+            //var oldTarget = pcam.Position + pcam.LookDirection;
+            //var distance = pcam.LookDirection.Length;
+            //var newTarget = centerRay.PlaneIntersection(oldTarget, w);
+            //if (newTarget != null) {
+            //    orthographicCamera.LookDirection = w * distance;
+            //    orthographicCamera.Position = newTarget.Value - orthographicCamera.LookDirection;
+            //}
 
             return true;
         }

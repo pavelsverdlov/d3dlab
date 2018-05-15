@@ -140,17 +140,11 @@ namespace D3DLab.Std.Engine.Core.Input {
             }
         }
 
+        public void PushCommand(IInputCommand cmd) {
+            currentSnapshot.AddEvent(cmd);
+        }
         public InputSnapshot GetInputSnapshot() {
-
-            InputSnapshot state = new InputSnapshot();
-            state.Events.AddRange(currentSnapshot.Events);
-            currentSnapshot.Events.Clear();
-
-            //currentSnapshot = Interlocked.Exchange(ref state, currentSnapshot);
-            Debug.WriteLine($"GetInputSnapshot {state.Events.Count}");
-
-
-            return state;
+            return currentSnapshot.CloneAndClear();
         }
     }
 }

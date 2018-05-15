@@ -13,6 +13,9 @@ namespace D3DLab.Std.Engine.Helpers {
         }
     }
     public static class ShaderHelper {
+        public static Shader LoadShader(ResourceFactory factory, string setName, string stage, string entryPoint) {
+            return LoadShader(factory,setName,(ShaderStages)Enum.Parse(typeof(ShaderStages),stage), entryPoint);
+        }
         public static Shader LoadShader(ResourceFactory factory, string setName, ShaderStages stage, string entryPoint) {
             Shader shader = factory.CreateShader(new ShaderDescription(stage, LoadBytecode(factory, setName, stage), entryPoint));
             shader.Name = $"{setName}-{stage.ToString()}";

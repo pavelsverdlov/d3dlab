@@ -194,5 +194,39 @@ namespace D3DLab.Std.Engine.Helpers {
                 }
             }
         }
+
+    }
+    public class LineBuilder {
+        private readonly List<Vector3> positions;
+        private readonly List<int> lineListIndices;
+
+        public LineBuilder() {
+            positions = new List<Vector3>();
+            lineListIndices = new List<int>();
+        }
+
+        public Geometry3D Build(IEnumerable<Vector3> points, bool closed = false) {
+            var first = positions.Count;
+            positions.AddRange(points);
+            var lineCount = positions.Count - first - 1;
+
+            if (lineCount <= 0) {
+                //positions.SetSize(first);
+                return new Geometry3D();
+            }
+
+            for (var i = 0; i < lineCount; i++) {
+                lineListIndices.Add(first + i);
+                lineListIndices.Add(first + i + 1);
+            }
+
+            if (closed) {
+                lineListIndices.Add(positions.Count - 1);
+                lineListIndices.Add(first);
+            }
+
+            return new Geometry3D() { Positions = positions, Indices = lineListIndices };
+        }
+
     }
 }

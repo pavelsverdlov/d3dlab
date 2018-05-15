@@ -174,7 +174,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             states.Add((int)AllInputStates.Target, s => new InputTargetState(s));
 
             var router = new StateHandleProcessor<ICameraInputHandler>(states, this);
-            router.SwitchTo((int)AllInputStates.Idle, new InputStateData());
+            router.SwitchTo((int)AllInputStates.Idle, InputStateData.Create());
 
             return router;
         }
@@ -191,13 +191,11 @@ namespace D3DLab.Wpf.Engine.App.Input {
             this.control = control;
         }
         public void Zoom(InputStateData state) {
-            //var d = new InputEventState { Data = state, Type = AllInputStates.Zoom };
-            currentSnapshot.AddEvent(new CameraZoomCommand(state));
-            Debug.WriteLine("input Zoom");
+            currentSnapshot.AddEvent(new CameraZoomCommand(state.Clone()));
         }
         public bool Rotate(InputStateData state) {
-           // currentSnapshot.AddEvent(new InputEventState { Data = state, Type = AllInputStates.Rotate });
-            return false;
+            currentSnapshot.AddEvent(new CameraRotateCommand(state.Clone()));
+            return true;
         }
         public void Pan(InputStateData state) {
             //currentSnapshot.AddEvent(new InputEventState { Data = state, Type = AllInputStates.Zoom });
@@ -210,8 +208,5 @@ namespace D3DLab.Wpf.Engine.App.Input {
         public void UnTarget(InputStateData state) {
             //currentSnapshot.AddEvent(new InputEventState { Type = AllInputStates.UnTarget, Data = state });
         }
-
-
-        private InputEventState events;
     }
 }

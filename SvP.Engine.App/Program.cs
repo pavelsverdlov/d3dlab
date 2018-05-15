@@ -15,6 +15,7 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using Veldrid.Utilities;
+using D3DLab.Std.Engine.Core.Shaders;
 
 namespace D3DLab.Std.Engine.App {
     public class Sdl2WindowWrapper : IAppWindow {
@@ -91,9 +92,9 @@ namespace D3DLab.Std.Engine.App {
 
             ShaderInfo[] shaders = {
                     new ShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube"),
-                        Stage = ShaderStages.Vertex, EntryPoint = "VS" },
+                        Stage = ShaderStages.Vertex.ToString(), EntryPoint = "VS" },
                     new ShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders","Cube"),
-                        Stage = ShaderStages.Fragment, EntryPoint = "FS"}
+                        Stage = ShaderStages.Fragment.ToString(), EntryPoint = "FS"}
                 };
 
             var mb = new Helpers.MeshBulder();

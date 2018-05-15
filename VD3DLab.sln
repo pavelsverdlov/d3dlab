@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab", "D3DLab\D3DLab.csproj", "{D7A21D57-4A41-444B-9462-1F0CD9459E28}"
+	ProjectSection(ProjectDependencies) = postProject
+		{47327E16-DC8D-4D23-9485-C16CAFE5E34A} = {47327E16-DC8D-4D23-9485-C16CAFE5E34A}
+		{AD2B47E7-4B24-4643-83A8-46E14AFA2BC5} = {AD2B47E7-4B24-4643-83A8-46E14AFA2BC5}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.Core", "D3DLab.Core\D3DLab.Core.csproj", "{32F6A66C-89DE-4703-84A1-7FE1733CA1F9}"
 EndProject

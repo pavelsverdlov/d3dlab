@@ -1,60 +1,15 @@
-﻿using D3DLab.Std.Engine.Core;
+﻿using D3DLab.Debugger.Infrastructure;
+using D3DLab.Debugger.Model;
+using D3DLab.Std.Engine.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace D3DLab.Debugger.Windows {
-    public interface IVisualEntity {
-
-    }
-    public interface IEntityComponent {
-        ElementTag Guid { get; }
-        string Name { get; }
-        string Value { get; }
-
-        void Refresh();
-    }
-
-    public interface IVisualTreeEntity {
-        ElementTag Name { get; }
-        ObservableCollection<IEntityComponent> Components { get; }
-        void Add(IEntityComponent com);
-        void Remove(IEntityComponent com);
-        void Clear();
-        bool TryRefresh(ID3DComponent com);
-        //void Refresh();
-    }
-
-    //public sealed class ScriptComponent : D3DLab.Core.Test.IComponent {
-    //    public void Dispose() { }
-
-    //}
-    public class VisualProperty : IEntityComponent, System.ComponentModel.INotifyPropertyChanged {
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        private ID3DComponent com;
-
-        public VisualProperty(ID3DComponent com) {
-            this.com = com;
-        }
-
-        public string Name { get { return com.ToString(); } }
-
-        public ElementTag Guid { get { return com.Tag; } }
-
-        public string Value { get; set; }
-
-        public ID3DComponent GetPropertyObject() {
-            return com;
-        }
-
-        public void Refresh() {
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Name)));
-        }
-    }
-
     public sealed class VisualTreeviewerPopup {
         private VisualTreeviewer win;
         public VisualTreeviewerViewModel ViewModel { get; }
@@ -66,8 +21,27 @@ namespace D3DLab.Debugger.Windows {
             win.Show();
         }
     }
-
+   
     public sealed class VisualTreeviewerViewModel : System.ComponentModel.INotifyPropertyChanged {
+        public class OpenShaderEditorCommand : ICommand {
+            public event EventHandler CanExecuteChanged = (s, r) => { };
+
+            public bool CanExecute(object parameter) {
+                return true;
+            }
+
+            public void Execute(object parameter) {
+                var item = (IVisualTreeEntity)parameter;
+                var shaders = item.Components.Select(x => x.GetOriginComponent()).OfType<Std.Engine.Core.IShaderEditingComponent>();
+                if (shaders.Any()) {
+                    var single = shaders.Single();
+                    var win = new ShaderEditorPopup();
+                    win.ViewModel.LoadShader(single);
+                    win.Show();
+                }
+            }
+        }
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
         string consoleText;
 
@@ -95,7 +69,7 @@ namespace D3DLab.Debugger.Windows {
         }
 
         
-
+        public ICommand OpenShaderEditor { get; }
 
         public System.ComponentModel.ICollectionView Items { get; set; }
         public ObservableCollection<IVisualTreeEntity> items { get; set; }
@@ -108,13 +82,17 @@ namespace D3DLab.Debugger.Windows {
             Items = CollectionViewSource.GetDefaultView(items);
             hash = new Dictionary<ElementTag, IVisualTreeEntity>();
             //SelectedComponent = Items.First().Properties.First();
+            OpenShaderEditor = new OpenShaderEditorCommand();
         }
 
         private class VisualTreeItem : IVisualTreeEntity {
+            public Visibility CanEditShader { get; private set; }
             public ElementTag Name { get { return entity.Tag; } }
 
             //  public System.ComponentModel.ICollectionView Components { get; set; }
             public ObservableCollection<IEntityComponent> Components { get; set; }
+
+            public ICommand OpenShaderEditor { get; }
 
             private readonly Dictionary<ElementTag, IEntityComponent> hash;
 
@@ -125,11 +103,14 @@ namespace D3DLab.Debugger.Windows {
                 Components = new ObservableCollection<IEntityComponent>();
                 hash = new Dictionary<ElementTag, IEntityComponent>();
                 // Components = CollectionViewSource.GetDefaultView(components);
+                OpenShaderEditor = new OpenShaderEditorCommand();
             }
 
             public void Add(IEntityComponent com) {
                 Components.Add(com);
                 hash.Add(com.Guid, com);
+
+                CanEditShader = com.GetOriginComponent() is IShaderEditingComponent ? Visibility.Visible : Visibility.Collapsed;
             }
             public void Clear() {
                 Components.Clear();
@@ -137,6 +118,7 @@ namespace D3DLab.Debugger.Windows {
             public void Remove(IEntityComponent com) {
                 Components.Remove(com);
                 hash.Remove(com.Guid);
+                CanEditShader = !(com.GetOriginComponent() is IShaderEditingComponent) ? Visibility.Collapsed : Visibility.Visible;
             }
 
             public bool TryRefresh(ID3DComponent com) {
