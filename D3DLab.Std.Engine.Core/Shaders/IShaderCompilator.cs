@@ -4,8 +4,8 @@ using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Shaders {
     public interface IShaderCompilator {
-        IEnumerable<ShaderInfo> Infos { get; }
-        void Compile(ShaderInfo info);
-        void Compile(ShaderInfo info, string text);
+        IEnumerable<IShaderInfo> Infos { get; }
+        void Compile(IShaderInfo info);
+        void Compile(IShaderInfo info, string text);
     }
 }

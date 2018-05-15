@@ -31,36 +31,36 @@ namespace D3DLab.Std.Engine.Core {
         }
     }
 
-    public sealed class Entity  {
+    public sealed class GraphicEntity  {
         public ElementTag Tag { get; }
         readonly IComponentManager manager;
         readonly EntityOrderContainer order;
 
-        public Entity(ElementTag tag, IComponentManager manager, EntityOrderContainer order) {
+        public GraphicEntity(ElementTag tag, IComponentManager manager, EntityOrderContainer order) {
             this.order = order;
             this.manager = manager;
             Tag =tag;
            
         }
 
-        public T GetComponent<T>() where T : ID3DComponent {
+        public T GetComponent<T>() where T : IGraphicComponent {
             return manager.GetComponent<T>(Tag);
         }
-        public IEnumerable<T> GetComponents<T>() where T : ID3DComponent {
+        public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent {
             return manager.GetComponents<T>(Tag);
         }
 
-        public Entity AddComponent<T>(T component) where T : ID3DComponent {
+        public GraphicEntity AddComponent<T>(T component) where T : IGraphicComponent {
             manager.AddComponent(Tag, component);
             return this;
         }
-        public void RemoveComponent(ID3DComponent component) {
+        public void RemoveComponent(IGraphicComponent component) {
             manager.RemoveComponent(Tag, component);            
         }
-        public bool Has<T>() where T : ID3DComponent {
+        public bool Has<T>() where T : IGraphicComponent {
             return manager.Has<T>(Tag);
         }
-        public IEnumerable<ID3DComponent> GetComponents() {
+        public IEnumerable<IGraphicComponent> GetComponents() {
             return manager.GetComponents(Tag);
         }
 

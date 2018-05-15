@@ -4,6 +4,6 @@ using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Input {
     public interface IInputCommand {
-        bool Execute(Entity entity);
+        bool Execute(GraphicEntity entity);
     }
 }

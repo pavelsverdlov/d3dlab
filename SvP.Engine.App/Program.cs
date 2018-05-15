@@ -54,7 +54,7 @@ namespace D3DLab.Std.Engine.App {
                     handler.Change(_object);
                 }
             }
-            public void NotifyRender(IEnumerable<Entity> entities) {
+            public void NotifyRender(IEnumerable<GraphicEntity> entities) {
                 var handlers = subscribers.OfType<IEntityRenderSubscriber>();
                 foreach (var handler in handlers) {
                     handler.Render(entities);
@@ -90,10 +90,10 @@ namespace D3DLab.Std.Engine.App {
 
             //====
 
-            ShaderInfo[] shaders = {
-                    new ShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube"),
+            D3DShaderInfo[] shaders = {
+                    new D3DShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube"),
                         Stage = ShaderStages.Vertex.ToString(), EntryPoint = "VS" },
-                    new ShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders","Cube"),
+                    new D3DShaderInfo{ Path= Path.Combine(AppContext.BaseDirectory, "Shaders","Cube"),
                         Stage = ShaderStages.Fragment.ToString(), EntryPoint = "FS"}
                 };
 

@@ -10,9 +10,9 @@ namespace D3DLab.Debugger.Model {
     public class VisualProperty : IEntityComponent, System.ComponentModel.INotifyPropertyChanged {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
-        private ID3DComponent com;
+        private IGraphicComponent com;
 
-        public VisualProperty(ID3DComponent com) {
+        public VisualProperty(IGraphicComponent com) {
             this.com = com;
         }
 
@@ -22,7 +22,7 @@ namespace D3DLab.Debugger.Model {
 
         public string Value { get; set; }
 
-        public ID3DComponent GetOriginComponent() {
+        public IGraphicComponent GetOriginComponent() {
             return com;
         }
 

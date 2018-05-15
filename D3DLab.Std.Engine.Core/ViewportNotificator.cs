@@ -8,7 +8,7 @@ namespace D3DLab.Std.Engine.Core {
     }
 
     public interface IEntityRenderSubscriber : IEngineSubscriber {
-        void Render(IEnumerable<Entity> entities);
+        void Render(IEnumerable<GraphicEntity> entities);
     }
 
     public interface IEngineSubscribe {
@@ -19,7 +19,7 @@ namespace D3DLab.Std.Engine.Core {
         void NotifyChange<T>(T _object) where T : class;
     }
     public interface IEntityRenderNotify {
-        void NotifyRender(IEnumerable<Entity> entities);
+        void NotifyRender(IEnumerable<GraphicEntity> entities);
     }
 
     public sealed class EngineNotificator : IEngineSubscribe, IManagerChangeNotify , IEntityRenderNotify {
@@ -38,7 +38,7 @@ namespace D3DLab.Std.Engine.Core {
                 handler.Change(_object);
             }
         }
-        public void NotifyRender(IEnumerable<Entity> entities) {
+        public void NotifyRender(IEnumerable<GraphicEntity> entities) {
             var handlers = subscribers.OfType<IEntityRenderSubscriber>();
             foreach (var handler in handlers) {
                 handler.Render(entities);

@@ -1,7 +1,6 @@
 ﻿using D3DLab.Std.Engine;
 using D3DLab.Std.Engine.Components;
 using D3DLab.Std.Engine.Core;
-using D3DLab.Std.Engine.Core.Input;
 using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Entities;
 using D3DLab.Std.Engine.Systems;
@@ -18,30 +17,6 @@ using System.Windows;
 using Veldrid;
 
 namespace D3DLab.Wpf.Engine.App {
-    public sealed class GameWindow : IAppWindow {
-        private WinFormsD3DControl win;
-        readonly CurrentInputObserver input;
-
-        public GameWindow(WinFormsD3DControl win, CurrentInputObserver input) {
-            this.input = input;
-            this.win = win;
-            Width = (float)Application.Current.MainWindow.ActualWidth;
-            Height = (float)Application.Current.MainWindow.ActualHeight;
-        }
-
-        public float Width { get; }
-
-        public float Height { get; }
-
-        public bool IsActive => true;
-
-        public IntPtr Handle => win.Handle;
-
-        public InputSnapshot GetShapshot() {
-            return input.GetInputSnapshot();
-        }
-    }
-
     public class Scene {
         private readonly FormsHost host;
         private readonly FrameworkElement overlay;
@@ -87,19 +62,25 @@ namespace D3DLab.Wpf.Engine.App {
 
         private void Test() {
             try {
-                ShaderInfo[] cubeShaders = {
-                    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube")}-{ShaderStages.Vertex}.hlsl",
-                        Stage = ShaderStages.Vertex.ToString(), EntryPoint = "VS" },
-                    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube")}-{ShaderStages.Fragment}.hlsl",
-                        Stage = ShaderStages.Fragment.ToString(), EntryPoint = "FS"}
-                };
-                ShaderInfo[] lineShaders = {
-                    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line")}-{ShaderStages.Vertex}.hlsl",
-                        Stage = ShaderStages.Vertex.ToString(), EntryPoint = "VShaderLines" },
-                    //new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line")}-{ShaderStages.Geometry}.hlsl",
+                //IShaderInfo[] cubeShaders = {
+                //    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube")}-{ShaderStages.Vertex}.hlsl",
+                //        Stage = ShaderStages.Vertex.ToString(), EntryPoint = "VS" },
+                //    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube")}-{ShaderStages.Fragment}.hlsl",
+                //        Stage = ShaderStages.Fragment.ToString(), EntryPoint = "FS"}
+                //};
+                IShaderInfo[] lineShaders = {
+                    new D3DShaderInfo(
+                        Path.Combine(AppContext.BaseDirectory, "Shaders", "Line"),
+                        $"line-{ShaderStages.Vertex}",
+                        ShaderStages.Vertex.ToString(),
+                        "VShaderLines"),
+                        //new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line")}-{ShaderStages.Geometry}.hlsl",
                     //    Stage = ShaderStages.Geometry.ToString(), EntryPoint = "GShaderLines"},
-                     new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line")}-{ShaderStages.Fragment}.hlsl",
-                        Stage = ShaderStages.Fragment.ToString(), EntryPoint = "PShaderLinesFade"}
+                     new D3DShaderInfo(
+                        Path.Combine(AppContext.BaseDirectory, "Shaders", "Line"),
+                        $"line-{ShaderStages.Fragment}",
+                        ShaderStages.Fragment.ToString(),
+                        "PShaderLinesFade")
                 };
 
                 //if (Directory.Exists(Path.Combine(AppContext.BaseDirectory, "Shaders", "Line", "line"))) {
@@ -128,7 +109,7 @@ namespace D3DLab.Wpf.Engine.App {
 
                 var geo = Context.GetEntityManager()
                     .CreateEntity(new ElementTag(Guid.NewGuid().ToString()))
-                    .AddComponent(new LineGeometryGraphicsComponent(lineShaders, box
+                    .AddComponent(new LineGeometryRenderComponent(lineShaders, box
                     // new Std.Engine.Helpers.LineBuilder().Build(box.Positions.GetRange(0,3))
                     ));
 

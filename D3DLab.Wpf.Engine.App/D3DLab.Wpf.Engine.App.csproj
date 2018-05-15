@@ -168,7 +168,8 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ex.cs" />
+    <Compile Include="NumericsToDrawingConvertorsEx.cs" />
+    <Compile Include="GameWindow.cs" />
     <Compile Include="Host\FormsHost.cs" />
     <Compile Include="Host\WinFormsD3DControl.cs">
       <SubType>UserControl</SubType>

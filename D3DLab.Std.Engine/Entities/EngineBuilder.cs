@@ -5,7 +5,7 @@ using System.Text;
 
 namespace D3DLab.Std.Engine.Entities {
     public static class EngineInfoBuilder {
-        public sealed class PerfomanceComponent : D3DComponent {
+        public sealed class PerfomanceComponent : GraphicComponent {
             public double ElapsedMilliseconds { get; set; }
             public double FPS { get; set; }
 
@@ -15,7 +15,7 @@ namespace D3DLab.Std.Engine.Entities {
             }
         }
 
-        public sealed class InputInfoComponent : D3DComponent {
+        public sealed class InputInfoComponent : GraphicComponent {
             public double EventCount { get; set; }
 
 
@@ -24,7 +24,7 @@ namespace D3DLab.Std.Engine.Entities {
             }
         }
 
-        public static Entity Build(IEntityManager context) {
+        public static GraphicEntity Build(IEntityManager context) {
             var view = context.CreateEntity(new ElementTag("EngineInfo"));
 
             view.AddComponent(new PerfomanceComponent())

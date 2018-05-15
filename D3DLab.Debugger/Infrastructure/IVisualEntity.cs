@@ -16,7 +16,7 @@ namespace D3DLab.Debugger.Infrastructure {
         string Name { get; }
         string Value { get; }
 
-        ID3DComponent GetOriginComponent();
+        IGraphicComponent GetOriginComponent();
 
         void Refresh();
     }
@@ -27,7 +27,7 @@ namespace D3DLab.Debugger.Infrastructure {
         void Add(IEntityComponent com);
         void Remove(IEntityComponent com);
         void Clear();
-        bool TryRefresh(ID3DComponent com);
+        bool TryRefresh(IGraphicComponent com);
         //void Refresh();
 
 

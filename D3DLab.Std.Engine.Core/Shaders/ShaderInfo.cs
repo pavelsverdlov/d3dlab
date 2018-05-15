@@ -4,17 +4,16 @@ using System.IO;
 using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Shaders {
-    public struct ShaderInfo {
-        public string Path;
-        /// <summary>
-        /// Vertex/Fragment
-        /// </summary>
-        public string Stage;
-        public string EntryPoint;
+    public interface IShaderInfo {
+        string Stage { get; }
+        string EntryPoint { get; }
+        string CompiledPath { get; }
 
-        public FileInfo GetFileInfo() {
-            return new FileInfo(Path);
-        }
+        byte[] ReadCompiledBytes();
+        void WriteCompiledBytes(byte[] bytes);
 
-    }
+        string ReadText();
+        byte[] ReadBytes();
+        
+    }    
 }

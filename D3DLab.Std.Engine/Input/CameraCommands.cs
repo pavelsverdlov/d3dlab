@@ -18,7 +18,7 @@ namespace D3DLab.Std.Engine.Input {
             this.state = state;
         }
 
-        public bool Execute(Entity entity) {
+        public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<CameraBuilder.CameraComponent>();
             if (!find.Any()) {
                 return false;
@@ -42,7 +42,7 @@ namespace D3DLab.Std.Engine.Input {
             this.state = state;
         }
 
-        public bool Execute(Entity entity) {
+        public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<CameraBuilder.CameraComponent>();
             if (!find.Any()) {
                 return false;
@@ -94,7 +94,7 @@ namespace D3DLab.Std.Engine.Input {
             this.box = box;
         }
 
-        public bool Execute(Entity entity) {
+        public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<CameraBuilder.CameraComponent>();
             if (!find.Any()) {
                 return false;

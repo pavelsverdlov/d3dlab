@@ -180,18 +180,18 @@ namespace D3DLab.Debugger.Windows {
         public FlowDocument ShaderDocument { get; set; }
         public ICommand WordSelected { get; }
 
-        public ShaderInfo Info { get; }
+        public IShaderInfo Info { get; }
 
         private readonly Dictionary<string, List<Run>> words;
 
-        public ShaderTabEditor(ShaderInfo info) {
+        public ShaderTabEditor(IShaderInfo info) {
             this.Info = info;
             ShaderDocument = new FlowDocument();
             words = new Dictionary<string, List<Run>>();
             WordSelected = new EditorWordSelectedCommand(words);            
         }
         public void LoadShaderAsync() {
-            var text = System.IO.File.ReadAllText(Info.Path);
+            var text = Info.ReadText();
 
             var parser = new ShaderParser(text);
 

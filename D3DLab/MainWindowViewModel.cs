@@ -72,20 +72,20 @@ namespace D3DLab {
         }
     }
 
-    public sealed class ViewportSubscriber : IManagerChangeSubscriber<Entity>, IEntityRenderSubscriber {
+    public sealed class ViewportSubscriber : IManagerChangeSubscriber<GraphicEntity>, IEntityRenderSubscriber {
         private readonly MainWindowViewModel mv;
 
         public ViewportSubscriber(MainWindowViewModel mv) {
             this.mv = mv;
         }
 
-        public void Change(Entity entity) {
+        public void Change(GraphicEntity entity) {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
                 mv.VisualTreeviewer.ViewModel.Add(entity);
             }));
         }
 
-        public void Render(IEnumerable<Entity> entities) {
+        public void Render(IEnumerable<GraphicEntity> entities) {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
                 mv.VisualTreeviewer.ViewModel.Refresh(entities);
             }));
@@ -141,7 +141,7 @@ namespace D3DLab {
                 //}
             }
 
-            public sealed class InvisibleComponent : D3DComponent {
+            public sealed class InvisibleComponent : GraphicComponent {
 
             }
         }

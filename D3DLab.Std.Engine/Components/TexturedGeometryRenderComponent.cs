@@ -15,12 +15,11 @@ namespace D3DLab.Std.Engine.Components {
         public string Path;
     }
 
-    public class TexturedGeometryGraphicsComponent : ShaderComponent, IRenderableComponent {
+    public class TexturedGeometryRenderComponent : ShaderComponent, IRenderableComponent {
         private DeviceBuffer _indexBuffer;
         private DeviceBuffer _vertexBuffer;
         private DeviceBuffer _projectionBuffer;
         private DeviceBuffer _viewBuffer;
-        ShaderSetDescription ShaderSet;
         ResourceLayout projViewLayout;
         ResourceLayout worldTextureLayout;
         TextureView _surfaceTextureView;
@@ -32,7 +31,7 @@ namespace D3DLab.Std.Engine.Components {
         readonly Geometry3D geometry;
         readonly TextureInfo texture;
 
-        public TexturedGeometryGraphicsComponent(ShaderInfo[] shaders, Geometry3D geometry, TextureInfo texture) : base(shaders) {
+        public TexturedGeometryRenderComponent(IShaderInfo[] shaders, Geometry3D geometry, TextureInfo texture) : base(shaders) {
             this.texture = texture;
             this.geometry = geometry;
         }
@@ -133,7 +132,7 @@ namespace D3DLab.Std.Engine.Components {
                     DepthStencilStateDescription.DepthOnlyLessEqual,
                     RasterizerStateDescription.Default,
                     PrimitiveTopology.TriangleList,
-                    ShaderSet,
+                    ShaderSetDesc,
                     resourceLayouts.ToArray(),
                     gd.SwapchainFramebuffer.OutputDescription));
             _cl.SetPipeline(_pipeline);

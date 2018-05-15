@@ -1,16 +1,16 @@
 ﻿using System;
 
 namespace D3DLab.Std.Engine.Core {
-    public interface ID3DComponent : IDisposable {
+    public interface IGraphicComponent : IDisposable {
         ElementTag Tag { get; }
         ElementTag EntityTag { get; set; }
     }
 
-    public abstract class D3DComponent : ID3DComponent {
+    public abstract class GraphicComponent : IGraphicComponent {
         public ElementTag Tag { get; }
         public ElementTag EntityTag { get; set; }
 
-        protected D3DComponent() {
+        protected GraphicComponent() {
             Tag = new ElementTag(Guid.NewGuid().ToString());
         }
 

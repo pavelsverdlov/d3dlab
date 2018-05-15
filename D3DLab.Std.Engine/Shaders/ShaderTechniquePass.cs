@@ -29,12 +29,12 @@ namespace D3DLab.Std.Engine.Shaders {
             pass.Clear();
         }
 
-        public void Update(ResourceFactory factory, ShaderInfo[] shaderInfos) {
+        public void Update(ResourceFactory factory, IShaderInfo[] shaderInfos) {
             pass.Clear();
             foreach (var info in shaderInfos) {
                 var stage = (Veldrid.ShaderStages)Enum.Parse(typeof(Veldrid.ShaderStages), info.Stage);
-                Shader shader = factory.CreateShader(new ShaderDescription(stage, File.ReadAllBytes(info.Path+".bytes"), info.EntryPoint));
-                shader.Name = Path.GetFileName(info.Path);
+                Shader shader = factory.CreateShader(new ShaderDescription(stage, info.ReadCompiledBytes(), info.EntryPoint));
+                shader.Name = Path.GetFileName(info.CompiledPath);
                 pass[stage] = shader;
             }
         }

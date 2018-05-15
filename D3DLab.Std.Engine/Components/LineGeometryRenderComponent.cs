@@ -7,7 +7,7 @@ using D3DLab.Std.Engine.Core.Shaders;
 using System.Runtime.InteropServices;
 
 namespace D3DLab.Std.Engine.Components {
-    public class LineGeometryGraphicsComponent : ShaderComponent, IRenderableComponent {
+    public class LineGeometryRenderComponent : ShaderComponent, IRenderableComponent {
         readonly Geometry3D geometry;
 
         DeviceBuffer _indexBuffer;
@@ -20,7 +20,7 @@ namespace D3DLab.Std.Engine.Components {
         ResourceLayout projViewLayout;
         ResourceSet _projViewSet;
 
-        public LineGeometryGraphicsComponent(ShaderInfo[] shaders, Geometry3D geometry) : base(shaders) {
+        public LineGeometryRenderComponent(IShaderInfo[] shaders, Geometry3D geometry) : base(shaders) {
             this.geometry = geometry;
         }
 

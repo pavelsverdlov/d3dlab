@@ -8,49 +8,49 @@ namespace D3DLab.Std.Engine.Core {
 
         #region IEntityManager
 
-        readonly Dictionary<ElementTag, Entity> entities = new Dictionary<ElementTag, Entity>();
-        Func<Entity, bool> predicate = x => true;
+        readonly Dictionary<ElementTag, GraphicEntity> entities = new Dictionary<ElementTag, GraphicEntity>();
+        Func<GraphicEntity, bool> predicate = x => true;
         readonly IManagerChangeNotify notify;
 
-        public Entity CreateEntity(ElementTag tag) {
-            var en = new Entity(tag, this, orderContainer);
+        public GraphicEntity CreateEntity(ElementTag tag) {
+            var en = new GraphicEntity(tag, this, orderContainer);
             entities.Add(tag, en);
             notify.NotifyChange(en);
-            components.Add(en.Tag, new List<ID3DComponent>());
+            components.Add(en.Tag, new List<IGraphicComponent>());
             return en;
         }
-        public IEnumerable<Entity> GetEntities() {
+        public IEnumerable<GraphicEntity> GetEntities() {
             return entities.Values.Where(predicate);
         }
-        public Entity GetEntity(ElementTag tag) {
+        public GraphicEntity GetEntity(ElementTag tag) {
             return entities[tag];
         }
-        public void SetFilter(Func<Entity, bool> predicate) {
+        public void SetFilter(Func<GraphicEntity, bool> predicate) {
             this.predicate = predicate;
         }
         #endregion
 
         #region IComponentManager
-        readonly Dictionary<ElementTag, List<ID3DComponent>> components = new Dictionary<ElementTag, List<ID3DComponent>>();
+        readonly Dictionary<ElementTag, List<IGraphicComponent>> components = new Dictionary<ElementTag, List<IGraphicComponent>>();
 
-        public ID3DComponent AddComponent(ElementTag tagEntity, ID3DComponent com) {
+        public IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com) {
             com.EntityTag = tagEntity;
             components[tagEntity].Add(com);
             return com;
         }
-        public void RemoveComponent(ElementTag tagEntity, ID3DComponent com) {
+        public void RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
             components[tagEntity].Remove(com);
         }
-        public T GetComponent<T>(ElementTag tagEntity) where T : ID3DComponent {
+        public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
             return components[tagEntity].OfType<T>().FirstOrDefault();
         }
-        public IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : ID3DComponent {
+        public IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {
             return components[tagEntity].OfType<T>();
         }
-        public IEnumerable<ID3DComponent> GetComponents(ElementTag tagEntity) {
+        public IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity) {
             return components[tagEntity].ToArray();
         }
-        public bool Has<T>(ElementTag tag) where T : ID3DComponent {
+        public bool Has<T>(ElementTag tag) where T : IGraphicComponent {
             return components[tag].Any(x => x is T);
         }
 

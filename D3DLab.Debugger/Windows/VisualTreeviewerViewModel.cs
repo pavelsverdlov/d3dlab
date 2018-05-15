@@ -1,6 +1,7 @@
 ﻿using D3DLab.Debugger.Infrastructure;
 using D3DLab.Debugger.Model;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Shaders;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -32,7 +33,7 @@ namespace D3DLab.Debugger.Windows {
 
             public void Execute(object parameter) {
                 var item = (IVisualTreeEntity)parameter;
-                var shaders = item.Components.Select(x => x.GetOriginComponent()).OfType<Std.Engine.Core.IShaderEditingComponent>();
+                var shaders = item.Components.Select(x => x.GetOriginComponent()).OfType<IShaderEditingComponent>();
                 if (shaders.Any()) {
                     var single = shaders.Single();
                     var win = new ShaderEditorPopup();
@@ -96,9 +97,9 @@ namespace D3DLab.Debugger.Windows {
 
             private readonly Dictionary<ElementTag, IEntityComponent> hash;
 
-            readonly Entity entity;
+            readonly GraphicEntity entity;
 
-            public VisualTreeItem(Entity entity) {
+            public VisualTreeItem(GraphicEntity entity) {
                 this.entity = entity;
                 Components = new ObservableCollection<IEntityComponent>();
                 hash = new Dictionary<ElementTag, IEntityComponent>();
@@ -121,7 +122,7 @@ namespace D3DLab.Debugger.Windows {
                 CanEditShader = !(com.GetOriginComponent() is IShaderEditingComponent) ? Visibility.Collapsed : Visibility.Visible;
             }
 
-            public bool TryRefresh(ID3DComponent com) {
+            public bool TryRefresh(IGraphicComponent com) {
                 if (!hash.ContainsKey(com.Tag)) {
                     return false;
                 }
@@ -160,7 +161,7 @@ namespace D3DLab.Debugger.Windows {
             };
         }*/
 
-        public void Add(Entity entity) {
+        public void Add(GraphicEntity entity) {
             var found = items.SingleOrDefault(x => x.Name == entity.Tag);
             if (found == null) {
                 found = new VisualTreeItem(entity);
@@ -177,7 +178,7 @@ namespace D3DLab.Debugger.Windows {
             }
         }
 
-        public void Refresh(IEnumerable<Entity> entities) {
+        public void Refresh(IEnumerable<GraphicEntity> entities) {
             Title = $"Visual Tree [entities {entities.Count()}]";
             foreach (var en in entities) {
                 if (hash.ContainsKey(en.Tag)){

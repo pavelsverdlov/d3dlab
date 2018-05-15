@@ -5,13 +5,13 @@ using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Shaders;
 
 namespace D3DLab.Std.Engine.Components {
-    public abstract class ShaderComponent : D3DComponent, IShaderEditingComponent {
-        public readonly ShaderInfo[] ShaderInfos;
+    public abstract class ShaderComponent : GraphicComponent, IShaderEditingComponent {
+        public readonly IShaderInfo[] ShaderInfos;
         public readonly ShaderTechniquePass TechniquePass;
 
         public ShaderSetDescription ShaderSetDesc { get; private set; }
 
-        public ShaderComponent(ShaderInfo[] shaders) {
+        public ShaderComponent(IShaderInfo[] shaders) {
             this.ShaderInfos = shaders;
             TechniquePass = new ShaderTechniquePass();
         }

@@ -6,7 +6,7 @@ using System.Numerics;
 namespace D3DLab.Std.Engine.Entities {
     public static class CameraBuilder {
 
-        public class CameraComponent : D3DComponent, IRenderableComponent {
+        public class CameraComponent : GraphicComponent, IRenderableComponent {
             private Vector3 _position;
             private float _moveSpeed = 10.0f;
 
@@ -111,7 +111,7 @@ namespace D3DLab.Std.Engine.Entities {
 
         }
 
-        public class GraphicsComponent : D3DComponent, IRenderableComponent {
+        public class GraphicsComponent : GraphicComponent, IRenderableComponent {
             static float angle = 0;
             public void Update(RenderState state) {
                 var window = state.window;
