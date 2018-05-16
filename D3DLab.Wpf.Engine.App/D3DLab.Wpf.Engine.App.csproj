@@ -229,15 +229,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CrazyCore-master\code\ge\ext\veldrid\src\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj">
+    <ProjectReference Include="..\veldrid\src\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj">
       <Project>{b1aeba69-c61c-41e7-9126-2087b3d5cafa}</Project>
       <Name>Veldrid.ImageSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\CrazyCore-master\code\ge\ext\veldrid\src\Veldrid.Utilities\Veldrid.Utilities.csproj">
+    <ProjectReference Include="..\veldrid\src\Veldrid.Utilities\Veldrid.Utilities.csproj">
       <Project>{3c8555bb-2bd9-4973-bfd9-dcafdcd5955d}</Project>
       <Name>Veldrid.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\CrazyCore-master\code\ge\ext\veldrid\src\Veldrid\Veldrid.csproj">
+    <ProjectReference Include="..\veldrid\src\Veldrid\Veldrid.csproj">
       <Project>{60d56e4a-fa7a-4664-bef0-0a29f41518bf}</Project>
       <Name>Veldrid</Name>
     </ProjectReference>

@@ -146,7 +146,7 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.3.0-beta1\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CrazyCore-master\code\ge\ext\veldrid\src\Veldrid.Utilities\Veldrid.Utilities.csproj">
+    <ProjectReference Include="..\veldrid\src\Veldrid.Utilities\Veldrid.Utilities.csproj">
       <Project>{3c8555bb-2bd9-4973-bfd9-dcafdcd5955d}</Project>
       <Name>Veldrid.Utilities</Name>
     </ProjectReference>
