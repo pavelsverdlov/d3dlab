@@ -37,9 +37,11 @@ namespace D3DLab.Std.Engine.Core {
 
     public abstract class BaseContextState : IContextState {
         readonly ContextStateProcessor processor;
+        readonly ManagerContainer managers;
 
-        public BaseContextState(ContextStateProcessor processor) {
+        public BaseContextState(ContextStateProcessor processor, ManagerContainer managers) {
             this.processor = processor;
+            this.managers = managers;
         }
 
         public virtual void SwitchTo(int stateTo) {
@@ -48,13 +50,13 @@ namespace D3DLab.Std.Engine.Core {
         public virtual void EndState() { }
         public virtual void BeginState() { }
 
-        public virtual IComponentManager GetComponentManager() { return processor.Managers.ComponentManager; }
-        public virtual IEntityManager GetEntityManager() { return processor.Managers.EntityManager; }
-        public virtual ISystemManager GetSystemManager() { return processor.Managers.SystemManager; }
-        public EntityOrderContainer EntityOrder { get { return processor.Managers.EntityOrder; } }
+        public virtual IComponentManager GetComponentManager() { return managers.ComponentManager; }
+        public virtual IEntityManager GetEntityManager() { return managers.EntityManager; }
+        public virtual ISystemManager GetSystemManager() { return managers.SystemManager; }
+        public EntityOrderContainer EntityOrder { get { return managers.EntityOrder; } }
 
         public void Dispose() {
-            processor.Managers.Dispose();
+            managers.Dispose();
         }
     }
 
@@ -72,15 +74,11 @@ namespace D3DLab.Std.Engine.Core {
 
         IContextState currentState;
         private readonly Dictionary<int, Func<ContextStateProcessor, IContextState>> states;
-
-        internal ManagerContainer Managers { get; private set; }
-
-        public ContextStateProcessor(ManagerContainer managers) {
+        
+        public ContextStateProcessor() {
             states = new Dictionary<int, Func<ContextStateProcessor, IContextState>>();
             states.Add(-1, x => new EmptyContextState());
             currentState = new EmptyContextState();
-
-            Managers = managers;
         }
 
         public void AddState(int stateTo, Func<ContextStateProcessor, IContextState> func) {
@@ -118,7 +116,8 @@ namespace D3DLab.Std.Engine.Core {
         }
 
         public void Dispose() {
-            Managers.Dispose();
+            states.Clear();
+            currentState.Dispose();
         }
     }
 }

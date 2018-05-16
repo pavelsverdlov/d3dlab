@@ -56,9 +56,9 @@ namespace D3DLab.Std.Engine {
         readonly CancellationTokenSource tokensource;
         readonly CancellationToken token;
 
-        public ContextStateProcessor Context { get; }
+        public IContextState Context { get; }
 
-        public Game(IAppWindow window, ContextStateProcessor context) {
+        public Game(IAppWindow window, IContextState context) {
             Context = context;
             this.gd = GD.Create(window);//for test
             this.window = window;
@@ -129,6 +129,13 @@ namespace D3DLab.Std.Engine {
 
             window.InputManager.Dispose();
             Context.Dispose();
+        }
+
+        public void Dispose() {
+            if(loopTask.Status == TaskStatus.Running) {
+                tokensource.Cancel();
+                loopTask.Wait();
+            }
         }
     }
 }

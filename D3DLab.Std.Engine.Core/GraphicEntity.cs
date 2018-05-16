@@ -74,8 +74,11 @@ namespace D3DLab.Std.Engine.Core {
     }
     public class EntityOrderContainer {
         readonly Dictionary<ElementTag, OrderSystemContainer> componentOrderIndex;
+        readonly Dictionary<Type, int> systemsOrder;
+
         public EntityOrderContainer() {
             componentOrderIndex = new Dictionary<ElementTag, OrderSystemContainer>();
+            systemsOrder = new Dictionary<Type, int>();
         }
         public EntityOrderContainer RegisterOrder<TSys>(ElementTag tag,int index) 
             where TSys : IComponentSystem{
@@ -84,16 +87,43 @@ namespace D3DLab.Std.Engine.Core {
                 ordering = new OrderSystemContainer();
                 componentOrderIndex.Add(tag, ordering);
             }
-            ordering.Add(typeof(TSys), index);
+            var t = typeof(TSys);
+
+            ordering.Add(t, index);
+            IncrementSystemOrderIndex(t);
 
             return this;
         }
+
+        public EntityOrderContainer RegisterOrder<TSys>(ElementTag tag)
+           where TSys : IComponentSystem {
+            OrderSystemContainer ordering;
+            if (!componentOrderIndex.TryGetValue(tag, out ordering)) {
+                ordering = new OrderSystemContainer();
+                componentOrderIndex.Add(tag, ordering);
+            }
+            var t = typeof(TSys);
+
+            ordering.Add(t, IncrementSystemOrderIndex(t));
+
+            return this;
+        }
+
         public int Get<TSys>(ElementTag tag)
             where TSys : IComponentSystem {
             if (!componentOrderIndex.ContainsKey(tag)) {
                 return int.MaxValue;
             }
             return componentOrderIndex[tag][typeof(TSys)];
+        }
+
+        int IncrementSystemOrderIndex(Type t) {
+            if (!systemsOrder.ContainsKey(t)) {
+                systemsOrder.Add(t, 0);
+            } else {
+                systemsOrder[t] = systemsOrder[t] + 1;
+            }
+            return systemsOrder[t];
         }
     }
 }

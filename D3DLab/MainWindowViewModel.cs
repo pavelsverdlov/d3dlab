@@ -10,12 +10,14 @@ using System.IO;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Wpf.Engine.App.Host;
 using System.Numerics;
+using D3DLab.Wpf.Engine.App;
 
 namespace D3DLab {
 
     public sealed class MainWindowViewModel {
         private SceneView scene;
         private readonly EngineNotificator notificator;
+        ContextStateProcessor context;
 
         public VisualTreeviewerPopup VisualTreeviewer { get; set; }
         public ICommand LoadDuck { get; set; }
@@ -35,17 +37,21 @@ namespace D3DLab {
         }
 
         public void Init(FormsHost host, FrameworkElement overlay) {
-            var container = new ManagerContainer(notificator);
-            var context = new ContextStateProcessor(container);
-            context.AddState(0, x => new GenneralContextState(x));
+            context = new ContextStateProcessor();
+            context.AddState(0, x => new GenneralContextState(x, notificator));
 
             context.SwitchTo(0);
 
             scene = new SceneView(host, overlay, context, notificator);
-            
+            scene.RenderStarted += OnRenderStarted;
+
+
             VisualTreeviewer.Show();
         }
 
+        private void OnRenderStarted() {
+            LineEntityBuilder.Build(context);
+        }
 
         private class Command : ICommand {
             private MainWindowViewModel main;
@@ -69,7 +75,7 @@ namespace D3DLab {
     }
 
     public sealed class GenneralContextState : BaseContextState {
-        public GenneralContextState(ContextStateProcessor processor) : base(processor) {
+        public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor,new ManagerContainer(notificator)) {
         }
     }
 
@@ -160,9 +166,9 @@ namespace D3DLab {
             //    ex.ToString();
             //}
 
-            var center = new Vector3();
-            var point = new Vector3(10, 10, 10);
-            var res = point + center;
+            //var center = new Vector3();
+            //var point = new Vector3(10, 10, 10);
+            //var res = point + center;
 
             //var v = new Vector3(10, 10, 10) + new Vector3(5, 20, 0);
             //var v = new Vector3(5, 20, 0) - new Vector3(10, 10, 10);
@@ -176,7 +182,6 @@ namespace D3DLab {
 
         }
 
-       
 
         public LoadedItem LoadObj(Stream content) {
             return null;

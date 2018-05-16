@@ -1,20 +1,15 @@
 ﻿using D3DLab.Std.Engine;
-using D3DLab.Std.Engine.Components;
 using D3DLab.Std.Engine.Core;
-using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Entities;
 using D3DLab.Std.Engine.Systems;
 using D3DLab.Wpf.Engine.App.Host;
 using D3DLab.Wpf.Engine.App.Input;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Veldrid;
 
 namespace D3DLab.Wpf.Engine.App {
     public class Scene {
@@ -26,7 +21,8 @@ namespace D3DLab.Wpf.Engine.App {
         private Game game;
         private GameWindow window;
 
-        public ContextStateProcessor Context { get; }
+        public IContextState Context { get; }
+        public event Action RenderStarted = () => { };
 
         public Scene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify) {
             this.host = host;
@@ -39,28 +35,49 @@ namespace D3DLab.Wpf.Engine.App {
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
-
+            game.Dispose();
         }
 
         private void OnHandleCreated(WinFormsD3DControl win) {
             window = new GameWindow(win, input);
             game = new Game(window, Context);
 
-            Test();
+            var cameraTag = new ElementTag(Guid.NewGuid().ToString());
 
-            //systems initialization
-            foreach (var sys in Context.GetSystemManager().GetSystems()) {
-                switch (sys) {
-                    case IRenderSystemInit rsys:
-                        rsys.Init(game.gd, game.factory, window);
-                        break;
+            {   //systems creating
+                var smanager = Context.GetSystemManager();
+
+                smanager.CreateSystem<VeldridRenderSystem>();
+                smanager.CreateSystem<InputSystem>();
+
+                //systems initialization
+                foreach (var sys in Context.GetSystemManager().GetSystems()) {
+                    switch (sys) {
+                        case IRenderSystemInit rsys:
+                            rsys.Init(game.gd, game.factory, window);
+                            break;
+                    }
                 }
             }
-            game.Run(notify);
+            {   //default entities
+                var em = Context.GetEntityManager();
 
+                EngineInfoBuilder.Build(em);
+                em.CreateEntity(cameraTag).AddComponent(new CameraBuilder.CameraComponent(window.Width, window.Height));               
+            }
+
+            {//entities ordering 
+                Context.EntityOrder
+                       .RegisterOrder<VeldridRenderSystem>(cameraTag, 0)
+                       .RegisterOrder<InputSystem>(cameraTag, 0);
+            }
+
+            game.Run(notify);
+            RenderStarted();
         }
 
         private void Test() {
+            /*
             try {
                 //IShaderInfo[] cubeShaders = {
                 //    new ShaderInfo{ Path= $"{Path.Combine(AppContext.BaseDirectory, "Shaders", "Cube")}-{ShaderStages.Vertex}.hlsl",
@@ -88,12 +105,8 @@ namespace D3DLab.Wpf.Engine.App {
                 //}
 
                 var mb = new Std.Engine.Helpers.MeshBulder();
-
-                EngineInfoBuilder.Build(Context.GetEntityManager());
-
-                var camera = Context.GetEntityManager()
-                    .CreateEntity(new ElementTag(Guid.NewGuid().ToString()))
-                    .AddComponent(new CameraBuilder.CameraComponent(window.Width, window.Height));
+                
+              
                 // .AddComponent(new CameraBuilder.GraphicsComponent());
 
                 TextureInfo image = new TextureInfo {
@@ -126,6 +139,7 @@ namespace D3DLab.Wpf.Engine.App {
             } catch (Exception ex) {
                 ex.ToString();
             }
+            */
         }
 
     }

@@ -168,6 +168,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LineEntityBuilder.cs" />
     <Compile Include="NumericsToDrawingConvertorsEx.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="Host\FormsHost.cs" />
