@@ -10,7 +10,6 @@ namespace D3DLab.Std.Engine {
         bool IsActive { get; }
 
         IntPtr Handle { get; }
-
-        InputSnapshot GetShapshot();
+        IInputManager InputManager { get; }
     }
 }

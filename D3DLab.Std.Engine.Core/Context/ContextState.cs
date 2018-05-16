@@ -10,29 +10,32 @@ namespace D3DLab.Std.Engine.Core {
         ISystemManager GetSystemManager();
         void SwitchTo(int stateTo);
         EntityOrderContainer EntityOrder { get; }
+
+        void Dispose();
     }
 
-    sealed class Managers {
-        public ISystemManager SManager { get; }
-        public IComponentManager CManager { get; }
-        public IEntityManager EManager { get; }
+    public sealed class ManagerContainer {
+        public ISystemManager SystemManager { get; }
+        public IComponentManager ComponentManager { get; }
+        public IEntityManager EntityManager { get; }
         public EntityOrderContainer EntityOrder { get; }
-        internal Managers(IManagerChangeNotify notify) {
+
+        public ManagerContainer(IManagerChangeNotify notify) {
             EntityOrder = new EntityOrderContainer();
-            this.SManager = new SystemManager(notify);
+            this.SystemManager = new SystemManager(notify);
             var encom = new EntityComponentManager(notify, EntityOrder);
-            this.CManager = encom;
-            this.EManager = encom;
+            this.ComponentManager = encom;
+            this.EntityManager = encom;
+        }
+
+        public void Dispose() {
+            SystemManager.Dispose();
+            ComponentManager.Dispose();
+            EntityManager.Dispose();
         }
     }
 
     public abstract class BaseContextState : IContextState {
-
-        protected ISystemManager SystemManager => processor.Managers.SManager;
-        protected IComponentManager ComponentManager => processor.Managers.CManager;
-        protected IEntityManager EntityManager => processor.Managers.EManager;
-
-
         readonly ContextStateProcessor processor;
 
         public BaseContextState(ContextStateProcessor processor) {
@@ -45,10 +48,14 @@ namespace D3DLab.Std.Engine.Core {
         public virtual void EndState() { }
         public virtual void BeginState() { }
 
-        public virtual IComponentManager GetComponentManager() { return ComponentManager; }
-        public virtual IEntityManager GetEntityManager() { return EntityManager; }
-        public virtual ISystemManager GetSystemManager() { return SystemManager; }
+        public virtual IComponentManager GetComponentManager() { return processor.Managers.ComponentManager; }
+        public virtual IEntityManager GetEntityManager() { return processor.Managers.EntityManager; }
+        public virtual ISystemManager GetSystemManager() { return processor.Managers.SystemManager; }
         public EntityOrderContainer EntityOrder { get { return processor.Managers.EntityOrder; } }
+
+        public void Dispose() {
+            processor.Managers.Dispose();
+        }
     }
 
     public sealed class ContextStateProcessor : IContextState {
@@ -60,28 +67,20 @@ namespace D3DLab.Std.Engine.Core {
             public IEntityManager GetEntityManager() { throw new NotImplementedException(); }
             public ISystemManager GetSystemManager() { throw new NotImplementedException(); }
             public void SwitchTo(int stateTo) { throw new NotImplementedException(); }
+            public void Dispose() {}
         }
 
         IContextState currentState;
         private readonly Dictionary<int, Func<ContextStateProcessor, IContextState>> states;
 
-        private static Managers managers;
-        private static readonly object _loker = new object();
+        internal ManagerContainer Managers { get; private set; }
 
-        internal Managers Managers { get { return managers; } }
-
-        public ContextStateProcessor(IManagerChangeNotify notify) {
+        public ContextStateProcessor(ManagerContainer managers) {
             states = new Dictionary<int, Func<ContextStateProcessor, IContextState>>();
             states.Add(-1, x => new EmptyContextState());
             currentState = new EmptyContextState();
 
-            if (managers == null) {
-                lock (_loker) {
-                    if (managers == null) {
-                        managers = new Managers(notify);
-                    }
-                }
-            }
+            Managers = managers;
         }
 
         public void AddState(int stateTo, Func<ContextStateProcessor, IContextState> func) {
@@ -116,6 +115,10 @@ namespace D3DLab.Std.Engine.Core {
 
         public void EndState() {
             currentState.EndState();
+        }
+
+        public void Dispose() {
+            Managers.Dispose();
         }
     }
 }

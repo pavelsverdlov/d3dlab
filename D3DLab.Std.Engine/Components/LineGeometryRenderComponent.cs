@@ -34,7 +34,7 @@ namespace D3DLab.Std.Engine.Components {
 
         public void Update(RenderState state) {
             var cmd = state.Commands;
-            var factory = state.factory;
+            var factory = state.Factory;
             //
             if (!TechniquePass.IsCached) {
                 UpdateShader(factory);
@@ -77,8 +77,8 @@ namespace D3DLab.Std.Engine.Components {
 
         public void Render(RenderState state) {
             var cmd = state.Commands;
-            var factory = state.factory;
-            var gd = state.gd;
+            var factory = state.Factory;
+            var gd = state.GrDevice;
             var _pipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
                     BlendStateDescription.SingleOverrideBlend,
                     DepthStencilStateDescription.Disabled,

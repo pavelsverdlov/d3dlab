@@ -5,6 +5,7 @@ namespace D3DLab.Std.Engine.Core {
         TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem;
         IEnumerable<IComponentSystem> GetSystems();
         //void AddSystem(IComponentSystem system);
+        void Dispose();
     }
 
 }

@@ -14,6 +14,10 @@ namespace D3DLab.Std.Engine.Core {
             return systems;
         }
 
+        public void Dispose() {
+            systems.Clear();
+        }
+
         readonly IManagerChangeNotify notify;
 
         public SystemManager(IManagerChangeNotify notify) {

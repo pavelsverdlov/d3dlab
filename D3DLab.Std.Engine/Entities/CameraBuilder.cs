@@ -81,7 +81,7 @@ namespace D3DLab.Std.Engine.Entities {
             }
 
             public void Update(RenderState state) {
-                var window = state.window;
+                var window = state.Window;
                 UpdateViewMatrix();
                 UpdatePerspectiveMatrix(window.Width, window.Height);
 
@@ -114,7 +114,7 @@ namespace D3DLab.Std.Engine.Entities {
         public class GraphicsComponent : GraphicComponent, IRenderableComponent {
             static float angle = 0;
             public void Update(RenderState state) {
-                var window = state.window;
+                var window = state.Window;
 
                 return;
 

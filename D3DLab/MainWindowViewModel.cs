@@ -35,7 +35,8 @@ namespace D3DLab {
         }
 
         public void Init(FormsHost host, FrameworkElement overlay) {
-            var context = new ContextStateProcessor(notificator);
+            var container = new ManagerContainer(notificator);
+            var context = new ContextStateProcessor(container);
             context.AddState(0, x => new GenneralContextState(x));
 
             context.SwitchTo(0);

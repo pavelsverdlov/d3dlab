@@ -46,7 +46,7 @@ namespace D3DLab.Std.Engine.Components {
 
         public void Update(RenderState state) {
             var _cl = state.Commands;
-            var factory = state.factory;
+            var factory = state.Factory;
             resourceLayouts.Clear();
             ResourceSets.Clear();
 
@@ -85,7 +85,7 @@ namespace D3DLab.Std.Engine.Components {
 
             if (_surfaceTextureView == null) {
                 ImageSharpTexture stoneImage = new ImageSharpTexture(texture.Path);
-                var _surfaceTexture = stoneImage.CreateDeviceTexture(state.gd, factory);
+                var _surfaceTexture = stoneImage.CreateDeviceTexture(state.GrDevice, factory);
                 _surfaceTextureView = factory.CreateTextureView(_surfaceTexture);
             }
             if (projViewLayout == null) {
@@ -116,7 +116,7 @@ namespace D3DLab.Std.Engine.Components {
                   worldTextureLayout,
                   _worldBuffer,
                   _surfaceTextureView,
-                  state.gd.Aniso4xSampler));
+                  state.GrDevice.Aniso4xSampler));
 
             ResourceSets.Add(_worldTextureSet);
 
@@ -124,8 +124,8 @@ namespace D3DLab.Std.Engine.Components {
 
         public void Render(RenderState state) {
             var _cl = state.Commands;
-            var factory = state.factory;
-            var gd = state.gd;
+            var factory = state.Factory;
+            var gd = state.GrDevice;
 
             var _pipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
                     BlendStateDescription.SingleOverrideBlend,

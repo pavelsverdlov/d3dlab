@@ -30,9 +30,9 @@ namespace D3DLab.Std.Engine.Systems {
                 _cl.Begin();
 
                 var state = new RenderState() {
-                    factory = factory,
-                    gd = gd,
-                    window = window,
+                    Factory = factory,
+                    GrDevice = gd,
+                    Window = window,
                     Commands = _cl,
                     Ticks = (float)snapshot.FrameRateTime.TotalMilliseconds
                 };
