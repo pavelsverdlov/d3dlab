@@ -5,22 +5,173 @@ using System.Numerics;
 using Veldrid;
 using D3DLab.Std.Engine.Core.Shaders;
 using System.Runtime.InteropServices;
+using D3DLab.Std.Engine.Shaders;
+using D3DLab.Std.Engine.Core.Ext;
 
 namespace D3DLab.Std.Engine.Components {
-    public class LineGeometryRenderComponent : ShaderComponent, IRenderableComponent {
+    public class SolidGeometryRenderComponent : ShaderComponent, IRenderableComponent {
         readonly Geometry3D geometry;
 
-        DeviceBuffer _indexBuffer;
-        DeviceBuffer _vertexBuffer;
+        DeviceBuffer indexBuffer;
+        DeviceBuffer vertexBuffer;
 
         DeviceBuffer _worldBuffer;
-        DeviceBuffer _projectionBuffer;
-        DeviceBuffer _viewBuffer;
 
         ResourceLayout projViewLayout;
         ResourceSet _projViewSet;
 
-        public LineGeometryRenderComponent(IShaderInfo[] shaders, Geometry3D geometry) : base(shaders) {
+        public SolidGeometryRenderComponent(ShaderTechniquePass[] shaders, Geometry3D geometry) : base(shaders) {
+            this.geometry = geometry;
+        }
+
+        public override VertexLayoutDescription[] GetLayoutDescription() {
+            return new[] {
+                new VertexLayoutDescription(
+                        new VertexElementDescription("p", VertexElementSemantic.Position, VertexElementFormat.Float4),
+                        new VertexElementDescription("n", VertexElementSemantic.Normal, VertexElementFormat.Float3),
+                        new VertexElementDescription("c", VertexElementSemantic.Color, VertexElementFormat.Float4),
+                        new VertexElementDescription("t", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2))
+            };
+        }
+
+        public void Render(RenderState state) {
+            var cmd = state.Commands;
+            var factory = state.Factory;
+            var gd = state.GrDevice;
+
+            foreach (var pass in Passes) {
+                var pipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+                        BlendStateDescription.SingleOverrideBlend,
+                        DepthStencilStateDescription.Disabled,
+                        RasterizerStateDescription.CullNone,
+                        PrimitiveTopology.TriangleList,
+                        pass.Description,
+                        projViewLayout,
+                        gd.SwapchainFramebuffer.OutputDescription));
+
+                cmd.SetPipeline(pipeline);
+                cmd.SetGraphicsResourceSet(0, _projViewSet);
+                cmd.SetVertexBuffer(0, vertexBuffer);
+                cmd.SetIndexBuffer(indexBuffer, IndexFormat.UInt16);
+                cmd.DrawIndexed((uint)geometry.Indices.Count, 1, 0, 0, 0);
+            }
+        }
+
+        public void Update(RenderState state) {
+            var cmd = state.Commands;
+            var factory = state.Factory;
+            var gd = state.GrDevice;
+            var viewport = state.Viewport;
+
+            if (!Passes.All(x => x.IsCached)) {
+                UpdateShaders(factory);
+            }
+
+            factory.CreateIfNullBuffer(ref _worldBuffer, new BufferDescription(64, BufferUsage.UniformBuffer));
+            cmd.UpdateBuffer(_worldBuffer, 0, Matrix4x4.Identity);
+            //
+            var vertices = ConvertVertexToShaderStructure(geometry);
+            factory.CreateIfNullBuffer(ref vertexBuffer, new BufferDescription((uint)(DefaultVertex.SizeInBytes * vertices.Length),
+                BufferUsage.VertexBuffer));
+            cmd.UpdateBuffer(vertexBuffer, 0, vertices);
+
+            ushort[] indices = ConvertToShaderIndices(geometry);
+            factory.CreateIfNullBuffer(ref indexBuffer, new BufferDescription(sizeof(ushort) * (uint)indices.Length,
+                BufferUsage.IndexBuffer));
+            cmd.UpdateBuffer(indexBuffer, 0, indices);
+
+            if (projViewLayout == null) {
+                projViewLayout = factory.CreateResourceLayout(
+                  new ResourceLayoutDescription(
+                      new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                      new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                      new ResourceLayoutElementDescription("World", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
+            }
+            if (_projViewSet != null) {
+                _projViewSet.Dispose();
+            }
+            _projViewSet = factory.CreateResourceSet(new ResourceSetDescription(
+                       projViewLayout,
+                       viewport.ProjectionBuffer,
+                       viewport.ViewBuffer,
+                       _worldBuffer));
+
+        }
+
+        /*
+         technique11 RenderPhongWithAmbient
+{
+    pass P0
+    {
+        SetRasterizerState(RSSolid);
+        SetDepthStencilState(DSSDepthLess, 0);
+        SetBlendState(BSBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetVertexShader(CompileShader(vs_4_0, VShaderDefault()));
+        SetHullShader(NULL);
+        SetDomainShader(NULL);
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_4_0, PShaderPhongWithAmbientB()));
+    }
+    pass P1
+    {
+        SetRasterizerState(RSSolid);
+        SetDepthStencilState(DSSDepthLess, 0);
+        SetBlendState(BSBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetVertexShader(CompileShader(vs_4_0, VShaderDefault()));
+        SetHullShader(NULL);
+        SetDomainShader(NULL);
+        SetPixelShader(CompileShader(ps_4_0, PShaderPhongWithAmbientF()));
+    }
+}          
+             */
+
+
+        DefaultVertex[] ConvertVertexToShaderStructure(Geometry3D geo) {
+            var res = new List<DefaultVertex>();
+
+            for (int i = 0; i < geo.Positions.Count; i++) {
+                var pos = geo.Positions[i];
+                res.Add(new DefaultVertex() {
+                    Position = pos.ToVector4(),
+                    Normal = geo.Normals[i],
+                    Color = RgbaFloat.Red.ToVector4(),
+                    //TexCoord = geo.TextureCoordinates
+                });//
+            }
+
+            return res.ToArray();
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public struct DefaultVertex {
+            public Vector4 Position;
+            public Vector3 Normal;
+            public Vector4 Color;
+            public Vector2 TexCoord;
+
+            public const int SizeInBytes = 4 * (0
+                + 4 // Position
+                + 3 // Normal
+                + 4 // Color
+                + 2 // TexCoord
+                );
+        }
+
+    }
+
+
+    public class LineGeometryRenderComponent : ShaderComponent, IRenderableComponent {
+        readonly Geometry3D geometry;
+
+        DeviceBuffer indexBuffer;
+        DeviceBuffer vertexBuffer;
+
+        DeviceBuffer _worldBuffer;
+
+        ResourceLayout projViewLayout;
+        ResourceSet _projViewSet;
+
+        public LineGeometryRenderComponent(ShaderTechniquePass[] passes, Geometry3D geometry) : base(passes) {
             this.geometry = geometry;
         }
 
@@ -35,28 +186,24 @@ namespace D3DLab.Std.Engine.Components {
         public void Update(RenderState state) {
             var cmd = state.Commands;
             var factory = state.Factory;
+            var viewport = state.Viewport;
             //
-            if (!TechniquePass.IsCached) {
-                UpdateShader(factory);
+            if (!Passes.All(x=>x.IsCached)) {
+                UpdateShaders(factory);
             }
             //
-            factory.CreateIfNullBuffer(ref _projectionBuffer, new BufferDescription(64, BufferUsage.UniformBuffer));
-            factory.CreateIfNullBuffer(ref _viewBuffer, new BufferDescription(64, BufferUsage.UniformBuffer));
             factory.CreateIfNullBuffer(ref _worldBuffer, new BufferDescription(64, BufferUsage.UniformBuffer));
-
-            cmd.UpdateBuffer(_projectionBuffer, 0, state.Viewport.ProjectionMatrix);
-            cmd.UpdateBuffer(_viewBuffer, 0, state.Viewport.ViewMatrix);
             cmd.UpdateBuffer(_worldBuffer, 0, Matrix4x4.Identity);
             //
             var vertices = ConvertVertexToShaderStructure(geometry);
-            factory.CreateIfNullBuffer(ref _vertexBuffer, new BufferDescription((uint)(LinesVertex.SizeInBytes * vertices.Length),
+            factory.CreateIfNullBuffer(ref vertexBuffer, new BufferDescription((uint)(LinesVertex.SizeInBytes * vertices.Length),
                 BufferUsage.VertexBuffer));
-            cmd.UpdateBuffer(_vertexBuffer, 0, vertices);
+            cmd.UpdateBuffer(vertexBuffer, 0, vertices);
 
             ushort[] indices = ConvertToShaderIndices(geometry);//GetCubeIndices();
-            factory.CreateIfNullBuffer(ref _indexBuffer, new BufferDescription(sizeof(ushort) * (uint)indices.Length,
+            factory.CreateIfNullBuffer(ref indexBuffer, new BufferDescription(sizeof(ushort) * (uint)indices.Length,
                 BufferUsage.IndexBuffer));
-            cmd.UpdateBuffer(_indexBuffer, 0, indices);
+            cmd.UpdateBuffer(indexBuffer, 0, indices);
             //
             if (projViewLayout == null) {
                 projViewLayout = factory.CreateResourceLayout(
@@ -69,10 +216,10 @@ namespace D3DLab.Std.Engine.Components {
                 _projViewSet.Dispose();
             }
             _projViewSet = factory.CreateResourceSet(new ResourceSetDescription(
-                   projViewLayout,
-                   _projectionBuffer,
-                   _viewBuffer,
-                   _worldBuffer));
+                       projViewLayout,
+                       viewport.ProjectionBuffer,
+                       viewport.ViewBuffer,
+                       _worldBuffer));
         }
 
         public void Render(RenderState state) {
@@ -84,14 +231,14 @@ namespace D3DLab.Std.Engine.Components {
                     DepthStencilStateDescription.Disabled,
                     RasterizerStateDescription.CullNone,
                     PrimitiveTopology.LineList,//LineList TriangleList
-                    ShaderSetDesc,
+                    Passes.First().Description,
                     new[] { projViewLayout },
                     gd.SwapchainFramebuffer.OutputDescription));
 
             cmd.SetPipeline(_pipeline);
             cmd.SetGraphicsResourceSet(0, _projViewSet);
-            cmd.SetVertexBuffer(0, _vertexBuffer);
-            cmd.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+            cmd.SetVertexBuffer(0, vertexBuffer);
+            cmd.SetIndexBuffer(indexBuffer, IndexFormat.UInt16);
             cmd.DrawIndexed((uint)geometry.Indices.Count, 1, 0, 0, 0);
         }
 
@@ -105,9 +252,7 @@ namespace D3DLab.Std.Engine.Components {
 
             return res.ToArray();
         }
-        ushort[] ConvertToShaderIndices(Geometry3D geo) {
-            return geo.Indices.Select(x => (ushort)x).ToArray();
-        }
+        
 
 
 
@@ -115,7 +260,7 @@ namespace D3DLab.Std.Engine.Components {
         public struct LinesVertex {
             public Vector4 Position;
             public Vector4 Color;
-            public const int SizeInBytes = 4 * (4 + 3);
+            public const int SizeInBytes = 4 * (4 + 4);
         }
     }
 }

@@ -9,6 +9,7 @@ using Veldrid.Utilities;
 using D3DLab.Std.Engine.Core.Shaders;
 using System.IO;
 using System;
+using D3DLab.Std.Engine.Shaders;
 
 namespace D3DLab.Std.Engine.Components {
     public struct TextureInfo {
@@ -31,7 +32,7 @@ namespace D3DLab.Std.Engine.Components {
         readonly Geometry3D geometry;
         readonly TextureInfo texture;
 
-        public TexturedGeometryRenderComponent(IShaderInfo[] shaders, Geometry3D geometry, TextureInfo texture) : base(shaders) {
+        public TexturedGeometryRenderComponent(ShaderTechniquePass[] shaders, Geometry3D geometry, TextureInfo texture) : base(shaders) {
             this.texture = texture;
             this.geometry = geometry;
         }
@@ -54,8 +55,8 @@ namespace D3DLab.Std.Engine.Components {
             //    TechniquePass.Update(factory, ShaderInfos);
             //    ShaderSet = new ShaderSetDescription(GetLayoutDescription(), TechniquePass.ToArray());
             //}
-            if (!TechniquePass.IsCached) {
-                UpdateShader(factory);
+            if (!Passes.Any(x=>x.IsCached)) {
+                UpdateShaders(factory);
             }
 
             factory.CreateIfNullBuffer(ref _projectionBuffer, new BufferDescription(64, BufferUsage.UniformBuffer));
@@ -132,7 +133,7 @@ namespace D3DLab.Std.Engine.Components {
                     DepthStencilStateDescription.DepthOnlyLessEqual,
                     RasterizerStateDescription.Default,
                     PrimitiveTopology.TriangleList,
-                    ShaderSetDesc,
+                    Passes.First().Description,
                     resourceLayouts.ToArray(),
                     gd.SwapchainFramebuffer.OutputDescription));
             _cl.SetPipeline(_pipeline);

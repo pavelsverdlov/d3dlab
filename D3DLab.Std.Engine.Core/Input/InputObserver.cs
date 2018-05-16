@@ -85,7 +85,6 @@ namespace D3DLab.Std.Engine.Core.Input {
             }
         }
 
-        private static IInputPublisher publisher;
         private static readonly object loker;
 
         static InputObserver() {
@@ -131,13 +130,7 @@ namespace D3DLab.Std.Engine.Core.Input {
         public bool OnMouseWheel(InputStateData ev) { return StateMachine.OnMouseWheel(ev); }
 
         public void Dispose() {
-            lock (loker) {
-                publisher.UnSubscruber(this);
-                if (!publisher.AnySubscrubers()) {
-                    publisher.Dispose();
-                    publisher = null;
-                }
-            }
+            
         }
 
         public void PushCommand(IInputCommand cmd) {

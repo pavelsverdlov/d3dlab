@@ -3,17 +3,16 @@ using Veldrid;
 using Veldrid.Utilities;
 using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Shaders;
+using D3DLab.Std.Engine.Common;
+using System.Linq;
 
 namespace D3DLab.Std.Engine.Components {
     public abstract class ShaderComponent : GraphicComponent, IShaderEditingComponent {
-        public readonly IShaderInfo[] ShaderInfos;
-        public readonly ShaderTechniquePass TechniquePass;
-
-        public ShaderSetDescription ShaderSetDesc { get; private set; }
-
-        public ShaderComponent(IShaderInfo[] shaders) {
-            this.ShaderInfos = shaders;
-            TechniquePass = new ShaderTechniquePass();
+        
+        public readonly ShaderTechniquePass[] Passes;
+        
+        public ShaderComponent(ShaderTechniquePass[] passes) {
+            Passes = passes;
         }
 
         public abstract VertexLayoutDescription[] GetLayoutDescription();
@@ -21,23 +20,24 @@ namespace D3DLab.Std.Engine.Components {
         #region IShaderEditingComponent
 
         public IShaderCompilator GetCompilator() {
-            return new ShaderCompilator(ShaderInfos);
+            return new ShaderCompilator(Passes[0].ShaderInfos);
         }
         public void ReLoad() {
-            TechniquePass.ClearCache();
+            Passes[0].ClearCache();
         }
 
         #endregion
 
-        public void UpdateShader(DisposeCollectorResourceFactory factory) {
-            //to test
-            var com = GetCompilator();
-            foreach (var info in ShaderInfos) {
-                com.Compile(info);
+        public void UpdateShaders(DisposeCollectorResourceFactory factory) {
+            foreach (var pass in Passes) {
+                pass.Update(factory, GetLayoutDescription());
             }
+        }
 
-            TechniquePass.Update(factory, ShaderInfos);
-            ShaderSetDesc = new ShaderSetDescription(GetLayoutDescription(), TechniquePass.ToArray());
+
+
+        protected ushort[] ConvertToShaderIndices(Geometry3D geo) {
+            return geo.Indices.Select(x => (ushort)x).ToArray();
         }
     }
 }

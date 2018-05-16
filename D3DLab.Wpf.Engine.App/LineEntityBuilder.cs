@@ -2,6 +2,7 @@
 using D3DLab.Std.Engine.Components;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Shaders;
+using D3DLab.Std.Engine.Shaders;
 using D3DLab.Std.Engine.Systems;
 using System;
 using System.IO;
@@ -32,7 +33,7 @@ namespace D3DLab.Wpf.Engine.App {
 
             var line = context.GetEntityManager()
                   .CreateEntity(new ElementTag(Guid.NewGuid().ToString()))
-                  .AddComponent(new LineGeometryRenderComponent(lineShaders, box
+                  .AddComponent(new LineGeometryRenderComponent(new[] { new ShaderTechniquePass(lineShaders) }, box
                   // new Std.Engine.Helpers.LineBuilder().Build(box.Positions.GetRange(0,3))
                   ));
 

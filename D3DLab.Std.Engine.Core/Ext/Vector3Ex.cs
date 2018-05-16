@@ -22,6 +22,9 @@ namespace D3DLab.Std.Engine.Core.Ext {
         public static float AngleRad(this Vector3 u, Vector3 v) {
             return (float)Math.Atan2(Vector3.Cross(u, v).Length(), Vector3.Dot(u, v));
         }
+        public static Vector4 ToVector4(this Vector3 v) {
+            return new Vector4(v.X, v.Y, v.Z, 1);
+        }
     }
     public static class ConvertorsEx {
         public static float ToRad(this float degrees) {

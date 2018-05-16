@@ -15,7 +15,7 @@ using System.Threading;
 namespace D3DLab.Std.Engine {
 
     public class ViewportState {
-        public Matrix4x4 WorldMatrix;
+
         /// <summary>
         /// Orthographic /Perspective 
         /// </summary>
@@ -24,6 +24,9 @@ namespace D3DLab.Std.Engine {
         /// the same as Camera
         /// </summary>
         public Matrix4x4 ViewMatrix;
+
+        public DeviceBuffer ProjectionBuffer;
+        public DeviceBuffer ViewBuffer;
     }
 
     public class RenderState {

@@ -2,6 +2,7 @@
 using D3DLab.Std.Engine.Core;
 using System;
 using System.Numerics;
+using Veldrid;
 
 namespace D3DLab.Std.Engine.Entities {
     public static class CameraBuilder {
@@ -80,30 +81,33 @@ namespace D3DLab.Std.Engine.Entities {
                 ViewMatrix = Matrix4x4.CreateLookAt(_position, _position + LookDirection, UpDirection);
             }
 
+
+            #region render
+
             public void Update(RenderState state) {
+                var factory = state.Factory;
+                var cmd = state.Commands;
                 var window = state.Window;
+
                 UpdateViewMatrix();
                 UpdatePerspectiveMatrix(window.Width, window.Height);
 
-                
                 state.Viewport.ProjectionMatrix = ProjectionMatrix;
                 state.Viewport.ViewMatrix = ViewMatrix;
-                //angle += 1;
 
-                //state.Viewport.ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
-                //    1.0f,
-                //    (float)window.Width / window.Height,
-                //    0.1f,
-                //    1000f);
-                //var pos = Vector3.UnitZ * 2.5f;
-                //pos = Vector3.Transform(pos, Matrix4x4.CreateRotationY((float)((angle * Math.PI) / 180), Vector3.Zero));
-                //state.Viewport.ViewMatrix = Matrix4x4.CreateLookAt(pos, Vector3.Zero, Vector3.UnitY);
+                factory.CreateIfNullBuffer(ref state.Viewport.ProjectionBuffer, new BufferDescription(64, BufferUsage.UniformBuffer));
+                factory.CreateIfNullBuffer(ref state.Viewport.ViewBuffer, new BufferDescription(64, BufferUsage.UniformBuffer));
+
+                cmd.UpdateBuffer(state.Viewport.ProjectionBuffer, 0, state.Viewport.ProjectionMatrix);
+                cmd.UpdateBuffer(state.Viewport.ViewBuffer, 0, state.Viewport.ViewMatrix);
             }
 
             public void Render(RenderState state) {
 
             }
 
+
+            #endregion
 
             public override string ToString() {
                 return $"Pos:{_position}; LoockDirection:{LookDirection}; Scale:{Scale}";
