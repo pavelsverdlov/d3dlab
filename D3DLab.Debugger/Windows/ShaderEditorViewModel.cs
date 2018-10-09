@@ -1,11 +1,11 @@
-﻿using D3DLab.Std.Engine.Core;
+﻿using D3DLab.Debugger.IDE;
+using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Shaders;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,6 +15,22 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 namespace D3DLab.Debugger.Windows {
+    public abstract class BaseCommand : ICommand {
+        public event EventHandler CanExecuteChanged = (x, o) => { };
+        public bool CanExecute(object parameter) { return true; }
+
+        public abstract void Execute(object parameter);
+    }
+    public abstract class BaseCommand<T> : ICommand where T : class {
+        public event EventHandler CanExecuteChanged = (x, o) => { };
+        public bool CanExecute(object parameter) { return true; }
+
+        public void Execute(object parameter) {
+            Execute(parameter as T);
+        }
+        public abstract void Execute(T parameter);
+    }
+
     public sealed class ShaderEditorPopup {
         private ShaderEditor win;
         public ShaderEditorViewModel ViewModel { get; }
@@ -26,106 +42,6 @@ namespace D3DLab.Debugger.Windows {
         public void Show() {
             win.Show();
         }
-    }
-
-    public class ShaderParser {
-        public enum Tokens {
-            None,
-            Break,
-            NewLine,
-            Operator,
-            Comments,
-        }
-        readonly string text;
-
-        public ShaderParser(string text) {
-            this.text = text;
-        }
-
-        public void Analyze(Action<string,Tokens> analyzed) {
-            var str = new StringBuilder();
-            var token = Tokens.None;
-            foreach (char ch in text) {                
-                switch (ch) {
-                    case '\t':
-                    case ' ':
-                    case ';':
-                    case ':':
-                    case '=':
-                    case '\r':
-                    case '\n':
-                    case '{':
-                    case '}':                        
-                    case ')':                        
-                    case '(':                        
-                    case '.':
-                    case ',':
-                    case '[':
-                    case ']':
-                    case '>':
-                    case '<':
-                        if (str.Length > 0 && token != Tokens.Break) {
-                            analyzed(str.ToString(), token);
-                            str.Clear();
-                        }
-                        token = Tokens.Break;
-                        //str.Append(ch);
-                        //continue;
-                        break;
-                    default:
-                        switch (token) {
-                            case Tokens.Break:
-                                analyzed(str.ToString(), token);
-                                str.Clear();
-                                token = Tokens.None;
-                                break;
-                        }
-                        break;
-                }
-                str.Append(ch);
-                switch (str.ToString()) {
-                    case "struct":
-                    case "cbuffer":
-                    case "float2":
-                    case "float3":
-                    case "float4":
-                    case "int":
-                    //
-                    case "if":
-                    case "return":
-                    case "register":
-                    case "void":
-                    //
-                    case "triangle":
-                    case "line":
-                    case "TriangleStream":
-
-                        //case "in":
-                        token = Tokens.Operator;
-                        analyzed(str.ToString(), token);
-                        str.Clear();
-                        token = Tokens.None;
-                        break;
-                    case "\r\n":
-                        if (token == Tokens.Comments) {
-                            analyzed(str.ToString(), token);
-                            str.Clear();
-                            token = Tokens.None;
-                        } else {
-                            token = Tokens.NewLine;
-                            analyzed(str.ToString(), token);
-                            str.Clear();
-                        }
-                        break;
-                    case "//":
-                        token = Tokens.Comments;
-                        break;
-                }
-            }
-            analyzed(str.ToString(), token);
-        }
-
-
     }
 
     public class EditorHistory {
@@ -155,96 +71,109 @@ namespace D3DLab.Debugger.Windows {
     }
    
     public class ShaderTabEditor : INotifyPropertyChanged {
-        public class EditorWordSelectedCommand : ICommand {
-            readonly Dictionary<string, List<Run>> words;
+
+        public class EditorWordSelectedCommand : BaseCommand<TextPoiterSelectionChanged> {
+            readonly ShaderDevelopmentEnvironment environment;
+
             string prev;
-            public EditorWordSelectedCommand(Dictionary<string, List<Run>> words) {
-                this.words = words;
+            public EditorWordSelectedCommand(ShaderDevelopmentEnvironment environment) {
+                this.environment = environment;
             }
-            public event EventHandler CanExecuteChanged = (x, o) => { };
-            public bool CanExecute(object parameter) { return true; }
-            public void Execute(object parameter) {
-                var world = parameter.ToString().Trim();
-                if (!string.IsNullOrWhiteSpace(prev)) {
-                    words[prev].ForEach(x => x.Background = Brushes.Transparent);
-                    prev = null;
+            public override void Execute(TextPoiterSelectionChanged selection) {
+                var world = selection.CaretPointer.GetVariableName();
+              
+                environment.HighlightRelations(world, selection.GetRange());
+
+                //if (!string.IsNullOrWhiteSpace(prev)) {
+                //    words[prev].ForEach(x => x.Background = Brushes.Transparent);
+                //    prev = null;
+                //}
+                //if (words.TryGetValue(world, out var item)) {
+                //    item.ForEach(x => x.Background = Brushes.LightBlue);
+                //    prev = world;
+                //}
+            }
+        }
+
+        public class IntellisenseInvokedCommand : BaseCommand {
+            readonly ShaderDevelopmentEnvironment environment;
+
+            public IntellisenseInvokedCommand(ShaderDevelopmentEnvironment environment) {
+                this.environment = environment;
+            }
+
+            public override void Execute(object parameter) {
+                var presenter = (IntellisensePopupPresenter)parameter;
+
+                var name = presenter.TargetVariable.StartPointer.GetVariableName();
+
+                var result = environment.IntelliSense(name, presenter.TargetVariable.GetRange());
+
+                if (!result.Any()) {
+                    environment.UnHighlightAll();
+                    return;
                 }
-                if (words.TryGetValue(world, out var item)) {
-                    item.ForEach(x => x.Background = Brushes.LightBlue);
-                    prev = world;
-                }
+
+                presenter.AddRange(result);
+
+                presenter.Show();
             }
         }
 
         public string Header { get { return Info.Stage; } }
-        public FlowDocument ShaderDocument { get; set; }
-        public ICommand WordSelected { get; }
+        public FlowDocument ShaderDocument { get { return environment.ShaderDocument; } }
+        public ICommand WordSelected { get; set; }
+        public ICommand IntellisenseInvoked { get; set; }
 
         public IShaderInfo Info { get; }
 
-        private readonly Dictionary<string, List<Run>> words;
-
+        readonly ShaderDevelopmentEnvironment environment;
         public ShaderTabEditor(IShaderInfo info) {
             this.Info = info;
-            ShaderDocument = new FlowDocument();
-            words = new Dictionary<string, List<Run>>();
-            WordSelected = new EditorWordSelectedCommand(words);            
+            environment = new ShaderDevelopmentEnvironment();
+            IntellisenseInvoked = new IntellisenseInvokedCommand(environment);
+            WordSelected = new EditorWordSelectedCommand(environment);
         }
         public void LoadShaderAsync() {
             var text = Info.ReadText();
 
-            var parser = new ShaderParser(text);
+            environment.Read(text);
 
-            var par = new Paragraph();
-
-            parser.Analyze((txt, token) => {
-                if(!words.TryGetValue(txt, out var item)) {
-                    words.Add(txt, new List<Run>());
-                }
-
-                Run run = new Run(txt);
-                switch (token) {
-                    case ShaderParser.Tokens.Operator:
-                        run.Foreground = Brushes.Blue;
-                        break;
-                    case ShaderParser.Tokens.Comments:
-                        run.Foreground = Brushes.Green;
-                        break;
-                    default:
-                        break;
-                }
-                par.Inlines.Add(run);
-                words[txt].Add(run);
-            });
-
-            //foreach (var word in text.Split(' ')) {
-            //    var run = new Run(word + " ");
-            //    switch (word) {
-            //        case "struct":
-            //        case "cbuffer":
-            //        case "register":
-            //        case "float3":
-            //        case "float2":
-            //        case "float4":
-            //        case "float4x4":
-            //        case "return":
-            //            run.Foreground = Brushes.Blue;
-            //            break;
-            //        case "mul":
-            //            run.Foreground = Brushes.Green;
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //    if (Info.EntryPoint + "(" == word) {
-            //        run.Foreground = Brushes.Green;
-            //    }
-            //    par.Inlines.Add(run);
-            //}
-            ShaderDocument.Blocks.Add(par);
             OnPropertyChanged(nameof(ShaderDocument));
+
+            return;
+
+            //var parser = new ShaderParser(text);
+
+            //parser.Analyze();
+
+            //ShaderDocument = parser.Document;
+            
+
+            //Interpreter = parser.Interpreter;
+
+            //WordSelected = new EditorWordSelectedCommand(words, Interpreter);
         }
 
+        //private void Fill(string txt, Tokens token) {
+        //    if (!words.TryGetValue(txt, out var item)) {
+        //        words.Add(txt, new List<Run>());
+        //    }
+
+        //    Run run = new Run(txt);
+        //    //switch (token) {
+        //    //    case Tokens.Operator:
+        //    //        run.Foreground = Brushes.Blue;
+        //    //        break;
+        //    //    case Tokens.Comments:
+        //    //        run.Foreground = Brushes.Green;
+        //    //        break;
+        //    //    default:
+        //    //        break;
+        //    //}
+        //   // par.Inlines.Add(run);
+        //    words[txt].Add(run);
+        //}
 
         public event PropertyChangedEventHandler PropertyChanged = (x, y) => { };
         private void OnPropertyChanged(string name) {

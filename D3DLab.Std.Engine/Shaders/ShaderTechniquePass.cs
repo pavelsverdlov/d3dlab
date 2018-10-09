@@ -48,7 +48,7 @@ namespace D3DLab.Std.Engine.Shaders {
             foreach (var info in ShaderInfos) {
                 var stage = (Veldrid.ShaderStages)Enum.Parse(typeof(Veldrid.ShaderStages), info.Stage);
                 Shader shader = factory.CreateShader(new ShaderDescription(stage, info.ReadCompiledBytes(), info.EntryPoint));
-                shader.Name = Path.GetFileName(info.CompiledPath);
+                shader.Name = Path.GetFileName(info.Name);
                 pass[stage] = shader;
             }
             Description = new ShaderSetDescription(layoutDescriptions, ToArray());

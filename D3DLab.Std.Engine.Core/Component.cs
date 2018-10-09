@@ -14,7 +14,7 @@ namespace D3DLab.Std.Engine.Core {
             Tag = new ElementTag(Guid.NewGuid().ToString());
         }
 
-        public void Dispose() {
+        public virtual void Dispose() {
 
         }
     }

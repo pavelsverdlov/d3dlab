@@ -27,7 +27,9 @@
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <local:ShaderTextBox HorizontalAlignment="Stretch" ShaderDocument="{Binding ShaderDocument}" WordSelectedCommand="{Binding WordSelected}" 
+                    <local:ShaderTextBox HorizontalAlignment="Stretch" Foreground="#DCDCDC" Background="#1E1E1E"
+                                         ShaderDocument="{Binding ShaderDocument}" WordSelectedCommand="{Binding WordSelected}" 
+                                         IntellisenseInvokedCommand ="{Binding IntellisenseInvoked}"
                                          VerticalAlignment="Stretch"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>

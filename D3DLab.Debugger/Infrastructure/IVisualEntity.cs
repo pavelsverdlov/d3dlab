@@ -2,16 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace D3DLab.Debugger.Infrastructure {
-    public interface IVisualEntity {
+    public interface IVisualEntityItem {
 
     }
-    public interface IEntityComponent {
+    public interface IVisualComponentItem {
+        event PropertyChangedEventHandler PropertyChanged;
         ElementTag Guid { get; }
         string Name { get; }
         string Value { get; }
@@ -21,16 +23,16 @@ namespace D3DLab.Debugger.Infrastructure {
         void Refresh();
     }
 
-    public interface IVisualTreeEntity {
+    public interface IVisualTreeEntityItem {
         ElementTag Name { get; }
-        ObservableCollection<IEntityComponent> Components { get; }
-        void Add(IEntityComponent com);
-        void Remove(IEntityComponent com);
+        ObservableCollection<IVisualComponentItem> Components { get; }
+        void Add(IVisualComponentItem com);
+        void Remove(IVisualComponentItem com);
         void Clear();
         bool TryRefresh(IGraphicComponent com);
         //void Refresh();
 
 
-        ICommand OpenShaderEditor { get; }
+        //ICommand OpenShaderEditor { get; }
     }
 }

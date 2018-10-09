@@ -13,6 +13,8 @@ namespace D3DLab.Std.Engine.Core {
         readonly TOwner owner;
         readonly object _loker;
 
+        public bool IsChanged { get; private set; }
+
         public SynchronizationContext(TOwner owner) {
             this.queue = new Queue<Tuple<Action<TOwner, TInput>, TInput>>();
             this.owner = owner;
@@ -25,6 +27,7 @@ namespace D3DLab.Std.Engine.Core {
             lock (_loker) {
                 local = queue;
                 queue = new Queue<Tuple<Action<TOwner, TInput>, TInput>>();
+                IsChanged = false;
             }
             while (local.Any()) {
                 var item = local.Dequeue();
@@ -33,6 +36,7 @@ namespace D3DLab.Std.Engine.Core {
         }
         public void Add(Action<TOwner, TInput> action, TInput input) {
             lock (_loker) {
+                IsChanged = true;
                 queue.Enqueue(Tuple.Create(action, input));
             }
         }

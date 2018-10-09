@@ -46,11 +46,13 @@ namespace D3DLab {
             scene.RenderStarted += OnRenderStarted;
 
 
+            VisualTreeviewer.ViewModel.RenderModeSwither = new RenderModeSwitherCommand(context);
             VisualTreeviewer.Show();
         }
 
         private void OnRenderStarted() {
-            LineEntityBuilder.Build(context);
+            var parser = new CncParser(new FileInfo(@"C:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
+            LineEntityBuilder.Build(context, parser.GetPaths()[0].Points.ToArray());
         }
 
         private class Command : ICommand {
@@ -70,6 +72,18 @@ namespace D3DLab {
             public void Execute(object parameter) {
                 var item = main.scene.LoadObj(this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj"));
                 main.items.Add(item);
+            }
+        }
+        public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {
+            readonly IContextState context;
+
+            public RenderModeSwitherCommand(IContextState context) {
+                this.context = context;
+            }
+            public override void Execute(Debugger.Infrastructure.IVisualTreeEntityItem item) {
+                var tag = item.Name;
+                var sw = new EntityRenderModeSwither(context.GetEntityManager().GetEntity(tag));
+                sw.TurnOn(EntityRenderModeSwither.Modes.BoundingBox);
             }
         }
     }

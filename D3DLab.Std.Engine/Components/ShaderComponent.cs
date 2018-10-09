@@ -20,7 +20,7 @@ namespace D3DLab.Std.Engine.Components {
         #region IShaderEditingComponent
 
         public IShaderCompilator GetCompilator() {
-            return new ShaderCompilator(Passes[0].ShaderInfos);
+            return new D3DShaderCompilator(Passes[0].ShaderInfos);
         }
         public void ReLoad() {
             Passes[0].ClearCache();

@@ -5,14 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:D3DLab.Debugger.Windows"
         xmlns:model="clr-namespace:D3DLab.Debugger.Model"
+        Background="#080808"
         mc:Ignorable="d" Title="{Binding Title}" x:Name="win"
-        Height="600" Width="800">
+        Height="600" Width="600">
     <Window.Resources>
         <local:VisualTreeviewerViewModel x:Key="ViewModel" />
-        <DataTemplate DataType="{x:Type model:VisualProperty}">
+        <DataTemplate DataType="{x:Type model:VisualComponentItem}">
             <StackPanel Orientation="Vertical">
-                <TextBlock Text="{Binding Name}"/>
-                <TextBlock Text="{Binding Value}"/>
+                <TextBlock Text="{Binding Name}" Foreground="White"/>
+                <TextBlock Text="{Binding Value}" Foreground="White"/>
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
@@ -20,24 +21,35 @@
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
     <!--<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">-->
-    <TreeView Name="trvMenu" ItemsSource="{Binding Items}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <TreeView Name="trvMenu" ItemsSource="{Binding Items}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Background="Transparent">
         <TreeView.Resources>
-            <ContextMenu x:Key="ContectMenuKey" Visibility="{Binding CanEditShader}" >
-                <MenuItem Header="Shader Editor"  CommandParameter="{Binding}" Command="{Binding OpenShaderEditor}" 
-                          />
-            </ContextMenu>
+            <!--<ContextMenu x:Key="ContectMenuKey" Visibility="{Binding CanEditShader}" >
+                <MenuItem Header="Properties Editor" CommandParameter="{Binding}" Command="{Binding OpenPropertiesEditor}" />
+                <MenuItem Header="Shader Editor" CommandParameter="{Binding}" Command="{Binding OpenShaderEditor}" />
+            </ContextMenu>-->
         </TreeView.Resources>
         <TreeView.ItemTemplate>
             <HierarchicalDataTemplate ItemsSource="{Binding Components}">
-                <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" >
-                </TextBlock>
+                <DockPanel>
+                    <TextBlock Text="{Binding Name}" Foreground="White">
+                        <TextBlock.ContextMenu>
+                            <ContextMenu >
+                                <MenuItem Header="Properties Editor" CommandParameter="{Binding}" Command="{Binding OpenPropertiesEditor}" />
+                                <MenuItem Header="Shader Editor" CommandParameter="{Binding}" Command="{Binding OpenShaderEditor}" />
+                            </ContextMenu>
+                        </TextBlock.ContextMenu>
+                    </TextBlock>
+                    <Button Content="BOX" Command="{Binding RenderModeSwither}" CommandParameter="{Binding}"
+                            BorderBrush="White" Foreground="White" Background="Black" BorderThickness="1"/>
+                </DockPanel>
             </HierarchicalDataTemplate>
         </TreeView.ItemTemplate>
-        <TreeView.ItemContainerStyle>
+        <!--<TreeView.ItemContainerStyle>
             <Style TargetType="{x:Type TreeViewItem}">
                 <Setter Property="ContextMenu" Value="{StaticResource ContectMenuKey}"/>
             </Style>
-        </TreeView.ItemContainerStyle>
+        </TreeView.ItemContainerStyle>-->
     </TreeView>
     <!-- component properties
         <ContentControl Content="{Binding SelectedComponent}"/>

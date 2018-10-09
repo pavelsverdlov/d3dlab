@@ -8,3 +8,7 @@ struct PSInput
 	float4 c : COLOR;
 };
 
+float4 FS(PSInput input) : SV_Target
+{
+	return input.c;
+}

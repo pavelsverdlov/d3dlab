@@ -85,6 +85,12 @@ namespace D3DLab.Std.Engine.Core {
 
         #endregion
 
+        public bool HasChanges {
+            get {
+                return entitySynchronizer.IsChanged || comSynchronizer.IsChanged;
+            }
+        }
+
         SynchronizationContext<EntityComponentManager, GraphicEntity> entitySynchronizer;
         SynchronizationContext<EntityComponentManager, IGraphicComponent> comSynchronizer;
 

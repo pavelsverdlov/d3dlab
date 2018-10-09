@@ -42,7 +42,7 @@ namespace D3DLab.Wpf.Engine.App {
             window = new GameWindow(win, input);
             game = new Game(window, Context);
 
-            var cameraTag = new ElementTag(Guid.NewGuid().ToString());
+            var cameraTag = new ElementTag("CameraEntity");
 
             {   //systems creating
                 var smanager = Context.GetSystemManager();

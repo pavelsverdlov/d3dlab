@@ -35,16 +35,20 @@ namespace D3DLab.Std.Engine.Entities {
             public float Pitch { get => _pitch; set { _pitch = value; } }
 
             public CameraComponent(float width, float height) {
-                _position = Vector3.UnitZ * 2.5f;
-                FarDistance = 1000f;
+                Width = 70;
+
+                _position = Vector3.UnitZ * Width*2f;
+                FarDistance = 100000f;
                 FieldOfView = 1f;
                 NearDistance = 1f;
+
+               
 
                 RotatePoint = Vector3.Zero;
                 UpDirection = Vector3.UnitY;
                 LookDirection = new Vector3(0,0,-1);
                 VWidth = width;
-                Width = 3;
+               
                 VHeight = height;
                 Scale = 1;
 

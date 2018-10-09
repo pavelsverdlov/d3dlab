@@ -8,7 +8,7 @@
     <OutputType>library</OutputType>
     <RootNamespace>D3DLab.Debugger</RootNamespace>
     <AssemblyName>D3DLab.Debugger</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -90,9 +91,30 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiAutoTest.cs" />
+    <Compile Include="EnumerableEx.cs" />
+    <Compile Include="IDE\AbstractSyntaxTree.cs" />
+    <Compile Include="IDE\ASTNodes.cs" />
+    <Compile Include="IDE\IASTNodeVisitor.cs" />
+    <Compile Include="IDE\IntellisensePopup.xaml.cs">
+      <DependentUpon>IntellisensePopup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="IDE\LexicalAnalyzer.cs" />
+    <Compile Include="IDE\SemanticAnalyzer.cs" />
+    <Compile Include="IDE\ShaderStaticInfo.cs" />
+    <Compile Include="IDE\SyntaxException.cs" />
+    <Compile Include="IDE\SyntaxHighlighter.cs" />
+    <Compile Include="IDE\TextHelper.cs" />
+    <Compile Include="IDE\Visitor.cs" />
     <Compile Include="Infrastructure\IVisualEntity.cs" />
-    <Compile Include="Model\VisualProperty.cs" />
+    <Compile Include="Model\VisualComponentItem.cs" />
+    <Compile Include="MonadExt.cs" />
+    <Compile Include="Presentation\PropertiesEditor\EditPropertyMultiValueConverter.cs" />
+    <Compile Include="Presentation\PropertiesEditor\PropertiesEditorPopup.cs" />
+    <Compile Include="Presentation\PropertiesEditor\PropertiesEditorWindow.xaml.cs">
+      <DependentUpon>PropertiesEditorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ScriptExetuter.cs" />
+    <Compile Include="IDE\ShaderDevelopmentEnvironment.cs" />
     <Compile Include="Windows\ShaderEditor.xaml.cs">
       <DependentUpon>ShaderEditor.xaml</DependentUpon>
     </Compile>
@@ -102,6 +124,15 @@
       <DependentUpon>VisualTreeviewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\VisualTreeviewerViewModel.cs" />
+    <Compile Include="WPF.cs" />
+    <Page Include="IDE\IntellisensePopup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation\PropertiesEditor\PropertiesEditorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -158,6 +189,46 @@
       <Project>{c01c34df-98c9-468d-9f30-058d6a633e8c}</Project>
       <Name>SvP.Standard.Engine.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\Common.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\Default.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\Deferred.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\DeferredLighting.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\Lines.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\Material.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\Tessellation.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IDE\TestShaders\Test.fx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

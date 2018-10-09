@@ -11,6 +11,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using D3DLab.Std.Engine.Entities;
 using System.Threading.Tasks;
 using System.Threading;
+using D3DLab.Std.Engine.Core.Input;
 
 namespace D3DLab.Std.Engine {
 
@@ -77,34 +78,25 @@ namespace D3DLab.Std.Engine {
         }
 
         void Loop() {
-            //synchronization
+            //first synchronization
             Context.GetEntityManager().Synchronize();
             window.InputManager.Synchronize();
-            //
 
-            Stopwatch speed = new Stopwatch();
+            var speed = new Stopwatch();
             var engineInfoTag = Context.GetEntityManager().GetEntities()
                     .Single(x => x.GetComponent<EngineInfoBuilder.PerfomanceComponent>() != null).Tag;
+
+            var imanager = window.InputManager;
 
             double millisec = oneFrameMilliseconds;
             while (window.IsActive && !token.IsCancellationRequested) {
                 speed.Restart();
 
-                var eman = Context.GetEntityManager();
-                //synchronization
-                eman.Synchronize();
-                window.InputManager.Synchronize();
+                imanager.Synchronize();
 
-                try {
-                    var ishapshot = window.InputManager.GetInputSnapshot();
-                    var snapshot = new SceneSnapshot(Context, ishapshot, TimeSpan.FromMilliseconds(millisec));
-                    foreach (var sys in Context.GetSystemManager().GetSystems()) {
-                        sys.Execute(snapshot);
-                    }
-                } catch (Exception ex) {
-                    ex.ToString();
-                    throw ex;
-                }
+                var eman = Context.GetEntityManager();
+
+                Rendering(eman, imanager, millisec);
 
                 millisec = speed.ElapsedMilliseconds;
 
@@ -123,7 +115,7 @@ namespace D3DLab.Std.Engine {
 
                 //Debug.WriteLine($"FPS {(int)(total / speed.ElapsedMilliseconds)} / {speed.ElapsedMilliseconds} ms");
 
-                notify.NotifyRender(Context.GetEntityManager().GetEntities().ToArray());
+                notify.NotifyRender(eman.GetEntities().ToArray());
             }
 
             gd.WaitForIdle();
@@ -132,6 +124,26 @@ namespace D3DLab.Std.Engine {
 
             window.InputManager.Dispose();
             Context.Dispose();
+        }
+
+        void Rendering(IEntityManager emanager, IInputManager imanager, double millisec) {
+            var ishapshot = imanager.GetInputSnapshot();
+
+            if (!ishapshot.Events.Any() && !emanager.HasChanges) {//no input/changes no rendering 
+                return;
+            }
+
+            emanager.Synchronize();
+
+            try {
+                var snapshot = new SceneSnapshot(Context, ishapshot, TimeSpan.FromMilliseconds(millisec));
+                foreach (var sys in Context.GetSystemManager().GetSystems()) {
+                    sys.Execute(snapshot);
+                }
+            } catch (Exception ex) {
+                ex.ToString();
+                throw ex;
+            }
         }
 
         public void Dispose() {
