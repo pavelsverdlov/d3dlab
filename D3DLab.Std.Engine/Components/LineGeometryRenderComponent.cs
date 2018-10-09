@@ -163,14 +163,14 @@ namespace D3DLab.Std.Engine.Components {
     
 
 
-    public class LineGeometryRenderComponent : ShaderComponent, IRenderableComponent {
-        public Geometry3D geometry { get; set; }
+    public class LineGeometryRenderComponent : ShaderComponent, IRenderableComponent, IGeometryComponent {
+        public Geometry3D Geometry { get; set; }
 
         public DeviceBufferesUpdater Bufferes { get; }
         public ResourcesUpdater Resources { get; }
 
         public LineGeometryRenderComponent(ShaderTechniquePass[] passes, Geometry3D geometry) : base(passes) {
-            this.geometry = geometry;
+            this.Geometry = geometry;
             Bufferes = new DeviceBufferesUpdater();
             Resources = new ResourcesUpdater(new ResourceLayoutDescription(
                       new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
@@ -197,8 +197,8 @@ namespace D3DLab.Std.Engine.Components {
             if (!Passes.All(x=>x.IsCached)) {
                 UpdateShaders(factory);
             }
-            var vertices = ConvertVertexToShaderStructure(geometry);
-            ushort[] indices = ConvertToShaderIndices(geometry);
+            var vertices = ConvertVertexToShaderStructure(Geometry);
+            ushort[] indices = ConvertToShaderIndices(Geometry);
 
             Bufferes.UpdateWorld();
             Bufferes.UpdateVertex(vertices, LinesVertex.SizeInBytes);
@@ -229,7 +229,7 @@ namespace D3DLab.Std.Engine.Components {
             cmd.SetGraphicsResourceSet(0, Resources.Set);
             cmd.SetVertexBuffer(0, Bufferes.Vertex);
             cmd.SetIndexBuffer(Bufferes.Index, IndexFormat.UInt16);
-            cmd.DrawIndexed((uint)geometry.Indices.Count, 1, 0, 0, 0);
+            cmd.DrawIndexed((uint)Geometry.Indices.Count, 1, 0, 0, 0);
         }
 
         LinesVertex[] ConvertVertexToShaderStructure(Geometry3D geo) {
