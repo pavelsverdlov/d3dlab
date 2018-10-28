@@ -56,7 +56,7 @@ namespace D3DLab.Debugger.IDE {
         public void Visit(DefinitionObjectNode don) {
             don.Children.ForEach(x => x.Handle(this));
         }
-        public void Visit(StructVariableDefinition svd) {
+        public void Visit(VariableDefinitionWitSemanticName svd) {
             svd.VarDeclaration.Handle(this);
             ApplyForegroundValue(svd.SemanticNameLex, SemanticNameBrush);
         }

@@ -1,0 +1,34 @@
+﻿<TreeView x:Class="D3DLab.Debugger.Windows.TreeViewerElement"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:model="clr-namespace:D3DLab.Debugger.Model"
+             xmlns:local="clr-namespace:D3DLab.Debugger.Windows"
+            ItemsSource="{Binding Items}">
+    <TreeView.Resources>
+        <DataTemplate DataType="{x:Type model:VisualComponentItem}">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="{Binding Name}" Foreground="White"/>
+                <TextBlock Text="{Binding Value}" Foreground="White"/>
+            </StackPanel>
+        </DataTemplate>
+    </TreeView.Resources>
+
+    <TreeView.ItemTemplate>
+        <HierarchicalDataTemplate ItemsSource="{Binding Components}">
+            <DockPanel>
+                <TextBlock Text="{Binding Name}" Foreground="White">
+                    <TextBlock.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Properties Editor" CommandParameter="{Binding}" Command="{Binding OpenPropertiesEditor}" />
+                            <MenuItem Header="Shader Editor" CommandParameter="{Binding}" Command="{Binding OpenShaderEditor}" />
+                        </ContextMenu>
+                    </TextBlock.ContextMenu>
+                </TextBlock>
+                <!--<Button Content="BOX" Command="{Binding RenderModeSwither}" CommandParameter="{Binding}"
+                            BorderBrush="White" Foreground="White" Background="Black" BorderThickness="1"/>-->
+            </DockPanel>
+        </HierarchicalDataTemplate>
+    </TreeView.ItemTemplate>
+</TreeView>

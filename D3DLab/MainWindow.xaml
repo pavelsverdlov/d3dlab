@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:D3DLab"
         xmlns:host="clr-namespace:D3DLab.Wpf.Engine.App.Host;assembly=D3DLab.Wpf.Engine.App"
         xmlns:controls="clr-namespace:D3DLab.UI.Controls;assembly=D3DLab.UI"
+        xmlns:debug="clr-namespace:D3DLab.Debugger.Windows;assembly=D3DLab.Debugger"
         mc:Ignorable="d"
         Title="MainWindow" Height="540" Width="960">
     <Window.Resources>
@@ -25,15 +26,25 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" />                    
                 </Grid.ColumnDefinitions>
+                
+
+                <DockPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Opacity="0.8" Background="Black"  Width="200">
+                    <debug:TreeViewerElement Background="Transparent" DataContext="{Binding VisualTreeviewer}"/>
+                </DockPanel>
+
                 <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White" 
-                           Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
+                           Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
                     <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
                     <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
                 </DockPanel>
-                <ListBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="Black" Width="200" Opacity="0.8"
+
+                <!---->
+
+
+                <!--<ListBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="Black" Width="200" Opacity="0.8"
                          ItemsSource="{Binding Items}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -43,7 +54,7 @@
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                </ListBox>-->
             </Grid>
         </controls:OverlayPanel>
 

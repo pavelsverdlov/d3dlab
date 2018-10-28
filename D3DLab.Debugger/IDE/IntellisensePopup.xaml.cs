@@ -1,4 +1,5 @@
 ﻿using D3DLab.Debugger.Windows;
+using D3DLab.Std.Engine.Core.Ext;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Input;
 
 namespace D3DLab.Debugger.IDE {
 
@@ -25,9 +27,16 @@ namespace D3DLab.Debugger.IDE {
         public IntellisensePopup() {
             InitializeComponent();
             this.StaysOpen = false;
+            this.KeyDown += IntellisensePopup_KeyDown;
             presenter = new IntellisensePopupPresenter(this);
             Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             DataContext = presenter;
+        }
+
+        private void IntellisensePopup_KeyDown(object sender, KeyEventArgs e) {
+            if(e.Key == Key.Escape) {
+                presenter.Close();
+            }
         }
 
         void OnListBoxItemMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
@@ -51,14 +60,19 @@ namespace D3DLab.Debugger.IDE {
     public class IntellisenseItem {
 
     }
+
     public class IntellisensePopupPresenter {
+        public IntellisenseTypes Type { get; set; }
+        public ShaderTextBox ShaderTextBox { get; set; }
         public TextPointer PositionPointer { get; set; }
         public TextPoiterChanged TargetVariable { get; set; }
 
         public ObservableCollection<string> Items { get; set; }
+        public string VariableName { get; set; }
 
         readonly IntellisensePopup view;
         //readonly ObservableCollection<string> items;
+        int offset;
 
         public IntellisensePopupPresenter(IntellisensePopup view) {
             this.view = view;
@@ -72,8 +86,14 @@ namespace D3DLab.Debugger.IDE {
         }
 
         public void OnMouseLeftButtonDown(string item) {
-            view.IsOpen = false;
-            PositionPointer.InsertTextInRun(item);            
+            switch (Type) {
+                case IntellisenseTypes.AutoComplete:
+                    item = item.Remove(0, VariableName.Length);
+                    break;
+            }
+            PositionPointer.InsertTextInRun(item);
+            offset = item.Length;
+            Close();
         }
         
         public void Show() {
@@ -85,6 +105,10 @@ namespace D3DLab.Debugger.IDE {
             result.ForEach(x => Items.Add(x));
         }
 
-        
+        public void Close() {
+            view.IsOpen = false;
+            Keyboard.Focus(ShaderTextBox);
+            ShaderTextBox.CaretPosition = PositionPointer.GetPositionAtOffset(offset);
+        }
     }
 }

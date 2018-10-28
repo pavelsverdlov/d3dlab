@@ -12,10 +12,10 @@ namespace D3DLab.Debugger.IDE {
 
         public virtual void Analyze() { }
 
-        public Dictionary<string, StructVariableDefinition> Properties;
+        public Dictionary<string, VariableDefinitionWitSemanticName> Properties;
         public List<string> Methods;
         public GloalObject() {
-            Properties = new Dictionary<string, StructVariableDefinition>();
+            Properties = new Dictionary<string, VariableDefinitionWitSemanticName>();
             Methods = new List<string>();
         }
     }
@@ -27,7 +27,7 @@ namespace D3DLab.Debugger.IDE {
                 return;
             }
             foreach (var pr in Node.Children) {
-                if (pr is StructVariableDefinition vari) {
+                if (pr is VariableDefinitionWitSemanticName vari) {
                     Properties.Add(vari.VarDeclaration.DeclarationName.NameLex.Value, vari);//vari.DeclarationName
                 } else {
                     Console.WriteLine(pr.ToString());
@@ -58,7 +58,7 @@ namespace D3DLab.Debugger.IDE {
                     pr.Handle(this);
                 }
             }catch (Exception ex) {
-
+                ex.ToString();
             }
         }
 
@@ -118,7 +118,7 @@ namespace D3DLab.Debugger.IDE {
             
         }
 
-        public void Visit(StructVariableDefinition definitionObjectNode) {
+        public void Visit(VariableDefinitionWitSemanticName definitionObjectNode) {
             
         }
 
@@ -229,15 +229,19 @@ namespace D3DLab.Debugger.IDE {
 
         internal FuncGloalObject GetScope(TextRange range) {
             FuncGloalObject currentScope = null;
-            foreach (var scope in scopes) {
-                var box = scope.Value.Node.Boundary;
-                var start = scope.Value.Node.VarDeclaration.DeclarationName.NameLex.StartPointer;
-                var fromStartToCurent = start.GetOffsetToPosition(range.Start);
-                var fromCurrenToEnd = range.Start.GetOffsetToPosition(box.EndPointer.StartPointer);
-                if (fromStartToCurent > 0 && fromCurrenToEnd > 0) {
-                    currentScope = scope.Value;
-                    break;
+            try {
+                foreach (var scope in scopes) {
+                    var box = scope.Value.Node.Boundary;
+                    var start = scope.Value.Node.VarDeclaration.DeclarationName.NameLex.StartPointer;
+                    var fromStartToCurent = start.GetOffsetToPosition(range.Start);
+                    var fromCurrenToEnd = range.Start.GetOffsetToPosition(box.EndPointer.StartPointer);
+                    if (fromStartToCurent > 0 && fromCurrenToEnd > 0) {
+                        currentScope = scope.Value;
+                        break;
+                    }
                 }
+            }catch(Exception ex) {
+                Console.WriteLine(ex);
             }
             return currentScope;
         }
@@ -255,6 +259,16 @@ namespace D3DLab.Debugger.IDE {
             }
 
             return new string[0];
+        }
+        internal IEnumerable<string> GetVariableOfScopeByWorlds(string worlds, FuncGloalObject currentScope) {
+            var valiables = currentScope.VariableTypesMapper.Keys.Where(x => x.StartsWith(worlds));
+
+            return valiables;
+        }
+        internal IEnumerable<string> GetGlobalTypesByWorlds(string worlds) {
+            var valiables = global.Keys.Where(x => x.StartsWith(worlds));
+
+            return valiables;
         }
 
         class ScopeRegistration : IDisposable {

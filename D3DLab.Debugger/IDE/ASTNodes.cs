@@ -95,7 +95,7 @@ namespace D3DLab.Debugger.IDE {
     }
 
     
-    class StructVariableDefinition : DefinitionNode {
+    class VariableDefinitionWitSemanticName : DefinitionNode {
         // example: [InterpolationModifier] Type[RxC] MemberName [:Semantic];
         /// <summary>
         /// Optional parameter-usage information, used by the compiler to link shader inputs and outputs. There are several predefined semantics for vertex and pixel shaders. The compiler ignores semantics unless they are declared on a global variable, or a parameter passed into a shader.

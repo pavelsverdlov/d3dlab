@@ -6,9 +6,11 @@ using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Shaders;
 using D3DLab.Std.Engine.Systems;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Veldrid;
 
 namespace D3DLab.Wpf.Engine.App {
@@ -30,14 +32,63 @@ namespace D3DLab.Wpf.Engine.App {
                 };
             var line = context.GetEntityManager()
                   .CreateEntity(new ElementTag(Guid.NewGuid().ToString()))
-                  .AddComponent(new SolidGeometryRenderComponent(new[] { new ShaderTechniquePass(shaders) }, geo
-                  ));
+                  ;//.AddComponent(new SolidGeometryRenderComponent(new[] { new ShaderTechniquePass(shaders) }, geo));
 
             context.EntityOrder.RegisterOrder<VeldridRenderSystem>(line.Tag);
         }
     }
 
     public static class LineEntityBuilder {
+        public class LineShaderSpecification : ShaderSpecification<LineShaderSpecification.LinesVertex> {
+            public LineShaderSpecification(ShaderTechniquePass[] passes) : base(passes) { }
+
+            public override VertexLayoutDescription[] GetVertexDescription() {
+                return new[] {
+                    new VertexLayoutDescription(
+                            new VertexElementDescription("p", VertexElementSemantic.Position, VertexElementFormat.Float4),
+                            new VertexElementDescription("c", VertexElementSemantic.Color, VertexElementFormat.Float4))
+                };
+            }
+            public override ResourceLayoutDescription GetResourceDescription() {
+                return new ResourceLayoutDescription(
+                       new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                       new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                       new ResourceLayoutElementDescription("World", ResourceKind.UniformBuffer, ShaderStages.Vertex));
+            }
+            public override uint GetVertexSizeInBytes() {
+                return LinesVertex.SizeInBytes;
+            }
+
+            protected override LinesVertex[] ConvertVertexToShaderStructure(Geometry3D geo) {
+                var res = new List<LinesVertex>();
+
+                for (int i = 0; i < geo.Positions.Count; i++) {
+                    var pos = geo.Positions[i];
+                    res.Add(new LinesVertex() { Position = new Vector4(pos.X, pos.Y, pos.Z, 1), Color = RgbaFloat.Red.ToVector4() });
+                }
+
+                return res.ToArray();
+            }
+
+            [StructLayout(LayoutKind.Sequential, Pack = 4)]
+            public struct LinesVertex {
+                public Vector4 Position;
+                public Vector4 Color;
+                public const int SizeInBytes = 4 * (4 + 4);
+            }
+        }
+        public class LineDeviceBufferesUpdater : DeviceBufferesUpdater {
+            public LineDeviceBufferesUpdater(LineShaderSpecification shader) : base(shader) {
+
+            }
+            public override void UpdateVertex(Geometry3D geo) {
+                var vertices = shader.ConvertVertexToShaderStructure<LineShaderSpecification.LinesVertex>(geo);
+                factory.CreateIfNullBuffer(ref vertexBuffer, new BufferDescription((uint)(shader.GetVertexSizeInBytes() * vertices.Length),
+                   BufferUsage.VertexBuffer));
+                cmd.UpdateBuffer(vertexBuffer, 0, vertices);
+            }
+        }
+
         public static void Build(IContextState context, Vector3[] points) {
             IShaderInfo[] lineShaders = {
                     new D3DShaderInfo(
@@ -62,11 +113,14 @@ namespace D3DLab.Wpf.Engine.App {
             //var box = lb.Build(mb.BuildBox(Vector3.Zero, -20, 20, 20).Positions);// points.ToList().GetRange(0,20));
             var dd = points.ToList().GetRange(0, 5).ToList();
             var box = lb.Build(points);
-
-
+            var shader = new LineShaderSpecification(new[] { new ShaderTechniquePass(lineShaders) });
+            //
             var line = context.GetEntityManager()
                   .CreateEntity(new ElementTag("LineEntity"))
-                  .AddComponent(new LineGeometryRenderComponent(new[] { new ShaderTechniquePass(lineShaders) }, box
+                  .AddComponent(new LineGeometryRenderComponent(
+                      shader,
+                      new LineDeviceBufferesUpdater(shader),
+                      box
                   // new Std.Engine.Helpers.LineBuilder().Build(box.Positions.GetRange(0,3))
                   ));
 

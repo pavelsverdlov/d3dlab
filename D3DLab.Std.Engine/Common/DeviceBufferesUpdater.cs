@@ -1,4 +1,5 @@
-﻿using System;
+﻿using D3DLab.Std.Engine.Core.Shaders;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -6,18 +7,22 @@ using Veldrid;
 using Veldrid.Utilities;
 
 namespace D3DLab.Std.Engine.Common {
-    public class DeviceBufferesUpdater {
-        DeviceBuffer indexBuffer;
+    public abstract class DeviceBufferesUpdater {
+        protected DeviceBuffer indexBuffer;
         DeviceBuffer worldBuffer;
-        DeviceBuffer vertexBuffer;
+        protected DeviceBuffer vertexBuffer;
 
         public DeviceBuffer World { get => worldBuffer; }
         public DeviceBuffer Index { get => indexBuffer; }
         public DeviceBuffer Vertex { get => vertexBuffer; }
 
-        DisposeCollectorResourceFactory factory;
-        CommandList cmd;
+        protected DisposeCollectorResourceFactory factory;
+        protected CommandList cmd;
+        protected readonly IVeldridShaderSpecification shader;
 
+        public DeviceBufferesUpdater(IVeldridShaderSpecification shader) {
+            this.shader = shader;
+        }
         public void Update(DisposeCollectorResourceFactory factory, CommandList commands) {
             this.factory = factory;
             this.cmd = commands;
@@ -28,13 +33,9 @@ namespace D3DLab.Std.Engine.Common {
             cmd.UpdateBuffer(worldBuffer, 0, Matrix4x4.Identity);
         }
 
-        public void UpdateVertex<T>(T[] vertices, uint sizeInBytes) where T : struct {
-            factory.CreateIfNullBuffer(ref vertexBuffer, new BufferDescription((uint)(sizeInBytes * vertices.Length),
-               BufferUsage.VertexBuffer));
-            cmd.UpdateBuffer(vertexBuffer, 0, vertices);
-        }
-
-        public void UpdateIndex(ushort[] indices) {
+        public abstract void UpdateVertex(Geometry3D geo);
+        public void UpdateIndex(Geometry3D geo) {
+            var indices = shader.ConvertToShaderIndices(geo);
             factory.CreateIfNullBuffer(ref indexBuffer, new BufferDescription(sizeof(ushort) * (uint)indices.Length,
                  BufferUsage.IndexBuffer));
             cmd.UpdateBuffer(indexBuffer, 0, indices);

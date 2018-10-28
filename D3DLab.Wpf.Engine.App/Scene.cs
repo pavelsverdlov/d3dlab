@@ -1,14 +1,9 @@
-﻿using D3DLab.Std.Engine;
+﻿using D3DLab.SDX.Engine;
 using D3DLab.Std.Engine.Core;
-using D3DLab.Std.Engine.Entities;
-using D3DLab.Std.Engine.Systems;
 using D3DLab.Wpf.Engine.App.Host;
 using D3DLab.Wpf.Engine.App.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 using System.Windows;
 
 namespace D3DLab.Wpf.Engine.App {
@@ -18,8 +13,8 @@ namespace D3DLab.Wpf.Engine.App {
         private readonly IEntityRenderNotify notify;
         readonly CurrentInputObserver input;
 
-        private Game game;
-        private GameWindow window;
+        private D3DEngine game;
+        public GameWindow Window { get; private set; }
 
         public IContextState Context { get; }
         public event Action RenderStarted = () => { };
@@ -37,40 +32,10 @@ namespace D3DLab.Wpf.Engine.App {
         private void OnUnloaded(object sender, RoutedEventArgs e) {
             game.Dispose();
         }
-
+        
         private void OnHandleCreated(WinFormsD3DControl win) {
-            window = new GameWindow(win, input);
-            game = new Game(window, Context);
-
-            var cameraTag = new ElementTag("CameraEntity");
-
-            {   //systems creating
-                var smanager = Context.GetSystemManager();
-
-                smanager.CreateSystem<VeldridRenderSystem>();
-                smanager.CreateSystem<InputSystem>();
-
-                //systems initialization
-                foreach (var sys in Context.GetSystemManager().GetSystems()) {
-                    switch (sys) {
-                        case IRenderSystemInit rsys:
-                            rsys.Init(game.gd, game.factory, window);
-                            break;
-                    }
-                }
-            }
-            {   //default entities
-                var em = Context.GetEntityManager();
-
-                EngineInfoBuilder.Build(em);
-                em.CreateEntity(cameraTag).AddComponent(new CameraBuilder.CameraComponent(window.Width, window.Height));               
-            }
-
-            {//entities ordering 
-                Context.EntityOrder
-                       .RegisterOrder<VeldridRenderSystem>(cameraTag, 0)
-                       .RegisterOrder<InputSystem>(cameraTag, 0);
-            }
+            Window = new GameWindow(win, input);
+            game = new D3DEngine(Window, Context);
 
             game.Run(notify);
             RenderStarted();

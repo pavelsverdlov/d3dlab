@@ -15,7 +15,7 @@ namespace D3DLab.Std.Engine.Components {
     public struct TextureInfo {
         public string Path;
     }
-
+    /*
     public class TexturedGeometryRenderComponent : ShaderComponent, IRenderableComponent {
         private DeviceBuffer _indexBuffer;
         private DeviceBuffer _vertexBuffer;
@@ -165,5 +165,5 @@ namespace D3DLab.Std.Engine.Components {
         }
 
 
-    }
+    }*/
 }

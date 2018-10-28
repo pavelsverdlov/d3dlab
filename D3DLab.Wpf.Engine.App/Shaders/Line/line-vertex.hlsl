@@ -12,7 +12,6 @@ struct VSInputLS
 struct GSInputLS
 {
 	float4 p	: SV_Position;
-	//float4 wp   : POSITION0;
 	float4 c	: COLOR0;
 };
 

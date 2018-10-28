@@ -24,12 +24,12 @@ namespace D3DLab.Std.Engine.Systems {
         }
 
         public void Execute(SceneSnapshot snapshot) {
-            IEntityManager emanager = snapshot.State.GetEntityManager();
+            IEntityManager emanager = snapshot.ContextState.GetEntityManager();
 
             using (var _cl = factory.CreateCommandList()) {
                 _cl.Begin();
 
-                var state = new RenderState() {
+                var state = new VeldridRenderState() {
                     Factory = factory,
                     GrDevice = gd,
                     Window = window,
@@ -44,12 +44,11 @@ namespace D3DLab.Std.Engine.Systems {
                 _cl.ClearColorTarget(0, RgbaFloat.Black);
                 _cl.ClearDepthStencil(1f);
 
-                foreach (var entity in emanager.GetEntities().OrderBy(x=>x.GetOrderIndex<VeldridRenderSystem>())) {
-                    entity.GetComponents<IRenderableComponent>()
-                        .DoFirst(x => {
-                            x.Update(state);
-                            renderables.Add(x);
-                        });
+                foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<VeldridRenderSystem>())) {
+                    foreach(var com in entity.GetComponents<IRenderableComponent>()) {
+                        com.Update(state);
+                        renderables.Add(com);
+                    }
                 }
 
                 foreach (var renderable in renderables) {

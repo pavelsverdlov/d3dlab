@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Rendering\Shaders\Light.hlsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Rendering\Shaders\Light.hlsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpDX" Version="4.1.0" />
+    <PackageReference Include="SharpDX.D3DCompiler" Version="4.1.0" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.1.0" />
+    <PackageReference Include="SharpDX.Direct3D11.Effects" Version="4.1.0" />
+    <PackageReference Include="SharpDX.DXGI" Version="4.1.0" />
+    <PackageReference Include="SharpDX.Mathematics" Version="4.1.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\D3DLab.Std.Engine.Core\D3DLab.Std.Engine.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Tests\Line\line-fragment.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Line\line-geometry.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Line\line-vertex.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

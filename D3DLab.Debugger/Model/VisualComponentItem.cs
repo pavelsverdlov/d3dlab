@@ -1,4 +1,5 @@
 ﻿using D3DLab.Debugger.Infrastructure;
+using D3DLab.Debugger.Windows;
 using D3DLab.Std.Engine.Core;
 using System;
 using System.Collections.Generic;
@@ -13,16 +14,16 @@ namespace D3DLab.Debugger.Model {
 
         public ICommand OpenShaderEditor { get; }
         public ICommand OpenPropertiesEditor { get; }
-        
 
+        readonly IGraphicComponent com;
+        readonly IRenderUpdater updater;
 
-        private IGraphicComponent com;
-
-        public VisualComponentItem(IGraphicComponent com) {
+        public VisualComponentItem(IGraphicComponent com, IRenderUpdater updater) {
             this.com = com;
+            this.updater = updater;
 
-            OpenShaderEditor = new Windows.VisualTreeviewerViewModel.OpenShaderEditorCommand();
-            OpenPropertiesEditor = new Windows.VisualTreeviewerViewModel.OpenPropertiesEditorCommand();
+            OpenShaderEditor = new Windows.VisualTreeviewerViewModel.OpenShaderEditorCommand(updater);
+            OpenPropertiesEditor = new Windows.VisualTreeviewerViewModel.OpenPropertiesEditorCommand(updater);
         
         }
 

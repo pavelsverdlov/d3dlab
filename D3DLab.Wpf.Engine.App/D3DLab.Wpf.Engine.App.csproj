@@ -108,7 +108,7 @@
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.5.0-preview1-26216-02\lib\net46\System.Numerics.Vectors.dll</HintPath>
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
     <Reference Include="System.Reflection, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reflection.4.3.0\lib\net462\System.Reflection.dll</HintPath>
@@ -118,8 +118,8 @@
       <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0-preview1-26216-02\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.Extensions.4.3.0\lib\net462\System.Runtime.Extensions.dll</HintPath>
@@ -168,9 +168,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EntityRenderModeSwither.cs" />
-    <Compile Include="LineEntityBuilder.cs" />
-    <Compile Include="NumericsToDrawingConvertorsEx.cs" />
+    <Compile Include="EntityBuilders.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="Host\FormsHost.cs" />
     <Compile Include="Host\WinFormsD3DControl.cs">
@@ -230,29 +228,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\veldrid\src\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj">
-      <Project>{b1aeba69-c61c-41e7-9126-2087b3d5cafa}</Project>
-      <Name>Veldrid.ImageSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\veldrid\src\Veldrid.Utilities\Veldrid.Utilities.csproj">
-      <Project>{3c8555bb-2bd9-4973-bfd9-dcafdcd5955d}</Project>
-      <Name>Veldrid.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\veldrid\src\Veldrid\Veldrid.csproj">
-      <Project>{60d56e4a-fa7a-4664-bef0-0a29f41518bf}</Project>
-      <Name>Veldrid</Name>
-    </ProjectReference>
     <ProjectReference Include="..\D3DLab.Fwk.ImageSharp\D3DLab.Fwk.ImageSharp.csproj">
       <Project>{a299f142-cc63-4664-8290-01ef69f85182}</Project>
       <Name>D3DLab.Fwk.ImageSharp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj">
+      <Project>{f463ebd8-115c-405d-962d-50a212a3ac38}</Project>
+      <Name>D3DLab.SDX.Engine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\D3DLab.Std.Engine.Core\D3DLab.Std.Engine.Core.csproj">
       <Project>{ad2b47e7-4b24-4643-83a8-46e14afa2bc5}</Project>
       <Name>D3DLab.Std.Engine.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\D3DLab.Std.Engine\D3DLab.Std.Engine.csproj">
-      <Project>{47327e16-dc8d-4d23-9485-c16cafe5e34a}</Project>
-      <Name>D3DLab.Std.Engine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

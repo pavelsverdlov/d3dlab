@@ -65,7 +65,7 @@ namespace D3DLab.Std.Engine.Core {
             }, com);
         }
         public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
-            return components[tagEntity].OfType<T>().FirstOrDefault();
+            return components[tagEntity].OfType<T>().Single();
         }
         public IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {
             return components[tagEntity].OfType<T>();

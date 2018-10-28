@@ -41,13 +41,13 @@ namespace D3DLab.Debugger.IDE {
              "float2", "float3", "float4",
         };
         public readonly Hash Primitive = new Hash {
-            "int", "return", "void", "bool", "float","true", "false", "discard", "break"
+            "int", "uint", "return", "void", "bool", "float","true", "false", "discard", "break"
         };
         public readonly Hash Modifications = new Hash {
-            "inout", "triangle"
+            "inout", "triangle","noperspective", "line"
         };
         public readonly Hash Generics = new Hash {
-            "TriangleStream", 
+            "TriangleStream", "StructuredBuffer"
         };
         public readonly Hash Matrix = new Hash {
             "float4x4",

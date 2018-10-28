@@ -1,4 +1,5 @@
-﻿using System;
+﻿using D3DLab.Std.Engine.Core.Shaders;
+using System;
 
 namespace D3DLab.Std.Engine.Core {
     public interface IGraphicComponent : IDisposable {

@@ -19,9 +19,6 @@ namespace D3DLab.Debugger.Windows {
     public partial class ShaderEditor : Window {
         public ShaderEditor() {
             InitializeComponent();
-            //DataContextChanged += ShaderEditor_DataContextChanged;
-            //var dc = (ShaderEditorViewModel)DataContext;
-            //rtb.Document = dc.ShaderDocument;
         }
 
         //private void ShaderEditor_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {

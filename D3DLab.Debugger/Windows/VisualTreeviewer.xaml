@@ -10,55 +10,14 @@
         Height="600" Width="600">
     <Window.Resources>
         <local:VisualTreeviewerViewModel x:Key="ViewModel" />
-        <DataTemplate DataType="{x:Type model:VisualComponentItem}">
-            <StackPanel Orientation="Vertical">
-                <TextBlock Text="{Binding Name}" Foreground="White"/>
-                <TextBlock Text="{Binding Value}" Foreground="White"/>
-            </StackPanel>
-        </DataTemplate>
     </Window.Resources>
+
     <Window.DataContext>
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
-    <!--<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">-->
-    <TreeView Name="trvMenu" ItemsSource="{Binding Items}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Background="Transparent">
-        <TreeView.Resources>
-            <!--<ContextMenu x:Key="ContectMenuKey" Visibility="{Binding CanEditShader}" >
-                <MenuItem Header="Properties Editor" CommandParameter="{Binding}" Command="{Binding OpenPropertiesEditor}" />
-                <MenuItem Header="Shader Editor" CommandParameter="{Binding}" Command="{Binding OpenShaderEditor}" />
-            </ContextMenu>-->
-        </TreeView.Resources>
-        <TreeView.ItemTemplate>
-            <HierarchicalDataTemplate ItemsSource="{Binding Components}">
-                <DockPanel>
-                    <TextBlock Text="{Binding Name}" Foreground="White">
-                        <TextBlock.ContextMenu>
-                            <ContextMenu >
-                                <MenuItem Header="Properties Editor" CommandParameter="{Binding}" Command="{Binding OpenPropertiesEditor}" />
-                                <MenuItem Header="Shader Editor" CommandParameter="{Binding}" Command="{Binding OpenShaderEditor}" />
-                            </ContextMenu>
-                        </TextBlock.ContextMenu>
-                    </TextBlock>
-                    <Button Content="BOX" Command="{Binding RenderModeSwither}" CommandParameter="{Binding}"
-                            BorderBrush="White" Foreground="White" Background="Black" BorderThickness="1"/>
-                </DockPanel>
-            </HierarchicalDataTemplate>
-        </TreeView.ItemTemplate>
-        <!--<TreeView.ItemContainerStyle>
-            <Style TargetType="{x:Type TreeViewItem}">
-                <Setter Property="ContextMenu" Value="{StaticResource ContectMenuKey}"/>
-            </Style>
-        </TreeView.ItemContainerStyle>-->
-    </TreeView>
-    <!-- component properties
-        <ContentControl Content="{Binding SelectedComponent}"/>
-        <Button Content="Add Component"/>
-        <TextBox Text="{Binding ConsoleText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            KeyUp="TextBox_KeyUp"
-            TextWrapping="Wrap"
-            AcceptsReturn="True"
-            HorizontalScrollBarVisibility="Disabled"
-            VerticalScrollBarVisibility="Auto"/> -->
-    <!--</StackPanel>-->
+
+    <local:TreeViewerElement x:Name="tree"/>
+
+   
+
 </Window>

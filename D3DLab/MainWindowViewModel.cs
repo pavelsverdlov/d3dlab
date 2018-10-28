@@ -11,6 +11,8 @@ using D3DLab.Std.Engine.Core;
 using D3DLab.Wpf.Engine.App.Host;
 using System.Numerics;
 using D3DLab.Wpf.Engine.App;
+using Veldrid.Utilities;
+using System.Linq;
 
 namespace D3DLab {
 
@@ -19,7 +21,8 @@ namespace D3DLab {
         private readonly EngineNotificator notificator;
         ContextStateProcessor context;
 
-        public VisualTreeviewerPopup VisualTreeviewer { get; set; }
+        public VisualTreeviewerViewModel VisualTreeviewer { get; set; }
+
         public ICommand LoadDuck { get; set; }
 
         public ICollectionView Items { get; set; }
@@ -27,11 +30,11 @@ namespace D3DLab {
 
         public MainWindowViewModel() {
             LoadDuck = new Command(this);
-            VisualTreeviewer = new VisualTreeviewerPopup();
+            VisualTreeviewer = new VisualTreeviewerViewModel();
             
             items = new ObservableCollection<LoadedItem>();
             Items = CollectionViewSource.GetDefaultView(items);
-            notificator = new EngineNotificator();
+             notificator = new EngineNotificator();
 
             notificator.Subscribe(new ViewportSubscriber(this));
         }
@@ -46,13 +49,13 @@ namespace D3DLab {
             scene.RenderStarted += OnRenderStarted;
 
 
-            VisualTreeviewer.ViewModel.RenderModeSwither = new RenderModeSwitherCommand(context);
-            VisualTreeviewer.Show();
+            VisualTreeviewer.RenderModeSwither = new RenderModeSwitherCommand(context);
         }
 
         private void OnRenderStarted() {
-            var parser = new CncParser(new FileInfo(@"C:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
-            LineEntityBuilder.Build(context, parser.GetPaths()[0].Points.ToArray());
+            VisualTreeviewer.GameWindow = scene.Window;
+
+            
         }
 
         private class Command : ICommand {
@@ -71,6 +74,7 @@ namespace D3DLab {
 
             public void Execute(object parameter) {
                 var item = main.scene.LoadObj(this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj"));
+
                 main.items.Add(item);
             }
         }
@@ -82,8 +86,8 @@ namespace D3DLab {
             }
             public override void Execute(Debugger.Infrastructure.IVisualTreeEntityItem item) {
                 var tag = item.Name;
-                var sw = new EntityRenderModeSwither(context.GetEntityManager().GetEntity(tag));
-                sw.TurnOn(EntityRenderModeSwither.Modes.BoundingBox);
+                //var sw = new EntityRenderModeSwither(context.GetEntityManager().GetEntity(tag));
+                //sw.TurnOn(EntityRenderModeSwither.Modes.BoundingBox);
             }
         }
     }
@@ -102,13 +106,13 @@ namespace D3DLab {
 
         public void Change(GraphicEntity entity) {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.ViewModel.Add(entity);
+                mv.VisualTreeviewer.Add(entity);
             }));
         }
 
         public void Render(IEnumerable<GraphicEntity> entities) {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.ViewModel.Refresh(entities);
+                mv.VisualTreeviewer.Refresh(entities);
             }));
         }
     }
@@ -122,7 +126,7 @@ namespace D3DLab {
         readonly ElementTag duckTag;
         readonly IEntityManager emanager;
 
-        public LoadedItem(IEntityManager emanager, ElementTag duckTag, ElementTag arrowZtag, ElementTag arrowXtag, ElementTag arrowYtag) {
+        public LoadedItem(IEntityManager emanager, ElementTag duckTag) {
             this.emanager = emanager;
             this.duckTag = duckTag;
             VisiblityChanged = new Command(this);
@@ -198,42 +202,63 @@ namespace D3DLab {
 
 
         public LoadedItem LoadObj(Stream content) {
-            return null;
-            /*
-            HelixToolkit.Wpf.SharpDX.ObjReader readerA = new HelixToolkit.Wpf.SharpDX.ObjReader();
-            var res = readerA.Read(content);
-
-            var dic = new Dictionary<string, HelixToolkit.Wpf.SharpDX.MeshBuilder>();
-            foreach (var gr in readerA.Groups) {
-                var key = gr.Name.Split(' ')[0];
-                HelixToolkit.Wpf.SharpDX.MeshBuilder value;
-                if (!dic.TryGetValue(key, out value)) {
-                    value = new HelixToolkit.Wpf.SharpDX.MeshBuilder(true, false);
-                    dic.Add(key, value);
-                }
-                value.Append(gr.MeshBuilder);
-            }
-
-            var index = 0;
-            var builder = new HelixToolkit.Wpf.SharpDX.MeshBuilder(true, false);
-            foreach (var item in dic) {
-                builder.Append(item.Value);
-            }
-
             var entityManager = Context.GetEntityManager();
 
-            var duck = VisualModelBuilder.Build(entityManager, builder.ToMeshGeometry3D(), "duck" + Guid.NewGuid().ToString());
-            var arrowz = ArrowBuilder.Build(entityManager, Vector3.UnitZ, SharpDX.Color.Yellow);
-            var arrowx = ArrowBuilder.Build(entityManager, Vector3.UnitX, SharpDX.Color.Blue);
-            var arrowy = ArrowBuilder.Build(entityManager, Vector3.UnitY, SharpDX.Color.Green);
-            var entities = new[] { duck, arrowz, arrowx, arrowy };
-            var interactor = new EntityInteractor();
-            interactor.ManipulateInteractingTwoWays(entities);
-            //interactor.ManipulateInteractingTwoWays(duck, arrowx);
-            //interactor.ManipulateInteractingTwoWays(duck, arrowy);
-            //interactor.ManipulateInteracting(arrow, duck);
+            var parser = new CncParser(new FileInfo(@"C:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
+            var points = parser.GetPaths()[0].Points.ToArray();
+            // LineEntityBuilder.Build(context, parser.GetPaths()[0].Points.ToArray());
 
-            return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);*/
+            var id = entityManager.BuildLineEntity(points);
+
+            return new LoadedItem(entityManager, id);
+
+            //duck
+
+
+            var readerA = new Std.Engine.Core.Utilities.Helix.ObjReader();
+            var res = readerA.Read(content);
+
+            //var dic = new Dictionary<string, Std.Engine.Core.Utilities.Helix.MeshBuilder>();
+            //foreach (var gr in readerA.Groups) {
+            //    var key = gr.Name;//.Split(' ')[0];
+            //    Std.Engine.Core.Utilities.Helix.MeshBuilder value;
+            //    if (!dic.TryGetValue(key, out value)) {
+            //        value = new Std.Engine.Core.Utilities.Helix.MeshBuilder(false, false);
+            //        dic.Add(key, value);
+            //    }
+            //    value.Append(gr.MeshBuilder);
+            //}
+
+            //var builder = new Std.Engine.Core.Utilities.Helix.MeshBuilder(false, false);
+            //foreach (var item in dic) {
+            //    builder.Append(item.Value);
+            //}
+
+            //var mesh = res[0].Geometry;// builder.ToMeshGeometry3D();
+
+            res[0].Geometry.Color = new Vector4(1, 0, 0, 1); 
+            res[1].Geometry.Color = new Vector4(0, 1, 0, 1); 
+            res[2].Geometry.Color = new Vector4(0, 0, 1, 1); 
+            res[3].Geometry.Color = new Vector4(1, 1, 0, 1);
+
+            var duckTag = entityManager.BuildGroupMeshElement(res.Select(x=>x.Geometry));
+
+            return new LoadedItem(entityManager, duckTag);
+
+            //var entityManager = Context.GetEntityManager();
+
+            //var duck = VisualModelBuilder.Build(entityManager, builder.ToMeshGeometry3D(), "duck" + Guid.NewGuid().ToString());
+            //var arrowz = ArrowBuilder.Build(entityManager, Vector3.UnitZ, SharpDX.Color.Yellow);
+            //var arrowx = ArrowBuilder.Build(entityManager, Vector3.UnitX, SharpDX.Color.Blue);
+            //var arrowy = ArrowBuilder.Build(entityManager, Vector3.UnitY, SharpDX.Color.Green);
+            //var entities = new[] { duck, arrowz, arrowx, arrowy };
+            //var interactor = new EntityInteractor();
+            //interactor.ManipulateInteractingTwoWays(entities);
+            ////interactor.ManipulateInteractingTwoWays(duck, arrowx);
+            ////interactor.ManipulateInteractingTwoWays(duck, arrowy);
+            ////interactor.ManipulateInteracting(arrow, duck);
+
+            //return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);
         }
 
 

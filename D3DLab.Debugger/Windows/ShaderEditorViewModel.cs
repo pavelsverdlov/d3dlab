@@ -9,27 +9,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace D3DLab.Debugger.Windows {
-    public abstract class BaseCommand : ICommand {
-        public event EventHandler CanExecuteChanged = (x, o) => { };
-        public bool CanExecute(object parameter) { return true; }
-
-        public abstract void Execute(object parameter);
-    }
-    public abstract class BaseCommand<T> : ICommand where T : class {
-        public event EventHandler CanExecuteChanged = (x, o) => { };
-        public bool CanExecute(object parameter) { return true; }
-
-        public void Execute(object parameter) {
-            Execute(parameter as T);
-        }
-        public abstract void Execute(T parameter);
-    }
+    
 
     public sealed class ShaderEditorPopup {
         private ShaderEditor win;
@@ -70,19 +57,27 @@ namespace D3DLab.Debugger.Windows {
         }
     }
    
+    public enum IntellisenseTypes {
+        AutoComplete,
+        Dot,
+    }
+
     public class ShaderTabEditor : INotifyPropertyChanged {
 
-        public class EditorWordSelectedCommand : BaseCommand<TextPoiterSelectionChanged> {
+        public class EditorWordSelectedCommand : BaseWPFCommand<TextPoiterSelectionChanged> {
             readonly ShaderDevelopmentEnvironment environment;
 
-            string prev;
             public EditorWordSelectedCommand(ShaderDevelopmentEnvironment environment) {
                 this.environment = environment;
             }
             public override void Execute(TextPoiterSelectionChanged selection) {
-                var world = selection.CaretPointer.GetVariableName();
-              
-                environment.HighlightRelations(world, selection.GetRange());
+                try {
+                    var world = selection.CaretPointer.GetVariableName();
+
+                    environment.HighlightRelations(world, selection.GetRange());
+                }catch(Exception ex) {
+                    ex.ToString();
+                }
 
                 //if (!string.IsNullOrWhiteSpace(prev)) {
                 //    words[prev].ForEach(x => x.Background = Brushes.Transparent);
@@ -94,8 +89,7 @@ namespace D3DLab.Debugger.Windows {
                 //}
             }
         }
-
-        public class IntellisenseInvokedCommand : BaseCommand {
+        public class IntellisenseInvokedCommand : BaseWPFCommand {
             readonly ShaderDevelopmentEnvironment environment;
 
             public IntellisenseInvokedCommand(ShaderDevelopmentEnvironment environment) {
@@ -105,9 +99,24 @@ namespace D3DLab.Debugger.Windows {
             public override void Execute(object parameter) {
                 var presenter = (IntellisensePopupPresenter)parameter;
 
-                var name = presenter.TargetVariable.StartPointer.GetVariableName();
+                var name = presenter.VariableName;
 
-                var result = environment.IntelliSense(name, presenter.TargetVariable.GetRange());
+                IEnumerable<string> result = new string[0];
+                if (!string.IsNullOrWhiteSpace(name)) {
+                    switch (presenter.Type) {
+                        case IntellisenseTypes.Dot:
+                            result = environment.GetProperiesOfType(name, presenter.TargetVariable.GetRange());
+                            break;
+                        case IntellisenseTypes.AutoComplete:
+                            result = 
+                                environment.GetVariablesOfScope(name, presenter.TargetVariable.GetRange())
+                                    .Union(environment.GetShaderKeywords(name))
+                                    .Union(environment.GetGlobalTypes(name));
+                            break;
+                    }
+                }
+
+                
 
                 if (!result.Any()) {
                     environment.UnHighlightAll();
@@ -119,64 +128,84 @@ namespace D3DLab.Debugger.Windows {
                 presenter.Show();
             }
         }
+        public class DocumentChangedCommand : BaseWPFCommand<TextBoxChangedEventArgs> {
+            readonly ShaderTabEditor editor;
+
+            public DocumentChangedCommand(ShaderTabEditor editor) {
+                this.editor = editor;
+            }
+            public override void Execute(TextBoxChangedEventArgs args) {
+                var e = args.Args;
+                var changes = e.Changes;
+                if (!changes.Any()) { return; }
+                var change = changes.Last();
+                var startPoiter = editor.ShaderDocument.ContentStart.GetPositionAtOffset(change.Offset);
+                var endPoiter = startPoiter.GetTextPointAt(change.AddedLength);
+                //Document.ContentStart.GetPositionAtOffset(c.Offset + c.AddedLength);
+                var range = new TextRange(startPoiter, endPoiter);
+                var text = range.Text;
+
+                if (editor.environment.IsKeyword(text)) {
+                    //ApplyPropertyValue(TextElement.ForegroundProperty, brush);
+                }
+
+                if (text != ";") {
+                    return;
+                }
+                var caret = editor.ShaderDocument.ContentStart.GetOffsetToPosition(args.TextBox.CaretPosition);
+                editor.ShaderDocument.Dispatcher.InvokeAsync(() => {                    
+                    editor.ReLoad(new TextRange(editor.ShaderDocument.ContentStart, editor.ShaderDocument.ContentEnd).Text);
+                    args.TextBox.CaretPosition = editor.ShaderDocument.ContentStart.GetPositionAtOffset(caret);
+                });
+                //string text = new TextRange(editor.ShaderDocument.ContentStart, editor.ShaderDocument.ContentEnd).Text;
+            }
+        }
 
         public string Header { get { return Info.Stage; } }
         public FlowDocument ShaderDocument { get { return environment.ShaderDocument; } }
         public ICommand WordSelected { get; set; }
         public ICommand IntellisenseInvoked { get; set; }
-
+        public ICommand DocumentChanged { get; set; }
         public IShaderInfo Info { get; }
+        public ObservableCollection<int> Lines { get; }
 
         readonly ShaderDevelopmentEnvironment environment;
         public ShaderTabEditor(IShaderInfo info) {
             this.Info = info;
+            Lines = new ObservableCollection<int>();
             environment = new ShaderDevelopmentEnvironment();
-            IntellisenseInvoked = new IntellisenseInvokedCommand(environment);
-            WordSelected = new EditorWordSelectedCommand(environment);
         }
         public void LoadShaderAsync() {
             var text = Info.ReadText();
+            ReLoad(text);
+        }
+
+        public void ReLoad(string text) {
+            IntellisenseInvoked = null;
+            WordSelected = null;
+            DocumentChanged = null;
+
+            OnPropertyChanged(nameof(IntellisenseInvoked));
+            OnPropertyChanged(nameof(WordSelected));
+            OnPropertyChanged(nameof(DocumentChanged));
 
             environment.Read(text);
 
+            IntellisenseInvoked = new IntellisenseInvokedCommand(environment);
+            WordSelected = new EditorWordSelectedCommand(environment);
+            DocumentChanged = new DocumentChangedCommand(this);
+
             OnPropertyChanged(nameof(ShaderDocument));
+            OnPropertyChanged(nameof(IntellisenseInvoked));
+            OnPropertyChanged(nameof(WordSelected));
+            OnPropertyChanged(nameof(DocumentChanged));
 
-            return;
-
-            //var parser = new ShaderParser(text);
-
-            //parser.Analyze();
-
-            //ShaderDocument = parser.Document;
-            
-
-            //Interpreter = parser.Interpreter;
-
-            //WordSelected = new EditorWordSelectedCommand(words, Interpreter);
+            var lines = text.Count(x => x == '\n');
+            lines.For(x => Lines.Add(x));
         }
 
-        //private void Fill(string txt, Tokens token) {
-        //    if (!words.TryGetValue(txt, out var item)) {
-        //        words.Add(txt, new List<Run>());
-        //    }
-
-        //    Run run = new Run(txt);
-        //    //switch (token) {
-        //    //    case Tokens.Operator:
-        //    //        run.Foreground = Brushes.Blue;
-        //    //        break;
-        //    //    case Tokens.Comments:
-        //    //        run.Foreground = Brushes.Green;
-        //    //        break;
-        //    //    default:
-        //    //        break;
-        //    //}
-        //   // par.Inlines.Add(run);
-        //    words[txt].Add(run);
-        //}
-
         public event PropertyChangedEventHandler PropertyChanged = (x, y) => { };
-        private void OnPropertyChanged(string name) {
+        void OnPropertyChanged(string name) {
             PropertyChanged(this, new PropertyChangedEventArgs(name));
         }
     }
@@ -191,6 +220,7 @@ namespace D3DLab.Debugger.Windows {
         readonly EditorHistory history;
         IShaderEditingComponent current;
         IShaderCompilator compilator;
+        IRenderUpdater updater;
 
         public ShaderEditorViewModel() {
             tabs = new ObservableCollection<ShaderTabEditor>();
@@ -200,12 +230,13 @@ namespace D3DLab.Debugger.Windows {
             Errors = new ObservableCollection<string>();
         }
 
-        public void LoadShader(IShaderEditingComponent com) {
+        public void LoadShader(IShaderEditingComponent com, IRenderUpdater updater) {
+            this.updater = updater;
             current = com;
             compilator = com.GetCompilator();
             history.Clear();
 
-            foreach (var sh in compilator.Infos) {
+            foreach (var sh in com.Pass.ShaderInfos) {
                 var tab = new ShaderTabEditor(sh);
                 tabs.Add(tab);
                 tab.LoadShaderAsync();
@@ -219,14 +250,16 @@ namespace D3DLab.Debugger.Windows {
         }
 
         public void Save() {
+            Errors.Clear();
             var selected = GetSelected();
             try {
                 var shaderDocument = selected.ShaderDocument;
                 string text = new TextRange(shaderDocument.ContentStart, shaderDocument.ContentEnd).Text;
 
                 compilator.Compile(selected.Info, text);
-                current.ReLoad();
-                Errors.Insert(0, $"Compile: {selected.Info.Stage} succeeded");
+                current.ReLoad();                
+                Errors.Insert(0, $"{DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss")} Compile: {selected.Info.Stage} succeeded");
+                updater.Update();
             } catch (Exception ex) {
                 foreach(var line in Regex.Split(ex.Message, Environment.NewLine)){
                     Errors.Insert(0,line);

@@ -1,12 +1,6 @@
-﻿using D3DLab.Std.Engine.Core;
+﻿using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Input;
-using D3DLab.Std.Engine.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using D3DLab.Std.Engine.Core.Input.Commands;
 using System.Windows;
 using System.Windows.Forms;
 

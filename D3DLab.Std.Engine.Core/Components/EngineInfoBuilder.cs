@@ -1,9 +1,8 @@
-﻿using D3DLab.Std.Engine.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace D3DLab.Std.Engine.Entities {
+namespace D3DLab.Std.Engine.Core.Components {
     public static class EngineInfoBuilder {
         public sealed class PerfomanceComponent : GraphicComponent {
             public double ElapsedMilliseconds { get; set; }

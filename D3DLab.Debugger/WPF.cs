@@ -34,5 +34,11 @@ namespace D3DLab.Debugger {
                 temp.Execute(param);
             }
         }
+
+        public static void For(this int count, Action<int> action) {
+            for(var i = 0; i < count; i++) {
+                action(i);
+            }
+        }
     }
 }

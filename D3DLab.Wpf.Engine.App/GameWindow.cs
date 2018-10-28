@@ -1,4 +1,5 @@
 ﻿using D3DLab.Std.Engine;
+using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Input;
 using D3DLab.Wpf.Engine.App.Host;
 using D3DLab.Wpf.Engine.App.Input;

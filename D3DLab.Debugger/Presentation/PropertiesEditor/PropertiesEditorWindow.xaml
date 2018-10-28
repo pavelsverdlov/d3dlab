@@ -8,6 +8,7 @@
         Title="Properties" Height="600" Width="450">
 
     <Window.Resources>
+        <local:Vector3ToStringConverter x:Key="Vector3ToString"/>
         <local:PropertiesEditorWindowViewModel x:Key="ViewModel" />
         <local:EditPropertyMultiValueConverter x:Key="EditPropertyMultiConverter"/>
 
@@ -15,23 +16,43 @@
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
-        <DataTemplate DataType="{x:Type local:ViewProperty}">
+        <DataTemplate DataType="{x:Type local:ComboBoxViewProperty}">
             <DataTemplate.Resources>
             </DataTemplate.Resources>
             <DockPanel HorizontalAlignment="Stretch">
                 <TextBlock Text="{Binding Title}" Width="150"  Foreground="White"/>
+                <ComboBox Text="{Binding Value}" ItemsSource="{Binding Values}" IsSynchronizedWithCurrentItem="True"
+                          BorderThickness="1" BorderBrush="Gray" Width="150" HorizontalAlignment="Right" Margin="10,0,0,0">
+                </ComboBox>
+            </DockPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type local:TextBoxViewProperty}">
+            <DataTemplate.Resources>
+            </DataTemplate.Resources>
+            <DockPanel HorizontalAlignment="Stretch" x:Name="property">
+                <TextBlock Text="{Binding Title}" Width="150"  Foreground="White"/>
                 <TextBox Text="{Binding Value}" x:Name="editable" BorderThickness="1" BorderBrush="Gray"
                                              Width="150" HorizontalAlignment="Right" Margin="10,0,0,0">
-
                     <TextBox.InputBindings>
-                        <KeyBinding Command="{Binding DataContext.Controller.PropertyChanged, ElementName=root}"  Key="Enter">
-                            <KeyBinding.CommandParameter>
-                                <MultiBinding Converter="{StaticResource EditPropertyMultiConverter}">
-                                    <Binding Path="DataContext" ElementName="editable"/>
-                                    <Binding Path="Text" ElementName="editable"/>
-                                </MultiBinding>
-                            </KeyBinding.CommandParameter>
-                        </KeyBinding>
+                        <KeyBinding Command="{Binding DataContext.Changed, ElementName=property}" Key="Enter" 
+                                    CommandParameter="{Binding Text, ElementName=editable}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+            </DockPanel>
+        </DataTemplate>
+        
+        <DataTemplate DataType="{x:Type local:Vector3ViewProperty}">
+            <DataTemplate.Resources>
+            </DataTemplate.Resources>
+            <DockPanel HorizontalAlignment="Stretch" x:Name="property">
+                <TextBlock Text="{Binding Title}" Width="150"  Foreground="White"/>
+                <TextBox Text="{Binding Value, Converter={StaticResource Vector3ToString}}" x:Name="editable" 
+                         BorderThickness="1" BorderBrush="Gray" 
+                         Width="150" HorizontalAlignment="Right" Margin="10,0,0,0">
+                    <TextBox.InputBindings>
+                        <KeyBinding Command="{Binding DataContext.Changed, ElementName=property}" Key="Enter" 
+                                    CommandParameter="{Binding Text, ElementName=editable}"/>
                     </TextBox.InputBindings>
                 </TextBox>
             </DockPanel>
@@ -60,9 +81,13 @@
     </Window.DataContext>
 
     <StackPanel Background="Transparent" Margin="5">
-        <TextBlock Margin="5,0,0,5" FontSize="15" Text="{Binding Title, Mode=OneWay}" Foreground="#569CD6"/>
-        
-        <ListBox ItemsSource="{Binding Value}" HorizontalAlignment="Stretch" Background="Transparent" Focusable="False"
+        <DockPanel Margin="0,10,0,10">
+            <TextBlock Margin="5,0,0,5" FontSize="15" Text="{Binding Title, Mode=OneWay}" Foreground="#569CD6"/>
+            <Button Margin="15,0,0,0" DockPanel.Dock="Right" Foreground="White" Content="Apply" Command="{Binding Apply}" 
+                    Background="Transparent" BorderBrush="White" BorderThickness="1"/>
+        </DockPanel>
+        <ListBox ItemsSource="{Binding Value}" 
+                 HorizontalAlignment="Stretch" Background="Transparent" Focusable="False"
                  >
             <ListBox.ItemTemplate>
                 <DataTemplate>

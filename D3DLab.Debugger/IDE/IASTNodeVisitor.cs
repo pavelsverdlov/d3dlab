@@ -14,7 +14,7 @@ namespace D3DLab.Debugger.IDE {
 
         //containers
         void Visit(DefinitionObjectNode definitionObjectNode);
-        void Visit(StructVariableDefinition definitionObjectNode);
+        void Visit(VariableDefinitionWitSemanticName definitionObjectNode);
         void Visit(CBufferNode definitionObjectNode);
         void Visit(StructNode definitionObjectNode);
 

@@ -19,7 +19,7 @@ namespace D3DLab.Std.Engine.Input {
         }
 
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraBuilder.CameraComponent>();
+            var find = entity.GetComponents<VeldridCameraBuilder.VeldridCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
@@ -43,7 +43,7 @@ namespace D3DLab.Std.Engine.Input {
         }
 
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraBuilder.CameraComponent>();
+            var find = entity.GetComponents<VeldridCameraBuilder.VeldridCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
@@ -95,7 +95,7 @@ namespace D3DLab.Std.Engine.Input {
         }
 
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraBuilder.CameraComponent>();
+            var find = entity.GetComponents<VeldridCameraBuilder.VeldridCameraComponent>();
             if (!find.Any()) {
                 return false;
             }

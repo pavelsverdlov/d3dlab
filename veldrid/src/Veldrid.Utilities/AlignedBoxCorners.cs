@@ -1,9 +1,7 @@
 ﻿using System.Numerics;
 
-namespace Veldrid.Utilities
-{
-    public struct AlignedBoxCorners
-    {
+namespace Veldrid.Utilities {
+    public struct AlignedBoxCorners {
         public Vector3 NearTopLeft;
         public Vector3 NearTopRight;
         public Vector3 NearBottomLeft;
@@ -12,5 +10,18 @@ namespace Veldrid.Utilities
         public Vector3 FarTopRight;
         public Vector3 FarBottomLeft;
         public Vector3 FarBottomRight;
+
+        public Vector3[] ToArray() {
+            return new[] {
+                NearTopLeft,
+                NearTopRight,
+                NearBottomLeft,
+                NearBottomRight,
+                FarTopLeft,
+                FarTopRight,
+                FarBottomLeft,
+                FarBottomRight
+            };
+        }
     }
 }

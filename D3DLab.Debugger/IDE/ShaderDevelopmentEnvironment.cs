@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using D3DLab.Std.Engine.Core.Ext;
 
 namespace D3DLab.Debugger.IDE {
     //https://github.com/lukebuehler/NRefactory-Completion-Sample
@@ -23,18 +24,20 @@ namespace D3DLab.Debugger.IDE {
             syntax = new ShaderSyntaxInfo();
             ShaderDocument = new FlowDocument();
             ShaderDocument.FontSize = 13;
-            
-            Semantic = new SemanticAnalyzer();
-            highlighter = new SyntaxHighlighter(syntax);
             highlightedLexers = new List<LexerNode>();
+
         }
 
         public void Read(string shadertext) {
+            Semantic = new SemanticAnalyzer();
+            highlighter = new SyntaxHighlighter(syntax);
+            highlightedLexers.Clear();
             var ast = new SyntaxParser(Semantic, syntax);
             try {
                 //shadertext = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "IDE", "TestShaders", "Test.fx"));
 
                 shadertext = shadertext.Replace(Environment.NewLine, "\n");
+                ShaderDocument.Blocks.Clear();
                 ShaderDocument.Blocks.Add(new Paragraph(new Run(shadertext)));
                 //
                 var la = new LexicalAnalyzer(syntax);
@@ -53,12 +56,28 @@ namespace D3DLab.Debugger.IDE {
         }
 
 
-        public IEnumerable<string> IntelliSense(string variableName, TextRange range) {
+        public IEnumerable<string> GetProperiesOfType(string variableName, TextRange range) {
             var scope = Semantic.GetScope(range);
             if (scope == null) {
                 return new string[0];
             }
             return Semantic.GetProperiesOfTypeByVariableName(variableName, scope);
+        }
+
+        public IEnumerable<string> GetVariablesOfScope(string words, TextRange range) {
+            var scope = Semantic.GetScope(range);
+            if (scope == null) {
+                return new string[0];
+            }
+            return Semantic.GetVariableOfScopeByWorlds(words, scope);
+        }
+
+        public IEnumerable<string> GetShaderKeywords(string words) {
+            return syntax.AllKeys.Where(x => x.StartsWith(words));
+        }
+
+        public IEnumerable<string> GetGlobalTypes(string words) {
+            return Semantic.GetGlobalTypesByWorlds(words);
         }
 
         public void HighlightRelations(string variableName, TextRange range) {
@@ -84,6 +103,9 @@ namespace D3DLab.Debugger.IDE {
             highlightedLexers.Clear();
         }
 
+        public bool IsKeyword(string text) {
+            return syntax.AllKeys.Any(x=>x==text);
+        }
     }
 
 
@@ -152,7 +174,7 @@ namespace D3DLab.Debugger.IDE {
                     using (semantic.RegisterStruct(var.DeclarationName.NameLex, strn)) {
                         parent.Children.Add(strn);
 
-                        DelimitedBy(lexers, DelimeterParams.Sequences, strn.Children, lex => Parse(lex, strn));
+                        DelimitedBy(lexers, DelimeterParams.Sequences, strn.Children, lex => VarDeclarationWithSemanticNamesParse(lex, strn));
                         if (lexers.Peek().Value == ShaderSyntaxInfo.Semicolon) {
                             //in some cases ';' is end of declaration 
                             lexers.Dequeue();
@@ -192,7 +214,8 @@ namespace D3DLab.Debugger.IDE {
 
                     DelimitedBy(lexers, DelimeterParams.Function, fdn.Vars,
                               lex => {
-                                  var v = VarDeclarationParse(lex);
+                                  //var v = VarDeclarationParse(lex);
+                                  var v = VarDeclarationWithSemanticNamesParse(lex, parent);
                                   lex.ThrowIfAny();
                                   return v;
                               });
@@ -215,20 +238,22 @@ namespace D3DLab.Debugger.IDE {
             }
         }
 
-        AbstractNode Parse(Queue<LexerNode> lexers, StructNode parent) {
+        AbstractNode VarDeclarationWithSemanticNamesParse(Queue<LexerNode> lexers, DefinitionObjectNode parent) {
             var variable = VarDeclarationParse(lexers);
-            var op = lexers.Peek();
-            switch (op.Value) {
-                case ShaderSyntaxInfo.Colon: // ==== examples ==== 
-                                             //float4 c	: COLOR0;    
-                                             // ==== ++++++++ ==== //    
-                    var svd = new StructVariableDefinition { Parent = parent };
-                    svd.VarDeclaration = variable;
-                    using (lexers.Boundary(ShaderSyntaxInfo.Colon, ShaderSyntaxInfo.Semicolon)) {
-                        svd.SemanticNameLex = lexers.Dequeue();
-                    }
-                    svd.Parent = parent;
-                    return svd;
+            if (lexers.Any()) {
+                var op = lexers.Peek();
+                switch (op.Value) {
+                    case ShaderSyntaxInfo.Colon: // ==== examples ==== 
+                                                 //float4 c	: COLOR0;    
+                                                 // ==== ++++++++ ==== //    
+                        var svd = new VariableDefinitionWitSemanticName { Parent = parent };
+                        svd.VarDeclaration = variable;
+                        using (lexers.Boundary(ShaderSyntaxInfo.Colon, ShaderSyntaxInfo.Semicolon)) {
+                            svd.SemanticNameLex = lexers.Dequeue();
+                        }
+                        svd.Parent = parent;
+                        return svd;
+                }
             }
             variable.Parent = parent;
             return variable;

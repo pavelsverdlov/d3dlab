@@ -1,4 +1,5 @@
 ﻿using D3DLab.Std.Engine.Core.Input;
+using D3DLab.Std.Engine.Core.Ext;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,6 +128,15 @@ namespace D3DLab.Wpf.Engine.App.Input {
 
             this.control.GotFocus -= control_GotFocus;
             this.control.LostFocus -= control_LostFocus;
+        }
+    }
+
+    public static class Ex {
+        public static System.Numerics.Vector2 ToNumericsV2(this System.Windows.Point p) {
+            return new System.Numerics.Vector2((float)p.X, (float)p.Y);
+        }
+        public static D3DLab.Std.Engine.Core.Input.WindowPoint ToWindowPoint(this System.Windows.Point p) {
+            return new D3DLab.Std.Engine.Core.Input.WindowPoint((int)p.X, (int)p.Y);
         }
     }
 }

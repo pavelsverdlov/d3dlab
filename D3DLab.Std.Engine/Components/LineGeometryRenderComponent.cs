@@ -10,6 +10,7 @@ using D3DLab.Std.Engine.Core.Ext;
 using Veldrid.Utilities;
 
 namespace D3DLab.Std.Engine.Components {
+    /*
     public class SolidGeometryRenderComponent : ShaderComponent, IRenderableComponent {
         readonly Geometry3D geometry;
 
@@ -99,34 +100,6 @@ namespace D3DLab.Std.Engine.Components {
 
         }
 
-        /*
-         technique11 RenderPhongWithAmbient
-{
-    pass P0
-    {
-        SetRasterizerState(RSSolid);
-        SetDepthStencilState(DSSDepthLess, 0);
-        SetBlendState(BSBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader(CompileShader(vs_4_0, VShaderDefault()));
-        SetHullShader(NULL);
-        SetDomainShader(NULL);
-        SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_4_0, PShaderPhongWithAmbientB()));
-    }
-    pass P1
-    {
-        SetRasterizerState(RSSolid);
-        SetDepthStencilState(DSSDepthLess, 0);
-        SetBlendState(BSBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader(CompileShader(vs_4_0, VShaderDefault()));
-        SetHullShader(NULL);
-        SetDomainShader(NULL);
-        SetPixelShader(CompileShader(ps_4_0, PShaderPhongWithAmbientF()));
-    }
-}          
-             */
-
-
         DefaultVertex[] ConvertVertexToShaderStructure(Geometry3D geo) {
             var res = new List<DefaultVertex>();
 
@@ -158,51 +131,29 @@ namespace D3DLab.Std.Engine.Components {
                 );
         }
 
-    }
-
-    
-
+    }*/
 
     public class LineGeometryRenderComponent : ShaderComponent, IRenderableComponent, IGeometryComponent {
         public Geometry3D Geometry { get; set; }
-
-        public DeviceBufferesUpdater Bufferes { get; }
-        public ResourcesUpdater Resources { get; }
-
-        public LineGeometryRenderComponent(ShaderTechniquePass[] passes, Geometry3D geometry) : base(passes) {
+        
+        public LineGeometryRenderComponent(IVeldridShaderSpecification shader, DeviceBufferesUpdater deviceBufferes, Geometry3D geometry) : base(shader, deviceBufferes) {
             this.Geometry = geometry;
-            Bufferes = new DeviceBufferesUpdater();
-            Resources = new ResourcesUpdater(new ResourceLayoutDescription(
-                      new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                      new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                      new ResourceLayoutElementDescription("World", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
         }
 
-        public override VertexLayoutDescription[] GetLayoutDescription() {
-            return new[] {
-                new VertexLayoutDescription(
-                        new VertexElementDescription("p", VertexElementSemantic.Position, VertexElementFormat.Float4),
-                        new VertexElementDescription("c", VertexElementSemantic.Color, VertexElementFormat.Float4))
-            };
-        }
-
-        public void Update(RenderState state) {
+        public void Update(VeldridRenderState state) {
             var cmd = state.Commands;
             var factory = state.Factory;
             var viewport = state.Viewport;
 
             Bufferes.Update(factory, cmd);
             Resources.Update(factory, cmd);
-            //
-            if (!Passes.All(x=>x.IsCached)) {
-                UpdateShaders(factory);
-            }
-            var vertices = ConvertVertexToShaderStructure(Geometry);
-            ushort[] indices = ConvertToShaderIndices(Geometry);
+            //          
+
+            Shader.UpdateShaders(factory);
 
             Bufferes.UpdateWorld();
-            Bufferes.UpdateVertex(vertices, LinesVertex.SizeInBytes);
-            Bufferes.UpdateIndex(indices);
+            Bufferes.UpdateVertex(Geometry);
+            Bufferes.UpdateIndex(Geometry);
 
             Resources.UpdateResourceLayout();
             Resources.UpdateResourceSet(new ResourceSetDescription(
@@ -212,7 +163,7 @@ namespace D3DLab.Std.Engine.Components {
                        Bufferes.World));
         }
 
-        public void Render(RenderState state) {
+        public void Render(VeldridRenderState state) {
             var cmd = state.Commands;
             var factory = state.Factory;
             var gd = state.GrDevice;
@@ -220,8 +171,8 @@ namespace D3DLab.Std.Engine.Components {
                     BlendStateDescription.SingleOverrideBlend,
                     DepthStencilStateDescription.Disabled,
                     RasterizerStateDescription.CullNone,
-                    PrimitiveTopology.LineList,//LineList TriangleList
-                    Passes.First().Description,
+                    PrimitiveTopology.LineList,
+                    Shader.passes.First().Description,
                     new[] { Resources.Layout },
                     gd.SwapchainFramebuffer.OutputDescription));
 
@@ -232,25 +183,7 @@ namespace D3DLab.Std.Engine.Components {
             cmd.DrawIndexed((uint)Geometry.Indices.Count, 1, 0, 0, 0);
         }
 
-        LinesVertex[] ConvertVertexToShaderStructure(Geometry3D geo) {
-            var res = new List<LinesVertex>();
 
-            for (int i = 0; i < geo.Positions.Count; i++) {
-                var pos = geo.Positions[i];
-                res.Add(new LinesVertex() { Position = new Vector4(pos.X, pos.Y, pos.Z, 1), Color = RgbaFloat.Red.ToVector4() });//
-            }
-
-            return res.ToArray();
-        }
-        
-
-
-
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        public struct LinesVertex {
-            public Vector4 Position;
-            public Vector4 Color;
-            public const int SizeInBytes = 4 * (4 + 4);
-        }
+       
     }
 }

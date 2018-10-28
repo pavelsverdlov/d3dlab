@@ -10,22 +10,23 @@ namespace D3DLab.Std.Engine.Shaders {
     /// <summary>
     /// Class just describe shader technique structure, no spetific actions or behaviours just for readability
     /// </summary>
-    public class ShaderTechniquePass {
+    public class ShaderTechniquePass : IRenderTechniquePass {
         public bool IsCached { get; private set; }
 
-        public Shader VertexShader { get => Get(Veldrid.ShaderStages.Vertex); }
-        public Shader GeometryShader { get => Get(Veldrid.ShaderStages.Geometry); }
-        public Shader PixelShader { get => Get(Veldrid.ShaderStages.Fragment); }
+        public IShaderInfo VertexShader { get => Get(Veldrid.ShaderStages.Vertex); }
+        public IShaderInfo GeometryShader { get => Get(Veldrid.ShaderStages.Geometry); }
+        public IShaderInfo PixelShader { get => Get(Veldrid.ShaderStages.Fragment); }
 
         public ShaderSetDescription Description { get; private set; }
 
-        public readonly IShaderInfo[] ShaderInfos;
+        public IShaderInfo[] ShaderInfos { get; }
 
-        readonly Dictionary<Veldrid.ShaderStages, Shader> pass;
+        readonly Dictionary<Veldrid.ShaderStages, IShaderInfo> pass;
+        readonly Dictionary<Veldrid.ShaderStages, Shader> shaders;
 
         public ShaderTechniquePass(IShaderInfo[] shaderInfos) {
             this.ShaderInfos = shaderInfos;
-            pass = new Dictionary<Veldrid.ShaderStages, Shader>();
+            pass = new Dictionary<Veldrid.ShaderStages, IShaderInfo>();
             foreach (var info in shaderInfos) {
                 var stage = (Veldrid.ShaderStages)Enum.Parse(typeof(Veldrid.ShaderStages), info.Stage);
                 if (pass.ContainsKey(stage)) {
@@ -36,7 +37,7 @@ namespace D3DLab.Std.Engine.Shaders {
         }
 
         Shader[] ToArray() {
-            return pass.Values.ToArray();
+            return shaders.Values.ToArray();
         }
         public void ClearCache() {
             pass.Clear();
@@ -49,13 +50,14 @@ namespace D3DLab.Std.Engine.Shaders {
                 var stage = (Veldrid.ShaderStages)Enum.Parse(typeof(Veldrid.ShaderStages), info.Stage);
                 Shader shader = factory.CreateShader(new ShaderDescription(stage, info.ReadCompiledBytes(), info.EntryPoint));
                 shader.Name = Path.GetFileName(info.Name);
-                pass[stage] = shader;
+                shaders[stage] = shader;
+                pass[stage] = info;
             }
             Description = new ShaderSetDescription(layoutDescriptions, ToArray());
             IsCached = true;
         }
 
-        Shader Get(Veldrid.ShaderStages stage) {
+        IShaderInfo Get(Veldrid.ShaderStages stage) {
             return pass[stage];
         }
     }

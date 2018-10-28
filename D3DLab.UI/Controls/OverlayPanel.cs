@@ -116,7 +116,7 @@ namespace D3DLab.UI.Controls {
 
             hwnd.RemoveHook(WndProc);
             hwnd.Dispose();
-            hwnd = null;
+           // hwnd = null;
 
             isShown = false;
         }
