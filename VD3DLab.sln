@@ -40,7 +40,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.Wpf.Engine.App", "D3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.Fwk.ImageSharp", "D3DLab.Fwk.ImageSharp\D3DLab.Fwk.ImageSharp.csproj", "{A299F142-CC63-4664-8290-01EF69F85182}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3DLab.SDX.Engine", "D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj", "{F463EBD8-115C-405D-962D-50A212A3AC38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "D3DLab.SDX.Engine", "D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj", "{F463EBD8-115C-405D-962D-50A212A3AC38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6DECC491-935B-4EB5-9534-60C5D6B3C864}"
+	ProjectSection(SolutionItems) = preProject
+		readme.txt = readme.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

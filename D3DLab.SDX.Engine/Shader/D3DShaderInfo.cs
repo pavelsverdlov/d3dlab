@@ -91,7 +91,7 @@ namespace D3DLab.SDX.Engine.Shader {
             return (ShaderStages)Enum.Parse(typeof(ShaderStages), stage);
         }
 
-        internal void AddResources(string include, string resource) {
+        internal void AddIncludeMapping(string include, string resource) {
             resources.Add(include, resource);
         }
     }

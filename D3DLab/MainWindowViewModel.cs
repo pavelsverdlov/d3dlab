@@ -206,14 +206,13 @@ namespace D3DLab {
 
             var parser = new CncParser(new FileInfo(@"C:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
             var points = parser.GetPaths()[0].Points.ToArray();
-            // LineEntityBuilder.Build(context, parser.GetPaths()[0].Points.ToArray());
+            //// LineEntityBuilder.Build(context, parser.GetPaths()[0].Points.ToArray());
 
             var id = entityManager.BuildLineEntity(points);
 
-            return new LoadedItem(entityManager, id);
+            //return new LoadedItem(entityManager, id);
 
             //duck
-
 
             var readerA = new Std.Engine.Core.Utilities.Helix.ObjReader();
             var res = readerA.Read(content);

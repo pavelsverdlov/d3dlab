@@ -52,13 +52,8 @@ namespace D3DLab.SDX.Engine.Shader {
         //file name - #include "./Shaders/Common.fx"
         public Stream Open(IncludeType type, string fileName, Stream parentStream) {
             var key = Path.GetFileNameWithoutExtension(fileName);
-            var codeString = this.GetType().Assembly.GetManifestResourceStream(resources[key]);
+            stream = this.GetType().Assembly.GetManifestResourceStream(resources[key]);
 
-            MemoryStream stream = new MemoryStream();
-            StreamWriter writer = new StreamWriter(stream);
-            writer.Write(codeString);
-            writer.Flush();
-            stream.Position = 0;
             return stream;
         }
 

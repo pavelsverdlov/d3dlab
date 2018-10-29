@@ -34,6 +34,20 @@ namespace D3DLab.SDX.Engine {
         }
     }
 
+    internal class GraphicsFrame : IDisposable {
+        readonly GraphicsDevice graphics;
+
+        public GraphicsFrame(GraphicsDevice graphics) {
+            this.graphics = graphics;
+        }
+
+
+        public void Dispose() {
+            graphics.Present();
+        }
+    }
+
+
     internal class GraphicsDevice {
         internal readonly SharpDX.Direct3D11.Device Device;
         internal readonly DeviceContext ImmediateContext;
@@ -70,8 +84,7 @@ namespace D3DLab.SDX.Engine {
 
             ImmediateContext = d3dDevice.ImmediateContext;
 
-            var viewport = new Viewport(0, 0, Width, Height);
-            ImmediateContext.Rasterizer.SetViewport(viewport);
+            
 
             // Create render target view for back buffer
             using (Texture2D backBuffer = swapChain.GetBackBuffer<Texture2D>(0)) {
@@ -118,26 +131,30 @@ namespace D3DLab.SDX.Engine {
             };
             var depthDisabledStencilState = new DepthStencilState(Device, depthDisabledStencilDesc);
 
+            var viewport = new Viewport(0, 0, Width, Height);
+            ImmediateContext.Rasterizer.SetViewport(viewport);
+            ImmediateContext.OutputMerger.SetTargets(depthStencilView, renderTargetView);
 
             //no zbuffer and DepthStencil
             //ImmediateContext.OutputMerger.SetRenderTargets(renderTargetView);
 
             //with zbuffer / DepthStencil
             ImmediateContext.OutputMerger.SetDepthStencilState(depthDisabledStencilState, 0);
-            ImmediateContext.OutputMerger.SetTargets(depthStencilView, renderTargetView);
+            
         }
+
+        public GraphicsFrame FrameBegin() {
+            return new GraphicsFrame(this);
+        }
+
 
         internal void UpdateRasterizerState(RasterizerStateDescription descr) {
             ImmediateContext.Rasterizer.State = new RasterizerState(Device, descr);
         }
 
-        public void Refresh() {
-            try {
-                ImmediateContext.ClearDepthStencilView(depthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
-                ImmediateContext.ClearRenderTargetView(renderTargetView, new RawColor4(0, 0, 0, 0));
-            } catch (Exception ex) {
-                ex.ToString();
-            }           
+        public void Refresh() {           
+            ImmediateContext.ClearDepthStencilView(depthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
+            ImmediateContext.ClearRenderTargetView(renderTargetView, new RawColor4(0, 0, 0, 0));
         }
 
         public static bool IsDirectX11Supported() {

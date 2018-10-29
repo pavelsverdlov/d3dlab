@@ -27,7 +27,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             var ccom = find.First();
             var delta = state.Delta;
 
-            var nscale = ccom.Scale + (delta * 0.001f);
+            var nscale = ccom.Scale + (delta * 0.01f);
             if (nscale > 0) {
                 ccom.Scale = nscale;
             }

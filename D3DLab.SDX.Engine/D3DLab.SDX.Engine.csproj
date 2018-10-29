@@ -9,10 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Rendering\Shaders\Game.hlsl" />
     <None Remove="Rendering\Shaders\Light.hlsl" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Rendering\Shaders\Game.hlsl" />
     <EmbeddedResource Include="Rendering\Shaders\Light.hlsl" />
   </ItemGroup>
 

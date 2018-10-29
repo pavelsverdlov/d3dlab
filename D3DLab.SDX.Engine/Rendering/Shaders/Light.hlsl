@@ -1,5 +1,3 @@
-﻿#define MAX_LIGHTS 1
-
 struct Light {
     uint Type;
     float Intensity;

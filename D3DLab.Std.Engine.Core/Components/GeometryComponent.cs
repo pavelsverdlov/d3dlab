@@ -30,6 +30,12 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         public GeometryComponent() {
             colors = new List<Vector4>();
+            IsModified = true;
+        }
+
+        public bool IsModified { get; set; }
+        public void MarkAsRendered() {
+            IsModified = false;
         }
     }
 }

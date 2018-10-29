@@ -5,6 +5,9 @@ using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
     public interface IGeometryComponent : IGraphicComponent {
+        bool IsModified { get; }
+        void MarkAsRendered();
+
         List<Vector3> Positions { get; }
         List<Vector3> Normals { get; }
         List<int> Indices { get; }
@@ -23,11 +26,12 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         public bool IsReadOnly => false;
 
-       
+        public bool IsModified { get; set; }
 
         AbstractGeometry3D combined;
 
         public GroupGeometryComponent() {
+            IsModified = true;
             groups = new List<GeometryComponent>();
         }
 
@@ -63,6 +67,10 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         IEnumerator IEnumerable.GetEnumerator() {
             throw new System.NotImplementedException();
+        }
+
+        public void MarkAsRendered() {
+            IsModified = false;
         }
     }
 }
