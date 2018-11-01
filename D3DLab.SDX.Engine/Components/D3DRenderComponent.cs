@@ -2,31 +2,23 @@
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Shaders;
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System.Collections.Generic;
 
 namespace D3DLab.SDX.Engine.Components {
-    public class D3DRenderComponent : IShaderEditingComponent {
+    public class D3DRenderComponent {
         public ElementTag Tag { get; set; }
         public ElementTag EntityTag { get; set; }
 
-        public IRenderTechniquePass Pass { get; protected set; }
         public D3DRasterizerState RasterizerState { get; protected set; }
+        public PrimitiveTopology PrimitiveTopology { get; set; }
 
-        protected D3DShaderCompilator compilator;
-        protected bool initialized;
+        public bool IsModified { get; set; }
 
         public SharpDX.Direct3D11.Buffer VertexBuffer { get; internal set; }
         public SharpDX.Direct3D11.Buffer IndexBuffer { get; internal set; }
-
-        public IShaderCompilator GetCompilator() {
-            return compilator;
-        }
-
-        public void ReLoad() {
-            initialized = false;
-        }
 
         public virtual void Dispose() {
             VertexBuffer?.Dispose();
@@ -43,6 +35,8 @@ namespace D3DLab.SDX.Engine.Components {
                 FillMode = FillMode.Solid,
                 IsMultisampleEnabled = true
             });
+
+            PrimitiveTopology = PrimitiveTopology.TriangleList;
         }
 
         void ID3DRenderableComponent.Accept(RenderFrameStrategiesVisitor visitor) {
@@ -56,8 +50,10 @@ namespace D3DLab.SDX.Engine.Components {
             RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
                 CullMode = CullMode.None,
                 FillMode = FillMode.Solid,
-                IsMultisampleEnabled = true
+                IsMultisampleEnabled = true,
+                IsAntialiasedLineEnabled = true
             });
+            PrimitiveTopology = PrimitiveTopology.LineList;
         }
 
         void ID3DRenderableComponent.Accept(RenderFrameStrategiesVisitor visitor) {

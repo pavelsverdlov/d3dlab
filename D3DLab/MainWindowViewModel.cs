@@ -1,67 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
-using System.Windows.Input;
-using System.Windows;
-using System.ComponentModel;
-using System.Collections.ObjectModel;
-using System.Windows.Data;
-using System.IO;
 using D3DLab.Std.Engine.Core;
-using D3DLab.Wpf.Engine.App.Host;
-using System.Numerics;
 using D3DLab.Wpf.Engine.App;
-using Veldrid.Utilities;
+using D3DLab.Wpf.Engine.App.Host;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Numerics;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace D3DLab {
 
+
     public sealed class MainWindowViewModel {
-        private SceneView scene;
-        private readonly EngineNotificator notificator;
-        ContextStateProcessor context;
 
-        public VisualTreeviewerViewModel VisualTreeviewer { get; set; }
-
-        public ICommand LoadDuck { get; set; }
-
-        public ICollectionView Items { get; set; }
-        readonly ObservableCollection<LoadedItem> items;
-
-        public MainWindowViewModel() {
-            LoadDuck = new Command(this);
-            VisualTreeviewer = new VisualTreeviewerViewModel();
-            
-            items = new ObservableCollection<LoadedItem>();
-            Items = CollectionViewSource.GetDefaultView(items);
-             notificator = new EngineNotificator();
-
-            notificator.Subscribe(new ViewportSubscriber(this));
-        }
-
-        public void Init(FormsHost host, FrameworkElement overlay) {
-            context = new ContextStateProcessor();
-            context.AddState(0, x => new GenneralContextState(x, notificator));
-
-            context.SwitchTo(0);
-
-            scene = new SceneView(host, overlay, context, notificator);
-            scene.RenderStarted += OnRenderStarted;
-
-
-            VisualTreeviewer.RenderModeSwither = new RenderModeSwitherCommand(context);
-        }
-
-        private void OnRenderStarted() {
-            VisualTreeviewer.GameWindow = scene.Window;
-
-            
-        }
-
-        private class Command : ICommand {
+        class MoveToCenterWorldCommand : Debugger.BaseWPFCommand {
             private MainWindowViewModel main;
 
-            public Command(MainWindowViewModel mainWindowViewModel) {
+            public MoveToCenterWorldCommand(MainWindowViewModel main) {
+                this.main = main;
+            }
+
+            public override void Execute(object parameter) {
+                main.scene.Window.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ToCenterWorldCommand());
+            }
+        }
+        class LoadCommand : ICommand {
+            private MainWindowViewModel main;
+
+            public LoadCommand(MainWindowViewModel mainWindowViewModel) {
                 this.main = mainWindowViewModel;
             }
 
@@ -90,14 +62,65 @@ namespace D3DLab {
                 //sw.TurnOn(EntityRenderModeSwither.Modes.BoundingBox);
             }
         }
+
+
+        private SceneView scene;
+        private readonly EngineNotificator notificator;
+        ContextStateProcessor context;
+
+        public VisualTreeviewerViewModel VisualTreeviewer { get; set; }
+        public SystemViewPresenter SystemsView { get; set; }
+
+        public ICommand LoadDuck { get; set; }
+        public ICommand MoveToCenterWorld { get; }
+
+        public ICollectionView Items { get; set; }
+        readonly ObservableCollection<LoadedItem> items;
+
+        public MainWindowViewModel() {
+            LoadDuck = new LoadCommand(this);
+            MoveToCenterWorld = new MoveToCenterWorldCommand(this);
+            VisualTreeviewer = new VisualTreeviewerViewModel();
+            SystemsView = new SystemViewPresenter();
+
+            items = new ObservableCollection<LoadedItem>();
+            Items = CollectionViewSource.GetDefaultView(items);
+            notificator = new EngineNotificator();
+
+            notificator.Subscribe(new ViewportSubscriber(this));
+        }
+
+        public void Init(FormsHost host, FrameworkElement overlay) {
+            context = new ContextStateProcessor();
+            context.AddState(0, x => new GenneralContextState(x, notificator));
+
+            context.SwitchTo(0);
+
+            scene = new SceneView(host, overlay, context, notificator);
+            scene.RenderStarted += OnRenderStarted;
+
+
+            VisualTreeviewer.RenderModeSwither = new RenderModeSwitherCommand(context);
+        }
+
+        private void OnRenderStarted() {
+            VisualTreeviewer.GameWindow = scene.Window;
+            SystemsView.GameWindow = scene.Window;
+
+        }
+
+        
     }
 
     public sealed class GenneralContextState : BaseContextState {
-        public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor,new ManagerContainer(notificator)) {
+        public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor, new ManagerContainer(notificator)) {
         }
     }
 
-    public sealed class ViewportSubscriber : IManagerChangeSubscriber<GraphicEntity>, IEntityRenderSubscriber {
+    public sealed class ViewportSubscriber :
+        IManagerChangeSubscriber<GraphicEntity>,
+        IManagerChangeSubscriber<IComponentSystem>,
+        IEntityRenderSubscriber {
         private readonly MainWindowViewModel mv;
 
         public ViewportSubscriber(MainWindowViewModel mv) {
@@ -110,7 +133,14 @@ namespace D3DLab {
             }));
         }
 
+        public void Change(IComponentSystem sys) {
+            App.Current.Dispatcher.BeginInvoke(new Action(() => {
+                mv.SystemsView.AddSystem(sys);
+            }));
+        }
+
         public void Render(IEnumerable<GraphicEntity> entities) {
+            if (App.Current == null) { return; }
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
                 mv.VisualTreeviewer.Refresh(entities);
             }));
@@ -174,7 +204,7 @@ namespace D3DLab {
 
     public sealed class SceneView : Wpf.Engine.App.Scene {
 
-        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify) 
+        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify)
             : base(host, overlay, context, notify) {
 
 
@@ -196,7 +226,7 @@ namespace D3DLab {
             //var point1 = new Vector3(5, 20, 0) - normal * v.Length()/2;
             //var point2 = new Vector3(10, 10, 10) + normal * v.Length() / 2;
 
-            
+
 
         }
 
@@ -206,11 +236,9 @@ namespace D3DLab {
 
             var parser = new CncParser(new FileInfo(@"C:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
             var points = parser.GetPaths()[0].Points.ToArray();
-            //// LineEntityBuilder.Build(context, parser.GetPaths()[0].Points.ToArray());
-
             var id = entityManager.BuildLineEntity(points);
 
-            //return new LoadedItem(entityManager, id);
+            return new LoadedItem(entityManager, id);
 
             //duck
 
@@ -235,12 +263,12 @@ namespace D3DLab {
 
             //var mesh = res[0].Geometry;// builder.ToMeshGeometry3D();
 
-            res[0].Geometry.Color = new Vector4(1, 0, 0, 1); 
-            res[1].Geometry.Color = new Vector4(0, 1, 0, 1); 
-            res[2].Geometry.Color = new Vector4(0, 0, 1, 1); 
+            res[0].Geometry.Color = new Vector4(1, 0, 0, 1);
+            res[1].Geometry.Color = new Vector4(0, 1, 0, 1);
+            res[2].Geometry.Color = new Vector4(0, 0, 1, 1);
             res[3].Geometry.Color = new Vector4(1, 1, 0, 1);
 
-            var duckTag = entityManager.BuildGroupMeshElement(res.Select(x=>x.Geometry));
+            var duckTag = entityManager.BuildGroupMeshElement(res.Select(x => x.Geometry));
 
             return new LoadedItem(entityManager, duckTag);
 

@@ -5,7 +5,6 @@ using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
     public interface IGeometryComponent : IGraphicComponent {
-        bool IsModified { get; }
         void MarkAsRendered();
 
         List<Vector3> Positions { get; }

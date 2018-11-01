@@ -39,7 +39,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
                 switch (state.Buttons) {
                     //camera
                     case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
-                        // SwitchTo((int)AllInputStates.Pan, state);
+                        SwitchTo((int)AllInputStates.Pan, state);
                         break;
                     case GeneralMouseButtons.Right:
                         SwitchTo((int)AllInputStates.Rotate, state);
@@ -79,7 +79,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
                     case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
-                        //SwitchTo((int)AllInputStates.Pan, state);
+                        SwitchTo((int)AllInputStates.Pan, state);
                         break;
                 }
                 return base.OnMouseDown(state);
@@ -163,7 +163,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             states.Add((int)AllInputStates.Idle, s => new InputIdleState(s));
             states.Add((int)AllInputStates.Rotate, s => new InputRotateState(s));
             states.Add((int)AllInputStates.Zoom, s => new InputZoomState(s));
-            //states.Add((int)AllInputStates.Pan, s => new InputPanState(s));
+            states.Add((int)AllInputStates.Pan, s => new InputPanState(s));
 
             states.Add((int)AllInputStates.Target, s => new InputTargetState(s));
 
@@ -192,7 +192,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             return true;
         }
         public void Pan(InputStateData state) {
-            //currentSnapshot.AddEvent(new InputEventState { Data = state, Type = AllInputStates.Zoom });
+            currentSnapshot.AddEvent(new CameraPanCommand(state.Clone()));
         }
 
         public bool Target(InputStateData state) {

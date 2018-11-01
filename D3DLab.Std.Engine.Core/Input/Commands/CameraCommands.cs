@@ -11,6 +11,20 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         }
     }
 
+    public class ToCenterWorldCommand : IInputCommand {
+        public bool Execute(GraphicEntity entity) {
+            var find = entity.GetComponents<CameraComponent>();
+            if (!find.Any()) {
+                return false;
+            }
+            var ccom = find.First();
+
+            ccom.ResetToDefault();
+
+            return true;
+        }
+    }
+
     public class CameraZoomCommand : IInputCommand {
         const float scrollSpeed = 0.5f;
         readonly InputStateData state;
@@ -27,10 +41,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             var ccom = find.First();
             var delta = state.Delta;
 
-            var nscale = ccom.Scale + (delta * 0.01f);
-            if (nscale > 0) {
-                ccom.Scale = nscale;
-            }
+            ccom.ZoomTo(delta, state.CurrentPosition);
 
             return true;
         }
@@ -99,6 +110,37 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
             return true;
         }
+    }
+
+    public class CameraPanCommand : CameraCommand {
+        public CameraPanCommand(InputStateData state) : base(state) { }
+        protected override bool Executing(CameraComponent comp) {
+            var p1 = state.PrevPosition;
+            var p2 = state.CurrentPosition;
+            var move = new Vector2(p2.X - p1.X, p2.Y - p1.Y);
+
+            comp.Pan(move);
+
+            return true;
+        }
+    }
+
+    public abstract class CameraCommand : IInputCommand {
+        protected readonly InputStateData state;
+
+        public CameraCommand(InputStateData state) {
+            this.state = state;
+        }
+        public bool Execute(GraphicEntity entity) {
+            var find = entity.GetComponents<CameraComponent>();
+            if (!find.Any()) {
+                return false;
+            }
+            var ccom = find.First();
+            return Executing(ccom);
+
+        }
+        protected abstract bool Executing(CameraComponent comp);
     }
 
     /*

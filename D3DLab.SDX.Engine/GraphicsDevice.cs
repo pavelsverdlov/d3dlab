@@ -5,6 +5,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using System;
+using System.Diagnostics;
 
 namespace D3DLab.SDX.Engine {
     public sealed class AdapterFactory {
@@ -35,15 +36,22 @@ namespace D3DLab.SDX.Engine {
     }
 
     internal class GraphicsFrame : IDisposable {
-        readonly GraphicsDevice graphics;
+        public readonly GraphicsDevice Graphics;
+        readonly Stopwatch sw;
+        TimeSpan spendTime;
 
         public GraphicsFrame(GraphicsDevice graphics) {
-            this.graphics = graphics;
+            this.Graphics = graphics;
+            sw = new Stopwatch();
+            sw.Start();
+            graphics.Refresh();
         }
 
 
         public void Dispose() {
-            graphics.Present();
+            Graphics.Present();
+            sw.Stop();
+            spendTime = sw.Elapsed;
         }
     }
 

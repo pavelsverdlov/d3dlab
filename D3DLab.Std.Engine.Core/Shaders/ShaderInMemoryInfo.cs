@@ -2,7 +2,7 @@
 
 namespace D3DLab.Std.Engine.Core.Shaders {
     public struct ShaderInMemoryInfo : IShaderInfo {
-        readonly string shader;
+        string shader;
         byte[] compiledBytes;
 
         public string Stage { get; }
@@ -29,6 +29,9 @@ namespace D3DLab.Std.Engine.Core.Shaders {
 
         public string ReadText() {
             return shader;
+        }
+        public void WriteText(string txt) {
+            shader = txt;
         }
 
         public void WriteCompiledBytes(byte[] bytes) {

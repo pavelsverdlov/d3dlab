@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Systems {
-    public sealed class InputSystem : IComponentSystem {
+    public sealed class InputSystem : BaseComponentSystem, IComponentSystem {
         public void Execute(SceneSnapshot snapshot) {
             var s = snapshot.Snapshot;
 

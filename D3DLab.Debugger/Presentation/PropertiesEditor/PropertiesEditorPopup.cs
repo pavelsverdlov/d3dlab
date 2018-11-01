@@ -146,10 +146,10 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
     }
 
     public class GroupViewProperty : ViewProperty<ObservableCollection<ViewProperty>> {
-        protected readonly Dictionary<string, ViewProperty> dictionary;
+       // protected readonly Dictionary<string, ViewProperty> dictionary;
 
         public GroupViewProperty() : base(x => { }) {
-            dictionary = new Dictionary<string, ViewProperty>();
+           // dictionary = new Dictionary<string, ViewProperty>();
             Value = new ObservableCollection<ViewProperty>();
         }
 
@@ -158,14 +158,14 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                 Title = key,
                 Value = val == null ? string.Empty : val.ToString()
             };
-            dictionary.Add(key, pr);
+            //dictionary.Add(key, pr);
             Value.Add(pr);
         }
         public void AddEnum<T>(string key, T val, Action<string> change, string[] values) {
             var pr = new ComboBoxViewProperty(change, val.ToString(), values) {
                 Title = key
             };
-            dictionary.Add(key, pr);
+          //  dictionary.Add(key, pr);
             Value.Add(pr);
         }
         public void AddVector(string key, object obj, Action<Vector3> change) {
@@ -173,7 +173,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
             var pr = new Vector3ViewProperty(val, change) {
                 Title = key
             };
-            dictionary.Add(key, pr);
+          //  dictionary.Add(key, pr);
             Value.Add(pr);
         }
 
@@ -254,7 +254,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     Action<string> change = x => pr.SetValue(com, converter(x));
                     property.AddPrimitive(name, val, change);
                     return;
-                }
+                }                
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) {
                     var valuetext = val.IsNull() ? "null" : ((System.Collections.ICollection)val).Count.ToString();
                     var value = $"{type.GenericTypeArguments.First().Name}[{valuetext}]";
@@ -273,8 +273,13 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                             group.AnalyzeValueType(val, group, type);
                             break;
                     }
-
-                    
+                } else if (type.IsArray) {
+                    var array = ((Array)val);
+                    foreach (var i in array) {
+                        //var val = com.IsNull() ? null : pr.GetValue(com);
+                        //var type = pr.PropertyType;
+                        group.Analyze(i, group, i.GetType());
+                    }
                 } else {
                     group.Analyze(val, group, type);
                 }
@@ -323,6 +328,10 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
     }
 
     //=====================================================
+    public interface IEditingProperties {
+        string Titile { get; }
+        object TargetObject { get; }
+    }
 
     public class PropertiesEditorWindowViewModel : GroupViewProperty, System.ComponentModel.INotifyPropertyChanged {
 
@@ -339,15 +348,15 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         public ICommand Apply { get; }
         public IRenderUpdater RenderUpdater { get; set; }
 
-        IVisualComponentItem item;
+        IEditingProperties item;
         public PropertiesEditorWindowViewModel() {
             Apply = new ApplyCommand(this);
         }
 
-        public void Analyze(IVisualComponentItem item) {
+        public void Analyze(IEditingProperties item) {
             this.item = item;
-            var com = item.GetOriginComponent();
-            Title = item.Name;
+            var com = item.TargetObject;
+            Title = item.Titile;
 
             Analyze(com);
 
@@ -356,13 +365,13 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
 
         public void Dispose() {
             Value.Clear();
-            dictionary.Clear();
+          //  dictionary.Clear();
         }
 
         void OnApply() {
             Value.Clear();
-            dictionary.Clear();
-            Analyze(item.GetOriginComponent());
+          //  dictionary.Clear();
+            Analyze(item.TargetObject);
             RenderUpdater.Update();
         }
     }

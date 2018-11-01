@@ -51,48 +51,12 @@ namespace D3DLab.SDX.Engine.Shader {
             compiledBytes = bytes;
             File.WriteAllBytes(compiledPath, bytes);
         }
-    }
 
-    public class D3DShaderCompilator : IShaderCompilator {
-        readonly D3D11ShaderCompilator compilator;
-        readonly Dictionary<string, string> resources;
-
-        public D3DShaderCompilator() {
-            compilator = new D3D11ShaderCompilator();
-            resources = new Dictionary<string, string>();
-        }
-
-        public void CompileWithPreprocessing(IShaderInfo info) {
-            var text  = info.ReadText();
-            var preprocessed = compilator.Preprocess(text, new D3D11Include(resources));
-            var bytes = Encoding.UTF8.GetBytes(preprocessed);
-            bytes = compilator.Compile(bytes, info.EntryPoint, ConvertToShaderStage(info.Stage), info.Name);
-            info.WriteCompiledBytes(bytes);
-        }
-
-        public void Compile(IShaderInfo info) {
-            var bytes = info.ReadBytes();
-            bytes = compilator.Compile(bytes, info.EntryPoint, ConvertToShaderStage(info.Stage), info.Name);
-            info.WriteCompiledBytes(bytes);
-        }
-
-        public void Compile(IShaderInfo info, string text) {
-            var bytes = Encoding.UTF8.GetBytes(text);
-            bytes = compilator.Compile(bytes, info.EntryPoint, ConvertToShaderStage(info.Stage), info.Name);
-            info.WriteCompiledBytes(bytes);
-        }
-
-        public byte[] Compile(string text, string entryPoint, string stage) {
-            var bytes = Encoding.UTF8.GetBytes(text);
-            return compilator.Compile(bytes, entryPoint, ConvertToShaderStage(stage), "undefined");
-        }
-
-        private static ShaderStages ConvertToShaderStage(string stage) {
-            return (ShaderStages)Enum.Parse(typeof(ShaderStages), stage);
-        }
-
-        internal void AddIncludeMapping(string include, string resource) {
-            resources.Add(include, resource);
+        public void WriteText(string txt) {
+            File.Copy(path, path + $".back_{DateTime.Now.Ticks}");
+            File.WriteAllText(path, txt);
         }
     }
+
+   
 }

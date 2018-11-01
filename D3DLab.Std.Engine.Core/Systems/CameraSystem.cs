@@ -18,7 +18,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
         }
     }
 
-    public class CameraSystem : IComponentSystem {
+    public class CameraSystem : BaseComponentSystem, IComponentSystem {
         public void Execute(SceneSnapshot snapshot) {
             var window = snapshot.Window;
             IEntityManager emanager = snapshot.ContextState.GetEntityManager();
@@ -28,7 +28,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     foreach (var com in entity.GetComponents<CameraComponent>()) {
 
                         com.UpdateViewMatrix();
-                        com.UpdatePerspectiveMatrix(window.Width, window.Height);
+                        com.UpdateProjectionMatrix(window.Width, window.Height);
 
                         snapshot.UpdateCamera(new CameraState(com.LookDirection, com.ViewMatrix, com.ProjectionMatrix));
                     }

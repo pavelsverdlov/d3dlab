@@ -1,4 +1,5 @@
 ﻿using D3DLab.Std.Engine.Core.Input;
+using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Core.Systems;
 using System;
 using System.Numerics;
@@ -19,7 +20,7 @@ namespace D3DLab.Std.Engine.Core {
             Snapshot = isnapshot;
             FrameRateTime = time;
             Window = win;
-            Lights = new LightState[LightStructLayout.MaxCount];
+            Lights = new LightState[LightStructBuffer.MaxCount];
         }
 
         public void UpdateCamera(CameraState state) {

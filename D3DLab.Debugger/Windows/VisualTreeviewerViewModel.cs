@@ -30,33 +30,24 @@ namespace D3DLab.Debugger.Windows {
     public interface IRenderUpdater {
         void Update();
     }
+    public class EditingPropertiesComponentItem : IEditingProperties {
+        readonly IVisualComponentItem item;
+
+        public string Titile => item.Name;
+        public object TargetObject => item.GetOriginComponent();
+
+        public EditingPropertiesComponentItem(IVisualComponentItem item) {
+            this.item = item;
+        }
+    }
 
     public sealed class VisualTreeviewerViewModel : System.ComponentModel.INotifyPropertyChanged, IRenderUpdater {
-        public class OpenShaderEditorCommand : BaseWPFCommand<IVisualComponentItem> {
-            readonly IRenderUpdater updater;
+       
+        public class OpenPropertiesEditorComponentItemCommand : Presentation.OpenPropertiesEditorCommand<IVisualComponentItem> {
+            public OpenPropertiesEditorComponentItemCommand(IRenderUpdater updater):base(updater) { }
 
-            public OpenShaderEditorCommand(IRenderUpdater updater) {
-                this.updater = updater;
-            }
-
-            public override void Execute(IVisualComponentItem item) {
-                if (item.GetOriginComponent() is IShaderEditingComponent shader) {
-                    var win = new ShaderEditorPopup();
-                    win.ViewModel.LoadShader(shader, updater);
-                    win.Show();
-                }
-            }
-        }
-        public class OpenPropertiesEditorCommand : BaseWPFCommand<IVisualComponentItem> {
-            readonly IRenderUpdater updater;
-
-            public OpenPropertiesEditorCommand(IRenderUpdater updater) {
-                this.updater = updater;
-            }
-            public override void Execute(IVisualComponentItem item) {
-                var win = new PropertiesEditorPopup(updater);
-                win.ViewModel.Analyze(item);
-                win.Show();
+            protected override IEditingProperties Convert(IVisualComponentItem item) {
+                return new EditingPropertiesComponentItem(item);
             }
         }
 
@@ -141,7 +132,7 @@ namespace D3DLab.Debugger.Windows {
                 Components.Add(com);
                 hash.Add(com.Guid, com);
 
-                CanEditShader = com.GetOriginComponent() is IShaderEditingComponent ? Visibility.Visible : Visibility.Collapsed;
+                CanEditShader = com.GetOriginComponent() is IShaderEditingSystem ? Visibility.Visible : Visibility.Collapsed;
             }
             public void Clear() {
                 Components.Clear();
@@ -149,7 +140,7 @@ namespace D3DLab.Debugger.Windows {
             public void Remove(IVisualComponentItem com) {
                 Components.Remove(com);
                 hash.Remove(com.Guid);
-                CanEditShader = !(com.GetOriginComponent() is IShaderEditingComponent) ? Visibility.Collapsed : Visibility.Visible;
+                CanEditShader = !(com.GetOriginComponent() is IShaderEditingSystem) ? Visibility.Collapsed : Visibility.Visible;
             }
 
             public bool TryRefresh(IGraphicComponent com) {

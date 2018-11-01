@@ -26,7 +26,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .CreateEntity(new ElementTag("GroupGeometry" + Guid.NewGuid()))
                 .AddComponent(group)
                 .AddComponent(new SDX.Engine.Components.D3DColoredVertexesRenderComponent())
-                .AddComponent(new SDX.Engine.Components.D3DTransformableComponent())
+                .AddComponent(new SDX.Engine.Components.D3DTransformComponent())
                 .Tag;
         }
 

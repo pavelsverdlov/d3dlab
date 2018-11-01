@@ -12,7 +12,6 @@ namespace D3DLab.Debugger.Model {
     public class VisualComponentItem : IVisualComponentItem, System.ComponentModel.INotifyPropertyChanged {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
-        public ICommand OpenShaderEditor { get; }
         public ICommand OpenPropertiesEditor { get; }
 
         readonly IGraphicComponent com;
@@ -22,9 +21,7 @@ namespace D3DLab.Debugger.Model {
             this.com = com;
             this.updater = updater;
 
-            OpenShaderEditor = new Windows.VisualTreeviewerViewModel.OpenShaderEditorCommand(updater);
-            OpenPropertiesEditor = new Windows.VisualTreeviewerViewModel.OpenPropertiesEditorCommand(updater);
-        
+            OpenPropertiesEditor = new Windows.VisualTreeviewerViewModel.OpenPropertiesEditorComponentItemCommand(updater);
         }
 
         public string Name { get { return com.GetType().Name; } }

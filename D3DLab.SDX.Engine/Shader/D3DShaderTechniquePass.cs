@@ -8,7 +8,7 @@ namespace D3DLab.SDX.Engine.Shader {
     /// <summary>
     /// Class just describe shader technique structure, no spetific actions or behaviours just for readability
     /// </summary>
-    public class ShaderTechniquePass : IRenderTechniquePass {
+    public class D3DShaderTechniquePass : IRenderTechniquePass {
         public IShaderInfo VertexShader { get => Get(ShaderStages.Vertex); }
         public IShaderInfo GeometryShader { get => Get(ShaderStages.Geometry); }
         public IShaderInfo PixelShader { get => Get(ShaderStages.Fragment); }
@@ -19,7 +19,7 @@ namespace D3DLab.SDX.Engine.Shader {
 
         readonly Dictionary<ShaderStages, IShaderInfo> shaders;
 
-        public ShaderTechniquePass(IShaderInfo[] shaderInfos) {
+        public D3DShaderTechniquePass(IShaderInfo[] shaderInfos) {
             this.ShaderInfos = shaderInfos;
             shaders = new Dictionary<ShaderStages, IShaderInfo>();
             foreach (var info in shaderInfos) {

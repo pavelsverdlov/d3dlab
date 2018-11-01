@@ -12,6 +12,7 @@ namespace D3DLab.Std.Engine.Core.Shaders {
         void WriteCompiledBytes(byte[] bytes);
 
         string ReadText();
-        byte[] ReadBytes();        
+        byte[] ReadBytes();
+        void WriteText(string txt);
     }
 }

@@ -161,7 +161,7 @@ namespace D3DLab.Debugger.Windows {
             }
         }
 
-        public string Header { get { return Info.Stage; } }
+        public string Header { get { return Info.Name; } }
         public FlowDocument ShaderDocument { get { return environment.ShaderDocument; } }
         public ICommand WordSelected { get; set; }
         public ICommand IntellisenseInvoked { get; set; }
@@ -170,8 +170,10 @@ namespace D3DLab.Debugger.Windows {
         public ObservableCollection<int> Lines { get; }
 
         readonly ShaderDevelopmentEnvironment environment;
-        public ShaderTabEditor(IShaderInfo info) {
+        readonly IRenderTechniquePass pass;
+        public ShaderTabEditor(IShaderInfo info, IRenderTechniquePass pass) {
             this.Info = info;
+            this.pass = pass;
             Lines = new ObservableCollection<int>();
             environment = new ShaderDevelopmentEnvironment();
         }
@@ -208,6 +210,10 @@ namespace D3DLab.Debugger.Windows {
         void OnPropertyChanged(string name) {
             PropertyChanged(this, new PropertyChangedEventArgs(name));
         }
+
+        internal void MarkAsReCompiled() {
+            pass.ClearCache();
+        }
     }
 
     public sealed class ShaderEditorViewModel {
@@ -218,7 +224,7 @@ namespace D3DLab.Debugger.Windows {
 
 
         readonly EditorHistory history;
-        IShaderEditingComponent current;
+        IRenderTechniquePass[] current;
         IShaderCompilator compilator;
         IRenderUpdater updater;
 
@@ -230,16 +236,18 @@ namespace D3DLab.Debugger.Windows {
             Errors = new ObservableCollection<string>();
         }
 
-        public void LoadShader(IShaderEditingComponent com, IRenderUpdater updater) {
+        public void LoadShader(IRenderTechniquePass[] pass, IShaderCompilator compilator, IRenderUpdater updater) {
             this.updater = updater;
-            current = com;
-            compilator = com.GetCompilator();
+            current = pass;
+            this.compilator = compilator;
             history.Clear();
 
-            foreach (var sh in com.Pass.ShaderInfos) {
-                var tab = new ShaderTabEditor(sh);
-                tabs.Add(tab);
-                tab.LoadShaderAsync();
+            foreach (var p in pass) {
+                foreach (var sh in p.ShaderInfos) {
+                    var tab = new ShaderTabEditor(sh, p);
+                    tabs.Add(tab);
+                    tab.LoadShaderAsync();
+                }
             }
             Tabs.MoveCurrentToFirst();
 
@@ -256,8 +264,9 @@ namespace D3DLab.Debugger.Windows {
                 var shaderDocument = selected.ShaderDocument;
                 string text = new TextRange(shaderDocument.ContentStart, shaderDocument.ContentEnd).Text;
 
-                compilator.Compile(selected.Info, text);
-                current.ReLoad();                
+                compilator.CompileWithPreprocessing(selected.Info, text);
+                selected.Info.WriteText(text);
+                selected.MarkAsReCompiled();
                 Errors.Insert(0, $"{DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss")} Compile: {selected.Info.Stage} succeeded");
                 updater.Update();
             } catch (Exception ex) {

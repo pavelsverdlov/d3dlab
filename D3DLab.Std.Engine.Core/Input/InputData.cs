@@ -31,6 +31,7 @@ namespace D3DLab.Std.Engine.Core.Input {
     }
     public class InputStateData {
         public GeneralMouseButtons Buttons { get; set; }
+        public Vector2 PrevPosition { get; set; }
         public Vector2 CurrentPosition { get; set; }//=> control.PointToClient(CursorCurrentPosition).ToVector2();
         public WindowPoint CursorCurrentPosition { get; set; }
         public int Delta { get; set; }
@@ -70,6 +71,7 @@ namespace D3DLab.Std.Engine.Core.Input {
             var cloned = new InputStateData(buttonsStates);
             cloned.Buttons = Buttons;
             cloned.CurrentPosition = CurrentPosition;
+            cloned.PrevPosition = PrevPosition;
             cloned.CursorCurrentPosition = CursorCurrentPosition;
             cloned.Delta = Delta;
 

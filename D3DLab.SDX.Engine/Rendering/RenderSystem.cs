@@ -1,18 +1,15 @@
-﻿using D3DLab.SDX.Engine.Rendering.Strategies;
-using D3DLab.SDX.Engine.Shader;
+﻿using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
-using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Shaders;
 using D3DLab.Std.Engine.Core.Systems;
 using SharpDX.Direct3D11;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace D3DLab.SDX.Engine.Rendering {
-
-    public class RenderSystem : IComponentSystem {
+    public class RenderSystem : BaseComponentSystem, IComponentSystem, IShaderEditingSystem {
         GraphicsDevice graphics;
         D3DShaderCompilator compilator;
 
@@ -28,13 +25,13 @@ namespace D3DLab.SDX.Engine.Rendering {
             compilator.AddIncludeMapping("Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl");
 
             //camera
-            var gamebuff = new GameResourceBuffer(Matrix4x4.Identity, Matrix4x4.Identity, Matrix4x4.Identity);
+            var gamebuff = new GameStructBuffer(Matrix4x4.Identity, Matrix4x4.Identity);
             gameDataBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref gamebuff);
 
             //lights
-            var dinamicLightbuff = new LightStructLayout[3];
+            var dinamicLightbuff = new LightStructBuffer[3];
             lightDataBuffer = graphics.CreateDynamicBuffer(dinamicLightbuff,
-                Unsafe.SizeOf<LightStructLayout>() * dinamicLightbuff.Length);
+                Unsafe.SizeOf<LightStructBuffer>() * dinamicLightbuff.Length);
 
             visiter = new RenderFrameStrategiesVisitor(compilator);
         }
@@ -53,20 +50,17 @@ namespace D3DLab.SDX.Engine.Rendering {
                         }
                     }
 
-                    graphics.Refresh();
+                    var camera = snapshot.Camera;
+                    var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();
+                    var gamebuff = new GameStructBuffer(camera.ViewMatrix, camera.ProjectionMatrix);
 
-                    {
-                        var camera = snapshot.Camera;
-                        var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();
-
-                        graphics.UpdateDynamicBuffer(lights, lightDataBuffer, LightStructLayout.RegisterResourceSlot);
-                    }
+                    frame.Graphics.UpdateSubresource(ref gamebuff, gameDataBuffer, GameStructBuffer.RegisterResourceSlot);
+                    frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer, LightStructBuffer.RegisterResourceSlot);
 
                     foreach (var str in visiter.Strategies) {
-                        str.Update(graphics, gameDataBuffer, lightDataBuffer, snapshot.Camera);
+                        str.Render(frame.Graphics, gameDataBuffer, lightDataBuffer);
                     }
 
-                    graphics.Present();
                 } catch (Exception ex) {
                     ex.ToString();
                 } finally {
@@ -74,64 +68,15 @@ namespace D3DLab.SDX.Engine.Rendering {
                 }
             }
         }
-    }
 
-    
+        #region IShaderEditingSystem
 
-    internal class RenderFrameStrategiesVisitor {
-        IContextState contextState;
-        readonly D3DShaderCompilator compilator;
+        public IRenderTechniquePass[] Pass => visiter.Strategies.Select(x => x.GetPass()).ToArray();
 
-        public IEnumerable<IRenderStrategy> Strategies { get { return dic.Values; } }
-        readonly Dictionary<Type, IRenderStrategy> dic;
-
-        public RenderFrameStrategiesVisitor(D3DShaderCompilator compilator) {
-            this.compilator = compilator;
-            dic = new Dictionary<Type, IRenderStrategy>();
+        public IShaderCompilator GetCompilator() {
+            return compilator;
         }
 
-        public void SetContext(IContextState contextState) {
-            this.contextState = contextState;
-        }
-
-        public void Visit(Components.D3DColoredVertexesRenderComponent component) {
-            var type = typeof(ColoredVertexesRenderStrategy);
-            var entityTag = component.EntityTag;
-
-            var geometry = contextState
-                .GetComponentManager()
-                .GetComponent<IGeometryComponent>(entityTag);
-
-            GetOrCreate(() => new ColoredVertexesRenderStrategy(compilator))
-                .RegisterEntity(component, geometry);
-        }
-
-        public void Visit(Components.D3DLineVertexRenderComponent component) {
-            var type = typeof(ColoredVertexesRenderStrategy);
-            var entityTag = component.EntityTag;
-
-            var geometry = contextState
-                .GetComponentManager()
-                .GetComponent<IGeometryComponent>(entityTag);
-
-            GetOrCreate(() => new LineVertexRenderStrategy(compilator))
-                .RegisterEntity(component, geometry);
-        }
-
-        T GetOrCreate<T>(Func<T> creator) where T : IRenderStrategy {
-            var type = typeof(T);
-            if (!dic.TryGetValue(type, out var str)) {
-                dic[type] = creator();
-                str = dic[type];
-            }
-
-            return (T)str;
-        }
-
-        public void Cleanup() {
-            foreach( var s in Strategies) {
-                s.Cleanup();
-            }
-        }
+        #endregion
     }
 }

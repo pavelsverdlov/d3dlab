@@ -103,6 +103,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             state.CursorCurrentPosition = Cursor.Position.ToWindowPoint();
             state.CurrentPosition = e.GetPosition(control).ToNumericsV2();
             InvokeSubscribers((s, ev) => s.OnMouseMove(ev));
+            state.PrevPosition = state.CurrentPosition;
         }
 
         protected static GeneralMouseButtons GetMouseButton(System.Windows.Input.MouseButton state) {

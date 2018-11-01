@@ -6,7 +6,10 @@ namespace D3DLab.Std.Engine.Core {
         readonly List<IComponentSystem> systems = new List<IComponentSystem>();
         public TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem {
             var sys = Activator.CreateInstance<TSystem>();
-            systems.Add(sys);
+            if(sys is IComponentSystemIncrementId incrementId) {
+                incrementId.ID = systems.Count;
+            }            
+            systems.Add(sys);            
             notify.NotifyChange(sys);
             return sys;
         }

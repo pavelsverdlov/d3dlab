@@ -108,12 +108,18 @@
     <Compile Include="Infrastructure\IVisualEntity.cs" />
     <Compile Include="Model\VisualComponentItem.cs" />
     <Compile Include="MonadExt.cs" />
+    <Compile Include="Presentation\OpenPropertiesEditorCommand.cs" />
+    <Compile Include="Presentation\OpenShaderEditorCommand.cs" />
     <Compile Include="Presentation\PropertiesEditor\EditPropertyMultiValueConverter.cs" />
     <Compile Include="Presentation\PropertiesEditor\PropertiesEditorPopup.cs" />
     <Compile Include="Presentation\PropertiesEditor\PropertiesEditorWindow.xaml.cs">
       <DependentUpon>PropertiesEditorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation\PropertiesEditor\Vector3ToStringConverter.cs" />
+    <Compile Include="Presentation\SystemList\SystemViewPresenter.cs" />
+    <Compile Include="Presentation\SystemList\SystemsView.xaml.cs">
+      <DependentUpon>SystemsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ScriptExetuter.cs" />
     <Compile Include="IDE\ShaderDevelopmentEnvironment.cs" />
     <Compile Include="Windows\ShaderEditor.xaml.cs">
@@ -134,6 +140,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation\PropertiesEditor\PropertiesEditorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation\SystemList\SystemsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\build_icon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

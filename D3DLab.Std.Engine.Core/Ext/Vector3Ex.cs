@@ -12,10 +12,16 @@ namespace D3DLab.Std.Engine.Core.Ext {
         public static float AngleRad(this Vector2 u, Vector2 v) {
             return (float)(Math.Atan2(v.Y, v.X) - Math.Atan2(u.Y, u.X));
         }
+        public static Vector3 ToVector3(this Vector2 v, float z = 0) {
+            return new Vector3(v, z);
+        }
     }
     public static class Vector3Ex {
         public static Vector3 Normalize(this Vector3 v) {
             return Vector3.Normalize(v);
+        }
+        public static void Normalized(this Vector3 v) {
+            v = Vector3.Normalize(v);
         }
         public static Vector3 Cross(this Vector3 v1, Vector3 v2) {
             return Vector3.Cross(v1, v2);
@@ -26,6 +32,10 @@ namespace D3DLab.Std.Engine.Core.Ext {
         public static Vector4 ToVector4(this Vector3 v) {
             return new Vector4(v.X, v.Y, v.Z, 1);
         }
+        public static Vector3 XYZ(this Vector4 v) {
+            return new Vector3(v.X, v.Y, v.Z);
+        }
+      
 
 
         public static Matrix4x4 RotationAround(this Vector3 axis, float angleRadians) {

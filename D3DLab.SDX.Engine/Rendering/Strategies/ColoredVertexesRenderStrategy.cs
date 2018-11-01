@@ -3,7 +3,6 @@ using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Shaders;
-using D3DLab.Std.Engine.Core.Systems;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -11,11 +10,13 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace D3DLab.SDX.Engine.Rendering.Strategies {
     internal interface IRenderStrategy {
-        void Update(GraphicsDevice Graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer, CameraState camera);
+        IRenderTechniquePass GetPass();
+        void Render(GraphicsDevice Graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer);
         void Cleanup();
     }
 
@@ -24,12 +25,43 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
         protected VertexShader vertexShader;
         protected PixelShader pixelShader;
+        protected GeometryShader geometryShader;
 
         protected RenderStrategy(D3DShaderCompilator compilator) {
             this.compilator = compilator;
         }
 
-        protected void CompileShaders(GraphicsDevice graphics, ShaderTechniquePass pass, VertexLayoutConstructor layconst) {
+        public void Render(GraphicsDevice graphics,
+            SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
+            var device = graphics.Device;
+            var context = graphics.ImmediateContext;
+            var pass = GetPass();
+
+            if (!pass.IsCompiled) {
+                CompileShaders(graphics, pass, GetLayoutConstructor());
+            }
+
+            context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
+            context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
+
+            if (vertexShader != null) {
+                context.VertexShader.Set(vertexShader);
+            }
+            if (geometryShader != null) {
+                context.GeometryShader.Set(geometryShader);
+            }
+            if (pixelShader != null) {
+                context.PixelShader.Set(pixelShader);
+            }
+
+            Rendering(graphics);
+        }
+
+        public abstract IRenderTechniquePass GetPass();
+        protected abstract VertexLayoutConstructor GetLayoutConstructor();
+        protected abstract void Rendering(GraphicsDevice graphics);
+
+        protected void CompileShaders(GraphicsDevice graphics, IRenderTechniquePass pass, VertexLayoutConstructor layconst) {
             var device = graphics.Device;
             pass.Compile(compilator);
 
@@ -44,7 +76,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             vertexShader = new VertexShader(device, vertexShaderByteCode);
 
             if (pass.GeometryShader != null) {
-                pixelShader = new PixelShader(device, pass.GeometryShader.ReadCompiledBytes());
+                geometryShader = new GeometryShader(device, pass.GeometryShader.ReadCompiledBytes());
             }
             if (pass.PixelShader != null) {
                 pixelShader = new PixelShader(device, pass.PixelShader.ReadCompiledBytes());
@@ -52,6 +84,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
             graphics.ImmediateContext.InputAssembler.InputLayout = inputLayout;
         }
+
     }
 
     internal class ColoredVertexesRenderStrategy : RenderStrategy, IRenderStrategy {
@@ -90,11 +123,11 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
 ";
         #endregion
 
-        static readonly ShaderTechniquePass pass;
+        static readonly D3DShaderTechniquePass pass;
         static readonly VertexLayoutConstructor layconst;
 
         static ColoredVertexesRenderStrategy() {
-            pass = new ShaderTechniquePass(new IShaderInfo[] {
+            pass = new D3DShaderTechniquePass(new IShaderInfo[] {
                 new ShaderInMemoryInfo("CV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
                 new ShaderInMemoryInfo("CV_FragmentShader", pixelShaderText, null, ShaderStages.Fragment.ToString(), "main"),
             });
@@ -104,9 +137,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
                .AddColorElementAsVector4();
         }
 
-        Random ran;
-
-        readonly List<Tuple<D3DColoredVertexesRenderComponent, IGeometryComponent>> entities;
+        readonly List<Tuple<D3DColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>> entities;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct VertexPositionColor {
@@ -122,25 +153,26 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
         }
 
         public ColoredVertexesRenderStrategy(D3DShaderCompilator compilator) : base(compilator) {
-            entities = new List<Tuple<D3DColoredVertexesRenderComponent, IGeometryComponent>>();
-            ran = new Random(100);
+            entities = new List<Tuple<D3DColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>>();            
         }
 
-        public void RegisterEntity(Components.D3DColoredVertexesRenderComponent rcom, IGeometryComponent geocom) {
-            entities.Add(Tuple.Create(rcom, geocom));
+        public override IRenderTechniquePass GetPass() => pass;
+        protected override VertexLayoutConstructor GetLayoutConstructor() => layconst;
+
+        public void RegisterEntity(Components.D3DColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr) {
+            entities.Add(Tuple.Create(rcom, geocom, tr));
         }
 
-        public void Update(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer, CameraState camera) {
+        protected override void Rendering(GraphicsDevice graphics) {
             var device = graphics.Device;
             var context = graphics.ImmediateContext;
-
-            if (!pass.IsCompiled) {
-                CompileShaders(graphics, pass, layconst);
-            }
 
             foreach (var en in entities) {
                 var renderCom = en.Item1;
                 var geometryCom = en.Item2;
+                var trcom = en.Item3;
+
+                context.InputAssembler.PrimitiveTopology = renderCom.PrimitiveTopology;
 
                 if (geometryCom.IsModified) {
                     var indexes = geometryCom.Indices.ToArray();
@@ -157,35 +189,28 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
                     renderCom.IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, indexes);
                 }
 
-                {
-                    var v = ran.NextVector3(
-                        new Vector3(-100, -100, -100),
-                        new Vector3(100, 100, 100));
-                    var matrix = //Matrix4x4.Identity;
-                    Matrix4x4.CreateTranslation(v);
+                if (trcom != null) {
+                    var tr = new TransforStructBuffer(trcom.MatrixWorld);
 
-                    var gamebuff = new GameResourceBuffer(matrix, camera.ViewMatrix, camera.ProjectionMatrix);
+                    //if (trcom.TransformBuffer == null) {
+                    trcom.TransformBuffer?.Dispose();
+                    trcom.TransformBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref tr);
 
-                    graphics.UpdateSubresource(ref gamebuff, gameDataBuffer, GameResourceBuffer.RegisterResourceSlot);
+                    //} else {
+                    //    graphics.UpdateSubresource(ref tr, trcom.TransformBuffer, TransforStructBuffer.RegisterResourceSlot);
+                    //}
                 }
 
-                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer, SharpDX.Utilities.SizeOf<VertexPositionColor>(), 0));
+                context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, trcom.TransformBuffer);
+
+                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer,
+                    Unsafe.SizeOf<VertexPositionColor>(), 0));
                 context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer, Format.R32_UInt, 0);//R32_SInt
 
-                context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-                context.VertexShader.SetConstantBuffer(GameResourceBuffer.RegisterResourceSlot, gameDataBuffer);
-                context.VertexShader.SetConstantBuffer(LightStructLayout.RegisterResourceSlot, lightDataBuffer);
-
-                context.VertexShader.Set(vertexShader);
-                context.PixelShader.Set(pixelShader);
-
                 graphics.UpdateRasterizerState(renderCom.RasterizerState.GetDescription());
-
                 graphics.ImmediateContext.DrawIndexed(geometryCom.Indices.Count, 0, 0);
             }
         }
-
 
         public void Cleanup() {
             entities.Clear();
@@ -198,14 +223,11 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
 
         const string vertexShaderText =
 @"
+#include ""Game""
+
 struct InputFS {
 	float4 position : SV_Position;
 	float4 color : COLOR;
-};
-cbuffer Game : register(b0) {
-	float4x4 World;
-    float4x4 View;
-    float4x4 Projection;
 };
 InputFS main(float4 position : POSITION, float4 color : COLOR){
     InputFS output;
@@ -226,19 +248,20 @@ struct InputFS {
 	float4 position : SV_Position;
 	float4 color : COLOR;
 };
-[maxvertexcount(1)]
-void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
+[maxvertexcount(2)]
+void main(line InputFS points[2], inout TriangleStream<InputFS> output) {
     
     InputFS fs = (InputFS)0;
     fs.position = points[0].position;
     fs.color = points[0].color;
     output.Append(fs);
 
-    //fs.position = points[1].position;
-    //fs.color = points[1].color;
-    //output.Append(fs);
+    fs = (InputFS)0;
+    fs.position = points[1].position;
+    fs.color = points[1].color;
+    output.Append(fs);
 
-	//output.RestartStrip();
+	output.RestartStrip();
 }
 ";
 
@@ -264,13 +287,13 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
 
         #endregion
 
-        static readonly ShaderTechniquePass pass;
+        static readonly D3DShaderTechniquePass pass;
         static readonly VertexLayoutConstructor layconst;
 
         static LineVertexRenderStrategy() {
-            pass = new ShaderTechniquePass(new IShaderInfo[] {
+            pass = new D3DShaderTechniquePass(new IShaderInfo[] {
                 new ShaderInMemoryInfo("LV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-              //  new ShaderInMemoryInfo("LV_GeometryShader", geometryShaderText, null, ShaderStages.Geometry.ToString(), "main"),
+                new ShaderInMemoryInfo("LV_GeometryShader", geometryShaderText, null, ShaderStages.Geometry.ToString(), "main"),
                 new ShaderInMemoryInfo("LV_FragmentShader", pixelShaderText, null, ShaderStages.Fragment.ToString(), "main"),
             });
             layconst = new VertexLayoutConstructor()
@@ -283,6 +306,8 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
         public LineVertexRenderStrategy(D3DShaderCompilator compilator) : base(compilator) {
             entities = new List<Tuple<D3DLineVertexRenderComponent, IGeometryComponent>>();
         }
+        public override IRenderTechniquePass GetPass() => pass;
+        protected override VertexLayoutConstructor GetLayoutConstructor() => layconst;
 
         public void RegisterEntity(Components.D3DLineVertexRenderComponent rcom, IGeometryComponent geocom) {
             entities.Add(Tuple.Create(rcom, geocom));
@@ -292,20 +317,15 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
             entities.Clear();
         }
 
-        public void Update(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer, CameraState camera) {
+        protected override void Rendering(GraphicsDevice graphics) {
             var device = graphics.Device;
             var context = graphics.ImmediateContext;
-
-            if (!pass.IsCompiled) {
-                CompileShaders(graphics, pass, layconst);
-            }
 
             foreach (var en in entities) {
                 var renderCom = en.Item1;
                 var geometryCom = en.Item2;
 
-                var gamebuff = new GameResourceBuffer(Matrix4x4.Identity, camera.ViewMatrix, camera.ProjectionMatrix);
-                graphics.UpdateSubresource(ref gamebuff, gameDataBuffer, GameResourceBuffer.RegisterResourceSlot);
+                context.InputAssembler.PrimitiveTopology = renderCom.PrimitiveTopology;
 
                 int indexCount = 0;
                 if (geometryCom.IsModified) {
@@ -327,16 +347,14 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
                     indexCount = vertices.Length;
                 }
 
+                var tr = new TransforStructBuffer(Matrix4x4.Identity);
+                var TransformBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref tr);
+
+                context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, TransformBuffer);
+
                 context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer, SharpDX.Utilities.SizeOf<VertexPositionColor>(), 0));
                 context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer, Format.R32_UInt, 0);//R32_SInt
 
-                context.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
-
-                context.VertexShader.SetConstantBuffer(GameResourceBuffer.RegisterResourceSlot, gameDataBuffer);
-                context.VertexShader.SetConstantBuffer(LightStructLayout.RegisterResourceSlot, lightDataBuffer);
-
-                context.VertexShader.Set(vertexShader);
-                context.PixelShader.Set(pixelShader);
 
                 graphics.UpdateRasterizerState(renderCom.RasterizerState.GetDescription());
 
