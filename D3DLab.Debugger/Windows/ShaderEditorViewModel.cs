@@ -273,6 +273,7 @@ namespace D3DLab.Debugger.Windows {
                 foreach(var line in Regex.Split(ex.Message, Environment.NewLine)){
                     Errors.Insert(0,line);
                 }
+                Errors.Add($"{DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss")} Compile: {selected.Info.Stage} failed");
             }
         }
     }

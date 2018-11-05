@@ -1,6 +1,7 @@
 ﻿using D3DLab.Std.Engine.Core.Shaders;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
+using SharpDX.Mathematics.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,7 +83,7 @@ namespace D3DLab.SDX.Engine.Shader {
         readonly EffectFlags eFlags = EffectFlags.None;
 
         public string Preprocess(string shadertext, Include include) {
-            return ShaderBytecode.Preprocess(shadertext, new ShaderMacro[0], include);
+            return ShaderBytecode.Preprocess(shadertext, new ShaderMacro[0], include); 
         }
 
         internal byte[] Compile(byte[] shader, string entrypoint, ShaderStages stage, string name) { // vs_5_0  ps_5_0

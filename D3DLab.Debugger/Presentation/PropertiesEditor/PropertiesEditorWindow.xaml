@@ -21,7 +21,8 @@
             </DataTemplate.Resources>
             <DockPanel HorizontalAlignment="Stretch">
                 <TextBlock Text="{Binding Title}" Width="150"  Foreground="White"/>
-                <ComboBox Text="{Binding Value}" ItemsSource="{Binding Values}" IsSynchronizedWithCurrentItem="True"
+                <ComboBox Text="{Binding Value}" ItemsSource="{Binding Values}" 
+                          IsSynchronizedWithCurrentItem="True"
                           BorderThickness="1" BorderBrush="Gray" Width="150" HorizontalAlignment="Right" Margin="10,0,0,0">
                 </ComboBox>
             </DockPanel>

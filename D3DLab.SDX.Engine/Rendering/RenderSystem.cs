@@ -9,9 +9,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace D3DLab.SDX.Engine.Rendering {
-    public class RenderSystem : BaseComponentSystem, IComponentSystem, IShaderEditingSystem {
+    public class RenderSystem : BaseComponentSystem, IComponentSystem, IShadersContainer {
         GraphicsDevice graphics;
-        D3DShaderCompilator compilator;
 
         SharpDX.Direct3D11.Buffer gameDataBuffer;
         SharpDX.Direct3D11.Buffer lightDataBuffer;
@@ -19,10 +18,6 @@ namespace D3DLab.SDX.Engine.Rendering {
 
         internal void Init(GraphicsDevice graphics) {
             this.graphics = graphics;
-
-            compilator = new D3DShaderCompilator();
-            compilator.AddIncludeMapping("Game", "D3DLab.SDX.Engine.Rendering.Shaders.Game.hlsl");
-            compilator.AddIncludeMapping("Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl");
 
             //camera
             var gamebuff = new GameStructBuffer(Matrix4x4.Identity, Matrix4x4.Identity);
@@ -33,7 +28,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             lightDataBuffer = graphics.CreateDynamicBuffer(dinamicLightbuff,
                 Unsafe.SizeOf<LightStructBuffer>() * dinamicLightbuff.Length);
 
-            visiter = new RenderFrameStrategiesVisitor(compilator);
+            visiter = new RenderFrameStrategiesVisitor(graphics.Compilator);
         }
 
         public void Execute(SceneSnapshot snapshot) {
@@ -58,7 +53,9 @@ namespace D3DLab.SDX.Engine.Rendering {
                     frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer, LightStructBuffer.RegisterResourceSlot);
 
                     foreach (var str in visiter.Strategies) {
+                       // frame.Graphics.Refresh();
                         str.Render(frame.Graphics, gameDataBuffer, lightDataBuffer);
+                        // frame.Graphics.Present();
                     }
 
                 } catch (Exception ex) {
@@ -74,7 +71,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         public IRenderTechniquePass[] Pass => visiter.Strategies.Select(x => x.GetPass()).ToArray();
 
         public IShaderCompilator GetCompilator() {
-            return compilator;
+            return graphics.Compilator;
         }
 
         #endregion

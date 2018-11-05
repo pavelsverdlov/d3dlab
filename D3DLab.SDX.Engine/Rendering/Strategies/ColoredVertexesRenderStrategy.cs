@@ -21,6 +21,19 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
     }
 
     internal abstract class RenderStrategy {
+
+        #region default shaders
+
+        protected const string pixelShaderOnlyColor =
+@"
+float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
+{
+    return color;
+}
+";
+
+        #endregion
+
         protected readonly D3DShaderCompilator compilator;
 
         protected VertexShader vertexShader;
@@ -37,9 +50,9 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             var context = graphics.ImmediateContext;
             var pass = GetPass();
 
-            if (!pass.IsCompiled) {
+            //if (!pass.IsCompiled) {
                 CompileShaders(graphics, pass, GetLayoutConstructor());
-            }
+//            }
 
             context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
             context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
@@ -63,7 +76,9 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
         protected void CompileShaders(GraphicsDevice graphics, IRenderTechniquePass pass, VertexLayoutConstructor layconst) {
             var device = graphics.Device;
-            pass.Compile(compilator);
+            if (!pass.IsCompiled) {
+                pass.Compile(compilator);
+            }
 
             var vertexShaderByteCode = pass.VertexShader.ReadCompiledBytes();
 
@@ -114,14 +129,7 @@ VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : CO
     return output;
 }
 ";
-        const string pixelShaderText =
-@"
-float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
-{
-    return color;
-}
-";
-        #endregion
+          #endregion
 
         static readonly D3DShaderTechniquePass pass;
         static readonly VertexLayoutConstructor layconst;
@@ -129,7 +137,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
         static ColoredVertexesRenderStrategy() {
             pass = new D3DShaderTechniquePass(new IShaderInfo[] {
                 new ShaderInMemoryInfo("CV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                new ShaderInMemoryInfo("CV_FragmentShader", pixelShaderText, null, ShaderStages.Fragment.ToString(), "main"),
+                new ShaderInMemoryInfo("CV_FragmentShader", pixelShaderOnlyColor, null, ShaderStages.Fragment.ToString(), "main"),
             });
             layconst = new VertexLayoutConstructor()
                .AddPositionElementAsVector3()
@@ -137,7 +145,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
                .AddColorElementAsVector4();
         }
 
-        readonly List<Tuple<D3DColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>> entities;
+        readonly List<Tuple<D3DTriangleColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>> entities;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct VertexPositionColor {
@@ -153,13 +161,13 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
         }
 
         public ColoredVertexesRenderStrategy(D3DShaderCompilator compilator) : base(compilator) {
-            entities = new List<Tuple<D3DColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>>();            
+            entities = new List<Tuple<D3DTriangleColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>>();            
         }
 
         public override IRenderTechniquePass GetPass() => pass;
         protected override VertexLayoutConstructor GetLayoutConstructor() => layconst;
 
-        public void RegisterEntity(Components.D3DColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr) {
+        public void RegisterEntity(Components.D3DTriangleColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr) {
             entities.Add(Tuple.Create(rcom, geocom, tr));
         }
 
@@ -175,18 +183,23 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
                 context.InputAssembler.PrimitiveTopology = renderCom.PrimitiveTopology;
 
                 if (geometryCom.IsModified) {
-                    var indexes = geometryCom.Indices.ToArray();
-                    VertexPositionColor[] vertices = new VertexPositionColor[geometryCom.Positions.Count];
-                    for (var index = 0; index < vertices.Length; index++) {
-                        vertices[index] = new VertexPositionColor(geometryCom.Positions[index], geometryCom.Normals[index], geometryCom.Colors[index]);
+                    try {
+                        var indexes = geometryCom.Indices.ToArray();
+                        VertexPositionColor[] vertices = new VertexPositionColor[geometryCom.Positions.Count];
+                        for (var index = 0; index < vertices.Length; index++) {
+                            vertices[index] = new VertexPositionColor(geometryCom.Positions[index], geometryCom.Normals[index], geometryCom.Colors[index]);
+                        }
+                        geometryCom.MarkAsRendered();
+
+                        renderCom.VertexBuffer?.Dispose();
+                        renderCom.IndexBuffer?.Dispose();
+
+                        renderCom.VertexBuffer = graphics.CreateBuffer(BindFlags.VertexBuffer, vertices);
+                        renderCom.IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, indexes);
+                    }catch(Exception ex) {
+                        ex.ToString();
+                        throw ex;
                     }
-                    geometryCom.MarkAsRendered();
-
-                    renderCom.VertexBuffer?.Dispose();
-                    renderCom.IndexBuffer?.Dispose();
-
-                    renderCom.VertexBuffer = graphics.CreateBuffer(BindFlags.VertexBuffer, vertices);
-                    renderCom.IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, indexes);
                 }
 
                 if (trcom != null) {
@@ -215,153 +228,5 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
         public void Cleanup() {
             entities.Clear();
         }
-    }
-
-    internal class LineVertexRenderStrategy : RenderStrategy, IRenderStrategy {
-
-        #region shaders
-
-        const string vertexShaderText =
-@"
-#include ""Game""
-
-struct InputFS {
-	float4 position : SV_Position;
-	float4 color : COLOR;
-};
-InputFS main(float4 position : POSITION, float4 color : COLOR){
-    InputFS output;
-
-    output.position = mul(World, position);
-    output.position = mul(View, output.position);
-    output.position = mul(Projection, output.position);
-    output.color = color;
-
-    return output;
-}
-
-";
-
-        const string geometryShaderText =
-@"
-struct InputFS {
-	float4 position : SV_Position;
-	float4 color : COLOR;
-};
-[maxvertexcount(2)]
-void main(line InputFS points[2], inout TriangleStream<InputFS> output) {
-    
-    InputFS fs = (InputFS)0;
-    fs.position = points[0].position;
-    fs.color = points[0].color;
-    output.Append(fs);
-
-    fs = (InputFS)0;
-    fs.position = points[1].position;
-    fs.color = points[1].color;
-    output.Append(fs);
-
-	output.RestartStrip();
-}
-";
-
-        const string pixelShaderText =
-@"
-float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
-{
-    return color;
-}
-";
-
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct LineVertexColor {
-            public readonly Vector3 Position;
-            public readonly Vector4 Color;
-
-            public LineVertexColor(Vector3 position, Vector4 color) {
-                Position = position;
-                Color = color;
-            }
-        }
-
-        #endregion
-
-        static readonly D3DShaderTechniquePass pass;
-        static readonly VertexLayoutConstructor layconst;
-
-        static LineVertexRenderStrategy() {
-            pass = new D3DShaderTechniquePass(new IShaderInfo[] {
-                new ShaderInMemoryInfo("LV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                new ShaderInMemoryInfo("LV_GeometryShader", geometryShaderText, null, ShaderStages.Geometry.ToString(), "main"),
-                new ShaderInMemoryInfo("LV_FragmentShader", pixelShaderText, null, ShaderStages.Fragment.ToString(), "main"),
-            });
-            layconst = new VertexLayoutConstructor()
-                .AddPositionElementAsVector3()
-                .AddColorElementAsVector4();
-        }
-
-        readonly List<Tuple<D3DLineVertexRenderComponent, IGeometryComponent>> entities;
-
-        public LineVertexRenderStrategy(D3DShaderCompilator compilator) : base(compilator) {
-            entities = new List<Tuple<D3DLineVertexRenderComponent, IGeometryComponent>>();
-        }
-        public override IRenderTechniquePass GetPass() => pass;
-        protected override VertexLayoutConstructor GetLayoutConstructor() => layconst;
-
-        public void RegisterEntity(Components.D3DLineVertexRenderComponent rcom, IGeometryComponent geocom) {
-            entities.Add(Tuple.Create(rcom, geocom));
-        }
-
-        public void Cleanup() {
-            entities.Clear();
-        }
-
-        protected override void Rendering(GraphicsDevice graphics) {
-            var device = graphics.Device;
-            var context = graphics.ImmediateContext;
-
-            foreach (var en in entities) {
-                var renderCom = en.Item1;
-                var geometryCom = en.Item2;
-
-                context.InputAssembler.PrimitiveTopology = renderCom.PrimitiveTopology;
-
-                int indexCount = 0;
-                if (geometryCom.IsModified) {
-                    var pos = geometryCom.Positions.ToArray();
-                    var index = new List<int>();
-                    var vertices = new LineVertexColor[pos.Length];
-                    for (var i = 0; i < pos.Length; i++) {
-                        vertices[i] = new LineVertexColor(pos[i], geometryCom.Colors[i]);
-                        index.Add(i);
-                    }
-
-                    geometryCom.MarkAsRendered();
-
-                    renderCom.VertexBuffer?.Dispose();
-                    renderCom.IndexBuffer?.Dispose();
-
-                    renderCom.VertexBuffer = graphics.CreateBuffer(BindFlags.VertexBuffer, vertices);
-                    renderCom.IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, pos);
-                    indexCount = vertices.Length;
-                }
-
-                var tr = new TransforStructBuffer(Matrix4x4.Identity);
-                var TransformBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref tr);
-
-                context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, TransformBuffer);
-
-                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer, SharpDX.Utilities.SizeOf<VertexPositionColor>(), 0));
-                context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer, Format.R32_UInt, 0);//R32_SInt
-
-
-                graphics.UpdateRasterizerState(renderCom.RasterizerState.GetDescription());
-
-                //graphics.ImmediateContext.DrawIndexed(indexCount, 0, 0);
-                graphics.ImmediateContext.Draw(geometryCom.Positions.Count, 0);
-            }
-        }
-
     }
 }

@@ -27,7 +27,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             this.contextState = contextState;
         }
 
-        public void Visit(Components.D3DColoredVertexesRenderComponent component) {
+        public void Visit(Components.D3DTriangleColoredVertexesRenderComponent component) {
             var type = typeof(ColoredVertexesRenderStrategy);
             var entityTag = component.EntityTag;
 

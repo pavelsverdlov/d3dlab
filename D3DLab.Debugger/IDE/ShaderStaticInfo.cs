@@ -44,10 +44,11 @@ namespace D3DLab.Debugger.IDE {
             "int", "uint", "return", "void", "bool", "float","true", "false", "discard", "break"
         };
         public readonly Hash Modifications = new Hash {
-            "inout", "triangle","noperspective", "line"
+            "inout", "triangle", "noperspective",
+            "line", "point", "lineadj" // geometry shader
         };
         public readonly Hash Generics = new Hash {
-            "TriangleStream", "StructuredBuffer"
+            "TriangleStream", "LineStream","StructuredBuffer"
         };
         public readonly Hash Matrix = new Hash {
             "float4x4",

@@ -107,9 +107,11 @@ namespace D3DLab {
             VisualTreeviewer.GameWindow = scene.Window;
             SystemsView.GameWindow = scene.Window;
 
+            CoordinateSystemLinesGameObject.Build(context.GetEntityManager());
+
         }
 
-        
+
     }
 
     public sealed class GenneralContextState : BaseContextState {
@@ -234,11 +236,32 @@ namespace D3DLab {
         public LoadedItem LoadObj(Stream content) {
             var entityManager = Context.GetEntityManager();
 
-            var parser = new CncParser(new FileInfo(@"C:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
-            var points = parser.GetPaths()[0].Points.ToArray();
-            var id = entityManager.BuildLineEntity(points);
+            //var parser = new CncParser(new FileInfo(@"D:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
+            //var points = parser.GetPaths()[0].Points.GetRange(0,100).ToArray();
 
-            return new LoadedItem(entityManager, id);
+            //points = new[] {
+            //    Vector3.Zero - Vector3.UnitX *30, Vector3.Zero + Vector3.UnitX *30,
+            //    Vector3.Zero- Vector3.UnitY *30, Vector3.Zero + Vector3.UnitY *30,
+            //    Vector3.Zero- Vector3.UnitZ *30, Vector3.Zero + Vector3.UnitZ *30,
+            //};
+
+            //for(var i = 0; i < points.Length; ++i) {
+            //    points[i] = Vector3.Transform(points[i], Matrix4x4.CreateTranslation(Vector3.UnitZ * 20));
+            //}
+
+            //var b = new LineBuilder();
+            //b.Build(points);
+
+            //var id = entityManager.BuildLineEntity(points);
+
+            //var id = entityManager.BuildArrow(new ArrowData {
+            //    axis = Vector3.UnitZ,
+            //    center = Vector3.Zero,
+            //    lenght = 20,
+            //    radius = 10,
+            //});
+
+            //return new LoadedItem(entityManager, id);
 
             //duck
 
@@ -268,7 +291,11 @@ namespace D3DLab {
             res[2].Geometry.Color = new Vector4(0, 0, 1, 1);
             res[3].Geometry.Color = new Vector4(1, 1, 0, 1);
 
+
+
             var duckTag = entityManager.BuildGroupMeshElement(res.Select(x => x.Geometry));
+
+            // duckTag = entityManager.BuildCoordinateSystemLinesEntity();
 
             return new LoadedItem(entityManager, duckTag);
 
@@ -288,6 +315,32 @@ namespace D3DLab {
             //return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);
         }
 
+        public class LineBuilder {
+            private readonly List<Vector3> positions;
+            private readonly List<int> lineListIndices;
+
+            public LineBuilder() {
+                positions = new List<Vector3>();
+                lineListIndices = new List<int>();
+            }
+
+            public void Build(IEnumerable<Vector3> points, bool closed = false) {
+                var first = positions.Count;
+                positions.AddRange(points);
+                var lineCount = positions.Count - first - 1;
+
+                for (var i = 0; i < lineCount; i++) {
+                    lineListIndices.Add(first + i);
+                    lineListIndices.Add(first + i + 1);
+                }
+
+                if (closed) {
+                    lineListIndices.Add(positions.Count - 1);
+                    lineListIndices.Add(first);
+                }
+            }
+
+        }
 
     }
 }

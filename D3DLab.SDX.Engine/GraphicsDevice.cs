@@ -1,4 +1,5 @@
-﻿using D3DLab.Std.Engine.Core;
+﻿using D3DLab.SDX.Engine.Shader;
+using D3DLab.Std.Engine.Core;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -57,6 +58,8 @@ namespace D3DLab.SDX.Engine {
 
 
     internal class GraphicsDevice {
+        public readonly D3DShaderCompilator Compilator;
+
         internal readonly SharpDX.Direct3D11.Device Device;
         internal readonly DeviceContext ImmediateContext;
         readonly RenderTargetView renderTargetView;
@@ -69,6 +72,11 @@ namespace D3DLab.SDX.Engine {
 
         public GraphicsDevice(IAppWindow window) {
             this.window = window;
+
+            Compilator = new D3DShaderCompilator();
+            Compilator.AddIncludeMapping("Game", "D3DLab.SDX.Engine.Rendering.Shaders.Game.hlsl");
+            Compilator.AddIncludeMapping("Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl");
+
             var backBufferDesc = new ModeDescription(Width, Height, new Rational(60, 1), Format.R8G8B8A8_UNorm);
 
             // Descriptor for the swap chain

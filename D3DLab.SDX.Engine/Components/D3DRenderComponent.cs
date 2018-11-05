@@ -1,6 +1,7 @@
 ﻿using D3DLab.SDX.Engine.Rendering;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Shaders;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -17,7 +18,9 @@ namespace D3DLab.SDX.Engine.Components {
 
         public bool IsModified { get; set; }
 
+        [IgnoreDebuging]
         public SharpDX.Direct3D11.Buffer VertexBuffer { get; internal set; }
+        [IgnoreDebuging]
         public SharpDX.Direct3D11.Buffer IndexBuffer { get; internal set; }
 
         public virtual void Dispose() {
@@ -27,9 +30,15 @@ namespace D3DLab.SDX.Engine.Components {
 
     }
 
-    public class D3DColoredVertexesRenderComponent : D3DRenderComponent, ID3DRenderableComponent {
+    public class D3DTriangleColoredVertexesRenderComponent : D3DRenderComponent, ID3DRenderableComponent {
 
-        public D3DColoredVertexesRenderComponent() {
+        public static D3DTriangleColoredVertexesRenderComponent AsStrip() {
+            return new D3DTriangleColoredVertexesRenderComponent {
+                PrimitiveTopology = PrimitiveTopology.TriangleStrip
+            };
+        }
+
+        public D3DTriangleColoredVertexesRenderComponent() {
             RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
                 CullMode = CullMode.Front,
                 FillMode = FillMode.Solid,
@@ -46,18 +55,34 @@ namespace D3DLab.SDX.Engine.Components {
     }
 
     public class D3DLineVertexRenderComponent : D3DRenderComponent, ID3DRenderableComponent {
+
+        public static D3DLineVertexRenderComponent AsLineStrip() {
+            return new D3DLineVertexRenderComponent {
+                PrimitiveTopology = PrimitiveTopology.LineStrip
+            };
+        }
+        public static D3DLineVertexRenderComponent AsLineList() {
+            return new D3DLineVertexRenderComponent {
+                PrimitiveTopology = PrimitiveTopology.LineList
+            };
+        }
+
         public D3DLineVertexRenderComponent() {
             RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
                 CullMode = CullMode.None,
                 FillMode = FillMode.Solid,
-                IsMultisampleEnabled = true,
+                IsMultisampleEnabled = false,
                 IsAntialiasedLineEnabled = true
             });
-            PrimitiveTopology = PrimitiveTopology.LineList;
+            PrimitiveTopology = PrimitiveTopology.LineStrip;
         }
 
         void ID3DRenderableComponent.Accept(RenderFrameStrategiesVisitor visitor) {
             visitor.Visit(this);
         }
+    }
+
+    public class D3DShadersRenderComponent { //IShadersContainer
+
     }
 }

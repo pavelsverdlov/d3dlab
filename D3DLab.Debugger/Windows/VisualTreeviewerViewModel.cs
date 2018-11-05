@@ -132,7 +132,7 @@ namespace D3DLab.Debugger.Windows {
                 Components.Add(com);
                 hash.Add(com.Guid, com);
 
-                CanEditShader = com.GetOriginComponent() is IShaderEditingSystem ? Visibility.Visible : Visibility.Collapsed;
+                CanEditShader = com.GetOriginComponent() is IShadersContainer ? Visibility.Visible : Visibility.Collapsed;
             }
             public void Clear() {
                 Components.Clear();
@@ -140,7 +140,7 @@ namespace D3DLab.Debugger.Windows {
             public void Remove(IVisualComponentItem com) {
                 Components.Remove(com);
                 hash.Remove(com.Guid);
-                CanEditShader = !(com.GetOriginComponent() is IShaderEditingSystem) ? Visibility.Collapsed : Visibility.Visible;
+                CanEditShader = !(com.GetOriginComponent() is IShadersContainer) ? Visibility.Collapsed : Visibility.Visible;
             }
 
             public bool TryRefresh(IGraphicComponent com) {

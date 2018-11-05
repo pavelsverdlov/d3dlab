@@ -1,5 +1,4 @@
-﻿using D3DLab.Debugger.Infrastructure;
-using D3DLab.Debugger.Windows;
+﻿using D3DLab.Debugger.Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,7 +13,7 @@ using System.Windows.Input;
 namespace D3DLab.Debugger.Presentation.PropertiesEditor {
     public class PropertiesEditorPopup {
         private PropertiesEditorWindow win;
-        
+
 
         public PropertiesEditorWindowViewModel ViewModel { get; }
 
@@ -38,7 +37,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
 
     #region view properties
 
-    public abstract class ViewProperty: System.ComponentModel.INotifyPropertyChanged {
+    public abstract class ViewProperty : System.ComponentModel.INotifyPropertyChanged {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged = (x, y) => { };
 
         public string Key { get; set; }
@@ -55,7 +54,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         }
     }
 
-    public abstract class ViewProperty<TVal> : ViewProperty{
+    public abstract class ViewProperty<TVal> : ViewProperty {
         class ChangedCommand : BaseWPFCommand<string> {
             private ViewProperty<TVal> pr;
 
@@ -80,7 +79,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         public override void UpdateValue(string val) {
             change(val);
             base.UpdateValue(val);
-        }        
+        }
     }
 
     public class TextBoxViewProperty : ViewProperty<string> {
@@ -89,8 +88,11 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
 
     public class ComboBoxViewProperty : ViewProperty<string> {
         public ICollectionView Values { get; }
+
+        string current;
         public ComboBoxViewProperty(Action<string> change, string current, string[] values) : base(change) {
             Value = current;
+            this.current = current;
             var obs = new ObservableCollection<string>(values);
             Values = CollectionViewSource.GetDefaultView(obs);
             Values.MoveCurrentToPosition(obs.IndexOf(current));
@@ -98,7 +100,12 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         }
 
         void OnValuesCurrentChanged(object sender, EventArgs e) {
-            UpdateValue(Values.CurrentItem.ToString());
+            var val = Values.CurrentItem.ToString();
+            if (val == current) {
+                return;
+            }
+            UpdateValue(val);
+            current = val;
         }
     }
 
@@ -110,7 +117,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         static Action<string> StringToVector3(Action<Vector3> change) {
             return str => {
                 var parts = str.Split(' ')
-                .Select(x=>float.Parse(x, System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture))
+                .Select(x => float.Parse(x, System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture))
                 .ToArray();
                 var v = new Vector3(parts[0], parts[1], parts[2]);
                 change(v);
@@ -146,11 +153,12 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
     }
 
     public class GroupViewProperty : ViewProperty<ObservableCollection<ViewProperty>> {
-       // protected readonly Dictionary<string, ViewProperty> dictionary;
+        //static readonly HashSet<int> hash = new HashSet<int>();
 
         public GroupViewProperty() : base(x => { }) {
-           // dictionary = new Dictionary<string, ViewProperty>();
+            // dictionary = new Dictionary<string, ViewProperty>();
             Value = new ObservableCollection<ViewProperty>();
+
         }
 
         public void AddPrimitive<T>(string key, T val, Action<string> change) {
@@ -158,14 +166,13 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                 Title = key,
                 Value = val == null ? string.Empty : val.ToString()
             };
-            //dictionary.Add(key, pr);
             Value.Add(pr);
         }
-        public void AddEnum<T>(string key, T val, Action<string> change, string[] values) {
+        public void AddSequence<T>(string key, T val, Action<string> change, string[] values) {
             var pr = new ComboBoxViewProperty(change, val.ToString(), values) {
                 Title = key
             };
-          //  dictionary.Add(key, pr);
+            //  dictionary.Add(key, pr);
             Value.Add(pr);
         }
         public void AddVector(string key, object obj, Action<Vector3> change) {
@@ -173,18 +180,18 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
             var pr = new Vector3ViewProperty(val, change) {
                 Title = key
             };
-          //  dictionary.Add(key, pr);
+            //  dictionary.Add(key, pr);
             Value.Add(pr);
         }
 
 
-        public void Analyze(object com) {
-            Analyze(com, this, com.GetType());
+        public void Analyze(object com, HashSet<int> hashed) {
+            Analyze(com, this, com.GetType(), hashed);
         }
 
-        void Analyze(object com, GroupViewProperty property, Type type) {
+        void Analyze(object com, GroupViewProperty property, Type type, HashSet<int> hashed) {
             foreach (var pr in type.GetProperties()) {
-                Analyze(com, property, pr);
+                Analyze(com, property, pr, hashed);
             }
         }
         void AnalyzeValueType(object com, GroupViewProperty property, Type basetype) {
@@ -201,12 +208,12 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     fields.RemoveAt(0);
                     void change(string x) => field.SetValue(com, Enum.Parse(type, x));
                     var values = fields.Select(x => x.Name).ToArray();
-                    property.AddEnum(name, val, change, values);
+                    property.AddSequence(name, val, change, values);
                 }
             }
         }
         void Analyze(object val, string name, Type type,
-            Action<object> setter, GroupViewProperty property) {
+            Action<object> setter, GroupViewProperty property, HashSet<int> hashed) {
             try {
                 if (type.IsPrimitive || Type.GetTypeCode(type) == TypeCode.String) {
                     var converter = GetConverter(type);
@@ -226,7 +233,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                 if (type.IsValueType && !type.IsEnum) {
                     group.AnalyzeValueType(val, group, type);
                 } else {
-                    group.Analyze(val, group, type);
+                    group.Analyze(val, group, type, hashed);
                 }
                 if (group.Value.Any()) {
                     Value.Add(group);
@@ -235,7 +242,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     fields.RemoveAt(0);
                     void change(string x) => setter(Enum.Parse(type, x));
                     var values = fields.Select(x => x.Name).ToArray();
-                    property.AddEnum(name, val, change, values);
+                    property.AddSequence(name, val, change, values);
                 } else {
                     property.AddPrimitive(name, val, x => { });
                 }
@@ -244,17 +251,37 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                 ex.ToString();
             }
         }
-        void Analyze(object com, GroupViewProperty property, PropertyInfo pr) {
+
+        void Analyze(object com, GroupViewProperty property, PropertyInfo pr, HashSet<int> hashed) {
             var name = pr.Name;
             try {
+                if (pr.CustomAttributes.Any(x => x.AttributeType == typeof(Std.Engine.Core.Components.IgnoreDebugingAttribute))) {
+                    return;
+                }
+
                 var val = com.IsNull() ? null : pr.GetValue(com);
+
+                if (val.IsNotNull()) {
+                    if (hashed.Contains(val.GetHashCode())) {
+                        return;
+                    }
+                    hashed.Add(pr.GetHashCode());
+                }
+
                 var type = pr.PropertyType;
                 if (type.IsPrimitive || Type.GetTypeCode(type) == TypeCode.String) {
                     var converter = GetConverter(type);
                     Action<string> change = x => pr.SetValue(com, converter(x));
-                    property.AddPrimitive(name, val, change);
+                    switch (Type.GetTypeCode(type)) {
+                        case TypeCode.Boolean:
+                            property.AddSequence(name, val, change, new[] { bool.TrueString, bool.FalseString });
+                            break;
+                        default:
+                            property.AddPrimitive(name, val, change);
+                            break;
+                    }                     
                     return;
-                }                
+                }
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) {
                     var valuetext = val.IsNull() ? "null" : ((System.Collections.ICollection)val).Count.ToString();
                     var value = $"{type.GenericTypeArguments.First().Name}[{valuetext}]";
@@ -278,10 +305,10 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     foreach (var i in array) {
                         //var val = com.IsNull() ? null : pr.GetValue(com);
                         //var type = pr.PropertyType;
-                        group.Analyze(i, group, i.GetType());
+                        group.Analyze(i, group, i.GetType(), hashed);
                     }
                 } else {
-                    group.Analyze(val, group, type);
+                    group.Analyze(val, group, type, hashed);
                 }
                 if (group.Value.Any()) {
                     Value.Add(group);
@@ -290,7 +317,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     fields.RemoveAt(0);
                     void change(string x) => pr.SetValue(com, Enum.Parse(type, x));
                     var values = fields.Select(x => x.GetValue(com).ToString()).ToArray();
-                    property.AddEnum(name, val, change, values);
+                    property.AddSequence(name, val, change, values);
                 } else {
                     property.AddPrimitive(name, val, x => { });
                 }
@@ -349,8 +376,11 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         public IRenderUpdater RenderUpdater { get; set; }
 
         IEditingProperties item;
+        // hash for avoid recurvsive while deeping reflection properties
+        readonly HashSet<int> hash;
         public PropertiesEditorWindowViewModel() {
             Apply = new ApplyCommand(this);
+            hash = new HashSet<int>();
         }
 
         public void Analyze(IEditingProperties item) {
@@ -358,20 +388,20 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
             var com = item.TargetObject;
             Title = item.Titile;
 
-            Analyze(com);
+            Analyze(com, hash);
 
             OnPropertyChanged(nameof(Title));
         }
 
         public void Dispose() {
             Value.Clear();
-          //  dictionary.Clear();
+            //  dictionary.Clear();
         }
 
         void OnApply() {
             Value.Clear();
-          //  dictionary.Clear();
-            Analyze(item.TargetObject);
+            hash.Clear();
+            Analyze(item.TargetObject, hash);
             RenderUpdater.Update();
         }
     }

@@ -14,7 +14,7 @@ namespace D3DLab.Debugger.Presentation {
             this.updater = updater;
         }
 
-        protected abstract IShaderEditingSystem Convert(T i);
+        protected abstract IShadersContainer Convert(T i);
 
         public override void Execute(T item) {
             var editable = Convert(item);

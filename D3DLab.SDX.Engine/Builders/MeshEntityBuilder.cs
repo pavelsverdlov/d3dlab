@@ -15,7 +15,7 @@ namespace D3DLab.SDX.Engine.Builders {
                     Indices = indexes,
                     Colors = colors
                 })
-                .AddComponent(new SDX.Engine.Components.D3DColoredVertexesRenderComponent())
+                .AddComponent(new SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent())
                 .Tag;
         }
     }

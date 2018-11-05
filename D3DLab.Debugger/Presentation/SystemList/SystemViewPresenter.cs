@@ -22,7 +22,7 @@ namespace D3DLab.Debugger.Presentation.SystemList {
         public SystemItemViewModel(IComponentSystem system) {
             this.system = system;
             Header = system.ToString().Split('.').Last();
-            IsShaderEditable = system is Std.Engine.Core.Shaders.IShaderEditingSystem;
+            IsShaderEditable = system is Std.Engine.Core.Shaders.IShadersContainer;
         }
 
         public IComponentSystem GetOriginSystem() {
@@ -48,8 +48,8 @@ namespace D3DLab.Debugger.Presentation.SystemList {
         public ICommand OpenPropertiesEditor { get; }
         public class OpenShaderEditorSystemItemCommand : OpenShaderEditorCommand<SystemItemViewModel> {
             public OpenShaderEditorSystemItemCommand(IRenderUpdater updater) : base(updater) { }
-            protected override IShaderEditingSystem Convert(SystemItemViewModel i) {
-                return (IShaderEditingSystem)i.GetOriginSystem();
+            protected override IShadersContainer Convert(SystemItemViewModel i) {
+                return (IShadersContainer)i.GetOriginSystem();
             }
         }
         public class OpenPropertiesEditorSystemItemCommand : OpenPropertiesEditorCommand<SystemItemViewModel> {
