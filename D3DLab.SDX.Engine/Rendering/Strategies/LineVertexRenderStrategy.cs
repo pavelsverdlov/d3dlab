@@ -65,8 +65,12 @@ void main(line InputFS points[2], inout LineStream<InputFS> output) {
 	output.RestartStrip();
 }
 ";
-
-
+        protected const string pixelShaderText =
+@"
+float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
+    return color;
+}
+";
 
         [StructLayout(LayoutKind.Sequential)]
         public struct LineVertexColor {
@@ -88,7 +92,7 @@ void main(line InputFS points[2], inout LineStream<InputFS> output) {
             pass = new D3DShaderTechniquePass(new IShaderInfo[] {
                 new ShaderInMemoryInfo("LV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
                // new ShaderInMemoryInfo("LV_GeometryShader", geometryShaderText, null, ShaderStages.Geometry.ToString(), "main"),
-                new ShaderInMemoryInfo("LV_FragmentShader", pixelShaderOnlyColor, null, ShaderStages.Fragment.ToString(), "main"),
+                new ShaderInMemoryInfo("LV_FragmentShader", pixelShaderText, null, ShaderStages.Fragment.ToString(), "main"),
             });
             layconst = new VertexLayoutConstructor()
                 .AddPositionElementAsVector3()

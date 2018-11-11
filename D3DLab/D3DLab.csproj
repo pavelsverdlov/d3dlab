@@ -181,6 +181,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Visualization\EntityBuilder.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -193,6 +194,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Parser\ChooseParseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\Theme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -201,6 +206,11 @@
   <ItemGroup>
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Parsers.cs" />
+    <Compile Include="Parser\ChooseParseViewModel.cs" />
+    <Compile Include="Parser\ChooseParseWindow.xaml.cs">
+      <DependentUpon>ChooseParseWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Plugins\PluginImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -234,6 +244,10 @@
       <Project>{3fc522c3-3533-4a12-a751-d784cb93faf1}</Project>
       <Name>D3DLab.Debugger</Name>
     </ProjectReference>
+    <ProjectReference Include="..\D3DLab.Plugin.Contracts\D3DLab.Plugin.Contracts.csproj">
+      <Project>{06489d42-a11d-48fb-9b68-05e0b39ff82a}</Project>
+      <Name>D3DLab.Plugin.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\D3DLab.Std.Engine.Core\D3DLab.Std.Engine.Core.csproj">
       <Project>{ad2b47e7-4b24-4643-83a8-46e14afa2bc5}</Project>
       <Name>D3DLab.Std.Engine.Core</Name>
@@ -251,9 +265,7 @@
       <Name>Veldrid.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="D3D\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />

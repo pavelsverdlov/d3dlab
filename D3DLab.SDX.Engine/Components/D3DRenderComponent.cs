@@ -42,7 +42,14 @@ namespace D3DLab.SDX.Engine.Components {
             RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
                 CullMode = CullMode.Front,
                 FillMode = FillMode.Solid,
-                IsMultisampleEnabled = true
+                IsMultisampleEnabled = false,
+
+                IsFrontCounterClockwise = false,
+                IsScissorEnabled = false,
+                IsAntialiasedLineEnabled = false,
+                DepthBias = 0,
+                DepthBiasClamp = .0f,                
+                SlopeScaledDepthBias = .0f
             });
 
             PrimitiveTopology = PrimitiveTopology.TriangleList;

@@ -1,6 +1,11 @@
 ﻿using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
+using D3DLab.Parser;
+using D3DLab.Plugin.Contracts.Parsers;
+using D3DLab.Plugins;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Visualization;
 using D3DLab.Wpf.Engine.App;
 using D3DLab.Wpf.Engine.App.Host;
 using System;
@@ -15,9 +20,11 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 namespace D3DLab {
+    public interface IDropFiles {
+        void Dropped(string[] files);
+    }
 
-
-    public sealed class MainWindowViewModel {
+    public sealed class MainWindowViewModel : IDropFiles, IFileLoader {
 
         class MoveToCenterWorldCommand : Debugger.BaseWPFCommand {
             private MainWindowViewModel main;
@@ -45,9 +52,14 @@ namespace D3DLab {
             }
 
             public void Execute(object parameter) {
-                var item = main.scene.LoadObj(this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj"));
+                var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
 
-                main.items.Add(item);
+                main.plugins.Import();
+                var bl = new EntityBuilder(main.context.GetEntityManager());
+                var tag = bl.Build(file, main.plugins.ParserPlugins.First());
+                
+
+               // main.items.Add(item);
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {
@@ -76,6 +88,7 @@ namespace D3DLab {
 
         public ICollectionView Items { get; set; }
         readonly ObservableCollection<LoadedItem> items;
+        readonly PluginImporter plugins;
 
         public MainWindowViewModel() {
             LoadDuck = new LoadCommand(this);
@@ -88,6 +101,9 @@ namespace D3DLab {
             notificator = new EngineNotificator();
 
             notificator.Subscribe(new ViewportSubscriber(this));
+
+            plugins = new PluginImporter();
+
         }
 
         public void Init(FormsHost host, FrameworkElement overlay) {
@@ -111,7 +127,19 @@ namespace D3DLab {
 
         }
 
+        public void Dropped(string[] files) {
+            plugins.Import();
+            var win = new ChooseParseWindow();
+            win.ViewModel.AddFiles(files);
+            win.ViewModel.AddParsers(plugins.ParserPlugins);
+            win.ViewModel.SetLoader(this);
+            win.ShowDialog();
+        }
 
+        public void Load(FileInfo file, IFileParserPlugin parser) {
+            var bl = new EntityBuilder(context.GetEntityManager());
+            var tag = bl.Build(file, parser);
+        }
     }
 
     public sealed class GenneralContextState : BaseContextState {
@@ -236,6 +264,8 @@ namespace D3DLab {
         public LoadedItem LoadObj(Stream content) {
             var entityManager = Context.GetEntityManager();
 
+            return null;
+
             //var parser = new CncParser(new FileInfo(@"D:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
             //var points = parser.GetPaths()[0].Points.GetRange(0,100).ToArray();
 
@@ -264,7 +294,7 @@ namespace D3DLab {
             //return new LoadedItem(entityManager, id);
 
             //duck
-
+            /*
             var readerA = new Std.Engine.Core.Utilities.Helix.ObjReader();
             var res = readerA.Read(content);
 
@@ -311,7 +341,7 @@ namespace D3DLab {
             ////interactor.ManipulateInteractingTwoWays(duck, arrowx);
             ////interactor.ManipulateInteractingTwoWays(duck, arrowy);
             ////interactor.ManipulateInteracting(arrow, duck);
-
+            */
             //return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);
         }
 
@@ -343,4 +373,6 @@ namespace D3DLab {
         }
 
     }
+
+   
 }

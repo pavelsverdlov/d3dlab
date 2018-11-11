@@ -24,13 +24,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
         #region default shaders
 
-        protected const string pixelShaderOnlyColor =
-@"
-float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
-{
-    return color;
-}
-";
+       
 
         #endregion
 
@@ -39,6 +33,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
         protected VertexShader vertexShader;
         protected PixelShader pixelShader;
         protected GeometryShader geometryShader;
+        protected InputLayout layout;
 
         protected RenderStrategy(D3DShaderCompilator compilator) {
             this.compilator = compilator;
@@ -50,12 +45,14 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
             var context = graphics.ImmediateContext;
             var pass = GetPass();
 
-            //if (!pass.IsCompiled) {
+            if (!pass.IsCompiled) {
                 CompileShaders(graphics, pass, GetLayoutConstructor());
-//            }
+            }
+
+            graphics.ImmediateContext.InputAssembler.InputLayout = layout;
 
             context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
-            context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
+            context.PixelShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
 
             if (vertexShader != null) {
                 context.VertexShader.Set(vertexShader);
@@ -76,14 +73,14 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
 
         protected void CompileShaders(GraphicsDevice graphics, IRenderTechniquePass pass, VertexLayoutConstructor layconst) {
             var device = graphics.Device;
-            if (!pass.IsCompiled) {
+            //if (!pass.IsCompiled) {
                 pass.Compile(compilator);
-            }
+            //}
 
             var vertexShaderByteCode = pass.VertexShader.ReadCompiledBytes();
 
             var inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
-            var inputLayout = new InputLayout(device, inputSignature, layconst.ConstuctElements());
+            layout = new InputLayout(device, inputSignature, layconst.ConstuctElements());
 
             vertexShader?.Dispose();
             pixelShader?.Dispose();
@@ -97,7 +94,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
                 pixelShader = new PixelShader(device, pass.PixelShader.ReadCompiledBytes());
             }
 
-            graphics.ImmediateContext.InputAssembler.InputLayout = inputLayout;
+            
         }
 
     }
@@ -109,12 +106,11 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
         const string vertexShaderText =
 @"
 #include ""Game""
-#include ""Light""
 
 struct VSOut
 {
     float4 position : SV_POSITION;
-    //float4 normal : NORMAL;
+    float4 normal : NORMAL;
     float4 color : COLOR;
 };
 VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR) { 
@@ -124,12 +120,30 @@ VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : CO
     output.position = mul(View, output.position);
     output.position = mul(Projection, output.position);
 
-    output.color = color * computeLight(position.xyz, normal);
+    output.normal = mul(World, normal);
+    output.normal = normalize(output.normal);
+
+    output.color = color ;
 
     return output;
 }
 ";
-          #endregion
+
+        protected const string pixelShaderText =
+@"
+#include ""Light""
+
+struct PSIn
+{
+    float4 position : SV_POSITION;
+    float4 normal : NORMAL;
+    float4 color : COLOR;
+};
+float4 main(PSIn input) : SV_TARGET {
+    return input.color * computeLight(input.position.xyz, input.normal);
+}
+";
+        #endregion
 
         static readonly D3DShaderTechniquePass pass;
         static readonly VertexLayoutConstructor layconst;
@@ -137,7 +151,7 @@ VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : CO
         static ColoredVertexesRenderStrategy() {
             pass = new D3DShaderTechniquePass(new IShaderInfo[] {
                 new ShaderInMemoryInfo("CV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                new ShaderInMemoryInfo("CV_FragmentShader", pixelShaderOnlyColor, null, ShaderStages.Fragment.ToString(), "main"),
+                new ShaderInMemoryInfo("CV_FragmentShader", pixelShaderText, null, ShaderStages.Fragment.ToString(), "main"),
             });
             layconst = new VertexLayoutConstructor()
                .AddPositionElementAsVector3()

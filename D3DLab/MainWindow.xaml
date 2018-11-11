@@ -9,6 +9,7 @@
         xmlns:debug="clr-namespace:D3DLab.Debugger.Windows;assembly=D3DLab.Debugger"
         xmlns:debugsys="clr-namespace:D3DLab.Debugger.Presentation.SystemList;assembly=D3DLab.Debugger"
         mc:Ignorable="d"
+        AllowDrop="True" Drop="Window_Drop"
         Title="MainWindow" Height="540" Width="960">
     <Window.Resources>
         <local:MainWindowViewModel x:Key="ViewModel" />
@@ -75,6 +76,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="200"/>
                 </Grid.ColumnDefinitions>
 
                 <!--TOP-->
@@ -100,7 +102,7 @@
                 </TabControl>
 
                 <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White" 
-                           Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="2">
+                           Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2">
                     <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
                     <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
                 </DockPanel>
@@ -108,7 +110,7 @@
                 <!---->
 
 
-                <!--<ListBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="Black" Width="200" Opacity="0.8"
+                <!--<ListBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Background="Black" Opacity="0.8"
                          ItemsSource="{Binding Items}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -119,6 +121,8 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>-->
+                
+                
             </Grid>
         </controls:OverlayPanel>
 

@@ -12,6 +12,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         List<int> Indices { get; }
         List<Vector4> Colors { get; }
     }
+
     public class GroupGeometryComponent : GraphicComponent, ICollection<GeometryComponent>, IGeometryComponent {
 
         public List<Vector3> Positions => combined.Positions;
@@ -24,9 +25,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         public int Count => groups.Count;
 
         public bool IsReadOnly => false;
-
-        public bool IsModified { get; set; }
-
+        
         AbstractGeometry3D combined;
 
         public GroupGeometryComponent() {

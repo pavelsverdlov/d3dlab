@@ -15,5 +15,12 @@ namespace D3DLab {
             var dc = DataContext as MainWindowViewModel;
             dc.Init(Host, overlay);
         }
+
+        private void Window_Drop(object sender, DragEventArgs e) {
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if(DataContext is IDropFiles drop) {
+                drop.Dropped(files);
+            }
+        }
     }
 }

@@ -124,7 +124,10 @@ namespace D3DLab.SDX.Engine {
                 depthStencilView = new DepthStencilView(Device, zBufferTexture);
             }
             var depthDisabledStencilDesc = new DepthStencilStateDescription() {
-                IsDepthEnabled = false,
+                // true - correct overlap objects based on depth 
+                // false - overlap based on rendering order
+                IsDepthEnabled = true, 
+
                 DepthWriteMask = DepthWriteMask.All,
                 DepthComparison = Comparison.Less,
                 IsStencilEnabled = true,
@@ -156,7 +159,20 @@ namespace D3DLab.SDX.Engine {
 
             //with zbuffer / DepthStencil
             ImmediateContext.OutputMerger.SetDepthStencilState(depthDisabledStencilState, 0);
-            
+
+            //var blendStateDesc = new BlendStateDescription();
+            //blendStateDesc.RenderTarget[0].IsBlendEnabled = true;
+            //blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+            //blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+            //blendStateDesc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+            //blendStateDesc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+            //blendStateDesc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
+            //blendStateDesc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+            //blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+            //var blend = new BlendState(Device, blendStateDesc);
+
+            //var blendFactor = new Color4(0, 0, 0, 0);
+            //Device.ImmediateContext.OutputMerger.SetBlendState(blend, blendFactor, -1);
         }
 
         public GraphicsFrame FrameBegin() {

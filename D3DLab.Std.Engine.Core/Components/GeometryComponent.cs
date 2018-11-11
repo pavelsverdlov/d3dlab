@@ -33,7 +33,6 @@ namespace D3DLab.Std.Engine.Core.Components {
             IsModified = true;
         }
 
-        public bool IsModified { get; set; }
         public void MarkAsRendered() {
             IsModified = false;
         }

@@ -1,5 +1,7 @@
-﻿using D3DLab.Std.Engine.Core.Common;
+﻿using D3DLab.Plugin.Contracts.Parsers;
+using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Utilities.Helix;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,18 +9,20 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
-namespace D3DLab.Std.Engine.Core.Utilities.Helix {
+namespace OBJGeometryParser {
     using Object3DGroup = System.Collections.Generic.List<Object3D>;
-   
+    //public enum MeshFaces {
+    //    Default,
+    //    QuadPatches,
+    //}
 
-    public struct ModelInfo {
+    internal struct ModelInfo {
         public MeshFaces Faces { get; set; }
         public bool Normals { get; set; }
         public bool Tangents { get; set; }
     }
-    public class Object3D {
+    internal class Object3D {
         public AbstractGeometry3D Geometry { get; set; }
         public ObjReader.MaterialDefinition Material { get; set; }
         public Matrix4x4 Transform { get; set; }
@@ -35,7 +39,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
     /// http://www.martinreddy.net/gfx/3d/OBJ.spec
     /// http://www.eg-models.de/formats/Format_Obj.html
     /// </remarks>
-    public class ObjReader {
+    internal class ObjReader {
         /// <summary>
         /// Initializes a new instance of the <see cref = "ObjReader" /> class.
         /// </summary>
@@ -45,7 +49,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
             this.IsSmoothingDefault = true;
             this.SkipTransparencyValues = true;
 
-            this.DefaultColor = new Vector4(1,0,0,0);//Red
+            this.DefaultColor = new Vector4(1, 0, 0, 0);//Red
 
             this.Points = new List<Vector3>();
             this.TextureCoordinates = new List<Vector2>();
@@ -813,7 +817,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
                 }
             }
         }
-        
+
         /// <summary>
         /// Represents a group in the obj file.
         /// </summary>
@@ -850,7 +854,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
                     this.materials[this.materials.Count - 1] = value;
                 }
                 get {
-                    if(this.materials.Count == 0) {
+                    if (this.materials.Count == 0) {
                         this.materials.Add(new MaterialDefinition());
                     }
                     return this.materials[this.materials.Count - 1];
@@ -911,7 +915,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
         /// The file format is documented in http://en.wikipedia.org/wiki/Material_Template_Library.
         /// </remarks>
         public class MaterialDefinition {
-      
+
             public MaterialDefinition() {
                 this.Dissolved = 1.0;
             }
@@ -985,6 +989,37 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
             /// <value>The specular map.</value>
             public string SpecularMap { get; set; }
             public string Name { get; set; }
+        }
+    }
+
+
+    [System.ComponentModel.Composition.Export(typeof(IFileParserPlugin))]
+    public class OBJParser : IFileParserPlugin {
+        public string Name => "Simple OBJ parser";
+        const string ex = ".obj";
+
+        public bool IsSupport(string fileExtention) {
+            return string.Compare(fileExtention, ex, true) == 0;
+        }
+
+        public void Parse(Stream stream, IParseResultVisiter visiter) {
+            var readerA = new ObjReader();
+            var res = readerA.Read(stream);
+            var meshes = new List<AbstractGeometry3D>();
+
+            var colors = new Vector4[4];
+            colors[0] = new Vector4(1, 0, 0, 1);
+            colors[1] = new Vector4(0, 1, 0, 1);
+            colors[2] = new Vector4(0, 0, 1, 1);
+            colors[3] = new Vector4(1, 1, 0, 1);
+
+            for (int i = 0; i < res.Count; i++) {
+                Object3D m = res[i];
+                var mesh = m.Geometry;
+                mesh.Color = colors.Length > i ? colors[i] : colors[0];
+                meshes.Add(mesh);
+            }
+            visiter.Handle(meshes);
         }
     }
 }

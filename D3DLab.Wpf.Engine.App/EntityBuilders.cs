@@ -116,5 +116,17 @@ namespace D3DLab.Wpf.Engine.App {
                .AddComponent(new SDX.Engine.Components.D3DTransformComponent())
                .Tag;
         }
+
+
+        #region components 
+
+        public static GraphicEntity AddRenderAsTriangleColored(this GraphicEntity en) {
+            return en.AddComponent(new SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent());
+        }
+        public static GraphicEntity AddTransformation(this GraphicEntity en) {
+            return en.AddComponent(new SDX.Engine.Components.D3DTransformComponent());
+        }
+
+        #endregion
     }
 }

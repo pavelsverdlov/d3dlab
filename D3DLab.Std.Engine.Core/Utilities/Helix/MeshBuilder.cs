@@ -6,6 +6,10 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Utilities.Helix {
+    public enum MeshFaces {
+        Default,
+        QuadPatches,
+    }
     [Flags]
     public enum BoxFaces {
         /// <summary>

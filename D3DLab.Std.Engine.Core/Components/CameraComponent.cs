@@ -125,11 +125,12 @@ namespace D3DLab.Std.Engine.Core.Components {
             UpDirection = Vector3.UnitY;
             Width = 35f;
             FieldOfViewRadians = 1.05f;
-            NearPlaneDistance = 0.3f;
-            FarPlaneDistance = 30f;
+            NearPlaneDistance = 0.01f;
             LookDirection = ForwardRH;
+            Position = Vector3.UnitZ * Width * 10f;
 
-            Position = Vector3.UnitZ * Width * 2f;
+            FarPlaneDistance = Position.Length() * 5;
+
             scale = 1;
         }
     }

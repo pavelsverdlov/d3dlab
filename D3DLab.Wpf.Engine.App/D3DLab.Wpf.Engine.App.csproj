@@ -168,6 +168,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoordinateSystemLinesGameObject.cs" />
     <Compile Include="EntityBuilders.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="Host\FormsHost.cs" />
