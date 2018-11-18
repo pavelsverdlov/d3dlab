@@ -8,6 +8,7 @@
         xmlns:controls="clr-namespace:D3DLab.UI.Controls;assembly=D3DLab.UI"
         xmlns:debug="clr-namespace:D3DLab.Debugger.Windows;assembly=D3DLab.Debugger"
         xmlns:debugsys="clr-namespace:D3DLab.Debugger.Presentation.SystemList;assembly=D3DLab.Debugger"
+        xmlns:debugconsole="clr-namespace:D3DLab.Debugger.Presentation.ScriptConsole;assembly=D3DLab.Debugger"
         mc:Ignorable="d"
         AllowDrop="True" Drop="Window_Drop"
         Title="MainWindow" Height="540" Width="960">
@@ -85,6 +86,7 @@
                     <DockPanel Height="50" >
                         <Button Style="{StaticResource ButtonManipulate}" Margin="5,5,5,5"/>
                         <Button Style="{StaticResource ButtonCentered}" Margin="0,5,0,5" Command="{Binding MoveToCenterWorld}"/>
+                        <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" Margin="5" />
                     </DockPanel>
                 </Border>
 
@@ -101,11 +103,21 @@
                     </TabItem>
                 </TabControl>
 
-                <DockPanel VerticalAlignment="Bottom" Opacity="0.5" Background="White" 
-                           Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2">
-                    <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" />
-                    <TextBlock FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">yupp, that's an overlay panel</TextBlock>
-                </DockPanel>
+                <StackPanel Orientation="Vertical" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2" >
+                    <ListBox Background="Black" ItemsSource="{Binding ConsoleOutput}" HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Bottom" BorderBrush="White" BorderThickness="1" Height="80"
+                           Padding="5"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <debugconsole:ScriptsConsoleView DataContext="{Binding ScriptsConsole}"/>
+                </StackPanel>
+                
 
                 <!---->
 
@@ -121,8 +133,8 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>-->
-                
-                
+
+
             </Grid>
         </controls:OverlayPanel>
 

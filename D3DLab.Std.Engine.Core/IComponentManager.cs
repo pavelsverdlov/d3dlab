@@ -4,9 +4,14 @@ namespace D3DLab.Std.Engine.Core {
     public interface IComponentManager : ISynchronizationContext {
         IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com);
         void RemoveComponent(ElementTag tagEntity, IGraphicComponent com);
-        T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent;
+        void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent;
+
+
+       T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent;
         IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent;
         IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity);
+        T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent;
+
         bool Has<T>(ElementTag tag) where T : IGraphicComponent;
 
         void Dispose();

@@ -49,8 +49,8 @@
       <HintPath>..\packages\Microsoft.CodeAnalysis.Scripting.Common.2.4.0\lib\netstandard1.3\Microsoft.CodeAnalysis.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.4.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -107,7 +107,7 @@
     <Compile Include="IDE\Visitor.cs" />
     <Compile Include="Infrastructure\IVisualEntity.cs" />
     <Compile Include="Model\VisualComponentItem.cs" />
-    <Compile Include="MonadExt.cs" />
+    <Compile Include="NumericsTypes.cs" />
     <Compile Include="Presentation\OpenPropertiesEditorCommand.cs" />
     <Compile Include="Presentation\OpenShaderEditorCommand.cs" />
     <Compile Include="Presentation\PropertiesEditor\EditPropertyMultiValueConverter.cs" />
@@ -116,6 +116,10 @@
       <DependentUpon>PropertiesEditorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation\PropertiesEditor\Vector3ToStringConverter.cs" />
+    <Compile Include="Presentation\ScriptConsole\ScriptsConsoleView.xaml.cs">
+      <DependentUpon>ScriptsConsoleView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation\ScriptConsole\ScriptsConsoleVM.cs" />
     <Compile Include="Presentation\SystemList\SystemViewPresenter.cs" />
     <Compile Include="Presentation\SystemList\SystemsView.xaml.cs">
       <DependentUpon>SystemsView.xaml</DependentUpon>
@@ -140,6 +144,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation\PropertiesEditor\PropertiesEditorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation\ScriptConsole\ScriptsConsoleView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

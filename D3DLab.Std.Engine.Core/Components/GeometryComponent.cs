@@ -1,20 +1,17 @@
 ﻿using D3DLab.Std.Engine.Core.Ext;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
-    public class ColorComponent : GraphicComponent {
-        public Vector4 Color { get; set; }
-    }
-
     public class GeometryComponent : GraphicComponent, IGeometryComponent {
-        public virtual List<Vector3> Positions { get; set; }
-        public virtual List<Vector3> Normals { get; set; }
-        public virtual List<Vector4> Colors {
+        public virtual ImmutableArray<Vector3> Positions { get; set; }
+        public virtual ImmutableArray<Vector3> Normals { get; set; }
+        public virtual ImmutableArray<Vector4> Colors {
             get {
                 if (!colors.Any()) {
-                    return Positions.Count.SelectToList(() => Color);
+                    colors = Positions.Length.SelectToList(() => Color).ToImmutableArray();
                 }
                 return colors;
             }
@@ -22,14 +19,15 @@ namespace D3DLab.Std.Engine.Core.Components {
                 colors = value;
             }
         }
-        public List<Vector2> TextureCoordinates { get; set; }
-        public List<int> Indices { get; set; }
+        public ImmutableArray<Vector2> TextureCoordinates { get; set; }
+        public ImmutableArray<int> Indices { get; set; }
         public Vector4 Color { get; set; }
 
-        List<Vector4> colors;
+        ImmutableArray<Vector4> colors;
 
         public GeometryComponent() {
-            colors = new List<Vector4>();
+            colors = ImmutableArray<Vector4>.Empty;
+            TextureCoordinates = ImmutableArray<Vector2>.Empty;
             IsModified = true;
         }
 

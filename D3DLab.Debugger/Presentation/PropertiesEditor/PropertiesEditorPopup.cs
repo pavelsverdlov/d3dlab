@@ -1,4 +1,5 @@
 ﻿using D3DLab.Debugger.Windows;
+using D3DLab.Std.Engine.Core.Ext;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -292,14 +293,19 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                 group.Title = name;
 
                 if (type.IsValueType && !type.IsEnum) {
-                    switch (type.FullName) {
-                        case "System.Numerics.Vector3":
-                            group.AddVector(name, val, x => { pr.SetValue(com, x); });
-                            break;
-                        default:
-                            group.AnalyzeValueType(val, group, type);
-                            break;
+                    if (NumericsTypes.IsVector3(type)) {
+                        group.AddVector(name, val, x => { pr.SetValue(com, x); });
+                    } else {
+                        group.AnalyzeValueType(val, group, type);
                     }
+                    //switch (type.FullName) {
+                    //    case "System.Numerics.Vector3":
+                    //        group.AddVector(name, val, x => { pr.SetValue(com, x); });
+                    //        break;
+                    //    default:
+                    //        group.AnalyzeValueType(val, group, type);
+                    //        break;
+                    //}
                 } else if (type.IsArray) {
                     var array = ((Array)val);
                     foreach (var i in array) {

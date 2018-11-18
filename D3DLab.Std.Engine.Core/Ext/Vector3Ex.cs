@@ -36,6 +36,12 @@ namespace D3DLab.Std.Engine.Core.Ext {
             return new Vector3(v.X, v.Y, v.Z);
         }
       
+        public static Vector3 Round(this Vector3 v, int round) {
+            return new Vector3(
+                (float)Math.Round(v.X, round),
+                (float)Math.Round(v.Y, round), 
+                (float)Math.Round(v.Z, round));
+        }
 
 
         public static Matrix4x4 RotationAround(this Vector3 axis, float angleRadians) {

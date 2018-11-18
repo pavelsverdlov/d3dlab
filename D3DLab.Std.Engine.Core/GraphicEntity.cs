@@ -21,6 +21,9 @@ namespace D3DLab.Std.Engine.Core {
         public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent {
             return manager.GetComponents<T>(Tag);
         }
+        public T GetOrCreateComponent<T>(T newone) where T : IGraphicComponent {
+            return manager.GetOrCreateComponent<T>(Tag, newone);
+        }
 
         public GraphicEntity AddComponent<T>(T component) where T : IGraphicComponent {
             manager.AddComponent(Tag, component);
@@ -28,6 +31,9 @@ namespace D3DLab.Std.Engine.Core {
         }
         public void RemoveComponent(IGraphicComponent component) {
             manager.RemoveComponent(Tag, component);            
+        }
+        public void RemoveComponents<T>() where T : IGraphicComponent {
+            manager.RemoveComponents<T>(Tag);
         }
         public void RemoveComponentsOfType<TCom>() where TCom : IGraphicComponent {
             foreach (var component in manager.GetComponents<TCom>(Tag)) {

@@ -10,7 +10,7 @@ cbuffer Lights : register(b1) {
 	Light lights[3];
 }
 
-float computeLight(float3 position, float3 normal) {
+float computeLight(float3 position, float3 normal, float3 traceRay, float specular) {
 	float intensity = 0.0;
 	for (int i = 0; i < 3; ++i) {
 		Light l = lights[i];
@@ -28,9 +28,11 @@ float computeLight(float3 position, float3 normal) {
 				lightDir = l.Direction;
 			}
 			float dotval = dot(normal, lightDir);
-			if (dotval > 0) {
+			if (dotval > 0) {//diffuse
 				intensity += l.Intensity * dotval / (length(normal) * length(lightDir));
 			}
+			//specular
+
 		}
 	}
 	return intensity;

@@ -9,6 +9,40 @@ using System;
 using System.Diagnostics;
 
 namespace D3DLab.SDX.Engine {
+
+    public class SynchronizedGraphics : ISynchronizationContext {
+        struct Size {
+            public float Width;
+            public float Height;
+        }
+        internal event Action<GraphicsDevice> Changed;
+        internal GraphicsDevice Device;
+        readonly IAppWindow window;
+        readonly SynchronizationContext<SynchronizedGraphics, Size> synchronizer;
+
+        public SynchronizedGraphics(IAppWindow window) {
+            Device = new GraphicsDevice(window);
+            window.Resized += OnResized;
+            this.window = window;
+            synchronizer = new SynchronizationContext<SynchronizedGraphics, Size>(this);
+        }
+
+        private void OnResized() {
+            synchronizer.Add((_this, size) => {
+                _this.Device.Resize(size.Width, size.Height);
+                Changed(_this.Device);
+            }, new Size { Height = window.Height, Width = window.Width });
+        }
+
+        internal void Dispose() {
+            Device.Dispose();
+        }
+
+        public void Synchronize() {
+            synchronizer.Synchronize();
+        }
+    }
+
     public sealed class AdapterFactory {
         public static event Func<Adapter[], int, Adapter> SelectAdapter;
 
@@ -56,36 +90,37 @@ namespace D3DLab.SDX.Engine {
         }
     }
 
-
     internal class GraphicsDevice {
         public readonly D3DShaderCompilator Compilator;
 
-        internal readonly SharpDX.Direct3D11.Device Device;
-        internal readonly DeviceContext ImmediateContext;
-        readonly RenderTargetView renderTargetView;
-        readonly DepthStencilView depthStencilView;
+        internal SharpDX.Direct3D11.Device D3DDevice { get; private set; }
+        internal DeviceContext ImmediateContext { get; private set; }
+        RenderTargetView renderTargetView;
+        DepthStencilView depthStencilView;
 
-        readonly SwapChain swapChain;        
-        readonly IAppWindow window;
-        int Width => (int)window.Width;
-        int Height => (int)window.Height;
+        readonly SwapChain swapChain;
+        readonly IntPtr handle;
 
         public GraphicsDevice(IAppWindow window) {
-            this.window = window;
+            this.handle = window.Handle;
 
             Compilator = new D3DShaderCompilator();
             Compilator.AddIncludeMapping("Game", "D3DLab.SDX.Engine.Rendering.Shaders.Game.hlsl");
             Compilator.AddIncludeMapping("Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl");
+            Compilator.AddIncludeMapping("Math", "D3DLab.SDX.Engine.Rendering.Shaders.Math.hlsl");
 
-            var backBufferDesc = new ModeDescription(Width, Height, new Rational(60, 1), Format.R8G8B8A8_UNorm);
+            var width = (int)window.Width;
+            var height = (int)window.Height;
+
+            var backBufferDesc = new ModeDescription(width, height, new Rational(60, 1), Format.R8G8B8A8_UNorm);
 
             // Descriptor for the swap chain
             var swapChainDesc = new SwapChainDescription() {
                 ModeDescription = backBufferDesc,
                 SampleDescription = new SampleDescription(1, 0),
                 Usage = Usage.RenderTargetOutput,
-                BufferCount = 1,
-                OutputHandle = window.Handle,
+                BufferCount = 2,
+                OutputHandle = handle,
                 IsWindowed = true
             };
 
@@ -96,37 +131,56 @@ namespace D3DLab.SDX.Engine {
             SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, DeviceCreationFlags.Debug, swapChainDesc, out var d3dDevice, out var sch);
 
             swapChain = sch.QueryInterface<SwapChain4>();
-            Device = d3dDevice.QueryInterface<Device5>();
-
+            D3DDevice = d3dDevice.QueryInterface<Device5>();
+            
             ImmediateContext = d3dDevice.ImmediateContext;
 
-            
+            CreateBuffers(width, height);
+        }
 
-            // Create render target view for back buffer
+        public void Dispose() {
+            renderTargetView.Dispose();
+            D3DDevice.Dispose();
+            swapChain.Dispose();
+        }
+
+        public void Resize(float w, float h) {
+            var width = (int)w;
+            var height = (int)h;
+
+            renderTargetView.Dispose();
+            depthStencilView.Dispose();
+
+            swapChain.ResizeBuffers(2, width, height, Format.R8G8B8A8_UNorm, SwapChainFlags.None);
+
+            CreateBuffers(width, height);
+        }
+
+        void CreateBuffers(int width, int height) {
             using (Texture2D backBuffer = swapChain.GetBackBuffer<Texture2D>(0)) {
-                renderTargetView = new RenderTargetView(d3dDevice, backBuffer);
+                renderTargetView = new RenderTargetView(D3DDevice, backBuffer);
             }
 
             var zBufferTextureDescription = new Texture2DDescription {
                 Format = Format.D16_UNorm,
                 ArraySize = 1,
                 MipLevels = 1,
-                Width = Width,
-                Height = Height,
+                Width = width,
+                Height = height,
                 SampleDescription = new SampleDescription(1, 0),
                 Usage = ResourceUsage.Default,
                 BindFlags = BindFlags.DepthStencil,
                 CpuAccessFlags = CpuAccessFlags.None,
                 OptionFlags = ResourceOptionFlags.None
             };
-            
-            using (var zBufferTexture = new Texture2D(Device, zBufferTextureDescription)) { 
-                depthStencilView = new DepthStencilView(Device, zBufferTexture);
+
+            using (var zBufferTexture = new Texture2D(D3DDevice, zBufferTextureDescription)) {
+                depthStencilView = new DepthStencilView(D3DDevice, zBufferTexture);
             }
             var depthDisabledStencilDesc = new DepthStencilStateDescription() {
                 // true - correct overlap objects based on depth 
                 // false - overlap based on rendering order
-                IsDepthEnabled = true, 
+                IsDepthEnabled = true,
 
                 DepthWriteMask = DepthWriteMask.All,
                 DepthComparison = Comparison.Less,
@@ -148,9 +202,9 @@ namespace D3DLab.SDX.Engine {
                     Comparison = Comparison.Always
                 }
             };
-            var depthDisabledStencilState = new DepthStencilState(Device, depthDisabledStencilDesc);
+            var depthDisabledStencilState = new DepthStencilState(D3DDevice, depthDisabledStencilDesc);
 
-            var viewport = new Viewport(0, 0, Width, Height);
+            var viewport = new Viewport(0, 0, width, height);
             ImmediateContext.Rasterizer.SetViewport(viewport);
             ImmediateContext.OutputMerger.SetTargets(depthStencilView, renderTargetView);
 
@@ -179,12 +233,11 @@ namespace D3DLab.SDX.Engine {
             return new GraphicsFrame(this);
         }
 
-
         internal void UpdateRasterizerState(RasterizerStateDescription descr) {
-            ImmediateContext.Rasterizer.State = new RasterizerState(Device, descr);
+            ImmediateContext.Rasterizer.State = new RasterizerState(D3DDevice, descr);
         }
 
-        public void Refresh() {           
+        public void Refresh() {
             ImmediateContext.ClearDepthStencilView(depthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
             ImmediateContext.ClearRenderTargetView(renderTargetView, new RawColor4(0, 0, 0, 0));
         }
@@ -222,23 +275,19 @@ namespace D3DLab.SDX.Engine {
             //}
         }
 
-        public void Dispose() {
-            renderTargetView.Dispose();
-            Device.Dispose();
-            swapChain.Dispose();
-        }
+
 
         public SharpDX.Direct3D11.Buffer CreateBuffer<T>(BindFlags flags, ref T range)
             where T : struct {
-            return SharpDX.Direct3D11.Buffer.Create(Device, flags, ref range);
+            return SharpDX.Direct3D11.Buffer.Create(D3DDevice, flags, ref range);
         }
         public SharpDX.Direct3D11.Buffer CreateBuffer<T>(BindFlags flags, T[] range)
            where T : struct {
-            return SharpDX.Direct3D11.Buffer.Create(Device, flags, range);
+            return SharpDX.Direct3D11.Buffer.Create(D3DDevice, flags, range);
         }
-        public SharpDX.Direct3D11.Buffer CreateBuffer<T>(T[] range,  BufferDescription desc)
+        public SharpDX.Direct3D11.Buffer CreateBuffer<T>(T[] range, BufferDescription desc)
           where T : struct {
-            return SharpDX.Direct3D11.Buffer.Create(Device, range, desc);
+            return SharpDX.Direct3D11.Buffer.Create(D3DDevice, range, desc);
         }
         /// <summary>
         /// For referrence types and any arrays
@@ -250,12 +299,12 @@ namespace D3DLab.SDX.Engine {
         /// <returns></returns>
         public SharpDX.Direct3D11.Buffer CreateDynamicBuffer<T>(T[] range, int sizeInBytes)
          where T : struct {
-            return SharpDX.Direct3D11.Buffer.Create(Device, range, new BufferDescription {
+            return SharpDX.Direct3D11.Buffer.Create(D3DDevice, range, new BufferDescription {
                 BindFlags = BindFlags.ConstantBuffer,
                 CpuAccessFlags = CpuAccessFlags.Write,
                 OptionFlags = ResourceOptionFlags.None,
                 Usage = ResourceUsage.Dynamic,
-              //  StructureByteStride = structureByteStride,
+                //  StructureByteStride = structureByteStride,
                 SizeInBytes = sizeInBytes
             });
         }
@@ -263,7 +312,7 @@ namespace D3DLab.SDX.Engine {
         //stream.Write(light.GetStructLayoutResource());
         //context.UnmapSubresource(lightDataBuffer, LightStructLayout.RegisterResourceSlot);
 
-        public void UpdateDynamicBuffer<T>(T[] newdata, SharpDX.Direct3D11.Buffer buffer, int slot) where T : struct{
+        public void UpdateDynamicBuffer<T>(T[] newdata, SharpDX.Direct3D11.Buffer buffer, int slot) where T : struct {
             SharpDX.DataStream stream = null;
             try {
                 SharpDX.DataBox src = ImmediateContext.MapSubresource(buffer, slot, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None, out stream);
@@ -277,6 +326,7 @@ namespace D3DLab.SDX.Engine {
         public void UpdateSubresource<T>(ref T data, SharpDX.Direct3D11.Buffer buff, int subresource) where T : struct {
             ImmediateContext.UpdateSubresource(ref data, buff, subresource);
         }
+
 
     }
 }

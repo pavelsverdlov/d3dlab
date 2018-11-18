@@ -8,11 +8,18 @@ namespace D3DLab.Std.Engine.Core.Shaders {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct GameStructBuffer {
         public const int RegisterResourceSlot = 0;
+
+        public readonly Vector4 LookDirection;
+
         public readonly Matrix4x4 View;
         public readonly Matrix4x4 Projection;
-        public GameStructBuffer(Matrix4x4 view, Matrix4x4 proj) {
+
+      //  
+
+        public GameStructBuffer(Matrix4x4 view, Matrix4x4 proj, Vector3 lookDirection) {
             View = view;
             Projection = proj;
+            LookDirection = new Vector4(lookDirection,1);// Matrix4x4.Identity ;// lookDirection;
         }
     }
 

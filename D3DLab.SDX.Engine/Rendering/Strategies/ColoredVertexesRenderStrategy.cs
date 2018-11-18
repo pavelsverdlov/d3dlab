@@ -1,17 +1,14 @@
 ﻿using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Shader;
-using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Shaders;
 using SharpDX.D3DCompiler;
-using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace D3DLab.SDX.Engine.Rendering.Strategies {
     internal interface IRenderStrategy {
@@ -22,37 +19,34 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
     internal abstract class RenderStrategy {
 
-        #region default shaders
-
-       
-
-        #endregion
-
         protected readonly D3DShaderCompilator compilator;
-
+        readonly IRenderTechniquePass pass;
+        readonly VertexLayoutConstructor layoutConstructor;
         protected VertexShader vertexShader;
         protected PixelShader pixelShader;
         protected GeometryShader geometryShader;
         protected InputLayout layout;
 
-        protected RenderStrategy(D3DShaderCompilator compilator) {
+        protected RenderStrategy(D3DShaderCompilator compilator, IRenderTechniquePass pass, VertexLayoutConstructor layoutConstructor) {
             this.compilator = compilator;
+            this.pass = pass;
+            this.layoutConstructor = layoutConstructor;
         }
 
         public void Render(GraphicsDevice graphics,
             SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
-            var device = graphics.Device;
+            var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
             var pass = GetPass();
 
             if (!pass.IsCompiled) {
-                CompileShaders(graphics, pass, GetLayoutConstructor());
+                CompileShaders(graphics, pass, layoutConstructor);
             }
 
             graphics.ImmediateContext.InputAssembler.InputLayout = layout;
 
-            context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
-            context.PixelShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
+            //context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
+            //context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
 
             if (vertexShader != null) {
                 context.VertexShader.Set(vertexShader);
@@ -60,21 +54,23 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             if (geometryShader != null) {
                 context.GeometryShader.Set(geometryShader);
             }
+            context.GeometryShader.Dispose();
             if (pixelShader != null) {
                 context.PixelShader.Set(pixelShader);
             }
 
-            Rendering(graphics);
+            Rendering(graphics, gameDataBuffer, lightDataBuffer);
+
         }
 
-        public abstract IRenderTechniquePass GetPass();
-        protected abstract VertexLayoutConstructor GetLayoutConstructor();
-        protected abstract void Rendering(GraphicsDevice graphics);
+        public IRenderTechniquePass GetPass() => pass;
+
+        protected abstract void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer);
 
         protected void CompileShaders(GraphicsDevice graphics, IRenderTechniquePass pass, VertexLayoutConstructor layconst) {
-            var device = graphics.Device;
+            var device = graphics.D3DDevice;
             //if (!pass.IsCompiled) {
-                pass.Compile(compilator);
+            pass.Compile(compilator);
             //}
 
             var vertexShaderByteCode = pass.VertexShader.ReadCompiledBytes();
@@ -94,100 +90,30 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
                 pixelShader = new PixelShader(device, pass.PixelShader.ReadCompiledBytes());
             }
 
-            
+
         }
 
     }
 
     internal class ColoredVertexesRenderStrategy : RenderStrategy, IRenderStrategy {
 
-        #region shaders
-
-        const string vertexShaderText =
-@"
-#include ""Game""
-
-struct VSOut
-{
-    float4 position : SV_POSITION;
-    float4 normal : NORMAL;
-    float4 color : COLOR;
-};
-VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR) { 
-    VSOut output = (VSOut)0;
-    
-    output.position = mul(World, position);
-    output.position = mul(View, output.position);
-    output.position = mul(Projection, output.position);
-
-    output.normal = mul(World, normal);
-    output.normal = normalize(output.normal);
-
-    output.color = color ;
-
-    return output;
-}
-";
-
-        protected const string pixelShaderText =
-@"
-#include ""Light""
-
-struct PSIn
-{
-    float4 position : SV_POSITION;
-    float4 normal : NORMAL;
-    float4 color : COLOR;
-};
-float4 main(PSIn input) : SV_TARGET {
-    return input.color * computeLight(input.position.xyz, input.normal);
-}
-";
-        #endregion
-
-        static readonly D3DShaderTechniquePass pass;
-        static readonly VertexLayoutConstructor layconst;
-
-        static ColoredVertexesRenderStrategy() {
-            pass = new D3DShaderTechniquePass(new IShaderInfo[] {
-                new ShaderInMemoryInfo("CV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                new ShaderInMemoryInfo("CV_FragmentShader", pixelShaderText, null, ShaderStages.Fragment.ToString(), "main"),
-            });
-            layconst = new VertexLayoutConstructor()
-               .AddPositionElementAsVector3()
-               .AddNormalElementAsVector3()
-               .AddColorElementAsVector4();
-        }
-
         readonly List<Tuple<D3DTriangleColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>> entities;
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct VertexPositionColor {
-            public readonly Vector3 Position;
-            public readonly Vector3 Normal;
-            public readonly Vector4 Color;
-
-            public VertexPositionColor(Vector3 position, Vector3 normal, Vector4 color) {
-                Position = position;
-                Normal = normal;
-                Color = color;
-            }
+        public ColoredVertexesRenderStrategy(D3DShaderCompilator compilator, IRenderTechniquePass pass, VertexLayoutConstructor layoutConstructor) :
+            base(compilator, pass, layoutConstructor) {
+            entities = new List<Tuple<D3DTriangleColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>>();
         }
-
-        public ColoredVertexesRenderStrategy(D3DShaderCompilator compilator) : base(compilator) {
-            entities = new List<Tuple<D3DTriangleColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>>();            
-        }
-
-        public override IRenderTechniquePass GetPass() => pass;
-        protected override VertexLayoutConstructor GetLayoutConstructor() => layconst;
 
         public void RegisterEntity(Components.D3DTriangleColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr) {
             entities.Add(Tuple.Create(rcom, geocom, tr));
         }
 
-        protected override void Rendering(GraphicsDevice graphics) {
-            var device = graphics.Device;
+        protected override void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
+            var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
+
+            context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
+            context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
 
             foreach (var en in entities) {
                 var renderCom = en.Item1;
@@ -199,9 +125,9 @@ float4 main(PSIn input) : SV_TARGET {
                 if (geometryCom.IsModified) {
                     try {
                         var indexes = geometryCom.Indices.ToArray();
-                        VertexPositionColor[] vertices = new VertexPositionColor[geometryCom.Positions.Count];
+                        var vertices = new StategyStaticShaders.ColoredVertexes.VertexPositionColor[geometryCom.Positions.Length];
                         for (var index = 0; index < vertices.Length; index++) {
-                            vertices[index] = new VertexPositionColor(geometryCom.Positions[index], geometryCom.Normals[index], geometryCom.Colors[index]);
+                            vertices[index] = new StategyStaticShaders.ColoredVertexes.VertexPositionColor(geometryCom.Positions[index], geometryCom.Normals[index], geometryCom.Colors[index]);
                         }
                         geometryCom.MarkAsRendered();
 
@@ -210,7 +136,7 @@ float4 main(PSIn input) : SV_TARGET {
 
                         renderCom.VertexBuffer = graphics.CreateBuffer(BindFlags.VertexBuffer, vertices);
                         renderCom.IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, indexes);
-                    }catch(Exception ex) {
+                    } catch (Exception ex) {
                         ex.ToString();
                         throw ex;
                     }
@@ -231,11 +157,11 @@ float4 main(PSIn input) : SV_TARGET {
                 context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, trcom.TransformBuffer);
 
                 context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer,
-                    Unsafe.SizeOf<VertexPositionColor>(), 0));
+                    Unsafe.SizeOf<StategyStaticShaders.ColoredVertexes.VertexPositionColor>(), 0));
                 context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer, Format.R32_UInt, 0);//R32_SInt
 
                 graphics.UpdateRasterizerState(renderCom.RasterizerState.GetDescription());
-                graphics.ImmediateContext.DrawIndexed(geometryCom.Indices.Count, 0, 0);
+                graphics.ImmediateContext.DrawIndexed(geometryCom.Indices.Length, 0, 0);
             }
         }
 

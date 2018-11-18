@@ -89,6 +89,22 @@ namespace D3DLab.SDX.Engine.Components {
         }
     }
 
+    public class D3DSphereRenderComponent : D3DRenderComponent, ID3DRenderableComponent {
+        public D3DSphereRenderComponent() {
+            RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
+                CullMode = CullMode.None,
+                FillMode = FillMode.Solid,
+                IsMultisampleEnabled = false,
+                IsAntialiasedLineEnabled = false
+            });
+            PrimitiveTopology = PrimitiveTopology.PointList;
+        }
+        
+        void ID3DRenderableComponent.Accept(RenderFrameStrategiesVisitor visitor) {
+            visitor.Visit(this);
+        }
+    }
+
     public class D3DShadersRenderComponent { //IShadersContainer
 
     }

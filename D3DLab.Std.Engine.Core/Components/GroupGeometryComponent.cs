@@ -1,24 +1,25 @@
 ﻿using D3DLab.Std.Engine.Core.Common;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
     public interface IGeometryComponent : IGraphicComponent {
         void MarkAsRendered();
 
-        List<Vector3> Positions { get; }
-        List<Vector3> Normals { get; }
-        List<int> Indices { get; }
-        List<Vector4> Colors { get; }
+        ImmutableArray<Vector3> Positions { get; }
+        ImmutableArray<Vector3> Normals { get; }
+        ImmutableArray<int> Indices { get; }
+        ImmutableArray<Vector4> Colors { get; }
     }
 
     public class GroupGeometryComponent : GraphicComponent, ICollection<GeometryComponent>, IGeometryComponent {
 
-        public List<Vector3> Positions => combined.Positions;
-        public List<int> Indices => combined.Indices;
-        public List<Vector4> Colors => combined.Colors;
-        public List<Vector3> Normals => combined.Normals;
+        public ImmutableArray<Vector3> Positions {get;private set;}
+        public ImmutableArray<int>     Indices       {get;private set;}
+        public ImmutableArray<Vector4> Colors    {get;private set;}
+        public ImmutableArray<Vector3> Normals   { get; private set; }
 
         readonly List<GeometryComponent> groups;
 
@@ -26,8 +27,6 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         public bool IsReadOnly => false;
         
-        AbstractGeometry3D combined;
-
         public GroupGeometryComponent() {
             IsModified = true;
             groups = new List<GeometryComponent>();
@@ -36,7 +35,11 @@ namespace D3DLab.Std.Engine.Core.Components {
         public void Combine() {
             var value = new Utilities.Helix.MeshBuilder(true, false);
             groups.ForEach(x => value.Append(x));
-            combined = value.ToGeometry3D();
+            var combined = value.ToGeometry3D();
+            Positions= combined.Positions.ToImmutableArray();
+            Indices  = combined.Indices.ToImmutableArray();
+            Colors   = combined.Colors.ToImmutableArray();
+            Normals  = combined.Normals.ToImmutableArray();
         }
 
         public void Add(GeometryComponent item) {

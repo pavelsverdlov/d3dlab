@@ -1,6 +1,5 @@
 ﻿using D3DLab.Std.Engine.Core.Components;
-using D3DLab.Std.Engine.Core.Ext;
-using System;
+using D3DLab.Std.Engine.Core.Components.Movements;
 using System.Linq;
 using System.Numerics;
 
@@ -20,7 +19,19 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             var ccom = find.First();
 
             ccom.ResetToDefault();
+            entity.RemoveComponents<MovementComponent>();
 
+            return true;
+        }
+    }
+
+    public class CameraIdleCommand : IInputCommand {
+        public bool Execute(GraphicEntity entity) {
+            var find = entity.GetComponents<CameraComponent>();
+            if (!find.Any()) {
+                return false;
+            }
+            entity.RemoveComponents<MovementComponent>();
             return true;
         }
     }
@@ -59,41 +70,15 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             if (!find.Any()) {
                 return false;
             }
-            var ccom = find.First();
 
             var p11 = state.ButtonsStates[GeneralMouseButtons.Right].PointDown;
             var p2 = state.CurrentPosition;
+            var data = new MovementData { Begin = p11, End = p2 };
 
-            var moveV = p2 - p11;
-            if (moveV == Vector2.Zero) {
-                return false;
-            }
-            var v2Up = new Vector2(0, -1);
-            var mouseMove = moveV;
-            var angleLook = v2Up.AngleRad(mouseMove.Normalize());
+            var ccom = find.First();
 
-            //Console.WriteLine($"Angle 2D: {v2Up.Angle(mouseMove.Normalize())}");
-
-            var look = ccom.LookDirection.Normalize();
-            var up = ccom.UpDirection.Normalize();
-
-            var rotatedUp = Vector3.TransformNormal(up, Matrix4x4.CreateFromAxisAngle(look, angleLook));
-            var cross = Vector3.Cross(look, rotatedUp);
-
-            var angle = mouseMove.Length();
-
-            var movetozero = Matrix4x4.CreateTranslation(ccom.RotatePoint * -1f);
-            var rotate = Matrix4x4.CreateFromAxisAngle(cross, angle.ToRad());
-            var returntocenter = Matrix4x4.CreateTranslation(ccom.RotatePoint);
-            var matrixRotate = movetozero * rotate * returntocenter;
-
-            if (matrixRotate.IsIdentity) {
-                return false;
-            }
-
-            ccom.UpDirection = Vector3.TransformNormal(ccom.UpDirection.Normalize(), matrixRotate).Normalize();
-            ccom.LookDirection = Vector3.TransformNormal(ccom.LookDirection.Normalize(), matrixRotate).Normalize();
-            ccom.Position = Vector3.Transform(ccom.Position, matrixRotate);
+            entity.GetOrCreateComponent(new RotationComponent { State = ccom.GetState() })
+                .MovementData = data;
 
             return true;
         }

@@ -4,6 +4,7 @@ using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Wpf.Engine.App;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 
 namespace D3DLab.Visualization {
@@ -40,9 +41,9 @@ namespace D3DLab.Visualization {
         public void Handle(IEnumerable<AbstractGeometry3D> mesh) {
             var group = new Std.Engine.Core.Components.GroupGeometryComponent();
             mesh.ForEach(x => group.Add(new Std.Engine.Core.Components.GeometryComponent {
-                Positions = x.Positions,
-                Indices = x.Indices,
-                Normals = x.Normals,
+                Positions = x.Positions.ToImmutableArray(),
+                Indices = x.Indices.ToImmutableArray(),
+                Normals = x.Normals.ToImmutableArray(),
                 Color = x.Color
             }));
             group.Combine();

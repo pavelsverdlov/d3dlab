@@ -30,18 +30,24 @@ namespace D3DLab.SDX.Engine.Rendering {
         public void Visit(Components.D3DTriangleColoredVertexesRenderComponent component) {
             var type = typeof(ColoredVertexesRenderStrategy);
             var entityTag = component.EntityTag;
+            try {
+                var manager = contextState.GetComponentManager();
 
-            var manager = contextState.GetComponentManager();
+                var geometry = manager.GetComponent<IGeometryComponent>(entityTag);
 
-            var geometry = manager.GetComponent<IGeometryComponent>(entityTag);
+                var tr = manager.GetComponent<D3DTransformComponent>(entityTag);
 
-            var tr = manager.GetComponent<D3DTransformComponent>(entityTag);
+                //var v = ran.NextVector3(new Vector3(-100, -100, -100), new Vector3(100, 100, 100));
+                tr.MatrixWorld = Matrix4x4.Identity;// Matrix4x4.CreateTranslation(v);
 
-            //var v = ran.NextVector3(new Vector3(-100, -100, -100), new Vector3(100, 100, 100));
-            tr.MatrixWorld = Matrix4x4.Identity;// Matrix4x4.CreateTranslation(v);
-
-            GetOrCreate(() => new ColoredVertexesRenderStrategy(compilator))
-                .RegisterEntity(component, geometry, tr);
+                GetOrCreate(() => new ColoredVertexesRenderStrategy(compilator, 
+                    StategyStaticShaders.ColoredVertexes.GetPasses(),
+                    StategyStaticShaders.ColoredVertexes.GetLayoutConstructor()))
+                    .RegisterEntity(component, geometry, tr);
+            }catch(Exception ex) {
+                ex.ToString();
+                throw ex;
+            }
         }
 
         public void Visit(Components.D3DLineVertexRenderComponent component) {
@@ -52,9 +58,27 @@ namespace D3DLab.SDX.Engine.Rendering {
                 .GetComponentManager()
                 .GetComponent<IGeometryComponent>(entityTag);
 
-            GetOrCreate(() => new LineVertexRenderStrategy(compilator))
+            GetOrCreate(() => new LineVertexRenderStrategy(compilator,
+                    StategyStaticShaders.LineVertex.GetPasses(),
+                    StategyStaticShaders.LineVertex.GetLayoutConstructor()))
                 .RegisterEntity(component, geometry);
         }
+
+        public void Visit(D3DSphereRenderComponent component) {
+            var entityTag = component.EntityTag;
+
+            var geometry = contextState
+                .GetComponentManager()
+                .GetComponent<IGeometryComponent>(entityTag);
+
+            GetOrCreate(() => new SphereRenderStrategy(compilator,
+                    StategyStaticShaders.SphereByPoint.GetPasses(),
+                    StategyStaticShaders.SphereByPoint.GetLayoutConstructor()))
+                .RegisterEntity(component, geometry);
+        }
+
+
+
 
         T GetOrCreate<T>(Func<T> creator) where T : IRenderStrategy {
             var type = typeof(T);

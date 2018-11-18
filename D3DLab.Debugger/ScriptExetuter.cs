@@ -1,17 +1,69 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
+using System;
+using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace D3DLab.Debugger {
+
+
     public class ScriptEnvironment {
         public dynamic CurrentWatch { get; set; }
     }
+    public interface IPrimitiveDrawer {
+        void DrawPolygon(Vector3[] points);
+        void DrawPoint(Vector3 point);
+    }
+    public class ScriptTypesMatching {
+        class Variable {
+            public ScriptVariable variable;
+        }
+
+        IPrimitiveDrawer drawer;
+
+        public ScriptTypesMatching(IPrimitiveDrawer drawer) {
+            this.drawer = drawer;
+        }
+
+        public void GetPrimitive(ScriptVariable variable) {
+            var var = new Variable {
+                variable = variable
+            };
+            var type = variable.Type;
+            if (type.IsArray) {
+                AnalizeCollection(type, variable);
+            }
+            Analize(type, variable);
+        }
+
+        void Analize(Type type, ScriptVariable variable) {
+            if (type.IsValueType) {
+                if (NumericsTypes.IsVector3(type)) {
+                    drawer.DrawPoint((Vector3)variable.Value);
+                }
+            }
+        }
+
+        void AnalizeCollection(Type type, ScriptVariable variable) {
+            var itemtype = type.GetElementType();
+            if (itemtype.IsValueType) {
+                if (NumericsTypes.IsVector3(itemtype)) {
+                    drawer.DrawPolygon((Vector3[])variable.Value);
+                }
+            }
+        }
+    }
 
     public sealed class ScriptExetuter {
-        public ScriptExetuter() {
+        const string namaspaces = "using System;using System.Numerics;";
+        private ScriptTypesMatching sc;
 
+        public event Action<string> Output;
+
+        public ScriptExetuter(IPrimitiveDrawer drawer) {
+            sc = new ScriptTypesMatching(drawer);
         }
         public Task<object> Execute(ScriptEnvironment environment, string code) {
             return CSharpScript.EvaluateAsync(code,
@@ -24,6 +76,26 @@ namespace D3DLab.Debugger {
                globals: environment);
         }
         public void Execute1(ScriptEnvironment environment, string code) {
+            
+            var imports = new[] {
+                "System",
+            };
+            var asemblyis = new[] {
+                typeof(System.Numerics.Vector2).Assembly
+            }; 
+            code = namaspaces + "var sqrt = System.Math.Sqrt(2);var point = new []{ new Vector3(), new Vector3()};";
+            CSharpScript.RunAsync(code, ScriptOptions.Default.WithImports(imports).WithReferences(asemblyis))
+                .ContinueWith(x=> {
+                    var vars = x.Result.Variables;
+                    //var v = vars[0].Value;
+                    foreach(var v in vars) {
+                        sc.GetPrimitive(v);
+                    }
+                    //var res = x.Result.ReturnValue;
+                  //  var str = res.ToString();
+                });
+        }
+        public void Execute2(ScriptEnvironment environment, string code) {
             //IEntityComponent propery = new VisualProperty();
 
             //            Clipboard.SetDataObject()

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace D3DLab.Debugger {
+namespace D3DLab.Std.Engine.Core.Ext {
     public static class MonadExt {
         public static bool IsNull<T>(this T source) where T : class { return source == null; }
         public static bool IsNotNull<T>(this T source) where T : class { return source != null; }
@@ -14,7 +16,15 @@ namespace D3DLab.Debugger {
             action(source);
             return source;
         }
-
+        public static TInput DoFirst<TInput>(this IEnumerable<TInput> source, Action<TInput> action)
+          where TInput : class {
+            if (!source.Any()) {
+                return null;
+            }
+            var first = source.First();
+            action(first);
+            return first;
+        }
         public static TInput Do<TInput>(this TInput source, Action<TInput> action)
             where TInput : class {
             if (source == null) {

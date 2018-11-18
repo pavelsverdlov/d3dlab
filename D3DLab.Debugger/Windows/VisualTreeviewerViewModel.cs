@@ -229,17 +229,17 @@ namespace D3DLab.Debugger.Windows {
         public void Execute(string code) {
             var console = ConsoleText.Trim();
             ConsoleText = console;
-            var executer = new ScriptExetuter();
+            //var executer = new ScriptExetuter();
 
-            executer.Execute(new ScriptEnvironment { CurrentWatch = items }, console).ContinueWith(x => {
-                var text = "";
-                if (x.Exception != null) {
-                    text = x.Exception.InnerException.Message;
-                } else {
-                    text = x.Result.ToString();
-                }
-                ConsoleText += Environment.NewLine + text;
-            });
+            //executer.Execute(new ScriptEnvironment { CurrentWatch = items }, console).ContinueWith(x => {
+            //    var text = "";
+            //    if (x.Exception != null) {
+            //        text = x.Exception.InnerException.Message;
+            //    } else {
+            //        text = x.Result.ToString();
+            //    }
+            //    ConsoleText += Environment.NewLine + text;
+            //});
         }
     }
 }

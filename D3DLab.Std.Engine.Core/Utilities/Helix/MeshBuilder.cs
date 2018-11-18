@@ -2451,7 +2451,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
                 throw new InvalidOperationException(WrongNumberOfNormals);
             }
 
-            if (textureCoordinatesToAppend != null && textureCoordinatesToAppend.Count != positionsToAppend.Count) {
+            if (textureCoordinatesToAppend !=null && textureCoordinatesToAppend.Any() && textureCoordinatesToAppend.Count != positionsToAppend.Count) {
                 throw new InvalidOperationException(WrongNumberOfTextureCoordinates);
             }
 

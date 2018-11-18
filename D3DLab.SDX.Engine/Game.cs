@@ -2,6 +2,7 @@
 using D3DLab.SDX.Engine.Rendering;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Render;
 using D3DLab.Std.Engine.Core.Systems;
@@ -12,11 +13,17 @@ using System.Text;
 
 namespace D3DLab.SDX.Engine {
     public class D3DEngine : EngineCore {
-        readonly GraphicsDevice device;
+        readonly SynchronizedGraphics device;
 
         public D3DEngine(IAppWindow window, IContextState context) : base(window, context) {
-            device = new GraphicsDevice(window);
+            device = new SynchronizedGraphics(window);
         }
+
+        protected override void OnSynchronizing() {
+            device.Synchronize();
+            base.OnSynchronizing();
+        }
+
 
         public override void Dispose() {
             base.Dispose();

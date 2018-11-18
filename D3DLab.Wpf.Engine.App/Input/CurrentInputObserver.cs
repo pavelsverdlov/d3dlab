@@ -25,6 +25,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             bool Rotate(InputStateData state);
             void Zoom(InputStateData state);
             void Pan(InputStateData state);
+            void Idle();
         }
 
         public interface ITargetingInputHandler : InputObserver.IHandler {
@@ -33,7 +34,9 @@ namespace D3DLab.Wpf.Engine.App.Input {
         }
 
         protected sealed class InputIdleState : CurrentStateMachine {
-            public InputIdleState(StateProcessor processor) : base(processor) { }
+            public InputIdleState(StateProcessor processor) : base(processor) {
+                Processor.InvokeHandler<ICameraInputHandler>(x => x.Idle());
+            }
 
             public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
@@ -70,7 +73,6 @@ namespace D3DLab.Wpf.Engine.App.Input {
             }
             public override bool OnMouseUp(InputStateData state) {
                 if ((state.Buttons & GeneralMouseButtons.Right) != GeneralMouseButtons.Right) {
-                    Cursor.Show();
                     SwitchTo((int)AllInputStates.Idle, state);
                 }
 
@@ -85,7 +87,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
                 return base.OnMouseDown(state);
             }
             public override bool OnMouseMove(InputStateData state) {
-                Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPointDown.ToDrawingPoint();
+               // Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPointDown.ToDrawingPoint();
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Rotate(state));
                 return true;
             }
@@ -95,7 +97,6 @@ namespace D3DLab.Wpf.Engine.App.Input {
             }
             public override bool OnMouseUp(InputStateData state) {
                 if ((state.Buttons & GeneralMouseButtons.Right) != GeneralMouseButtons.Right) {
-                    Cursor.Show();
                     SwitchTo((int)AllInputStates.Idle, state);
                 }
 
@@ -193,6 +194,10 @@ namespace D3DLab.Wpf.Engine.App.Input {
         }
         public void Pan(InputStateData state) {
             currentSnapshot.AddEvent(new CameraPanCommand(state.Clone()));
+        }
+
+        public void Idle() {
+            currentSnapshot.AddEvent(new CameraIdleCommand());
         }
 
         public bool Target(InputStateData state) {

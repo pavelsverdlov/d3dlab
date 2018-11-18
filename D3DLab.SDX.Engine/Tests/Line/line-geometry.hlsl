@@ -1,3 +1,120 @@
+
+#include "Game"
+struct InputFS {
+	float4 position : SV_Position;
+	float4 color : COLOR;
+};
+struct InputGS {
+	float4 position : SV_Position;
+	float4 color : COLOR;
+	float2 topLeft : ANCHOR;
+	float2 dimensions : DIMENSIONS;
+	float2 opacity: OPACITY;
+};
+
+
+
+float3x3 AngleAxis3x3(float angle, float3 axis)
+{
+	float c, s;
+	sincos(angle, s, c);
+
+	float t = 1 - c;
+	float x = axis.x;
+	float y = axis.y;
+	float z = axis.z;
+
+	return float3x3(
+		t * x * x + c, t * x * y - s * z, t * x * z + s * y,
+		t * x * y + s * z, t * y * y + c, t * y * z - s * x,
+		t * x * z - s * y, t * y * z + s * x, t * z * z + c
+		);
+}
+
+float2 projToWindow(float2 dimensions, in float4 pos)
+{
+	return float2(dimensions.x * 0.5 * (1.0 + (pos.x / pos.w)), dimensions.y * 0.5 * (1.0 - (pos.y / pos.w)));
+}
+float4 windowToProj(float2 dimensions, in float2 pos, in float z, in float w)
+{
+	return float4(((pos.x * 2.0 / dimensions.x) - 1.0) * w,
+		((pos.y * 2.0 / dimensions.y) - 1.0) * -w,
+		z, w);
+}
+
+float4 getPosition(float2 dimensions, float3 center) {
+	float2 tangent = float2(0, 1);
+	float radius = .5;
+	float3x3 rotate = AngleAxis3x3(10 * (PI / 180), float3(0, 0, 1));
+
+	float2 screen = projToWindow(center) + tangent * radius;
+	screen = mul(screen, rotate);
+
+	return float4(windowToProj(dimensions, screen, center.z, center.w), 1);
+}
+
+[maxvertexcount(3)]//75
+void main(point InputGS points[1], inout TriangleStream<InputFS> output) {
+	float PI = 3.14159265359f;
+	float radius = .5;
+	float2 dim = points[0].dimensions;
+	float3 offset = float3(dim.x / 5, dim.y / 5, 1);
+
+	float i = 10 * (PI / 180);
+	InputFS fs = (InputFS)0;
+	float2 center = points[0].position.xyz;
+	float3 tangent = float3(0, 1, 0);
+
+	//float3x3 rotationZ = float3x3(float3(cos(i), -sin(i), 0), float3(sin(i), cos(i), 0), float3(0, 0, 1));
+
+	float3 N = float3(0, 0, 1);/*
+	float3 T = normalize(tangent - 1 * N);
+	float3 B = cross(N, T);
+	float3x3 TBN = float3x3(T, B, N);*/
+
+	float3x3 TBN = AngleAxis3x3(i, N);
+
+	fs.position = float4();// getPosition(dim, center, tangent);
+	fs.color = float4(0, 0, 1, 1);
+	output.Append(fs);
+
+	fs.position = float4(center + tangent * offset, 1);
+	fs.color = float4(1, 0, 0, 1);
+	output.Append(fs);
+
+	tangent = normalize(mul(tangent, TBN));
+
+	fs.position = float4(center + tangent * offset, 1);
+	fs.color = float4(0, 1, 0, 1);
+	output.Append(fs);
+
+	return;
+
+	for (float angle = 10; angle < 360; angle += 10) {
+
+		fs.position = float4(center, 1);
+		fs.color = float4(0, 0, 1, 1);
+		output.Append(fs);
+
+		tangent = normalize(mul(tangent, TBN));
+
+		fs.position = float4(center + tangent * offset, 1);
+		fs.color = float4(0, 1, 0, 1);
+		output.Append(fs);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
 struct GSInputLS
 {
 	float4 p	: POSITION;

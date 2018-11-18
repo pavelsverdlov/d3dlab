@@ -2,6 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d3DLab="clr-namespace:D3DLab">
 
+    <SolidColorBrush x:Key="BlackBackgroundColor">#1E1E1E</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderBrushColor">White</SolidColorBrush>
+    <SolidColorBrush x:Key="SelectedBorderBrushColor">#569CD6</SolidColorBrush>
 
     <Style TargetType="{x:Type TextBlock}">
         <Setter Property="Foreground" Value="White"/>
@@ -9,28 +12,89 @@
     </Style>
     
     <Style TargetType="{x:Type ListBox}">
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
     </Style>
 
+    <Style TargetType="{x:Type ListBoxItem}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>
+
+
+
     <Style TargetType="{x:Type Button}">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
         <Setter Property="Foreground" Value="White"/>
         
     </Style>
 
+    <Style TargetType="{x:Type TabControl}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>
+    
     <Style TargetType="{x:Type TabItem}">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
         <Setter Property="Foreground" Value="White"/>
+        <!--<Setter Property="OverridesDefaultStyle" Value="True" />-->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrushColor}" 
+                            CornerRadius="0" x:Name="ti_border" >
+                        <Grid Name="TabPanel" Background="{StaticResource BlackBackgroundColor}">
+                            <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="10,2"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ti_border" Property="BorderBrush"
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
+                            <Setter TargetName="TabPanel" Property="Background" 
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter TargetName="TabPanel" Property="Background"
+                                    Value="{StaticResource BlackBackgroundColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="False">
                 <Setter Property="BorderBrush" Value="White"/>
-                <Setter Property="Background" Value="Black"/>
+                <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="BorderBrush" Value="White"/>
-                <Setter Property="Background" Value="Black"/>
+                <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
+    <Style TargetType="{x:Type TabPanel}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>
+    
+    
+    <Style TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>
+
+    
+    <Style TargetType="{x:Type ContextMenu}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>
+
+    <Style TargetType="{x:Type ComboBox}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>
+
+    <Style TargetType="{x:Type ToggleButton}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>
+    
 </ResourceDictionary>

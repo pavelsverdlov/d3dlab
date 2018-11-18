@@ -1,4 +1,5 @@
-﻿using D3DLab.Debugger.Presentation.SystemList;
+﻿using D3DLab.Debugger.Presentation.ScriptConsole;
+using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
 using D3DLab.Parser;
 using D3DLab.Plugin.Contracts.Parsers;
@@ -22,6 +23,24 @@ using System.Windows.Input;
 namespace D3DLab {
     public interface IDropFiles {
         void Dropped(string[] files);
+    }
+
+    class TraceOutputListener : System.Diagnostics.TraceListener {
+        private ObservableCollection<string> output;
+
+        public TraceOutputListener(ObservableCollection<string> consoleOutput) {
+            this.output = consoleOutput;
+        }
+
+        public override void Write(string message) {
+            
+        }
+
+        public override void WriteLine(string message) {
+            App.Current.Dispatcher.InvokeAsync(() => {
+                output.Insert(0,$"{DateTime.Now.TimeOfDay} {message.Trim()}");
+            });
+        }
     }
 
     public sealed class MainWindowViewModel : IDropFiles, IFileLoader {
@@ -80,13 +99,15 @@ namespace D3DLab {
         private readonly EngineNotificator notificator;
         ContextStateProcessor context;
 
-        public VisualTreeviewerViewModel VisualTreeviewer { get; set; }
-        public SystemViewPresenter SystemsView { get; set; }
+        public VisualTreeviewerViewModel VisualTreeviewer { get; }
+        public SystemViewPresenter SystemsView { get; }
+        public ScriptsConsoleVM ScriptsConsole { get; }
 
         public ICommand LoadDuck { get; set; }
         public ICommand MoveToCenterWorld { get; }
 
         public ICollectionView Items { get; set; }
+        public ObservableCollection<string> ConsoleOutput { get; }
         readonly ObservableCollection<LoadedItem> items;
         readonly PluginImporter plugins;
 
@@ -95,6 +116,7 @@ namespace D3DLab {
             MoveToCenterWorld = new MoveToCenterWorldCommand(this);
             VisualTreeviewer = new VisualTreeviewerViewModel();
             SystemsView = new SystemViewPresenter();
+            ScriptsConsole = new ScriptsConsoleVM();
 
             items = new ObservableCollection<LoadedItem>();
             Items = CollectionViewSource.GetDefaultView(items);
@@ -103,7 +125,8 @@ namespace D3DLab {
             notificator.Subscribe(new ViewportSubscriber(this));
 
             plugins = new PluginImporter();
-
+            ConsoleOutput = new ObservableCollection<string>();
+            System.Diagnostics.Trace.Listeners.Add(new TraceOutputListener(ConsoleOutput));
         }
 
         public void Init(FormsHost host, FrameworkElement overlay) {
@@ -124,6 +147,11 @@ namespace D3DLab {
             SystemsView.GameWindow = scene.Window;
 
             CoordinateSystemLinesGameObject.Build(context.GetEntityManager());
+            //OrbitsRotationGameObject.Build(context.GetEntityManager());
+
+            SphereGameObject.Create(context.GetEntityManager());
+
+            System.Diagnostics.Trace.WriteLine("Test !");
 
         }
 

@@ -35,11 +35,12 @@ namespace D3DLab.Wpf.Engine.App {
         
         private void OnHandleCreated(WinFormsD3DControl win) {
             Window = new GameWindow(win, input);
-            game = new D3DEngine(Window, Context);
+            game = new D3DEngine(Window, Context); 
 
             game.Run(notify);
             RenderStarted();
         }
+
 
         private void Test() {
             /*

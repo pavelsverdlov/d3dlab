@@ -39,22 +39,27 @@ namespace D3DLab.Std.Engine.Core.Render {
             loopTask = Task.Run((Action)Loop);
         }
 
+        protected virtual void OnSynchronizing() {
+
+        }
+
         void Loop() {
+            var imanager = Window.InputManager;
+
             //first synchronization
             Context.GetEntityManager().Synchronize();
-            Window.InputManager.Synchronize();
+            imanager.Synchronize();            
 
             var speed = new Stopwatch();
             var engineInfoTag = Context.GetEntityManager().GetEntities()
                     .Single(x => x.Has<EngineInfoBuilder.PerfomanceComponent>()).Tag;
-
-            var imanager = Window.InputManager;
 
             double millisec = oneFrameMilliseconds;
             while (Window.IsActive && !token.IsCancellationRequested) {
                 speed.Restart();
 
                 imanager.Synchronize();
+                OnSynchronizing();
 
                 var eman = Context.GetEntityManager();
 

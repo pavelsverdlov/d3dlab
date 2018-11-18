@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace D3DLab.Std.Engine.Core {
     public sealed class EntityComponentManager : IEntityManager, IComponentManager {
@@ -64,6 +63,14 @@ namespace D3DLab.Std.Engine.Core {
                 owner._RemoveComponent(tagEntity, inp);
             }, com);
         }
+        public void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {
+            foreach (var com in GetComponents<T>(tagEntity)) {
+                comSynchronizer.Add((owner, c) => {
+                    owner._RemoveComponent(tagEntity, c);
+                }, com);
+            }
+        }
+
         public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
             return components[tagEntity].OfType<T>().Single();
         }
@@ -75,6 +82,14 @@ namespace D3DLab.Std.Engine.Core {
         }
         public bool Has<T>(ElementTag tag) where T : IGraphicComponent {
             return components[tag].Any(x => x is T);
+        }
+        public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {
+            var any = GetComponents<T>(tagEntity);
+            if (any.Any()) {
+                return any.Single();
+            }
+            AddComponent(tagEntity, newone);
+            return newone;
         }
 
 

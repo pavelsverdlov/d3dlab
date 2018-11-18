@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace D3DLab.Std.Engine.Core {
     public interface IAppWindow {
@@ -11,5 +12,9 @@ namespace D3DLab.Std.Engine.Core {
 
         IntPtr Handle { get; }
         IInputManager InputManager { get; }
+
+        event Action Resized;
+
+        WaitHandle BeginInvoke(Action action);
     }
 }
