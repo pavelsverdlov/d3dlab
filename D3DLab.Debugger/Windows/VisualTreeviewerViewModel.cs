@@ -104,60 +104,7 @@ namespace D3DLab.Debugger.Windows {
             //OpenPropertiesEditor = new OpenPropertiesEditorCommand();
         }
 
-        private class VisualTreeItem : IVisualTreeEntityItem {
-            public ICommand RenderModeSwither { get; set; }
-
-            public Visibility CanEditShader { get; private set; }
-            public ElementTag Name { get { return entity.Tag; } }
-
-            //  public System.ComponentModel.ICollectionView Components { get; set; }
-            public ObservableCollection<IVisualComponentItem> Components { get; set; }
-
-            //public ICommand OpenShaderEditor { get; }
-            //public ICommand OpenPropertiesEditor { get; }
-
-            private readonly Dictionary<ElementTag, IVisualComponentItem> hash;
-
-            readonly GraphicEntity entity;
-
-
-            public VisualTreeItem(GraphicEntity entity) {
-                this.entity = entity;
-                Components = new ObservableCollection<IVisualComponentItem>();
-                hash = new Dictionary<ElementTag, IVisualComponentItem>();
-                // Components = CollectionViewSource.GetDefaultView(components);
-            }
-
-            public void Add(IVisualComponentItem com) {
-                Components.Add(com);
-                hash.Add(com.Guid, com);
-
-                CanEditShader = com.GetOriginComponent() is IShadersContainer ? Visibility.Visible : Visibility.Collapsed;
-            }
-            public void Clear() {
-                Components.Clear();
-            }
-            public void Remove(IVisualComponentItem com) {
-                Components.Remove(com);
-                hash.Remove(com.Guid);
-                CanEditShader = !(com.GetOriginComponent() is IShadersContainer) ? Visibility.Collapsed : Visibility.Visible;
-            }
-
-            public bool TryRefresh(IGraphicComponent com) {
-                if (!hash.ContainsKey(com.Tag)) {
-                    return false;
-                }
-                hash[com.Tag].Refresh();
-                return true;
-            }
-
-            //public void Refresh() {
-            //    foreach (var i in Components) {
-
-            //        i.Refresh();
-            //    }
-            //}
-        }
+        
 
         /*
         private static IEnumerable<IVisualTreeEntity> Fill() {
@@ -189,7 +136,7 @@ namespace D3DLab.Debugger.Windows {
         public void Add(GraphicEntity entity) {
             var found = items.SingleOrDefault(x => x.Name == entity.Tag);
             if (found == null) {
-                found = new VisualTreeItem(entity) { RenderModeSwither = _renderModeSwither };
+                found = new VisualTreeItem(entity);
                 foreach (var com in entity.GetComponents()) {
                     found.Add(new VisualComponentItem(com, this));
                 }

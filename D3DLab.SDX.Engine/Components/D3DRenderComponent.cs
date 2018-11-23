@@ -10,6 +10,7 @@ using System.Collections.Generic;
 
 namespace D3DLab.SDX.Engine.Components {
     public class D3DRenderComponent {
+        public bool CanRender { get; set; }
         public ElementTag Tag { get; set; }
         public ElementTag EntityTag { get; set; }
 
@@ -22,6 +23,10 @@ namespace D3DLab.SDX.Engine.Components {
         public SharpDX.Direct3D11.Buffer VertexBuffer { get; internal set; }
         [IgnoreDebuging]
         public SharpDX.Direct3D11.Buffer IndexBuffer { get; internal set; }
+
+        public D3DRenderComponent() {
+            CanRender = true;
+        }
 
         public virtual void Dispose() {
             VertexBuffer?.Dispose();

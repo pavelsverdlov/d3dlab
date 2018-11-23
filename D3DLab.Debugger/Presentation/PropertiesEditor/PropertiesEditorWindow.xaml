@@ -12,10 +12,10 @@
         <local:PropertiesEditorWindowViewModel x:Key="ViewModel" />
         <local:EditPropertyMultiValueConverter x:Key="EditPropertyMultiConverter"/>
 
-        <Style TargetType="{x:Type TextBlock}">
+        <!--<Style TargetType="{x:Type TextBlock}">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="Black"/>
-        </Style>
+        </Style>-->
 
         <DataTemplate DataType="{x:Type local:ComboBoxViewProperty}">
             <DataTemplate.Resources>
@@ -25,6 +25,10 @@
                 <ComboBox Text="{Binding Value}" ItemsSource="{Binding Values}" Background="Black"
                           IsSynchronizedWithCurrentItem="True" 
                           BorderThickness="1" BorderBrush="Gray" Width="150" HorizontalAlignment="Right" Margin="10,0,0,0">
+                    <ComboBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#1E1E1E" />
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#1E1E1E" />
+                    </ComboBox.Resources>
                 </ComboBox>
             </DockPanel>
         </DataTemplate>
@@ -85,8 +89,7 @@
     <StackPanel Background="Transparent" Margin="5">
         <DockPanel Margin="0,10,0,10">
             <TextBlock Margin="5,0,0,5" FontSize="15" Text="{Binding Title, Mode=OneWay}" Foreground="#569CD6"/>
-            <Button Margin="15,0,0,0" DockPanel.Dock="Right" Foreground="White" Content="Apply" Command="{Binding Apply}" 
-                    Background="Transparent" BorderBrush="White" BorderThickness="1"/>
+            <Button Margin="15,0,0,0" DockPanel.Dock="Right" Content="Apply" Command="{Binding Apply}"  />
         </DockPanel>
         <ListBox ItemsSource="{Binding Value}" 
                  HorizontalAlignment="Stretch" Background="Transparent" Focusable="False"

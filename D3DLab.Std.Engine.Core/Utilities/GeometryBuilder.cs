@@ -21,8 +21,6 @@ namespace D3DLab.Std.Engine.Core.Utilities {
     
 
     public class GeometryBuilder {
-        
-
 
         public static GeometryComponent BuildRotationOrbits(float radius, Vector3 center) {
             var step = 10f;

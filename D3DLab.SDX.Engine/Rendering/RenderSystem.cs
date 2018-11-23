@@ -45,7 +45,9 @@ namespace D3DLab.SDX.Engine.Rendering {
                 try {
                     foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
                         foreach (var com in entity.GetComponents<ID3DRenderableComponent>()) {
-                            com.Accept(visiter);
+                            if (com.CanRender) {
+                                com.Accept(visiter);
+                            }
                         }
                     }
 

@@ -43,24 +43,7 @@ namespace D3DLab.Wpf.Engine.App {
                .AddComponent(new SDX.Engine.Components.D3DLineVertexRenderComponent())
                .Tag;
         }
-        public static ElementTag BuildCoordinateSystemLinesEntity(this IEntityManager manager,
-            ElementTag tag, Vector3[] points, Vector4[] color) {
-
-            var indeces = new List<int>();
-            for(var i=0; i< points.Length; i++) {
-                indeces.AddRange(new []{ i, i });
-            }
-
-            return manager
-               .CreateEntity(tag)
-               .AddComponent(new Std.Engine.Core.Components.GeometryComponent() {
-                   Positions = points.ToImmutableArray(),
-                   Indices = indeces.ToImmutableArray(),
-                   Colors = color.ToImmutableArray(),
-               })
-               .AddComponent(SDX.Engine.Components.D3DLineVertexRenderComponent.AsLineList())
-               .Tag;
-        }
+       
 
 
         #region components 

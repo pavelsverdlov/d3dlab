@@ -24,7 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>default</LangVersion>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -107,6 +107,7 @@
     <Compile Include="IDE\Visitor.cs" />
     <Compile Include="Infrastructure\IVisualEntity.cs" />
     <Compile Include="Model\VisualComponentItem.cs" />
+    <Compile Include="NullToVisibilityConverter.cs" />
     <Compile Include="NumericsTypes.cs" />
     <Compile Include="Presentation\OpenPropertiesEditorCommand.cs" />
     <Compile Include="Presentation\OpenShaderEditorCommand.cs" />
@@ -158,10 +159,6 @@
     <Page Include="Resources\build_icon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\ShaderEditor.xaml">
       <SubType>Designer</SubType>

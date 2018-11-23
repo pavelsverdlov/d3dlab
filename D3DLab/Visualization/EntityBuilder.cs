@@ -35,7 +35,13 @@ namespace D3DLab.Visualization {
             return entity.Tag;
         }
         public void Handle(AbstractGeometry3D mesh) {
-
+            var com = new Std.Engine.Core.Components.GeometryComponent {
+                Positions = mesh.Positions.ToImmutableArray(),
+                Indices = mesh.Indices.ToImmutableArray(),
+                Normals = mesh.Normals.ToImmutableArray(),
+                Color = mesh.Color
+            };
+            components.Add(com);
         }
 
         public void Handle(IEnumerable<AbstractGeometry3D> mesh) {

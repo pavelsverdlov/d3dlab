@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Windows.Input;
 
 namespace D3DLab.Debugger.Presentation.ScriptConsole {
-    public class ScriptsConsoleVM : IPrimitiveDrawer {
+    public class ScriptsConsoleVM {
 
         public class ScriptsViewState {
             private ScriptsConsoleVM presenter;
@@ -43,25 +43,22 @@ namespace D3DLab.Debugger.Presentation.ScriptConsole {
         public ScriptsController Controller { get; }
 
         readonly ScriptExetuter executer;
+        readonly IPrimitiveDrawer primitive;
 
-        public ScriptsConsoleVM() {
+        public ScriptsConsoleVM(IPrimitiveDrawer primitive) {
             ViewState = new ScriptsViewState(this);
             Controller = new ScriptsController(this);
-            executer = new ScriptExetuter(this);
+            executer = new ScriptExetuter(primitive);
+            executer.Output += OnExecuterOutput;
+            this.primitive = primitive;
+        }
+
+        private void OnExecuterOutput(string txt) {
+            System.Diagnostics.Trace.WriteLine(txt);   
         }
 
         void ExecuteText(string text) {
             executer.Execute1(new ScriptEnvironment(), text);
-        }
-
-
-
-        public void DrawPolygon(Vector3[] points) {
-            
-        }
-
-        public void DrawPoint(Vector3 point) {
-            
         }
     }
 }

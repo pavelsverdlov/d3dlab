@@ -1,14 +1,71 @@
 ﻿using D3DLab.Debugger.Infrastructure;
 using D3DLab.Debugger.Windows;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Shaders;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace D3DLab.Debugger.Model {
+    public class VisualTreeItem : IVisualTreeEntityItem {
+        // public ICommand RenderModeSwither { get; set; }
+
+        public Visibility CanEditShader { get; private set; }
+        public ElementTag Name { get { return entity.Tag; } }
+
+        //  public System.ComponentModel.ICollectionView Components { get; set; }
+        public ObservableCollection<IVisualComponentItem> Components { get; set; }
+
+        //public ICommand OpenShaderEditor { get; }
+        //public ICommand OpenPropertiesEditor { get; }
+
+        private readonly Dictionary<ElementTag, IVisualComponentItem> hash;
+
+        readonly GraphicEntity entity;
+
+
+        public VisualTreeItem(GraphicEntity entity) {
+            this.entity = entity;
+            Components = new ObservableCollection<IVisualComponentItem>();
+            hash = new Dictionary<ElementTag, IVisualComponentItem>();
+            // Components = CollectionViewSource.GetDefaultView(components);
+        }
+
+        public void Add(IVisualComponentItem com) {
+            Components.Add(com);
+            hash.Add(com.Guid, com);
+
+            CanEditShader = com.GetOriginComponent() is IShadersContainer ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public void Clear() {
+            Components.Clear();
+        }
+        public void Remove(IVisualComponentItem com) {
+            Components.Remove(com);
+            hash.Remove(com.Guid);
+            CanEditShader = !(com.GetOriginComponent() is IShadersContainer) ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public bool TryRefresh(IGraphicComponent com) {
+            if (!hash.ContainsKey(com.Tag)) {
+                return false;
+            }
+            hash[com.Tag].Refresh();
+            return true;
+        }
+
+        //public void Refresh() {
+        //    foreach (var i in Components) {
+
+        //        i.Refresh();
+        //    }
+        //}
+    }
     public class VisualComponentItem : IVisualComponentItem, System.ComponentModel.INotifyPropertyChanged {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 

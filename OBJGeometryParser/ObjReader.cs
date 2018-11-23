@@ -4,11 +4,13 @@ using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities.Helix;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 
 namespace OBJGeometryParser {
     using Object3DGroup = System.Collections.Generic.List<Object3D>;
@@ -261,7 +263,7 @@ namespace OBJGeometryParser {
                                 // not supported
                                 break;
                         }
-                    } catch (Exception ex) {
+                    } catch (Exception) {
                         throw;
                     }
                 }
@@ -992,6 +994,168 @@ namespace OBJGeometryParser {
         }
     }
 
+    public class ObjSpanReader {
+        public readonly AbstractGeometry3D FullGeometry = new AbstractGeometry3D();
+        Dictionary<string, AbstractGeometry3D> meshes;
+        readonly List<Vector3> positions = new List<Vector3>();
+        readonly Dictionary<int, int> map = new Dictionary<int, int>();
+
+        public void Read(Stream stream) {
+            meshes = new Dictionary<string, AbstractGeometry3D>();
+            
+            var group = new ReadOnlySpan<char>(new[] { 'g' });
+            var vector = new ReadOnlySpan<char>(new[] { 'v' });
+            var face = new ReadOnlySpan<char>(new[] { 'f' });
+            var comm = new ReadOnlySpan<char>(new[] { '#' });
+            //Memory<byte> buffer = new Memory<byte>();
+            var groupname = "noname";
+            using (var reader = new StreamReader(stream)) {
+                while (!reader.EndOfStream) {
+                    var span = reader.ReadLine().AsSpan();
+                    if (span.StartsWith(comm) || span.IsWhiteSpace()) {
+                        continue;
+                    }
+                    var part = span.Slice(2, span.Length - 2).Trim();
+                    if (span.StartsWith(group)) {
+                        groupname = part.Trim().ToString();
+                        if (!meshes.ContainsKey(groupname)) {
+                            meshes.Add(groupname, new AbstractGeometry3D());
+                        }
+                    } else if (span.StartsWith(vector)) {
+                        var val = SplitFloat(part, ' ');
+                        var v = new Vector3(val[0], val[1], val[2]);
+                        FullGeometry.Positions.Add(v);
+                       // meshes[groupname].Positions.Add(v);
+                    } else if (span.StartsWith(face)) {
+                        var val = SplitInt(part, ' ');
+                        foreach (var v in val) {
+                            FullGeometry.Indices.Add(v);
+                        }
+                    }
+                }
+            }
+        }
+        private float[] SplitFloat(ReadOnlySpan<char> span, char separator) {
+            var val = new float[3];
+            var index = 0;
+            while (index < 3) {
+                var end = span.IndexOf(' ');
+                if(end == -1) {
+                    end = span.Length;
+                }
+                var part = span.Slice(0,end).Trim();
+                val[index] = float.Parse(part.ToString(), CultureInfo.InvariantCulture);
+                index++;
+                span = span.Slice(end, span.Length - end).Trim();
+            }
+            return val;
+        }
+        private List<int> SplitInt(ReadOnlySpan<char> span, char separator) {
+            var val = new List<int>();
+            var index = 0;
+            while (!span.IsWhiteSpace()) {
+                var end = span.IndexOf(' ');
+                if (end == -1) {
+                    end = span.Length;
+                }
+                var part = span.Slice(0, end).Trim();
+                var sep = part.IndexOf('/');
+                if(sep != -1) {
+                    part = span.Slice(0, sep).Trim();
+                }
+                val.Add(int.Parse(part.ToString(), CultureInfo.InvariantCulture)-1);
+                index++;
+                span = span.Slice(end, span.Length - end).Trim();
+            }
+            if(val.Count > 3) {
+                var triangleFan = new List<int>();
+                for (int i = 0; i + 2 < val.Count; i++) {
+                    triangleFan.Add(val[0]);
+                    triangleFan.Add(val[i + 1]);
+                    triangleFan.Add(val[i + 2]);
+                }
+                return triangleFan;
+            }
+
+            return val;
+        }
+        
+
+    }
+    public class ObjStringReader {
+        public readonly AbstractGeometry3D FullGeometry = new AbstractGeometry3D();
+
+        readonly List<Vector3> positions = new List<Vector3>();
+        readonly Dictionary<int, int> map = new Dictionary<int, int>();
+
+        Dictionary<string, AbstractGeometry3D> meshes;
+        public void Read(Stream stream) {
+            meshes = new Dictionary<string, AbstractGeometry3D>();
+
+            var group = "g";
+            var vector =  "v";
+            var face = "f" ;
+            //Memory<byte> buffer = new Memory<byte>();
+            var groupname = "noname";
+            using (var reader = new StreamReader(stream)) {
+                while (!reader.EndOfStream) {
+                    var span = reader.ReadLine();
+                    if (span.StartsWith(group)) {
+                        var start = span.IndexOf(' ');
+                        groupname = span.Substring(start, span.Length - 1).Trim();
+                        if (!meshes.ContainsKey(groupname)) {
+                            meshes.Add(groupname, new AbstractGeometry3D());
+                        }
+                    } else if (span.StartsWith(vector)) {
+                        var part = span.Substring(2, span.Length - 2).Trim();
+                        var val = SplitFloat(part, ' ');
+                        var v = new Vector3(val[0], val[1], val[2]);
+                        FullGeometry.Positions.Add(v);
+                    } else if (span.StartsWith(face)) {
+                        var part = span.Substring(2, span.Length - 2).Trim();
+                        var val = SplitInt(part, ' ');
+                        //var p = positions [val[0]];
+                        //var p1 = positions[val[1]];
+                        //var p2 = positions[val[2]];
+                        FullGeometry.Indices.Add(val[0]-1);
+                        FullGeometry.Indices.Add(val[1]-1);
+                        FullGeometry.Indices.Add(val[2]-1);
+                    }
+                }
+            }
+        }
+        private float[] SplitFloat(string span, char separator) {
+            var val = new float[3];
+            var index = 0;
+            while (index < 3) {
+                var end = span.IndexOf(' ');
+                if (end == -1) {
+                    end = span.Length;
+                }
+                var part = span.Substring(0, end).Trim();
+                val[index] = float.Parse(part, CultureInfo.InvariantCulture);
+                index++;
+                span = span.Substring(end, span.Length - end).Trim();
+            }
+            return val;
+        }
+        private int[] SplitInt(string span, char separator) {
+            var val = new int[3];
+            var index = 0;
+            while (index < 3) {
+                var end = span.IndexOf(' ');
+                if (end == -1) {
+                    end = span.Length;
+                }
+                var part = span.Substring(0, end).Trim();
+                var face = part.Split('/');
+                val[index] = int.Parse(face[0], CultureInfo.InvariantCulture);
+                index++;
+                span = span.Substring(end, span.Length - end).Trim();
+            }
+            return val;
+        }
+    }
 
     [System.ComponentModel.Composition.Export(typeof(IFileParserPlugin))]
     public class OBJParser : IFileParserPlugin {
@@ -1003,6 +1167,23 @@ namespace OBJGeometryParser {
         }
 
         public void Parse(Stream stream, IParseResultVisiter visiter) {
+            //var r = new ObjSpanReader();
+            //try {                
+            //    var sw = new Stopwatch();
+            //    sw.Start();
+
+            //    r.Read(stream);
+
+            //    sw.Stop();
+            //    Trace.WriteLine($"Reader {sw.Elapsed.TotalMilliseconds}");
+
+            //    r.FullGeometry.Color = new Vector4(0, 1, 0, 1);
+            //    r.FullGeometry.Normals = r.FullGeometry.Positions.CalculateNormals(r.FullGeometry.Indices);
+            //    visiter.Handle(r.FullGeometry);
+            //} catch (Exception exc) {
+            //    exc.ToString();
+            //}
+            //return;
             var readerA = new ObjReader();
             var res = readerA.Read(stream);
             var meshes = new List<AbstractGeometry3D>();

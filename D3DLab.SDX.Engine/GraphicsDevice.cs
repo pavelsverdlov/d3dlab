@@ -136,6 +136,7 @@ namespace D3DLab.SDX.Engine {
             ImmediateContext = d3dDevice.ImmediateContext;
 
             CreateBuffers(width, height);
+            //DContext = new DeviceContext(D3DDevice);
         }
 
         public void Dispose() {

@@ -38,13 +38,39 @@ namespace D3DLab {
 
         public override void WriteLine(string message) {
             App.Current.Dispatcher.InvokeAsync(() => {
-                output.Insert(0,$"{DateTime.Now.TimeOfDay} {message.Trim()}");
+                output.Insert(0,$"[{DateTime.Now.TimeOfDay}] {message.Trim()}");
             });
         }
     }
 
     public sealed class MainWindowViewModel : IDropFiles, IFileLoader {
 
+        #region commands
+
+        class ShowAxisCommand : Debugger.BaseWPFCommand {
+            MainWindowViewModel main;
+            CoordinateSystemLinesGameObject gameObj;
+
+            bool isShowed;
+            public ShowAxisCommand(MainWindowViewModel main) {
+                this.main = main;
+                isShowed = true;
+            }
+
+            public override void Execute(object parameter) {
+                if (gameObj == null) {
+                    gameObj = CoordinateSystemLinesGameObject.Build(main.context.GetEntityManager());
+                    return;
+                }
+                if (isShowed) {
+                    gameObj.Hide(main.context.GetEntityManager());
+                } else {
+                    gameObj.Show(main.context.GetEntityManager());
+                }
+                isShowed = !isShowed;
+                main.ForceRender();
+            }
+        }
         class MoveToCenterWorldCommand : Debugger.BaseWPFCommand {
             private MainWindowViewModel main;
 
@@ -76,9 +102,9 @@ namespace D3DLab {
                 main.plugins.Import();
                 var bl = new EntityBuilder(main.context.GetEntityManager());
                 var tag = bl.Build(file, main.plugins.ParserPlugins.First());
-                
 
-               // main.items.Add(item);
+
+                // main.items.Add(item);
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {
@@ -94,6 +120,57 @@ namespace D3DLab {
             }
         }
 
+        #endregion
+
+        #region items
+
+        public sealed class LoadedItem {
+            public ICommand VisiblityChanged { get; }
+            public string Header { get { return gobj.ToString(); } }
+
+            public LoadedItem() { }
+
+            readonly GameObject gobj;
+            readonly MainWindowViewModel main;
+
+            public LoadedItem(MainWindowViewModel main, GameObject gobj) {
+                this.main = main;
+                this.gobj = gobj;
+                VisiblityChanged = new Command(this);
+            }
+            public override string ToString() {
+                return gobj.ToString();
+            }
+
+            private void Hide() {
+                gobj.Hide(main.context.GetEntityManager());
+                main.ForceRender();
+            }
+
+            private void Show() {
+                gobj.Show(main.context.GetEntityManager());
+                main.ForceRender();
+            }
+
+            class Command : Debugger.BaseWPFCommand<bool> {
+                private LoadedItem item;
+
+                public Command(LoadedItem item) {
+                    this.item = item;
+                }
+
+                public override void Execute(bool _checked) {
+                    if (_checked) {
+                        item.Show();
+                    } else {
+                        item.Hide();
+                    }
+
+                }
+            }
+        }
+
+        #endregion
 
         private SceneView scene;
         private readonly EngineNotificator notificator;
@@ -105,18 +182,24 @@ namespace D3DLab {
 
         public ICommand LoadDuck { get; set; }
         public ICommand MoveToCenterWorld { get; }
+        public ICommand ShowAxis { get; }
 
         public ICollectionView Items { get; set; }
         public ObservableCollection<string> ConsoleOutput { get; }
         readonly ObservableCollection<LoadedItem> items;
         readonly PluginImporter plugins;
+        readonly PrimitiveDrawer primitiveDrawer;
 
         public MainWindowViewModel() {
             LoadDuck = new LoadCommand(this);
             MoveToCenterWorld = new MoveToCenterWorldCommand(this);
+            ShowAxis = new ShowAxisCommand(this);
+
+            primitiveDrawer = new PrimitiveDrawer();
+
             VisualTreeviewer = new VisualTreeviewerViewModel();
             SystemsView = new SystemViewPresenter();
-            ScriptsConsole = new ScriptsConsoleVM();
+            ScriptsConsole = new ScriptsConsoleVM(primitiveDrawer);
 
             items = new ObservableCollection<LoadedItem>();
             Items = CollectionViewSource.GetDefaultView(items);
@@ -138,6 +221,7 @@ namespace D3DLab {
             scene = new SceneView(host, overlay, context, notificator);
             scene.RenderStarted += OnRenderStarted;
 
+            primitiveDrawer.SetContext(context);
 
             VisualTreeviewer.RenderModeSwither = new RenderModeSwitherCommand(context);
         }
@@ -146,12 +230,12 @@ namespace D3DLab {
             VisualTreeviewer.GameWindow = scene.Window;
             SystemsView.GameWindow = scene.Window;
 
-            CoordinateSystemLinesGameObject.Build(context.GetEntityManager());
+            
             //OrbitsRotationGameObject.Build(context.GetEntityManager());
 
-            SphereGameObject.Create(context.GetEntityManager());
+            
 
-            System.Diagnostics.Trace.WriteLine("Test !");
+//            System.Diagnostics.Trace.WriteLine("Test !");
 
         }
 
@@ -167,6 +251,11 @@ namespace D3DLab {
         public void Load(FileInfo file, IFileParserPlugin parser) {
             var bl = new EntityBuilder(context.GetEntityManager());
             var tag = bl.Build(file, parser);
+            items.Add(new LoadedItem(this, new SingleGameObject(tag)));
+        }
+
+        void ForceRender() {
+            scene.Window.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
         }
     }
 
@@ -205,60 +294,7 @@ namespace D3DLab {
         }
     }
 
-    public sealed class LoadedItem {
-        public ICommand VisiblityChanged { get; set; }
-        public string Header { get { return duckTag.ToString(); } }
-
-        public LoadedItem() { }
-
-        readonly ElementTag duckTag;
-        readonly IEntityManager emanager;
-
-        public LoadedItem(IEntityManager emanager, ElementTag duckTag) {
-            this.emanager = emanager;
-            this.duckTag = duckTag;
-            VisiblityChanged = new Command(this);
-        }
-        public override string ToString() {
-            return duckTag.ToString();
-        }
-
-        private class Command : ICommand {
-            private LoadedItem item;
-            private readonly InvisibleComponent com;
-
-            public Command(LoadedItem item) {
-                this.item = item;
-                com = new InvisibleComponent();
-            }
-
-            public event EventHandler CanExecuteChanged = (s, r) => { };
-
-
-            public bool CanExecute(object parameter) {
-                return true;
-            }
-
-            public void Execute(object parameter) {
-                var _checked = (bool?)parameter;
-                if (!_checked.HasValue) {
-                    return;
-                }
-                var tag = item.duckTag;
-                //if (_checked.Value) {
-                //    item.emanager.GetEntity(tag).AddComponent(com);
-                //    item.emanager.SetFilter(x => !x.Has<InvisibleComponent>());
-                //} else {
-                //    item.emanager.GetEntity(tag).RemoveComponent(com);
-                //    item.emanager.SetFilter(x => true);
-                //}
-            }
-
-            public sealed class InvisibleComponent : GraphicComponent {
-
-            }
-        }
-    }
+    
 
     public sealed class SceneView : Wpf.Engine.App.Scene {
 
@@ -286,91 +322,6 @@ namespace D3DLab {
 
 
 
-        }
-
-
-        public LoadedItem LoadObj(Stream content) {
-            var entityManager = Context.GetEntityManager();
-
-            return null;
-
-            //var parser = new CncParser(new FileInfo(@"D:\Storage\trash\ncam\6848-Straumann_Tisue_4.8.cnc.obj"));
-            //var points = parser.GetPaths()[0].Points.GetRange(0,100).ToArray();
-
-            //points = new[] {
-            //    Vector3.Zero - Vector3.UnitX *30, Vector3.Zero + Vector3.UnitX *30,
-            //    Vector3.Zero- Vector3.UnitY *30, Vector3.Zero + Vector3.UnitY *30,
-            //    Vector3.Zero- Vector3.UnitZ *30, Vector3.Zero + Vector3.UnitZ *30,
-            //};
-
-            //for(var i = 0; i < points.Length; ++i) {
-            //    points[i] = Vector3.Transform(points[i], Matrix4x4.CreateTranslation(Vector3.UnitZ * 20));
-            //}
-
-            //var b = new LineBuilder();
-            //b.Build(points);
-
-            //var id = entityManager.BuildLineEntity(points);
-
-            //var id = entityManager.BuildArrow(new ArrowData {
-            //    axis = Vector3.UnitZ,
-            //    center = Vector3.Zero,
-            //    lenght = 20,
-            //    radius = 10,
-            //});
-
-            //return new LoadedItem(entityManager, id);
-
-            //duck
-            /*
-            var readerA = new Std.Engine.Core.Utilities.Helix.ObjReader();
-            var res = readerA.Read(content);
-
-            //var dic = new Dictionary<string, Std.Engine.Core.Utilities.Helix.MeshBuilder>();
-            //foreach (var gr in readerA.Groups) {
-            //    var key = gr.Name;//.Split(' ')[0];
-            //    Std.Engine.Core.Utilities.Helix.MeshBuilder value;
-            //    if (!dic.TryGetValue(key, out value)) {
-            //        value = new Std.Engine.Core.Utilities.Helix.MeshBuilder(false, false);
-            //        dic.Add(key, value);
-            //    }
-            //    value.Append(gr.MeshBuilder);
-            //}
-
-            //var builder = new Std.Engine.Core.Utilities.Helix.MeshBuilder(false, false);
-            //foreach (var item in dic) {
-            //    builder.Append(item.Value);
-            //}
-
-            //var mesh = res[0].Geometry;// builder.ToMeshGeometry3D();
-
-            res[0].Geometry.Color = new Vector4(1, 0, 0, 1);
-            res[1].Geometry.Color = new Vector4(0, 1, 0, 1);
-            res[2].Geometry.Color = new Vector4(0, 0, 1, 1);
-            res[3].Geometry.Color = new Vector4(1, 1, 0, 1);
-
-
-
-            var duckTag = entityManager.BuildGroupMeshElement(res.Select(x => x.Geometry));
-
-            // duckTag = entityManager.BuildCoordinateSystemLinesEntity();
-
-            return new LoadedItem(entityManager, duckTag);
-
-            //var entityManager = Context.GetEntityManager();
-
-            //var duck = VisualModelBuilder.Build(entityManager, builder.ToMeshGeometry3D(), "duck" + Guid.NewGuid().ToString());
-            //var arrowz = ArrowBuilder.Build(entityManager, Vector3.UnitZ, SharpDX.Color.Yellow);
-            //var arrowx = ArrowBuilder.Build(entityManager, Vector3.UnitX, SharpDX.Color.Blue);
-            //var arrowy = ArrowBuilder.Build(entityManager, Vector3.UnitY, SharpDX.Color.Green);
-            //var entities = new[] { duck, arrowz, arrowx, arrowy };
-            //var interactor = new EntityInteractor();
-            //interactor.ManipulateInteractingTwoWays(entities);
-            ////interactor.ManipulateInteractingTwoWays(duck, arrowx);
-            ////interactor.ManipulateInteractingTwoWays(duck, arrowy);
-            ////interactor.ManipulateInteracting(arrow, duck);
-            */
-            //return new LoadedItem(entityManager, duck.Tag, arrowz.Tag, arrowx.Tag, arrowy.Tag);
         }
 
         public class LineBuilder {

@@ -48,19 +48,11 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             //context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
             //context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
 
-            if (vertexShader != null) {
-                context.VertexShader.Set(vertexShader);
-            }
-            if (geometryShader != null) {
-                context.GeometryShader.Set(geometryShader);
-            }
-            context.GeometryShader.Dispose();
-            if (pixelShader != null) {
-                context.PixelShader.Set(pixelShader);
-            }
+            context.VertexShader.Set(vertexShader);
+            context.GeometryShader.Set(geometryShader);
+            context.PixelShader.Set(pixelShader);
 
             Rendering(graphics, gameDataBuffer, lightDataBuffer);
-
         }
 
         public IRenderTechniquePass GetPass() => pass;

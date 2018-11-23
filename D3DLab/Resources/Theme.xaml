@@ -4,34 +4,77 @@
 
     <SolidColorBrush x:Key="BlackBackgroundColor">#1E1E1E</SolidColorBrush>
     <SolidColorBrush x:Key="BorderBrushColor">White</SolidColorBrush>
+    <SolidColorBrush x:Key="TextColor">White</SolidColorBrush>
     <SolidColorBrush x:Key="SelectedBorderBrushColor">#569CD6</SolidColorBrush>
 
-    <Style TargetType="{x:Type TextBlock}">
+    <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
-    <Style TargetType="{x:Type ListBox}">
+
+    <Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
     </Style>
 
-    <Style TargetType="{x:Type ListBoxItem}">
+    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
     </Style>
 
-
-
-    <Style TargetType="{x:Type Button}">
+    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
         <Setter Property="Foreground" Value="White"/>
-        
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrushColor}" 
+                            Background="{StaticResource BlackBackgroundColor}" 
+                            CornerRadius="0" x:Name="btn_border">
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource BorderBrushColor}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ImageButton" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1"  
+                            Background="{StaticResource BlackBackgroundColor}" Name="btn_border">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource BorderBrushColor}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
-    <Style TargetType="{x:Type TabControl}">
+    <Style TargetType="{x:Type TabControl}" BasedOn="{StaticResource {x:Type TabControl}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
     </Style>
-    
-    <Style TargetType="{x:Type TabItem}">
+
+    <Style TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
         <Setter Property="Foreground" Value="White"/>
         <!--<Setter Property="OverridesDefaultStyle" Value="True" />-->
@@ -75,26 +118,52 @@
         </Style.Triggers>
     </Style>
 
-    <Style TargetType="{x:Type TabPanel}">
+    <!--<Style TargetType="{x:Type TabPanel}" BasedOn="{StaticResource {x:Type TabPanel}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
-    </Style>
-    
-    
-    <Style TargetType="{x:Type Border}">
+    </Style>-->
+
+
+    <!--<Style TargetType="{x:Type Border}" BasedOn="{StaticResource {x:Type Border}}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+    </Style>-->
+
+
+    <Style TargetType="{x:Type ContextMenu}" BasedOn="{StaticResource {x:Type ContextMenu}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
     </Style>
 
-    
-    <Style TargetType="{x:Type ContextMenu}">
+    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+        <!--<Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <ControlTemplate.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="Yellow" />
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Red" />
+                    </ControlTemplate.Resources>
+                    <ContentPresenter/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>-->
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
     </Style>
 
-    <Style TargetType="{x:Type ComboBox}">
+    <Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="ClickMode" Value="Press"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}" >
+                    <Grid Background="Black">
+                        
+                    <ContentPresenter />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
-    <Style TargetType="{x:Type ToggleButton}">
-        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
-    </Style>
-    
 </ResourceDictionary>
