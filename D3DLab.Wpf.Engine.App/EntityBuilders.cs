@@ -1,11 +1,14 @@
 ﻿using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace D3DLab.Wpf.Engine.App {
     public static class EntityBuilders {
@@ -43,16 +46,15 @@ namespace D3DLab.Wpf.Engine.App {
                .AddComponent(new SDX.Engine.Components.D3DLineVertexRenderComponent())
                .Tag;
         }
-       
 
 
         #region components 
 
-        public static GraphicEntity AddRenderAsTriangleColored(this GraphicEntity en) {
-            return en.AddComponent(new SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent());
+        public static IRenderableComponent GetRenderAsTriangleColored() {
+            return new SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent();
         }
-        public static GraphicEntity AddTransformation(this GraphicEntity en) {
-            return en.AddComponent(new SDX.Engine.Components.D3DTransformComponent());
+        public static TransformComponent GetTransformation() {
+            return new SDX.Engine.Components.D3DTransformComponent();
         }
 
         #endregion

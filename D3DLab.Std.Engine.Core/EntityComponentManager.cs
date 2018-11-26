@@ -12,7 +12,7 @@ namespace D3DLab.Std.Engine.Core {
         readonly IManagerChangeNotify notify;
 
         public GraphicEntity CreateEntity(ElementTag tag) {
-            var en = new GraphicEntity(tag, this, orderContainer);
+            var en = new GraphicEntity(tag, this, this, orderContainer);
 
             entitySynchronizer.Add((owner, input) => {
                 owner.entities.Add(tag, input);
@@ -51,6 +51,12 @@ namespace D3DLab.Std.Engine.Core {
         readonly Dictionary<ElementTag, List<IGraphicComponent>> components = new Dictionary<ElementTag, List<IGraphicComponent>>();
         readonly EntityOrderContainer orderContainer;
 
+        public void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com) {
+            comSynchronizer.AddRange((owner, inp) => {
+                inp.EntityTag = tagEntity;
+                owner.components[tagEntity].Add(inp);
+            }, com);
+        }
         public IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com) {
             comSynchronizer.Add((owner, inp) => {
                 inp.EntityTag = tagEntity;

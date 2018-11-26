@@ -7,11 +7,12 @@ using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Systems {   
     public class CameraSystem : BaseComponentSystem, IComponentSystem {
-        class MoveHandler : IMovementComponentHandler {
-            readonly CameraComponent camera;
-            readonly SceneSnapshot snapshot;
 
-            public MoveHandler(CameraComponent camera, SceneSnapshot snapshot) {
+        protected class OrthographicCameraMoveHandler : IMovementComponentHandler {
+            protected readonly OrthographicCameraComponent camera;
+            protected readonly SceneSnapshot snapshot;
+
+            public OrthographicCameraMoveHandler(OrthographicCameraComponent camera, SceneSnapshot snapshot) {
                 this.camera = camera;
                 this.snapshot = snapshot;
             }
@@ -61,6 +62,14 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 camera.LookDirection = (newTarget - newPosition);
                 camera.Position = newPosition;
             }
+
+            public virtual void Execute(ZoomComponent component) {
+
+            }
+        }
+
+        protected virtual IMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
+            return new OrthographicCameraMoveHandler(com, snapshot);
         }
 
         public void Execute(SceneSnapshot snapshot) {
@@ -69,9 +78,9 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
             try {
                 foreach (var entity in emanager.GetEntities()) {
-                    foreach (var com in entity.GetComponents<CameraComponent>()) {
+                    foreach (var com in entity.GetComponents<OrthographicCameraComponent>()) {
                         entity.GetComponents<MovementComponent>().DoFirst(movment=> {
-                            movment.Execute(new MoveHandler(com,snapshot));
+                            movment.Execute(CreateHandlerOrthographicHandler(com,snapshot));
                         });
 
                         com.UpdateViewMatrix();

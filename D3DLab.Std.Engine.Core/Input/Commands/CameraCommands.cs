@@ -1,5 +1,6 @@
 ﻿using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
+using D3DLab.Std.Engine.Core.Ext;
 using System.Linq;
 using System.Numerics;
 
@@ -12,7 +13,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
     public class ToCenterWorldCommand : IInputCommand {
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraComponent>();
+            var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
@@ -27,7 +28,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
     public class CameraIdleCommand : IInputCommand {
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraComponent>();
+            var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
@@ -45,14 +46,22 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         }
 
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraComponent>();
+            var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
             var ccom = find.First();
             var delta = state.Delta;
 
-            ccom.ZoomTo(delta, state.CurrentPosition);
+            var p2 = state.CurrentPosition;
+            var data = new MovementData { End = p2 };
+
+            entity
+                .GetOrCreateComponent(new ZoomComponent { State = ccom.GetState() })
+                .Do(x=> {
+                    x.MovementData = data;
+                    x.Delta = delta;
+                });
 
             return true;
         }
@@ -66,7 +75,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         }
 
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraComponent>();
+            var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
@@ -84,9 +93,12 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         }
     }
 
+
+
+
     public class ChangeCameraRotationCenter : IInputCommand {
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraComponent>();
+            var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
@@ -99,12 +111,12 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
     public class CameraPanCommand : CameraCommand {
         public CameraPanCommand(InputStateData state) : base(state) { }
-        protected override bool Executing(CameraComponent comp) {
+        protected override bool Executing(GeneralCameraComponent comp) {
             var p1 = state.PrevPosition;
             var p2 = state.CurrentPosition;
             var move = new Vector2(p2.X - p1.X, p2.Y - p1.Y);
 
-            comp.Pan(move);
+           // comp.Pan(move);
 
             return true;
         }
@@ -117,7 +129,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             this.state = state;
         }
         public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<CameraComponent>();
+            var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
@@ -125,7 +137,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             return Executing(ccom);
 
         }
-        protected abstract bool Executing(CameraComponent comp);
+        protected abstract bool Executing(GeneralCameraComponent comp);
     }
 
     /*

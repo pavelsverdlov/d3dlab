@@ -8,8 +8,10 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
         #region simple shaders
 
+ 
+
         public const string pixelShaderNoLogicText =
-   @"
+@"
 float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
     return color;
 }
@@ -281,6 +283,53 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
     }
 }
 ";
+        }
+
+        public static class Terrain {
+            static readonly D3DShaderTechniquePass pass;
+            static readonly VertexLayoutConstructor layconst;
+
+            static Terrain() {
+                layconst = new VertexLayoutConstructor()
+                   .AddPositionElementAsVector3()
+                   .AddColorElementAsVector4();
+                pass = new D3DShaderTechniquePass(new IShaderInfo[] {
+                    new ShaderInMemoryInfo("TRR_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
+                    new ShaderInMemoryInfo("TRR_FragmentShader", pixelShaderNoLogicText, null, ShaderStages.Fragment.ToString(), "main"),
+                });
+            }
+
+            [StructLayout(LayoutKind.Sequential)]
+            internal struct TerrainVertex {
+                internal Vector3 position;
+                internal Vector4 color;
+            }
+
+            public static D3DShaderTechniquePass GetPasses() => pass;
+            public static VertexLayoutConstructor GetLayoutConstructor() => layconst;
+
+            const string vertexShaderText =
+@"
+#include ""Game""
+struct VSOut
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
+VSOut main(float4 position : POSITION, float4 color : COLOR) { 
+    VSOut output = (VSOut)0;
+    
+    // Change the position vector to be 4 units for proper matrix calculations.
+    position.w = 1.0f;
+
+    output.position = mul(World, position);
+    output.position = mul(View, output.position);
+    output.position = mul(Projection, output.position);
+
+    output.color = color;
+
+    return output;
+}";
         }
     }
 }

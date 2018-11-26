@@ -97,14 +97,18 @@ namespace D3DLab {
             }
 
             public void Execute(object parameter) {
-                var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
-
-                main.plugins.Import();
                 var bl = new EntityBuilder(main.context.GetEntityManager());
-                var tag = bl.Build(file, main.plugins.ParserPlugins.First());
+
+                //var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
+
+                //main.plugins.Import();
+
+                //var tag = bl.Build(file, main.plugins.ParserPlugins.First());
 
 
                 // main.items.Add(item);
+                var tag = TerrainGameObject.Create( main.context.GetEntityManager());
+
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {

@@ -24,7 +24,7 @@ namespace D3DLab.Std.Engine.Core {
         public void Synchronize() {
             //copy to local
             Queue<Tuple<Action<TOwner, TInput>, TInput>> local;
-            lock (_loker) {
+            lock (_loker) { 
                 local = queue;
                 queue = new Queue<Tuple<Action<TOwner, TInput>, TInput>>();
                 IsChanged = false;
@@ -38,6 +38,14 @@ namespace D3DLab.Std.Engine.Core {
             lock (_loker) {
                 IsChanged = true;
                 queue.Enqueue(Tuple.Create(action, input));
+            }
+        }
+        public void AddRange(Action<TOwner, TInput> action, IEnumerable<TInput> inputs) {
+            lock (_loker) {
+                IsChanged = true;
+                foreach (var input in inputs) {
+                    queue.Enqueue(Tuple.Create(action, input));
+                }
             }
         }
 

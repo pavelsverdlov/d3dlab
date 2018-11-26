@@ -41,7 +41,11 @@ namespace D3DLab.Debugger.Windows {
         }
     }
 
-    public sealed class VisualTreeviewerViewModel : System.ComponentModel.INotifyPropertyChanged, IRenderUpdater {
+    public interface ITreeItemActions {
+        void Removed(VisualTreeItem item);
+    }
+
+    public sealed class VisualTreeviewerViewModel : System.ComponentModel.INotifyPropertyChanged, IRenderUpdater, ITreeItemActions {
        
         public class OpenPropertiesEditorComponentItemCommand : Presentation.OpenPropertiesEditorCommand<IVisualComponentItem> {
             public OpenPropertiesEditorComponentItemCommand(IRenderUpdater updater):base(updater) { }
@@ -104,31 +108,6 @@ namespace D3DLab.Debugger.Windows {
             //OpenPropertiesEditor = new OpenPropertiesEditorCommand();
         }
 
-        
-
-        /*
-        private static IEnumerable<IVisualTreeEntity> Fill() {
-            var props = new[] {
-                new VisualProperty{ Name = "name1", Value = "value1" },
-                new VisualProperty{ Name = "name2", Value = "value1" },
-                new VisualProperty{ Name = "name3", Value = "value1" },
-            };
-            return new[] {
-                new VisualTreeItem {
-                    Name = "Header",
-                    Components = new ObservableCollection<IEntityComponent>(props)
-                },
-                  new VisualTreeItem {
-                    Name = "Header1",
-                    Components = new ObservableCollection<IEntityComponent>(props)
-                },
-                    new VisualTreeItem {
-                    Name = "Header2",
-                    Components = new ObservableCollection<IEntityComponent>(props)
-                }
-            };
-        }*/
-
         public void Update() {
             GameWindow.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
         }
@@ -136,7 +115,7 @@ namespace D3DLab.Debugger.Windows {
         public void Add(GraphicEntity entity) {
             var found = items.SingleOrDefault(x => x.Name == entity.Tag);
             if (found == null) {
-                found = new VisualTreeItem(entity);
+                found = new VisualTreeItem(entity, this);
                 foreach (var com in entity.GetComponents()) {
                     found.Add(new VisualComponentItem(com, this));
                 }
@@ -188,5 +167,13 @@ namespace D3DLab.Debugger.Windows {
             //    ConsoleText += Environment.NewLine + text;
             //});
         }
+
+        #region IItemActions
+
+        public void Removed(VisualTreeItem item) {
+            items.Remove(item);
+        } 
+
+        #endregion
     }
 }

@@ -35,7 +35,7 @@
             <TextBlock Text="{Binding Name}" Foreground="White">
                 <TextBlock.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Remove" CommandParameter="{Binding}" Command="{Binding Remove}"/>
+                        <MenuItem Header="Remove" CommandParameter="{Binding}" Command="{Binding RemoveItem}"/>
                     </ContextMenu>
                 </TextBlock.ContextMenu>
             </TextBlock>

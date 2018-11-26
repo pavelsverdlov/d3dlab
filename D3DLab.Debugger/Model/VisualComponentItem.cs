@@ -13,7 +13,7 @@ using System.Windows.Input;
 
 namespace D3DLab.Debugger.Model {
     public class VisualTreeItem : IVisualTreeEntityItem {
-        // public ICommand RenderModeSwither { get; set; }
+        public ICommand RemoveItem { get;  }
 
         public Visibility CanEditShader { get; private set; }
         public ElementTag Name { get { return entity.Tag; } }
@@ -27,13 +27,19 @@ namespace D3DLab.Debugger.Model {
         private readonly Dictionary<ElementTag, IVisualComponentItem> hash;
 
         readonly GraphicEntity entity;
+        readonly ITreeItemActions actions;
 
-
-        public VisualTreeItem(GraphicEntity entity) {
+        public VisualTreeItem(GraphicEntity entity, ITreeItemActions actions) {
             this.entity = entity;
+            this.actions = actions;
             Components = new ObservableCollection<IVisualComponentItem>();
             hash = new Dictionary<ElementTag, IVisualComponentItem>();
-            // Components = CollectionViewSource.GetDefaultView(components);
+            RemoveItem = new WpfActionCommand(OnSelfRemove);
+        }
+
+        private void OnSelfRemove() {
+            entity.Remove();
+            actions.Removed(this);
         }
 
         public void Add(IVisualComponentItem com) {

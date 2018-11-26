@@ -13,8 +13,8 @@ namespace D3DLab.Wpf.Engine.App {
         
         public GameWindow(WinFormsD3DControl win, CurrentInputObserver input) {
             this.win = win;
-            Width = (float)Application.Current.MainWindow.ActualWidth;
-            Height = (float)Application.Current.MainWindow.ActualHeight;
+            Width = (float)Application.Current.MainWindow.Width;
+            Height = (float)Application.Current.MainWindow.Height;
             InputManager = new InputManager(input);
 
             win.Resize += OnResize;
@@ -22,8 +22,11 @@ namespace D3DLab.Wpf.Engine.App {
 
         private void OnResize(object sender, EventArgs e) {
             Resized();
-            Width = (float)Application.Current.MainWindow.ActualWidth;
-            Height = (float)Application.Current.MainWindow.ActualHeight;
+            //Width = win.Width;
+            //Height = win.Height;
+            Width = (float)Application.Current.MainWindow.Width;
+            Height = (float)Application.Current.MainWindow.Height;
+            System.Diagnostics.Trace.WriteLine($"Resize[App:{Width}/{Height}, WinForm:{win.Width}/{win.Height}]");
         }
 
         public float Width { get; private set; }

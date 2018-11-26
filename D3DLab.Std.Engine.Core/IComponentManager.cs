@@ -2,6 +2,7 @@
 
 namespace D3DLab.Std.Engine.Core {
     public interface IComponentManager : ISynchronizationContext {
+        void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com);
         IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com);
         void RemoveComponent(ElementTag tagEntity, IGraphicComponent com);
         void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent;

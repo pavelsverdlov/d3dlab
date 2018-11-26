@@ -82,7 +82,7 @@ namespace D3DLab.Std.Engine.Core.Render {
 
                 //Debug.WriteLine($"FPS {(int)(total / speed.ElapsedMilliseconds)} / {speed.ElapsedMilliseconds} ms");
 
-                notify.NotifyRender(eman.GetEntities().ToArray());
+                notify.NotifyRender(eman.GetEntities());
             }
 
             Window.InputManager.Dispose();

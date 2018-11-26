@@ -3,6 +3,7 @@ using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Wpf.Engine.App;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -18,13 +19,15 @@ namespace D3DLab.Visualization {
             components = new List<IGraphicComponent>();
         }
         public ElementTag Build(Stream stream, IFileParserPlugin parser) {
-            var tag = new ElementTag();
+            var tag = new ElementTag("Obj_"+DateTime.Now.Ticks);
             entity = manager.CreateEntity(tag);
 
             parser.Parse(stream, this);
 
-            components.ForEach(x => entity.AddComponent(x));
-            entity.AddRenderAsTriangleColored().AddTransformation();
+            components.Add(EntityBuilders.GetRenderAsTriangleColored());
+            components.Add(EntityBuilders.GetTransformation());
+
+            entity.AddComponents(components);
 
             return tag;
         }

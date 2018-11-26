@@ -136,6 +136,9 @@ namespace D3DLab.SDX.Engine {
             ImmediateContext = d3dDevice.ImmediateContext;
 
             CreateBuffers(width, height);
+
+            //TODO: Динамический оверлей. Direct3D 11.2 https://habr.com/company/microsoft/blog/199380/
+            //swapChain.SetSourceSize
             //DContext = new DeviceContext(D3DDevice);
         }
 

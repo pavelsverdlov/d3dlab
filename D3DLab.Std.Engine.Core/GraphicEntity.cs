@@ -6,11 +6,13 @@ namespace D3DLab.Std.Engine.Core {
     public sealed class GraphicEntity  {
         public ElementTag Tag { get; }
         readonly IComponentManager manager;
+        readonly IEntityManager emanager;
         readonly EntityOrderContainer order;
 
-        public GraphicEntity(ElementTag tag, IComponentManager manager, EntityOrderContainer order) {
+        public GraphicEntity(ElementTag tag, IComponentManager manager, IEntityManager emanager,EntityOrderContainer order) {
             this.order = order;
             this.manager = manager;
+            this.emanager = emanager;
             Tag =tag;
            
         }
@@ -29,9 +31,18 @@ namespace D3DLab.Std.Engine.Core {
             manager.AddComponent(Tag, component);
             return this;
         }
+        public GraphicEntity AddComponents(IEnumerable<IGraphicComponent> components){
+            manager.AddComponents(Tag, components);
+            return this;
+        }
         public void RemoveComponent(IGraphicComponent component) {
             manager.RemoveComponent(Tag, component);            
         }
+
+        public void Remove() {
+            emanager.RemoveEntity(Tag);
+        }
+
         public void RemoveComponents<T>() where T : IGraphicComponent {
             manager.RemoveComponents<T>(Tag);
         }

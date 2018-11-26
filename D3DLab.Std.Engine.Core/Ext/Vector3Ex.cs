@@ -83,6 +83,35 @@ namespace D3DLab.Std.Engine.Core.Ext {
             }
             return result;
         }
+        unsafe public static Vector3[] CalculateNormals(this Vector3[] positions, int[] indices) {
+            var aNormals = new Vector3[positions.Length];
+            var aPos = positions.ToArray();
+            var aInd = indices.ToArray();
+            fixed (Vector3* pNormal = aNormals) {
+                fixed (Vector3* pPos = aPos) {
+                    fixed (int* pInd = aInd) {
+                        for (var i = 0; i < indices.Length; i += 3) {
+                            var index0 = *(pInd + i);
+                            var index1 = *(pInd + i + 1);
+                            var index2 = *(pInd + i + 2);
+                            Vector3 u = Vector3.Subtract(*(pPos + index1), *(pPos + index0));
+                            Vector3 v = Vector3.Subtract(*(pPos + index2), *(pPos + index0));
+                            Vector3 w = Vector3.Cross(u, v);
+                            w.Normalize();
+
+                            *(pNormal + index0) = Vector3.Add(*(pNormal + index0), w);
+                            *(pNormal + index1) = Vector3.Add(*(pNormal + index1), w);
+                            *(pNormal + index2) = Vector3.Add(*(pNormal + index2), w);
+                        }
+                    }
+                }
+                for (int i = 0; i < aNormals.Length; i++) {
+                    *(pNormal + i) = (*(pNormal + i)).Normalize();
+                }
+            }
+
+            return aNormals;
+        }
 
         unsafe public static List<Vector3> CalculateNormals(this List<Vector3> positions, List<int> indices) {
 

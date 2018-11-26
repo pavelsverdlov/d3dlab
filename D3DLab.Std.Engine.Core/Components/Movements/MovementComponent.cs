@@ -11,15 +11,22 @@ namespace D3DLab.Std.Engine.Core.Components.Movements {
 
     public interface IMovementComponentHandler {
         void Execute(RotationComponent component);
+        void Execute(ZoomComponent component);
     }
 
     public class RotationComponent : MovementComponent {
-
         public override void Execute(IMovementComponentHandler handler) {
             handler.Execute(this);
         }
     }
 
+    public class ZoomComponent : MovementComponent {
+        public int Delta { get; set; }
+
+        public override void Execute(IMovementComponentHandler handler) {
+            handler.Execute(this);
+        }
+    }
     public abstract class MovementComponent : GraphicComponent {
         public CameraState State { get; set; }
         public MovementData MovementData { get; set; }

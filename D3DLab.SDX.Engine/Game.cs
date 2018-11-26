@@ -37,7 +37,7 @@ namespace D3DLab.SDX.Engine {
                 var smanager = Context.GetSystemManager();
 
                 smanager.CreateSystem<InputSystem>();
-                smanager.CreateSystem<CameraSystem>();
+                smanager.CreateSystem<D3DCameraSystem>();
                 smanager.CreateSystem<LightsSystem>();
                 smanager.CreateSystem<RenderSystem>().Init(device);
                 
@@ -48,7 +48,7 @@ namespace D3DLab.SDX.Engine {
                 EngineInfoBuilder.Build(em);
 
                 em.CreateEntity(cameraTag)
-                    .AddComponent(new D3DCameraComponent(Window.Width, Window.Height));
+                    .AddComponent(new OrthographicCameraComponent(Window.Width, Window.Height));
 
                 em.CreateEntity(new ElementTag("AmbientLight"))
                     .AddComponent(new D3DLightComponent {

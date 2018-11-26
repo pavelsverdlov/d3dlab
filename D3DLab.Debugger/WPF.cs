@@ -6,6 +6,22 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace D3DLab.Debugger {
+    public class WpfActionCommand : ICommand {
+        readonly Action action;
+        public WpfActionCommand(Action action) {
+            this.action = action;
+        }
+
+        public event EventHandler CanExecuteChanged = (s, r) => { };
+        public virtual bool CanExecute(object parameter) {
+            return true;
+        }
+
+        public void Execute(object parameter) {
+            action?.Invoke();
+        }
+    }
+
     public abstract class BaseWPFCommand : ICommand {
         public event EventHandler CanExecuteChanged = (s, r) => { };
         public virtual bool CanExecute(object parameter) {

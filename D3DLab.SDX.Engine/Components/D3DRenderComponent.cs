@@ -7,6 +7,7 @@ using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace D3DLab.SDX.Engine.Components {
     public class D3DRenderComponent {
@@ -105,6 +106,26 @@ namespace D3DLab.SDX.Engine.Components {
             PrimitiveTopology = PrimitiveTopology.PointList;
         }
         
+        void ID3DRenderableComponent.Accept(RenderFrameStrategiesVisitor visitor) {
+            visitor.Visit(this);
+        }
+    }
+
+    public class D3DTerrainRenderComponent : D3DRenderComponent, ID3DRenderableComponent, ITerrainComponent {
+        public int Width { get; set; }
+        public int Heigth { get; set; }
+     //   public Vector3[] HeightMap { get; set; }
+
+        public D3DTerrainRenderComponent() {
+            RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
+                CullMode = CullMode.None,
+                FillMode = FillMode.Solid,
+                IsMultisampleEnabled = false,
+                IsAntialiasedLineEnabled = false
+            });
+            PrimitiveTopology = PrimitiveTopology.LineList;
+        }
+
         void ID3DRenderableComponent.Accept(RenderFrameStrategiesVisitor visitor) {
             visitor.Visit(this);
         }

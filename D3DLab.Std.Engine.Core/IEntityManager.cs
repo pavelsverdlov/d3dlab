@@ -10,6 +10,8 @@ namespace D3DLab.Std.Engine.Core {
         GraphicEntity GetEntity(ElementTag tag);
         void SetFilter(Func<GraphicEntity, bool> predicate);
         void Dispose();
+
+        void RemoveEntity(ElementTag elementTag);
     }
 
 }

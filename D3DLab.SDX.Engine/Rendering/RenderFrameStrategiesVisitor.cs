@@ -27,7 +27,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             this.contextState = contextState;
         }
 
-        public void Visit(Components.D3DTriangleColoredVertexesRenderComponent component) {
+        public void Visit(D3DTriangleColoredVertexesRenderComponent component) {
             var type = typeof(ColoredVertexesRenderStrategy);
             var entityTag = component.EntityTag;
             try {
@@ -50,7 +50,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             }
         }
 
-        public void Visit(Components.D3DLineVertexRenderComponent component) {
+        public void Visit(D3DLineVertexRenderComponent component) {
             var type = typeof(ColoredVertexesRenderStrategy);
             var entityTag = component.EntityTag;
 
@@ -77,7 +77,18 @@ namespace D3DLab.SDX.Engine.Rendering {
                 .RegisterEntity(component, geometry);
         }
 
+        public void Visit(D3DTerrainRenderComponent com) {
+            var entityTag = com.EntityTag;
+            
+            var geometry = contextState
+                .GetComponentManager()
+                .GetComponent<IGeometryComponent>(entityTag);
 
+            GetOrCreate(() => new TerrainRenderStrategy(compilator,
+                    StategyStaticShaders.Terrain.GetPasses(),
+                    StategyStaticShaders.Terrain.GetLayoutConstructor()))
+                .RegisterEntity(com, geometry);
+        }
 
 
         T GetOrCreate<T>(Func<T> creator) where T : IRenderStrategy {

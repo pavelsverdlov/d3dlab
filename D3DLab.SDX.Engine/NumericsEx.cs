@@ -1,4 +1,10 @@
 ﻿namespace D3DLab.SDX.Engine {
+    internal static class SDXMathematicsEx {
+        internal static SharpDX.Vector3 ToSDXVector3(this System.Numerics.Vector3 v) {
+            return new SharpDX.Vector3(v.X, v.Y, v.Z);
+        }
+    }
+
     public static class NumericsEx {
         public static System.Numerics.Vector4 ToNumericV4(this SharpDX.Vector4 v4) {
             return new System.Numerics.Vector4(v4.X, v4.Y, v4.Z, v4.W);
