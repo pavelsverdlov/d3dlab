@@ -171,6 +171,7 @@ namespace D3DLab.Debugger.Windows {
         #region IItemActions
 
         public void Removed(VisualTreeItem item) {
+            hash.Remove(item.Name);
             items.Remove(item);
         } 
 

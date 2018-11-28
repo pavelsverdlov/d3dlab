@@ -1,43 +1,43 @@
-﻿using System;
+﻿using D3DLab.Std.Engine.Core.Ext;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using D3DLab.Std.Engine.Core.Input;
+using System.Threading;
 
 namespace D3DLab.Std.Engine.Core.Input {
     public class InputSnapshot {
-        private readonly object _loker;
+        readonly ReaderWriterLockSlim loker;
+        //private readonly object _loker;
         private Dictionary<Type, IInputCommand> cache;
         public InputSnapshot() {
-            _loker = new object();
+            //_loker = new object();
+            loker = new ReaderWriterLockSlim();//LockRecursionPolicy.SupportsRecursion
             cache = new Dictionary<Type, IInputCommand>();
         }
 
         public List<IInputCommand> Events {
             get {
-                IInputCommand[] values = null;
-                lock (_loker) {
-                    values = cache.Values.ToArray();
+                List<IInputCommand> values = null;
+                using (new ReadLockSlim(loker)) {
+                    values = cache.Values.ToList();
                 }
-                var res = new List<IInputCommand>();
-                foreach (var cmd in values) {
-                    res.Add(cmd);
-                }
-                return res;
+                return values;
             }
         }
         public void AddEvent<TCommand>(TCommand ev) where TCommand : IInputCommand {
-            //Events.Add(ev);
-            //lock (_loker) {
-            var type = ev.GetType();
-            if (cache.ContainsKey(type)) {
-                cache[type] = ev;
-            } else {
-                cache.Add(type, ev);
+            using (new UpgradeableReadLockSlim(loker)) {
+                var type = ev.GetType();
+                if (cache.ContainsKey(type)) {
+                    cache[type] = ev;
+                } else {
+                    using (new WriteLockSlim(loker)) {
+                        cache.Add(type, ev);
+                    }
+                }
             }
-            //  }
         }
         public void RemoveEvent<TCommand>(TCommand ev) where TCommand : IInputCommand {
-            lock (_loker) {
+            using (new WriteLockSlim(loker)) {
                 var type = ev.GetType();
                 if (cache.ContainsKey(type)) {
                     cache.Remove(type);
@@ -47,8 +47,9 @@ namespace D3DLab.Std.Engine.Core.Input {
         }
 
         public InputSnapshot CloneAndClear() {
-            var temp = cache;
-            lock (_loker) {
+            Dictionary<Type, IInputCommand> temp;
+            using (new WriteLockSlim(loker)) {
+                temp = cache;
                 cache = new Dictionary<Type, IInputCommand>();
             }
             var cloned = new InputSnapshot();
@@ -60,9 +61,10 @@ namespace D3DLab.Std.Engine.Core.Input {
         }
 
         internal void Dispose() {
-            lock (_loker) {
+            using (new WriteLockSlim(loker)) {
                 cache.Clear();
             }
+            loker.Dispose();
         }
     }
 }

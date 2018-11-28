@@ -1,6 +1,7 @@
 ﻿using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core.Shaders;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace D3DLab.SDX.Engine.Rendering.Strategies {
@@ -292,6 +293,7 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
             static Terrain() {
                 layconst = new VertexLayoutConstructor()
                    .AddPositionElementAsVector3()
+                   .AddNormalElementAsVector3()
                    .AddColorElementAsVector4();
                 pass = new D3DShaderTechniquePass(new IShaderInfo[] {
                     new ShaderInMemoryInfo("TRR_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
@@ -302,7 +304,10 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
             [StructLayout(LayoutKind.Sequential)]
             internal struct TerrainVertex {
                 internal Vector3 position;
+                internal Vector3 normal;
                 internal Vector4 color;
+
+                public static readonly int Size = Unsafe.SizeOf<TerrainVertex>();
             }
 
             public static D3DShaderTechniquePass GetPasses() => pass;
@@ -311,12 +316,14 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
             const string vertexShaderText =
 @"
 #include ""Game""
+#include ""Light""
 struct VSOut
 {
     float4 position : SV_POSITION;
     float4 color : COLOR;
+    float4 normal : NORMAL;
 };
-VSOut main(float4 position : POSITION, float4 color : COLOR) { 
+VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR) { 
     VSOut output = (VSOut)0;
     
     // Change the position vector to be 4 units for proper matrix calculations.
@@ -326,7 +333,10 @@ VSOut main(float4 position : POSITION, float4 color : COLOR) {
     output.position = mul(View, output.position);
     output.position = mul(Projection, output.position);
 
-    output.color = color;
+    output.normal = mul(World, normal);
+    output.normal = normalize(output.normal);
+
+    output.color = color * computeLight(output.position.xyz, output.normal, -LookDirection.xyz, 1000);
 
     return output;
 }";

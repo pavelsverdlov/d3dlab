@@ -30,13 +30,13 @@ namespace D3DLab.Plugins {
             var catalog = new AggregateCatalog();
             catalog.Catalogs.Add(new DirectoryCatalog(directory));
             container = new CompositionContainer(catalog);
-            container = new CompositionContainer(catalog);
             try {
                 container.ComposeParts(this);
             } catch (CompositionException ex) {
-                Console.WriteLine(ex.ToString());
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
                 throw ex;
             }
+
         }
     }
 }

@@ -118,12 +118,12 @@ namespace D3DLab.SDX.Engine.Components {
 
         public D3DTerrainRenderComponent() {
             RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
-                CullMode = CullMode.None,
+                CullMode = CullMode.Front,
                 FillMode = FillMode.Solid,
                 IsMultisampleEnabled = false,
                 IsAntialiasedLineEnabled = false
             });
-            PrimitiveTopology = PrimitiveTopology.LineList;
+            PrimitiveTopology = PrimitiveTopology.TriangleList;
         }
 
         void ID3DRenderableComponent.Accept(RenderFrameStrategiesVisitor visitor) {

@@ -218,10 +218,10 @@ namespace D3DLab.Wpf.Engine.App {
 
         public static TerrainGameObject Create(IEntityManager manager) {
             var tag = new ElementTag("Terrain");
-            var heigtmap = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\Debug\Resources\heightmap01.bmp";
+            var heigtmap = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\heightmap01.bmp";
             var width = 0;
             var height = 0;
-            var HeightMap = new List<Vector3>();// bitmap.Width * bitmap.Height);
+            var HeightMap = new List<Vector3>();
 
             using (var bitmap = new System.Drawing.Bitmap(heigtmap)) {
                 width = bitmap.Width;
@@ -230,7 +230,7 @@ namespace D3DLab.Wpf.Engine.App {
                 // Read the image data into the height map
                 for (var j = 0; j < bitmap.Height; j++) {
                     for (var i = 0; i < bitmap.Width; i++) {
-                        HeightMap.Add(new Vector3(i, bitmap.GetPixel(i, j).R / normalizeHeightMap, j));
+                        HeightMap.Add(new Vector3(i, j, bitmap.GetPixel(i, j).R / normalizeHeightMap));
                     }
                 }
             }
@@ -243,7 +243,6 @@ namespace D3DLab.Wpf.Engine.App {
                     new D3DTerrainRenderComponent() {
                         Width = width,
                         Heigth = height,
-                   //     HeightMap = HeightMap.ToArray(),
                     },
                     geo
                 });
@@ -253,43 +252,26 @@ namespace D3DLab.Wpf.Engine.App {
         static void TriangulateMap(List<Vector3> HeightMap, int height, int width, GeometryComponent geometry) {
             var count = (width - 1) * (height - 1) * 6;
             var indices = new int[count];
-            var vertices = new Vector3[count];
-
-            int index = 0;
-
+            var vertices = HeightMap.ToArray();
+            var index = 0;
             for (int j = 0; j < (height - 1); j++) {
+                var row = height * j;
+                var row2 = height * (j + 1);
                 for (int i = 0; i < (width - 1); i++) {
-                    int indexBottomLeft1 = (height * j) + i;          // Bottom left.
-                    int indexBottomRight2 = (height * j) + (i + 1);      // Bottom right.
-                    int indexUpperLeft3 = (height * (j + 1)) + i;      // Upper left.
-                    int indexUpperRight4 = (height * (j + 1)) + (i + 1);  // Upper right.
+                    var indx1 = row + i;
+                    var indx2 = row + i + 1;
+                    var indx3 = row2 + i;
+                    var indx4 = row2 + i + 1;
 
-                    #region First Triangle
-                    // Upper left.
-                    vertices[index] = HeightMap[indexUpperLeft3];
-                    indices[index] = index++;
-                    // Upper right.
-                    vertices[index] = HeightMap[indexUpperRight4];
-                    indices[index] = index++;
-                    // Bottom left.
-                    vertices[index] = HeightMap[indexBottomLeft1];
-                    indices[index] = index++;
-                    #endregion
+                    indices[index++] = indx1;
+                    indices[index++] = indx2;
+                    indices[index++] = indx3;
 
-                    #region Second Triangle
-                    // Bottom left.
-                    vertices[index] = HeightMap[indexBottomLeft1];
-                    indices[index] = index++;
-                    // Upper right.
-                    vertices[index] = HeightMap[indexUpperRight4];
-                    indices[index] = index++;
-                    // Bottom right.
-                    vertices[index] = HeightMap[indexBottomRight2];
-                    indices[index] = index++;
-                    #endregion
+                    indices[index++] = indx2;
+                    indices[index++] = indx4;
+                    indices[index++] = indx3;
                 }
             }
-
             var normals = vertices.CalculateNormals(indices);
             geometry.Indices = indices.ToImmutableArray();
             geometry.Positions = vertices.ToImmutableArray();

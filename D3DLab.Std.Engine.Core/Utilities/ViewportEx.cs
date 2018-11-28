@@ -25,7 +25,9 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             Vector3 zf = Vector3.Transform(v, matrix);
 
             if (camera is PerspectiveCameraComponent) {
-                zn = camera.Position;
+                v.Z = 0;
+                zn = Vector3.Transform(v, matrix);
+                //zn = camera.Position;
             } else {
                 v.Z = 0;
                 zn = Vector3.Transform(v, matrix);

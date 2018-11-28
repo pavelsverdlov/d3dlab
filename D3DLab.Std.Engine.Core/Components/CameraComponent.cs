@@ -14,26 +14,34 @@ namespace D3DLab.Std.Engine.Core.Components {
 
     public class PerspectiveCameraComponent : GeneralCameraComponent {
 
+        public float FieldOfViewRadians { get; set; }
+        public float MinimumFieldOfView { get; set; }
+        public float MaximumFieldOfView { get; set; }
+
         public PerspectiveCameraComponent() {
-            FieldOfViewRadians = 1.05f;
+            ResetToDefault();
         }
 
         public override Matrix4x4 UpdateProjectionMatrix(float width, float height) {
             float aspectRatio = width / height;
 
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(
+            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
                         FieldOfViewRadians,
                         aspectRatio,
                         NearPlaneDistance,
                         FarPlaneDistance);
-
-
-
-            return projection;
+            
+            return ProjectionMatrix;
         }
 
         public override void ResetToDefault() {
+            UpDirection = Vector3.UnitY;
+            FieldOfViewRadians = 1.05f;
+            NearPlaneDistance = 100f;
+            LookDirection = ForwardRH;
+            Position = Vector3.UnitZ * 200f;
 
+            FarPlaneDistance = Position.Length() * 70;
         }
     }
 
@@ -68,7 +76,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         public override void ResetToDefault() {
             UpDirection = Vector3.UnitY;
             Width = 35f;
-            FieldOfViewRadians = 1.05f;
+            //FieldOfViewRadians = 1.05f;
             NearPlaneDistance = 0.01f;
             LookDirection = ForwardRH;
             Position = Vector3.UnitZ * Width * 10f;
@@ -142,7 +150,8 @@ namespace D3DLab.Std.Engine.Core.Components {
         public static readonly Vector3 ForwardRH = new Vector3(0, 0, -1);
 
         public Vector3 RotatePoint { get; set; }
-        public float FieldOfViewRadians { get; set; }
+        
+
         public Vector3 Position { get; set; }
         public float NearPlaneDistance { get; set; }
         public Vector3 LookDirection { get; set; }
@@ -159,7 +168,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         }
 
         public Matrix4x4 UpdateViewMatrix() {
-            ViewMatrix = Matrix4x4.CreateLookAt(Position, Position + LookDirection, UpDirection);
+            ViewMatrix = Matrix4x4.CreateLookAt(Position, Target, UpDirection);
             return ViewMatrix;
         }
         public abstract Matrix4x4 UpdateProjectionMatrix(float width, float height);

@@ -48,7 +48,8 @@ namespace D3DLab.SDX.Engine {
                 EngineInfoBuilder.Build(em);
 
                 em.CreateEntity(cameraTag)
-                    .AddComponent(new OrthographicCameraComponent(Window.Width, Window.Height));
+                    //.AddComponent(new OrthographicCameraComponent(Window.Width, Window.Height));
+                    .AddComponent(new PerspectiveCameraComponent());
 
                 em.CreateEntity(new ElementTag("AmbientLight"))
                     .AddComponent(new D3DLightComponent {

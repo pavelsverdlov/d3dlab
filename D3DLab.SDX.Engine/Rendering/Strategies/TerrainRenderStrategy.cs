@@ -39,11 +39,12 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
                 if (geo.IsModified) {
                     var pos = geo.Positions;
-                    var vertices = new StategyStaticShaders.Terrain.TerrainVertex[geo.Indices.Length];
+                    var normals = geo.Normals;
+                    var vertices = new StategyStaticShaders.Terrain.TerrainVertex[pos.Length];
 
                     for (var i = 0; i < pos.Length; i++) {
                         vertices[i] = new StategyStaticShaders.Terrain.TerrainVertex {
-                            position = pos[i], color = V4Colors.Green
+                            position = pos[i], normal = normals[i], color = V4Colors.Green
                         };
                     }
 
@@ -61,14 +62,14 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
                 context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, TransformBuffer);
 
-                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer, Unsafe.SizeOf<StategyStaticShaders.Terrain.TerrainVertex>(), 0));
+                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer, StategyStaticShaders.Terrain.TerrainVertex.Size, 0));
                 context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer, Format.R32_UInt, 0);//R32_SInt
 
 
                 graphics.UpdateRasterizerState(renderCom.RasterizerState.GetDescription());
 
-                //graphics.ImmediateContext.DrawIndexed(indexCount, 0, 0);
-                graphics.ImmediateContext.Draw(geo.Positions.Length, 0);
+                graphics.ImmediateContext.DrawIndexed(geo.Indices.Length, 0, 0);
+                //graphics.ImmediateContext.Draw(geo.Positions.Length, 0);
 
             }
         }

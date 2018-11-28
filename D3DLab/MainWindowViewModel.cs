@@ -97,7 +97,7 @@ namespace D3DLab {
             }
 
             public void Execute(object parameter) {
-                var bl = new EntityBuilder(main.context.GetEntityManager());
+                //var bl = new EntityBuilder(main.context.GetEntityManager());
 
                 //var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
 
@@ -107,8 +107,7 @@ namespace D3DLab {
 
 
                 // main.items.Add(item);
-                var tag = TerrainGameObject.Create( main.context.GetEntityManager());
-
+                var tag = TerrainGameObject.Create(main.context.GetEntityManager());
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {
