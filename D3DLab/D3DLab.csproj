@@ -284,10 +284,6 @@
       <Project>{dd2af31b-f0dd-4bdd-a6eb-0d32fc8b6bb7}</Project>
       <Name>D3DLab.Wpf.Engine.App</Name>
     </ProjectReference>
-    <ProjectReference Include="..\veldrid\src\Veldrid.Utilities\Veldrid.Utilities.csproj">
-      <Project>{3C8555BB-2BD9-4973-BFD9-DCAFDCD5955D}</Project>
-      <Name>Veldrid.Utilities</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\heightmap01.bmp">
