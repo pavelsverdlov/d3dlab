@@ -13,10 +13,10 @@ using System.Runtime.CompilerServices;
 
 namespace D3DLab.SDX.Engine.Rendering.Strategies {
     internal class TerrainRenderStrategy : RenderStrategy, IRenderStrategy {
-        readonly List<Tuple<D3DTerrainRenderComponent, IGeometryComponent>> entities;
+        readonly List<Tuple<D3DTerrainRenderComponent, IGeometryComponent, D3DTexturedMaterialComponent>> entities;
 
         public TerrainRenderStrategy(D3DShaderCompilator compilator, IRenderTechniquePass pass, VertexLayoutConstructor layoutConstructor) : base(compilator, pass, layoutConstructor) {
-            entities = new List<Tuple<D3DTerrainRenderComponent, IGeometryComponent>>();
+            entities = new List<Tuple<D3DTerrainRenderComponent, IGeometryComponent, D3DTexturedMaterialComponent>>();
         }
 
         public void Cleanup() {
@@ -34,8 +34,15 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             foreach (var en in entities) {
                 var renderCom = en.Item1;
                 var geo = en.Item2;
+                var material = en.Item3;
 
                 context.InputAssembler.PrimitiveTopology = renderCom.PrimitiveTopology;
+
+                if (material.IsModified) {
+                    material.TextureResource = graphics.TexturedLoader.LoadShaderResource(material.Image);
+                    material.SampleState = graphics.CreateSampler(material.SampleDescription);
+                    material.IsModified = false;
+                }
 
                 if (geo.IsModified) {
                     var pos = geo.Positions;
@@ -44,7 +51,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
                     for (var i = 0; i < pos.Length; i++) {
                         vertices[i] = new StategyStaticShaders.Terrain.TerrainVertex {
-                            position = pos[i], normal = normals[i], color = V4Colors.Green
+                            position = pos[i], normal = normals[i], color = geo.Colors[i], texcoor = geo.TextureCoordinates[i]
                         };
                     }
 
@@ -62,9 +69,13 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
                 context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, TransformBuffer);
 
+                context.PixelShader.SetShaderResource(0, material.TextureResource);
+                context.PixelShader.SetSampler(0, material.SampleState);
+
                 context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer, StategyStaticShaders.Terrain.TerrainVertex.Size, 0));
                 context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer, Format.R32_UInt, 0);//R32_SInt
 
+                //
 
                 graphics.UpdateRasterizerState(renderCom.RasterizerState.GetDescription());
 
@@ -74,8 +85,8 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             }
         }
 
-        internal void RegisterEntity(D3DTerrainRenderComponent com, IGeometryComponent geo) {
-            entities.Add(Tuple.Create(com, geo));
+        internal void RegisterEntity(D3DTerrainRenderComponent com, IGeometryComponent geo, D3DTexturedMaterialComponent material) {
+            entities.Add(Tuple.Create(com, geo, material));
         }
     }
 }

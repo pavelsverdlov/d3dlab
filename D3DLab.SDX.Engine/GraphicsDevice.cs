@@ -1,4 +1,5 @@
-﻿using D3DLab.SDX.Engine.Shader;
+﻿using D3DLab.SDX.Engine.D2;
+using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
 using SharpDX;
 using SharpDX.Direct3D;
@@ -93,6 +94,7 @@ namespace D3DLab.SDX.Engine {
     internal class GraphicsDevice {
         public readonly D3DShaderCompilator Compilator;
 
+        internal TexturedLoader TexturedLoader { get; }
         internal SharpDX.Direct3D11.Device D3DDevice { get; private set; }
         internal DeviceContext ImmediateContext { get; private set; }
         RenderTargetView renderTargetView;
@@ -140,6 +142,8 @@ namespace D3DLab.SDX.Engine {
             //TODO: Динамический оверлей. Direct3D 11.2 https://habr.com/company/microsoft/blog/199380/
             //swapChain.SetSourceSize
             //DContext = new DeviceContext(D3DDevice);
+
+            TexturedLoader = new TexturedLoader(D3DDevice);
         }
 
         public void Dispose() {
@@ -329,6 +333,10 @@ namespace D3DLab.SDX.Engine {
 
         public void UpdateSubresource<T>(ref T data, SharpDX.Direct3D11.Buffer buff, int subresource) where T : struct {
             ImmediateContext.UpdateSubresource(ref data, buff, subresource);
+        }
+
+        public SamplerState CreateSampler(SamplerStateDescription desc) {
+            return new SamplerState(D3DDevice, desc);
         }
 
 

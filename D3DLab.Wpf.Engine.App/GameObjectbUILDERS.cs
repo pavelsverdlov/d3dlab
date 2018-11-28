@@ -210,6 +210,8 @@ namespace D3DLab.Wpf.Engine.App {
     }
 
     public class TerrainGameObject : GameObject {
+        const int TEXTURE_REPEAT = 8;
+
         public ElementTag Tag;
 
         public TerrainGameObject(ElementTag tag) {
@@ -219,6 +221,8 @@ namespace D3DLab.Wpf.Engine.App {
         public static TerrainGameObject Create(IEntityManager manager) {
             var tag = new ElementTag("Terrain");
             var heigtmap = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\heightmap01.bmp";
+            var texture_bnm = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\dirt03.bmp";
+
             var width = 0;
             var height = 0;
             var HeightMap = new List<Vector3>();
@@ -244,7 +248,8 @@ namespace D3DLab.Wpf.Engine.App {
                         Width = width,
                         Heigth = height,
                     },
-                    geo
+                    geo,
+                    new D3DTexturedMaterialComponent(new System.IO.FileInfo(texture_bnm))
                 });
 
             return new TerrainGameObject(tag);
@@ -276,108 +281,58 @@ namespace D3DLab.Wpf.Engine.App {
             geometry.Indices = indices.ToImmutableArray();
             geometry.Positions = vertices.ToImmutableArray();
             geometry.Normals = normals.ToImmutableArray();
+            geometry.TextureCoordinates = CalculateTextureCoordinates(HeightMap, width, height).ToImmutableArray();
+            geometry.Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+
+            //Light.SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
+            //Light.SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
-        static bool CalculateNormals(List<Vector3> HeightMap, Vector3[] normalsMap, int height, int width) {
-            // Create a temporary array to hold the un-normalized normal vectors.
-            int index;
-            //float length;
-            Vector3 vertex1, vertex2, vertex3, vector1, vector2, sum;
-            var normals = new Vector3[(height - 1) * (width - 1)];
+        static Vector2[] CalculateTextureCoordinates(List<Vector3> HeightMap, int width, int height) {
+            // Calculate how much to increment the texture coordinates by.
+            float incrementValue = (float)TEXTURE_REPEAT / (float)width;
 
-            // Go through all the faces in the mesh and calculate their normals.
-            for (int j = 0; j < (height - 1); j++) {
-                for (int i = 0; i < (width - 1); i++) {
-                    int index1 = (j * height) + i;
-                    int index2 = (j * height) + (i + 1);
-                    int index3 = ((j + 1) * height) + i;
+            // Calculate how many times to repeat the texture.
+            int incrementCount = width / TEXTURE_REPEAT;
 
-                    // Get three vertices from the face.
-                    vertex1 = HeightMap[index1];
-                    vertex2 = HeightMap[index2];
-                    vertex3 = HeightMap[index3];
+            // Initialize the tu and tv coordinate values.
+            float tuCoordinate = 0.0f;
+            float tvCoordinate = 1.0f;
 
-                    // Calculate the two vectors for this face.
-                    vector1 = vertex1 - vertex3;
-                    vector2 = vertex3 - vertex2;
-
-                    index = (j * (height - 1)) + i;
-
-                    // Calculate the cross product of those two vectors to get the un-normalized value for this face normal.
-                    Vector3 vecTestCrossProduct = Vector3.Cross(vector1, vector2);
-                    normals[index].X = vecTestCrossProduct.X;
-                    normals[index].Y = vecTestCrossProduct.Y;
-                    normals[index].Z = vecTestCrossProduct.Z;
-                }
-            }
-
-            // Now go through all the vertices and take an average of each face normal 	
-            // that the vertex touches to get the averaged normal for that vertex.
+            // Initialize the tu and tv coordinate indexes.
+            int tuCount = 0;
+            int tvCount = 0;
+            var texture = new Vector2[HeightMap.Count];
+            // Loop through the entire height map and calculate the tu and tv texture coordinates for each vertex.
             for (int j = 0; j < height; j++) {
                 for (int i = 0; i < width; i++) {
-                    // Initialize the sum.
-                    sum = Vector3.Zero;
+                    // Store the texture coordinate in the height map.
+                    //var tempHeightMap = HeightMap[(m_TerrainHeight * j) + i];
+                    texture[(height * j) + i] = new Vector2(tuCoordinate, tvCoordinate);
+                    //HeightMap[(m_TerrainHeight * j) + i] = tempHeightMap;
 
-                    // Initialize the count.
-                    int count = 9;
+                    // Increment the tu texture coordinate by the increment value and increment the index by one.
+                    tuCoordinate += incrementValue;
+                    tuCount++;
 
-                    // Bottom left face.
-                    if (((i - 1) >= 0) && ((j - 1) >= 0)) {
-                        index = ((j - 1) * (height - 1)) + (i - 1);
-
-                        sum.X += normals[index].X;
-                        sum.Y += normals[index].Y;
-                        sum.Z += normals[index].Z;
-                        count++;
+                    // Check if at the far right end of the texture and if so then start at the beginning again.
+                    if (tuCount == incrementCount) {
+                        tuCoordinate = 0.0f;
+                        tuCount = 0;
                     }
-                    // Bottom right face.
-                    if ((i < (width - 1)) && ((j - 1) >= 0)) {
-                        index = ((j - 1) * (height - 1)) + i;
+                }
 
-                        sum.X += normals[index].X;
-                        sum.Y += normals[index].Y;
-                        sum.Z += normals[index].Z;
-                        count++;
-                    }
-                    // Upper left face.
-                    if (((i - 1) >= 0) && (j < (height - 1))) {
-                        index = (j * (height - 1)) + (i - 1);
+                // Increment the tv texture coordinate by the increment value and increment the index by one.
+                tvCoordinate -= incrementValue;
+                tvCount++;
 
-                        sum.X += normals[index].X;
-                        sum.Y += normals[index].Y;
-                        sum.Z += normals[index].Z;
-                        count++;
-                    }
-                    // Upper right face.
-                    if ((i < (width - 1)) && (j < (height - 1))) {
-                        index = (j * (height - 1)) + i;
-
-                        sum.X += normals[index].X;
-                        sum.Y += normals[index].Y;
-                        sum.Z += normals[index].Z;
-                        count++;
-                    }
-
-                    // Take the average of the faces touching this vertex.
-                    sum.X = (sum.X / (float)count);
-                    sum.Y = (sum.Y / (float)count);
-                    sum.Z = (sum.Z / (float)count);
-
-                    // Calculate the length of this normal.
-                    //length = (float)Math.Sqrt((sum.X * sum.X) + (sum.Y * sum.Y) + (sum.Z * sum.Z));
-
-                    // Get an index to the vertex location in the height map array.
-                    index = (j * height) + i;
-
-                    // Normalize the final shared normal for this vertex and store it in the height map array.
-                    normalsMap[index] = sum.Normalize();// new Vector3((sum.X / length), (sum.Y / length), (sum.Z / length));
+                // Check if at the top of the texture and if so then start at the bottom again.
+                if (tvCount == incrementCount) {
+                    tvCoordinate = 1.0f;
+                    tvCount = 0;
                 }
             }
-
-            // Release the temporary normals.
-            normals = null;
-
-            return true;
+            return texture;
         }
 
         public override void Hide(IEntityManager manager) {

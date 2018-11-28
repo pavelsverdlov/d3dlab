@@ -79,15 +79,16 @@ namespace D3DLab.SDX.Engine.Rendering {
 
         public void Visit(D3DTerrainRenderComponent com) {
             var entityTag = com.EntityTag;
-            
-            var geometry = contextState
-                .GetComponentManager()
-                .GetComponent<IGeometryComponent>(entityTag);
+            var manager = contextState.GetComponentManager();
+
+            var geometry = manager.GetComponent<IGeometryComponent>(entityTag);
+
+            var material = manager.GetComponent<D3DTexturedMaterialComponent>(entityTag); 
 
             GetOrCreate(() => new TerrainRenderStrategy(compilator,
                     StategyStaticShaders.Terrain.GetPasses(),
                     StategyStaticShaders.Terrain.GetLayoutConstructor()))
-                .RegisterEntity(com, geometry);
+                .RegisterEntity(com, geometry, material);
         }
 
 

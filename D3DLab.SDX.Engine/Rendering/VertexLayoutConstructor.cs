@@ -9,9 +9,11 @@ namespace D3DLab.SDX.Engine.Rendering {
         const string SemanticPositionName = "POSITION";
         const string SemanticNormalName = "NORMAL";
         const string SemanticColorName = "COLOR";
+        const string SemanticTexCoorName = "TEXCOORD";
         const InputClassification perverxdata = InputClassification.PerVertexData;
         const Format Vector3 = Format.R32G32B32_Float;
         const Format Vector4 = Format.R32G32B32A32_Float;
+        const Format Vector2 = Format.R32G32_Float;
 
         readonly List<InputElement> elements;
         public VertexLayoutConstructor() {
@@ -38,6 +40,10 @@ namespace D3DLab.SDX.Engine.Rendering {
 
         internal VertexLayoutConstructor AddColorElementAsVector4() {
             elements.Add(new InputElement(SemanticColorName, 0, Vector4, GetOffset(), 0, perverxdata, 0));
+            return this;
+        }
+        internal VertexLayoutConstructor AddTexCoorElementAsVector2() {
+            elements.Add(new InputElement(SemanticTexCoorName, 0, Vector2, GetOffset(), 0, perverxdata, 0));
             return this;
         }
     }

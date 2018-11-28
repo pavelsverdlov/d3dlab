@@ -12,6 +12,8 @@ namespace D3DLab.Std.Engine.Core.Components {
         ImmutableArray<Vector3> Normals { get; }
         ImmutableArray<int> Indices { get; }
         ImmutableArray<Vector4> Colors { get; }
+
+        ImmutableArray<Vector2> TextureCoordinates { get; }
     }
 
     public class GroupGeometryComponent : GraphicComponent, ICollection<GeometryComponent>, IGeometryComponent {
@@ -20,6 +22,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         public ImmutableArray<int>     Indices       {get;private set;}
         public ImmutableArray<Vector4> Colors    {get;private set;}
         public ImmutableArray<Vector3> Normals   { get; private set; }
+        public ImmutableArray<Vector2> TextureCoordinates { get; private set; }
 
         readonly List<GeometryComponent> groups;
 

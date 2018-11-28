@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Numerics;
-using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Components.Materials {
+    
     public class ColorComponent : GraphicComponent {
         public Vector4 Color { get; set; }
     }
@@ -14,5 +13,15 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
         public Vector4 AmbientColor { get; set; }
         public Vector4 DiffuseColor { get; set; }
 
+    }
+    
+    public class TexturedMaterialComponent : GraphicComponent {
+        public FileInfo Image { get; }
+
+        public TexturedMaterialComponent(FileInfo image) {
+            Image = image;
+        }
+
+        
     }
 }

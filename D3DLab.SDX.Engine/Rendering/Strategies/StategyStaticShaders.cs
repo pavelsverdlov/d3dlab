@@ -294,18 +294,20 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
                 layconst = new VertexLayoutConstructor()
                    .AddPositionElementAsVector3()
                    .AddNormalElementAsVector3()
-                   .AddColorElementAsVector4();
+                   .AddColorElementAsVector4()
+                   .AddTexCoorElementAsVector2();
                 pass = new D3DShaderTechniquePass(new IShaderInfo[] {
                     new ShaderInMemoryInfo("TRR_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                    new ShaderInMemoryInfo("TRR_FragmentShader", pixelShaderNoLogicText, null, ShaderStages.Fragment.ToString(), "main"),
+                    new ShaderInMemoryInfo("TRR_FragmentShader", pixelShader, null, ShaderStages.Fragment.ToString(), "main"),
                 });
             }
 
             [StructLayout(LayoutKind.Sequential)]
             internal struct TerrainVertex {
-                internal Vector3 position;
+                internal Vector3 position;                
                 internal Vector3 normal;
                 internal Vector4 color;
+                internal Vector2 texcoor;
 
                 public static readonly int Size = Unsafe.SizeOf<TerrainVertex>();
             }
@@ -317,13 +319,14 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
 @"
 #include ""Game""
 #include ""Light""
+
 struct VSOut
 {
     float4 position : SV_POSITION;
     float4 color : COLOR;
-    float4 normal : NORMAL;
+    float2 tex : TEXCOORD0;
 };
-VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR) { 
+VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 tex : TEXCOORD) { 
     VSOut output = (VSOut)0;
     
     // Change the position vector to be 4 units for proper matrix calculations.
@@ -333,13 +336,24 @@ VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : CO
     output.position = mul(View, output.position);
     output.position = mul(Projection, output.position);
 
-    output.normal = mul(World, normal);
-    output.normal = normalize(output.normal);
+    output.tex = tex;
 
-    output.color = color * computeLight(output.position.xyz, output.normal, -LookDirection.xyz, 1000);
+    normal = mul(World, normal);
+    normal = normalize(normal);
+
+    output.color = color * computeLight(output.position.xyz, normal, -LookDirection.xyz, 1000);
 
     return output;
 }";
+            const string pixelShader =
+@"
+Texture2D shaderTexture;
+SamplerState SampleType;
+float4 main(float4 position : SV_POSITION, float4 color : COLOR, float2 tex : TEXCOORD) : SV_TARGET {
+    float4 textureColor = shaderTexture.Sample(SampleType, tex);
+    return color * textureColor;
+}
+";
         }
     }
 }

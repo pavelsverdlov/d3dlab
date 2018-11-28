@@ -21,6 +21,9 @@ namespace D3DLab.Std.Engine.Core.Components {
         }
         public ImmutableArray<Vector2> TextureCoordinates { get; set; }
         public ImmutableArray<int> Indices { get; set; }
+        /// <summary>
+        /// MOve to colot component
+        /// </summary>
         public Vector4 Color { get; set; }
 
         ImmutableArray<Vector4> colors;

@@ -65,7 +65,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                     }
 
                 } catch (SharpDX.CompilationException cex) {
-                    System.Diagnostics.Trace.WriteLine($"CompilationException[{cex.Message.Trim()}]");
+                    System.Diagnostics.Trace.WriteLine($"CompilationException[\n{cex.Message.Trim()}]");
                 } catch (SharpDX.SharpDXException shex) {
                     //var reason = frame.Graphics.D3DDevice.DeviceRemovedReason;
                     System.Diagnostics.Trace.WriteLine(shex.Message);
