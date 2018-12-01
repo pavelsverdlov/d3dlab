@@ -1,17 +1,10 @@
-﻿using D3DLab.Std.Engine.Core;
-using D3DLab.Std.Engine.Core.Components;
-using System;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
+using System.Text;
 
-namespace D3DLab.SDX.Engine.Components {
-
-
-
-    
-   
-    public class D3DLightComponent : GraphicComponent, ILightComponent {
+namespace D3DLab.Std.Engine.Core.Components {
+    public class LightComponent : GraphicComponent, ILightComponent {
         /// <summary>
         /// 0 - 1 range
         /// </summary>
@@ -21,6 +14,4 @@ namespace D3DLab.SDX.Engine.Components {
         public Vector3 Direction { get; set; }
         public LightTypes Type { get; set; }
     }
-
-    
 }

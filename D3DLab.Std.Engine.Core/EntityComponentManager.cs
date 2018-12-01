@@ -126,6 +126,7 @@ namespace D3DLab.Std.Engine.Core {
             entitySynchronizer.Synchronize();
             comSynchronizer.Synchronize();
         }
+
         public void Dispose() {
             foreach (var coms in components) {
                 foreach (var com in coms.Value) {

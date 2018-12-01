@@ -2,6 +2,8 @@
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Components.Materials;
+using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
 using System;
@@ -9,12 +11,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 
 namespace D3DLab.Wpf.Engine.App {
     public class SingleGameObject : GameObject {
         public ElementTag Tag { get; }
 
-        public SingleGameObject(ElementTag tag) {
+        public SingleGameObject(ElementTag tag,string desc) :base(desc){
             Tag = tag;
         }
 
@@ -30,6 +33,7 @@ namespace D3DLab.Wpf.Engine.App {
                   .CanRender = true;
         }
     }
+
     public class CoordinateSystemLinesGameObject : GameObject {
         public ElementTag Lines { get; private set; }
         public ElementTag[] Arrows { get; private set; }
@@ -106,7 +110,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .CanRender = false;
         }
 
-        public CoordinateSystemLinesGameObject() {
+        public CoordinateSystemLinesGameObject():base(typeof(CoordinateSystemLinesGameObject).Name) {
 
         }
     }
@@ -152,15 +156,16 @@ namespace D3DLab.Wpf.Engine.App {
         }
     }
 
-    public class SphereGameObject {
+    public class SphereGameObject : GameObject {
         public struct Data {
             public Vector3 Center;
+            public Vector4 Color;
             public float Radius;
         }
 
         private readonly ElementTag tag;
 
-        public SphereGameObject(ElementTag tag) {
+        public SphereGameObject(ElementTag tag) :base("SphereByPoint") {
             this.tag = tag;
         }
 
@@ -178,6 +183,29 @@ namespace D3DLab.Wpf.Engine.App {
 
 
             return new SphereGameObject(tag);
+        }
+        public static SphereGameObject Create(IEntityManager manager, Data data) {
+            var tag = manager
+               .CreateEntity(new ElementTag("Sphere_" + DateTime.Now.Ticks))
+               .AddComponent(new GeometryComponent() {
+                   Indices = new[] { 0 }.ToImmutableArray(),
+                   Positions = new Vector3[] { data.Center }.ToImmutableArray(),
+                   Color = data.Color,
+               })
+               .AddComponent(new D3DSphereRenderComponent())
+               .AddComponent(new SDX.Engine.Components.D3DTransformComponent())
+               .Tag;
+
+
+            return new SphereGameObject(tag);
+        }
+
+        public override void Hide(IEntityManager manager) {
+            throw new NotImplementedException();
+        }
+
+        public override void Show(IEntityManager manager) {
+            throw new NotImplementedException();
         }
     }
 
@@ -210,11 +238,11 @@ namespace D3DLab.Wpf.Engine.App {
     }
 
     public class TerrainGameObject : GameObject {
-        const int TEXTURE_REPEAT = 8;
+        const int textureRepeat = 8;
 
         public ElementTag Tag;
 
-        public TerrainGameObject(ElementTag tag) {
+        public TerrainGameObject(ElementTag tag) : base(typeof(TerrainGameObject).Name) {
             this.Tag = tag;
         }
 
@@ -254,6 +282,7 @@ namespace D3DLab.Wpf.Engine.App {
 
             return new TerrainGameObject(tag);
         }
+
         static void TriangulateMap(List<Vector3> HeightMap, int height, int width, GeometryComponent geometry) {
             var count = (width - 1) * (height - 1) * 6;
             var indices = new int[count];
@@ -282,18 +311,17 @@ namespace D3DLab.Wpf.Engine.App {
             geometry.Positions = vertices.ToImmutableArray();
             geometry.Normals = normals.ToImmutableArray();
             geometry.TextureCoordinates = CalculateTextureCoordinates(HeightMap, width, height).ToImmutableArray();
-            geometry.Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            geometry.Color = V4Colors.White;
 
             //Light.SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
             //Light.SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
-
         static Vector2[] CalculateTextureCoordinates(List<Vector3> HeightMap, int width, int height) {
             // Calculate how much to increment the texture coordinates by.
-            float incrementValue = (float)TEXTURE_REPEAT / (float)width;
+            float incrementValue = (float)textureRepeat / (float)width;
 
             // Calculate how many times to repeat the texture.
-            int incrementCount = width / TEXTURE_REPEAT;
+            int incrementCount = width / textureRepeat;
 
             // Initialize the tu and tv coordinate values.
             float tuCoordinate = 0.0f;
@@ -307,9 +335,7 @@ namespace D3DLab.Wpf.Engine.App {
             for (int j = 0; j < height; j++) {
                 for (int i = 0; i < width; i++) {
                     // Store the texture coordinate in the height map.
-                    //var tempHeightMap = HeightMap[(m_TerrainHeight * j) + i];
                     texture[(height * j) + i] = new Vector2(tuCoordinate, tvCoordinate);
-                    //HeightMap[(m_TerrainHeight * j) + i] = tempHeightMap;
 
                     // Increment the tu texture coordinate by the increment value and increment the index by one.
                     tuCoordinate += incrementValue;
@@ -341,6 +367,117 @@ namespace D3DLab.Wpf.Engine.App {
 
         public override void Show(IEntityManager manager) {
             throw new NotImplementedException();
+        }
+    }
+    public class CameraGameObject : SingleGameObject {
+        static int cameras = 0;
+
+        public CameraGameObject(ElementTag tag, string descr) : base(tag, descr) { }
+
+        public static CameraGameObject Create(IContextState context) {
+            IEntityManager manager = context.GetEntityManager();
+            var cameraTag = new ElementTag("CameraEntity_" + Interlocked.Increment(ref cameras));
+
+            var obj = new CameraGameObject(cameraTag, "PerspectiveCamera");
+
+            manager.CreateEntity(cameraTag)
+                   //.AddComponent(new OrthographicCameraComponent(Window.Width, Window.Height));
+                   .AddComponent(new PerspectiveCameraComponent());
+
+            {//entities ordering 
+                context.EntityOrder
+                       .RegisterOrder<SDX.Engine.Rendering.RenderSystem>(cameraTag, 0)
+                       .RegisterOrder<Std.Engine.Core.Systems.InputSystem>(cameraTag, 0);
+            }
+
+            return obj;
+        }
+
+    }
+
+    public class LightGameObject : SingleGameObject {
+        static int lights = 0;
+
+        GameObject debugVisualObject;
+
+        public LightGameObject(ElementTag tag, string desc) : base(tag, desc) { }
+
+        public static LightGameObject CreateDirectionLight(IEntityManager manager, Vector3 direction) {// ,
+            var tag = new ElementTag("DirectionLight_" + Interlocked.Increment(ref lights));
+            manager.CreateEntity(tag)
+                   .AddComponents(
+                       new LightComponent {
+                           Index = 2,
+                           Intensity = 0.2f,
+                           Direction = direction,
+                           Type = LightTypes.Directional
+                       },
+                       new ColorComponent { Color = new Vector4(1, 1, 1, 1) }
+                   );
+
+            return new LightGameObject(tag, "DirectionLight");
+        }
+
+        public static LightGameObject CreatePointLight(IEntityManager manager, Vector3 position) {// 
+            var tag = new ElementTag("PointLight_" + Interlocked.Increment(ref lights));
+
+            manager.CreateEntity(tag)
+                 .AddComponents(
+                     new LightComponent {
+                         Index = 1,
+                         Intensity = 0.6f,
+                         Position = position,
+                         Type = LightTypes.Point
+                     },
+                     new ColorComponent { Color = new Vector4(1, 1, 1, 1) }
+                 );
+
+            return new LightGameObject(tag, "PointLight");
+        }
+
+        public static LightGameObject CreateAmbientLight(IEntityManager manager) {
+            var tag = new ElementTag("AmbientLight_" + Interlocked.Increment(ref lights));
+
+            manager.CreateEntity(tag)
+                   .AddComponents(
+                           new LightComponent {
+                               Index = 0,
+                               Intensity = 0.2f,
+                               //Position = Vector3.Zero + Vector3.UnitZ * 1000,
+                               Type = LightTypes.Ambient
+                           },
+                           new ColorComponent { Color = V4Colors.White }
+                       );
+
+            return new LightGameObject(tag, "AmbientLight");
+        }
+
+        public override void ShowDebugVisualization(IEntityManager manager) {
+            var entity = manager.GetEntity(Tag);
+            var l = entity.GetComponent<LightComponent>();
+            var c = entity.GetComponent<ColorComponent>();
+
+            var center = l.Position;
+            switch (l.Type) {
+                case LightTypes.Point:
+                    debugVisualObject = SphereGameObject.Create(manager, new SphereGameObject.Data {
+                        Center = center,
+                        Color = V4Colors.Red,// c.Color * l.Intensity
+                    });
+                    break;
+            }
+            
+
+            base.ShowDebugVisualization(manager);
+        }
+
+        public override void MoveTo(IEntityManager manager) {
+            var entity = manager.GetEntity(Tag);
+            var l = entity.GetComponent<LightComponent>();
+
+            var com = new MoveCameraToPositionComponent { Target = Tag, TargetPosition =l.Position };
+
+            manager.GetEntity(Tag).AddComponent(com);
         }
     }
 }

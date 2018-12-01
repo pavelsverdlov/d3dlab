@@ -31,21 +31,25 @@ namespace D3DLab.SDX.Engine {
         }
 
         protected override void Initializing() {
-            var cameraTag = new ElementTag("CameraEntity");
-
             {   //systems creating
                 var smanager = Context.GetSystemManager();
 
                 smanager.CreateSystem<InputSystem>();
                 smanager.CreateSystem<D3DCameraSystem>();
                 smanager.CreateSystem<LightsSystem>();
+                smanager.CreateSystem<MovementSystem>();
                 smanager.CreateSystem<RenderSystem>().Init(device);
-                
+
             }
+            var em = Context.GetEntityManager();
+            EngineInfoBuilder.Build(em, Window);
+
+            /*
+            var cameraTag = new ElementTag("CameraEntity");
             {   //default entities
                 var em = Context.GetEntityManager();
 
-                EngineInfoBuilder.Build(em);
+                EngineInfoBuilder.Build(em, Window);
 
                 em.CreateEntity(cameraTag)
                     //.AddComponent(new OrthographicCameraComponent(Window.Width, Window.Height));
@@ -84,7 +88,7 @@ namespace D3DLab.SDX.Engine {
                 Context.EntityOrder
                        .RegisterOrder<RenderSystem>(cameraTag, 0)
                        .RegisterOrder<InputSystem>(cameraTag, 0);
-            }
+            }*/
         }
     }
 }

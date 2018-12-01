@@ -20,7 +20,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             var ccom = find.First();
 
             ccom.ResetToDefault();
-            entity.RemoveComponents<MovementComponent>();
+            entity.RemoveComponents<CameraMovementComponent>();
 
             return true;
         }
@@ -32,7 +32,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             if (!find.Any()) {
                 return false;
             }
-            entity.RemoveComponents<MovementComponent>();
+            entity.RemoveComponents<CameraMovementComponent>();
             return true;
         }
     }
@@ -57,7 +57,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             var data = new MovementData { End = p2 };
 
             entity
-                .GetOrCreateComponent(new ZoomComponent { State = ccom.GetState() })
+                .GetOrCreateComponent(new CameraZoomingComponent { State = ccom.GetState() })
                 .Do(x=> {
                     x.MovementData = data;
                     x.Delta = delta;
@@ -86,7 +86,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
             var ccom = find.First();
 
-            entity.GetOrCreateComponent(new RotationComponent { State = ccom.GetState() })
+            entity.GetOrCreateComponent(new CameraRotatingComponent { State = ccom.GetState() })
                 .MovementData = data;
 
             return true;

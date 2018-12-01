@@ -1,4 +1,5 @@
 ﻿using D3DLab.Std.Engine.Core.Ext;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -26,12 +27,21 @@ namespace D3DLab.Std.Engine.Core.Components {
         /// </summary>
         public Vector4 Color { get; set; }
 
+        public Veldrid.Utilities.BoundingBox Box => box.Value;
+
         ImmutableArray<Vector4> colors;
+        readonly Lazy<Veldrid.Utilities.BoundingBox> box;
 
         public GeometryComponent() {
             colors = ImmutableArray<Vector4>.Empty;
             TextureCoordinates = ImmutableArray<Vector2>.Empty;
             IsModified = true;
+            //
+            box = new Lazy<Veldrid.Utilities.BoundingBox>(CalcuateBox);
+        }
+
+        Veldrid.Utilities.BoundingBox CalcuateBox() {
+            return Veldrid.Utilities.BoundingBox.CreateFromVertices(Positions.ToArray());
         }
 
         public void MarkAsRendered() {

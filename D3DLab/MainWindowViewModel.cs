@@ -1,11 +1,12 @@
-﻿using D3DLab.Debugger.Presentation.ScriptConsole;
+﻿using D3DLab.Debugger;
+using D3DLab.Debugger.Presentation.ScriptConsole;
 using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
 using D3DLab.Parser;
 using D3DLab.Plugin.Contracts.Parsers;
 using D3DLab.Plugins;
 using D3DLab.Std.Engine.Core;
-using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Visualization;
 using D3DLab.Wpf.Engine.App;
 using D3DLab.Wpf.Engine.App.Host;
@@ -14,7 +15,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Windows;
 using System.Windows.Data;
@@ -33,12 +33,12 @@ namespace D3DLab {
         }
 
         public override void Write(string message) {
-            
+
         }
 
         public override void WriteLine(string message) {
             App.Current.Dispatcher.InvokeAsync(() => {
-                output.Insert(0,$"[{DateTime.Now.TimeOfDay}] {message.Trim()}");
+                output.Insert(0, $"[{DateTime.Now.TimeOfDay}] {message.Trim()}");
             });
         }
     }
@@ -46,6 +46,13 @@ namespace D3DLab {
     public sealed class MainWindowViewModel : IDropFiles, IFileLoader {
 
         #region commands
+        class ClearConsoleOutputCommand : Debugger.BaseWPFCommand {
+            readonly MainWindowViewModel main;
+            public ClearConsoleOutputCommand(MainWindowViewModel main) { this.main = main; }
+            public override void Execute(object parameter) {
+                main.ClearConsole();
+            }
+        }
 
         class ShowAxisCommand : Debugger.BaseWPFCommand {
             MainWindowViewModel main;
@@ -107,7 +114,9 @@ namespace D3DLab {
 
 
                 // main.items.Add(item);
-                var tag = TerrainGameObject.Create(main.context.GetEntityManager());
+                var obj = TerrainGameObject.Create(main.context.GetEntityManager());
+
+                main.items.Add(new LoadedItem(main, obj));
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {
@@ -129,7 +138,8 @@ namespace D3DLab {
 
         public sealed class LoadedItem {
             public ICommand VisiblityChanged { get; }
-            public string Header { get { return gobj.ToString(); } }
+            public ICommand ShowDebuggingVisualization { get; }
+            public string Header { get { return gobj.Description; } }
 
             public LoadedItem() { }
 
@@ -140,7 +150,18 @@ namespace D3DLab {
                 this.main = main;
                 this.gobj = gobj;
                 VisiblityChanged = new Command(this);
+                ShowDebuggingVisualization = new WpfActionCommand<bool?>(OnShowDebugVisualization);
             }
+
+            void OnShowDebugVisualization(bool? ischecked) {
+                if (ischecked.HasValue && ischecked.Value) {
+                    gobj.ShowDebugVisualization(main.context.GetEntityManager());
+                    gobj.MoveTo(main.context.GetEntityManager());
+                } else {
+                    gobj.HideDebugVisualization(main.context.GetEntityManager());
+                }
+            }
+
             public override string ToString() {
                 return gobj.ToString();
             }
@@ -186,6 +207,8 @@ namespace D3DLab {
         public ICommand LoadDuck { get; set; }
         public ICommand MoveToCenterWorld { get; }
         public ICommand ShowAxis { get; }
+        public ICommand ClearConsoleOutput { get; }
+        
 
         public ICollectionView Items { get; set; }
         public ObservableCollection<string> ConsoleOutput { get; }
@@ -197,6 +220,7 @@ namespace D3DLab {
             LoadDuck = new LoadCommand(this);
             MoveToCenterWorld = new MoveToCenterWorldCommand(this);
             ShowAxis = new ShowAxisCommand(this);
+            ClearConsoleOutput = new ClearConsoleOutputCommand(this);
 
             primitiveDrawer = new PrimitiveDrawer();
 
@@ -233,12 +257,12 @@ namespace D3DLab {
             VisualTreeviewer.GameWindow = scene.Window;
             SystemsView.GameWindow = scene.Window;
 
-            
-            //OrbitsRotationGameObject.Build(context.GetEntityManager());
-
-            
-
-//            System.Diagnostics.Trace.WriteLine("Test !");
+            var manager = context.GetEntityManager();
+            //
+            items.Add(new LoadedItem(this, CameraGameObject.Create(context)));
+            items.Add(new LoadedItem(this, LightGameObject.CreateAmbientLight(manager)));
+            items.Add(new LoadedItem(this, LightGameObject.CreatePointLight(manager, Vector3.Zero + Vector3.UnitZ * 1000)));
+            items.Add(new LoadedItem(this, LightGameObject.CreateDirectionLight(manager, new Vector3(1, 4, 4).Normalize())));
 
         }
 
@@ -254,11 +278,15 @@ namespace D3DLab {
         public void Load(FileInfo file, IFileParserPlugin parser) {
             var bl = new EntityBuilder(context.GetEntityManager());
             var tag = bl.Build(file, parser);
-            items.Add(new LoadedItem(this, new SingleGameObject(tag)));
+            items.Add(new LoadedItem(this, new SingleGameObject(tag, file.Name)));
         }
 
         void ForceRender() {
             scene.Window.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
+        }
+
+        void ClearConsole() {
+            ConsoleOutput.Clear();
         }
     }
 
@@ -297,7 +325,7 @@ namespace D3DLab {
         }
     }
 
-    
+
 
     public sealed class SceneView : Wpf.Engine.App.Scene {
 
@@ -354,7 +382,9 @@ namespace D3DLab {
 
         }
 
+
+
     }
 
-   
+
 }

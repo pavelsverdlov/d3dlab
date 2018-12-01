@@ -13,6 +13,8 @@ namespace D3DLab.Std.Engine.Core {
         public InputSnapshot Snapshot { get; }
         public TimeSpan FrameRateTime { get; }
 
+        public ElementTag CurrentCameraTag { get; private set; }
+
         public CameraState Camera { get; private set; }
         public LightState[] Lights { get; private set; }
 
@@ -24,8 +26,9 @@ namespace D3DLab.Std.Engine.Core {
             Lights = new LightState[LightStructBuffer.MaxCount];
         }
 
-        public void UpdateCamera(CameraState state) {
+        public void UpdateCamera(ElementTag tag, CameraState state) {
             Camera = state;
+            CurrentCameraTag = tag;
         }
         public void UpdateLight(int index, LightState state) {
             Lights[index] = state;

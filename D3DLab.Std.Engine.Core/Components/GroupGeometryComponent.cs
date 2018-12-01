@@ -14,6 +14,8 @@ namespace D3DLab.Std.Engine.Core.Components {
         ImmutableArray<Vector4> Colors { get; }
 
         ImmutableArray<Vector2> TextureCoordinates { get; }
+
+        Veldrid.Utilities.BoundingBox Box { get; }
     }
 
     public class GroupGeometryComponent : GraphicComponent, ICollection<GeometryComponent>, IGeometryComponent {
@@ -24,7 +26,10 @@ namespace D3DLab.Std.Engine.Core.Components {
         public ImmutableArray<Vector3> Normals   { get; private set; }
         public ImmutableArray<Vector2> TextureCoordinates { get; private set; }
 
+        public Veldrid.Utilities.BoundingBox Box => new Veldrid.Utilities.BoundingBox();//TODO: !
+
         readonly List<GeometryComponent> groups;
+        
 
         public int Count => groups.Count;
 
@@ -33,6 +38,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         public GroupGeometryComponent() {
             IsModified = true;
             groups = new List<GeometryComponent>();
+            
         }
 
         public void Combine() {

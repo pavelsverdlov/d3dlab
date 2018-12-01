@@ -47,6 +47,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
     <Style x:Key="ImageButton" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Template">
             <Setter.Value>
@@ -59,6 +60,29 @@
                         <Trigger Property="IsMouseOver" Value="False">
                             <Setter TargetName="btn_border" Property="BorderBrush"
                                     Value="{StaticResource BorderBrushColor}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style x:Key="ImageToggleButton" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1"  
+                            Background="{StaticResource BlackBackgroundColor}" Name="btn_border">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="btn_border" Property="BorderBrush"

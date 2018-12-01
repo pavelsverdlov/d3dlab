@@ -1,5 +1,5 @@
-﻿using D3DLab.Std.Engine;
-using D3DLab.Std.Engine.Core;
+﻿using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Input;
 using D3DLab.Wpf.Engine.App.Host;
 using D3DLab.Wpf.Engine.App.Input;
@@ -10,7 +10,7 @@ using System.Windows;
 namespace D3DLab.Wpf.Engine.App {
     public sealed class GameWindow : IAppWindow {
         private WinFormsD3DControl win;
-        
+
         public GameWindow(WinFormsD3DControl win, CurrentInputObserver input) {
             this.win = win;
             Width = (float)Application.Current.MainWindow.Width;
@@ -43,6 +43,13 @@ namespace D3DLab.Wpf.Engine.App {
 
         public WaitHandle BeginInvoke(Action action) {
             return win.BeginInvoke(action).AsyncWaitHandle;
+        }
+
+        public void SetTitleText(string txt) {
+            Application.Current.Dispatcher.InvokeAsync(
+                () => {
+                    Application.Current.Return(x => x.MainWindow).Do(x => x.Title = txt);
+                });
         }
     }
 }

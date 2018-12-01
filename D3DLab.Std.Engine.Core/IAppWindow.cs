@@ -16,5 +16,7 @@ namespace D3DLab.Std.Engine.Core {
         event Action Resized;
 
         WaitHandle BeginInvoke(Action action);
+
+        void SetTitleText(string txt);
     }
 }

@@ -31,7 +31,11 @@ namespace D3DLab.Std.Engine.Core {
             manager.AddComponent(Tag, component);
             return this;
         }
-        public GraphicEntity AddComponents(IEnumerable<IGraphicComponent> components){
+        public GraphicEntity AddComponents(params IGraphicComponent[] components){
+            manager.AddComponents(Tag, components);
+            return this;
+        }
+        public GraphicEntity AddComponents(IEnumerable<IGraphicComponent> components) {
             manager.AddComponents(Tag, components);
             return this;
         }

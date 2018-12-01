@@ -67,7 +67,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
             public RotationHandler(GeneralCameraComponent camera) {
                 this.camera = camera;
             }
-            public void Execute(RotationComponent component) {
+            public void Execute(CameraRotatingComponent component) {
                 var state = component.State;
                 var data = component.MovementData;
 
@@ -114,7 +114,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
             }
         }
 
-        protected class PerspectiveCameraMoveHandler : IMovementComponentHandler {
+        protected class PerspectiveCameraMoveHandler : ICameraMovementComponentHandler {
             protected readonly PerspectiveCameraComponent camera;
             protected readonly SceneSnapshot snapshot;
 
@@ -123,15 +123,21 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 this.snapshot = snapshot;
             }
 
-            public void Execute(RotationComponent component) {
+            public void Execute(CameraRotatingComponent component) {
                 var rotate = new RotationHandler(camera);
                 rotate.Execute(component);
             }
 
-            public virtual void Execute(ZoomComponent component) {
+            public virtual void Execute(CameraZoomingComponent component) { }
 
-                
+            public void Execute(IMoveToPositionComponent component) {
+                var position = component.TargetPosition;
+
+                var look = camera.LookDirection;
+
+                camera.Position = position - look * 100;
             }
+
             protected bool ChangeCameraDistance(ref float delta, Vector3 zoomAround) {
                 // Handle the 'zoomAround' point
                 var target = camera.Position + camera.LookDirection;
@@ -214,7 +220,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
             }
         }
 
-        protected class OrthographicCameraMoveHandler : IMovementComponentHandler {
+        protected class OrthographicCameraMoveHandler : ICameraMovementComponentHandler {
             protected readonly OrthographicCameraComponent camera;
             protected readonly SceneSnapshot snapshot;
 
@@ -223,20 +229,24 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 this.snapshot = snapshot;
             }
 
-            public void Execute(RotationComponent component) {
+            public void Execute(CameraRotatingComponent component) {
                 var rotate = new RotationHandler(camera);
                 rotate.Execute(component);
             }
 
-            public virtual void Execute(ZoomComponent component) {
+            public virtual void Execute(CameraZoomingComponent component) {
 
+            }
+
+            public void Execute(IMoveToPositionComponent component) {
+                throw new NotImplementedException();
             }
         }
 
-        protected virtual IMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
+        protected virtual ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
             return new OrthographicCameraMoveHandler(com, snapshot);
         }
-        protected virtual IMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, SceneSnapshot snapshot) {
+        protected virtual ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, SceneSnapshot snapshot) {
             return new PerspectiveCameraMoveHandler(com, snapshot);
         }
 
@@ -247,24 +257,24 @@ namespace D3DLab.Std.Engine.Core.Systems {
             try {
                 foreach (var entity in emanager.GetEntities()) {
                     foreach (var com in entity.GetComponents<OrthographicCameraComponent>()) {
-                        entity.GetComponents<MovementComponent>().DoFirst(movment => {
+                        entity.GetComponents<CameraMovementComponent>().DoFirst(movment => {
                             movment.Execute(CreateHandlerOrthographicHandler(com, snapshot));
                         });
 
                         com.UpdateViewMatrix();
                         com.UpdateProjectionMatrix(window.Width, window.Height);
 
-                        snapshot.UpdateCamera(com.GetState());
+                        snapshot.UpdateCamera(entity.Tag,com.GetState());
                     }
                     foreach (var com in entity.GetComponents<PerspectiveCameraComponent>()) {
-                        entity.GetComponents<MovementComponent>().DoFirst(movment => {
+                        entity.GetComponents<CameraMovementComponent>().DoFirst(movment => {
                             movment.Execute(CreateHandlerPerspectiveHandler(com, snapshot));
                         });
 
                         com.UpdateViewMatrix();
                         com.UpdateProjectionMatrix(window.Width, window.Height);
 
-                        snapshot.UpdateCamera(com.GetState());
+                        snapshot.UpdateCamera(entity.Tag, com.GetState());
                     }
 
                 }

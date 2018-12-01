@@ -44,6 +44,7 @@ namespace D3DLab.Std.Engine.Core.Render {
         }
 
         void Loop() {
+            System.Threading.Thread.CurrentThread.Name = "Game Loop";
             var imanager = Window.InputManager;
 
             //first synchronization
@@ -77,12 +78,10 @@ namespace D3DLab.Std.Engine.Core.Render {
                 var perfomance = eman.GetEntity(engineInfoTag)
                     .GetComponent<EngineInfoBuilder.PerfomanceComponent>();
 
-                perfomance.ElapsedMilliseconds = millisec;
-                perfomance.FPS = (int)(total / millisec);
-
+                perfomance.Update(millisec, (int)(total / millisec));
                 //Debug.WriteLine($"FPS {(int)(total / speed.ElapsedMilliseconds)} / {speed.ElapsedMilliseconds} ms");
 
-                notify.NotifyRender(eman.GetEntities());
+                notify.NotifyRender(eman.GetEntities().ToArray());
             }
 
             Window.InputManager.Dispose();

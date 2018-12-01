@@ -97,6 +97,8 @@ namespace D3DLab.SDX.Engine {
         internal TexturedLoader TexturedLoader { get; }
         internal SharpDX.Direct3D11.Device D3DDevice { get; private set; }
         internal DeviceContext ImmediateContext { get; private set; }
+        public string VideoCardDescription { get; }
+
         RenderTargetView renderTargetView;
         DepthStencilView depthStencilView;
 
@@ -128,6 +130,8 @@ namespace D3DLab.SDX.Engine {
 
             var factory = new Factory1();
             var adapter = AdapterFactory.GetBestAdapter(factory);
+
+            VideoCardDescription = adapter.Description.Description.Trim('\0'); ;
 
             // Create device and swap chain
             SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, DeviceCreationFlags.Debug, swapChainDesc, out var d3dDevice, out var sch);
