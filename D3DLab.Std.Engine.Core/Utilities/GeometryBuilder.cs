@@ -53,30 +53,31 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
         public static GeometryComponent BuildArrow(ArrowData data) {
             var axis = data.axis;
-            var center = data.center;
+            var zero = Vector3.Zero;
             var lenght = data.lenght;
             var radius = data.radius;
 
             var rotate = Matrix4x4.CreateFromAxisAngle(axis, 10f.ToRad()); // Matrix4x4.CreateFromQuaternion(new Quaternion(axis,10));
+            var move  = Matrix4x4.CreateTranslation(data.center - zero);
 
             var points = new List<Vector3>();
             var normals = new List<Vector3>();
             var index = new List<int>();
 
-            points.Add(center + axis * lenght);
+            points.Add(zero + axis * lenght);
             normals.Add(axis);
 
             var orto = data.orthogonal;
-            var corner = center + orto * radius;
-            normals.Add((corner - center).Normalize());
+            var corner = zero + orto * radius;
+            normals.Add((corner - zero).Normalize());
 
             points.Add(corner);
             for (var i = 10; i < 360; i += 10) {
                 corner = Vector3.Transform(corner, rotate);
                 points.Add(corner);
-                normals.Add((corner - center).Normalize());
+                normals.Add((corner - zero).Normalize());
             }
-            points.Add(center);
+            points.Add(zero);
             normals.Add(-axis);
 
             for (var i = 0; i < points.Count - 2; ++i) {
@@ -85,6 +86,10 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             }
             index.AddRange(new[] { 0, points.Count - 2, 1 });
             index.AddRange(new[] { points.Count - 1, points.Count - 2, 1 });
+
+            var pp = points.ToArray();
+            points.Clear();
+            pp.ForEach(x => points.Add(Vector3.Transform(x, move)));
 
             return new GeometryComponent {
                 Positions = points.ToImmutableArray(),

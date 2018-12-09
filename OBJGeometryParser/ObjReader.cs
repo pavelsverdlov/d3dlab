@@ -1167,23 +1167,23 @@ namespace OBJGeometryParser {
         }
 
         public void Parse(Stream stream, IParseResultVisiter visiter) {
-            //var r = new ObjSpanReader();
-            //try {                
-            //    var sw = new Stopwatch();
-            //    sw.Start();
+            var r = new ObjSpanReader();
+            try {
+                var sw = new Stopwatch();
+                sw.Start();
 
-            //    r.Read(stream);
+                r.Read(stream);
 
-            //    sw.Stop();
-            //    Trace.WriteLine($"Reader {sw.Elapsed.TotalMilliseconds}");
+                sw.Stop();
+                Trace.WriteLine($"Reader {sw.Elapsed.TotalMilliseconds}");
 
-            //    r.FullGeometry.Color = new Vector4(0, 1, 0, 1);
-            //    r.FullGeometry.Normals = r.FullGeometry.Positions.CalculateNormals(r.FullGeometry.Indices);
-            //    visiter.Handle(r.FullGeometry);
-            //} catch (Exception exc) {
-            //    exc.ToString();
-            //}
-            //return;
+                r.FullGeometry.Color = new Vector4(0, 1, 0, 1);
+                r.FullGeometry.Normals = r.FullGeometry.Positions.CalculateNormals(r.FullGeometry.Indices);
+                visiter.Handle(r.FullGeometry);
+            } catch (Exception exc) {
+                exc.ToString();
+            }
+            return;
             var readerA = new ObjReader();
             var res = readerA.Read(stream);
             var meshes = new List<AbstractGeometry3D>();

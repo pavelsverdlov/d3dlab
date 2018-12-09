@@ -21,11 +21,15 @@ namespace D3DLab.Wpf.Engine.App.Input {
             //this.control.MouseDoubleClick += OnMouseDoubleClick;
             this.control.MouseLeave += OnMouseLeave;
 
-            this.control.KeyDown += OnKeyDown;
-            this.control.KeyUp += OnKeyUp;
+            
             //    this.control.Leave += OnLeave;
             this.control.GotFocus += control_GotFocus;
             this.control.LostFocus += control_LostFocus;
+
+            //keywords
+
+            this.control.KeyDown += OnKeyDown;
+            this.control.KeyUp += OnKeyUp;
 
         }
 
@@ -55,10 +59,13 @@ namespace D3DLab.Wpf.Engine.App.Input {
         }
 
         private void OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e) {
+            state.Keyword = Convert(e.Key);
+            InvokeSubscribers((s, ev) => s.KeyUp(ev));
         }
 
         private void OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-
+            state.Keyword = Convert(e.Key);
+            InvokeSubscribers((s, ev) => s.KeyDown(ev));
         }
 
         private void OnMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
@@ -114,6 +121,21 @@ namespace D3DLab.Wpf.Engine.App.Input {
                     return GeneralMouseButtons.Right;
             }
             return GeneralMouseButtons.None;
+        }
+
+        static GeneralKeywords Convert(System.Windows.Input.Key key) {
+            switch (key) {
+                case System.Windows.Input.Key.W:
+                    return GeneralKeywords.W;
+                case System.Windows.Input.Key.S:
+                    return GeneralKeywords.S;
+                case System.Windows.Input.Key.A:
+                    return GeneralKeywords.A;
+                case System.Windows.Input.Key.D:
+                    return GeneralKeywords.D;
+                default:
+                    return GeneralKeywords.None;
+            }
         }
 
         #endregion

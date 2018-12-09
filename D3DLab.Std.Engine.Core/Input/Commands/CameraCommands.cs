@@ -5,6 +5,21 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Input.Commands {
+
+
+    public class CameraIdleCommand : IInputCommand {
+        public bool Execute(GraphicEntity entity) {
+            var find = entity.GetComponents<GeneralCameraComponent>();
+            if (!find.Any()) {
+                return false;
+            }
+            entity.RemoveComponents<CameraMovementComponent>();
+            return true;
+        }
+    }
+
+    #region common
+
     public class ForceRenderCommand : IInputCommand {
         public bool Execute(GraphicEntity entity) {
             return true;
@@ -26,16 +41,56 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         }
     }
 
-    public class CameraIdleCommand : IInputCommand {
+    #endregion
+
+    #region keywords
+
+    public class KeywordsMovingCommand : IInputCommand {
+        readonly InputStateData state;
+
+        public KeywordsMovingCommand(InputStateData state) {
+            this.state = state;
+        }
         public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
                 return false;
             }
-            entity.RemoveComponents<CameraMovementComponent>();
+            var ccom = find.First();
+
+            var type = KeywordMovingComponent.MovingDirection.Undefined;
+
+            switch (state.Keyword) {
+                case GeneralKeywords.W:
+                    type = KeywordMovingComponent.MovingDirection.MoveForward;
+                    break;
+                case GeneralKeywords.S:
+                    type = KeywordMovingComponent.MovingDirection.MoveBackward;
+                    break;
+                case GeneralKeywords.A:
+                    type = KeywordMovingComponent.MovingDirection.TurnLeft;
+                    break;
+                case GeneralKeywords.D:
+                    type = KeywordMovingComponent.MovingDirection.TurnRight;
+                    break;
+            }
+
+            entity
+                .GetOrCreateComponent(new KeywordMovingComponent())
+                .Do(x => {
+                    x.Direction = type;
+                    x.IsKeywordDown = state.IsKeywordDown;
+                });
+
             return true;
         }
     }
+
+    #endregion
+
+    #region mouse events 
+
+
 
     public class CameraZoomCommand : IInputCommand {
         const float scrollSpeed = 0.5f;
@@ -58,7 +113,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
             entity
                 .GetOrCreateComponent(new CameraZoomingComponent { State = ccom.GetState() })
-                .Do(x=> {
+                .Do(x => {
                     x.MovementData = data;
                     x.Delta = delta;
                 });
@@ -92,6 +147,10 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             return true;
         }
     }
+
+    #endregion
+
+
 
 
 

@@ -43,6 +43,10 @@ namespace D3DLab.Std.Engine.Core.Ext {
                 (float)Math.Round(v.Z, round));
         }
 
+        public static Vector3 TransformNormal(this Vector3 vector, Matrix4x4 matrix) {
+            return Vector3.TransformNormal(vector, matrix);
+        }
+
 
         public static Matrix4x4 RotationAround(this Vector3 axis, float angleRadians) {
             return Matrix4x4.CreateFromAxisAngle(axis, angleRadians);
@@ -154,4 +158,18 @@ namespace D3DLab.Std.Engine.Core.Ext {
             return (float)(radians * 180f / Math.PI);
         }
     }
+
+
+    public static class PlaneEx{
+        public static void Normalize(this Plane plane) {
+            var normal = plane.Normal;
+            float magnitude = 1.0f / (float)(Math.Sqrt((normal.X * normal.X) + (normal.Y * normal.Y) + (normal.Z * normal.Z)));
+
+            plane.Normal.X *= magnitude;
+            plane.Normal.Y *= magnitude;
+            plane.Normal.Z *= magnitude;
+            plane.D *= magnitude;
+        }
+    }
+
 }

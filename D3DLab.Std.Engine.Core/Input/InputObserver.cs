@@ -48,6 +48,9 @@ namespace D3DLab.Std.Engine.Core.Input {
             public override bool OnMouseDown(InputStateData state) { return current.OnMouseDown(state); }
             public override bool OnMouseUp(InputStateData state) { return current.OnMouseUp(state); }
             public override bool OnMouseWheel(InputStateData ev) { return current.OnMouseWheel(ev); }
+
+            public override bool KeyDown(InputStateData ev) { return current.KeyDown(ev); }
+            public override bool KeyUp(InputStateData ev) { return current.KeyUp(ev); }
         }
 
         protected abstract class InputStateMachine : InputState {
@@ -83,6 +86,14 @@ namespace D3DLab.Std.Engine.Core.Input {
             public virtual bool OnMouseWheel(InputStateData ev) {
                 return false;
             }
+
+
+            public virtual bool KeyDown(InputStateData ev) {
+                return false;
+            }
+            public virtual bool KeyUp(InputStateData ev) {
+                return false;
+            }            
         }
 
         private static readonly object loker;
@@ -128,6 +139,9 @@ namespace D3DLab.Std.Engine.Core.Input {
         public bool OnMouseDown(InputStateData state) { return StateMachine.OnMouseDown(state); }
         public bool OnMouseUp(InputStateData state) { return StateMachine.OnMouseUp(state); }
         public bool OnMouseWheel(InputStateData ev) { return StateMachine.OnMouseWheel(ev); }
+
+        public bool KeyDown(InputStateData ev) { return StateMachine.KeyDown(ev); }
+        public bool KeyUp(InputStateData ev) { return StateMachine.KeyUp(ev); }
 
         public void Dispose() {
             

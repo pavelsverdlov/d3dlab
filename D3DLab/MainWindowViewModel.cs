@@ -139,6 +139,7 @@ namespace D3DLab {
         public sealed class LoadedItem {
             public ICommand VisiblityChanged { get; }
             public ICommand ShowDebuggingVisualization { get; }
+            public ICommand LookAt{ get; }
             public string Header { get { return gobj.Description; } }
 
             public LoadedItem() { }
@@ -151,15 +152,25 @@ namespace D3DLab {
                 this.gobj = gobj;
                 VisiblityChanged = new Command(this);
                 ShowDebuggingVisualization = new WpfActionCommand<bool?>(OnShowDebugVisualization);
+                LookAt = new WpfActionCommand<bool?>(OnLookAt);
+            }
+
+            private void OnLookAt(bool? ischecked) {
+                if (ischecked.HasValue && ischecked.Value) {
+                    gobj.LookAtSelf(main.context.GetEntityManager());
+                } else {
+                    //look at center of coordinate system
+                }
+                main.ForceRender();
             }
 
             void OnShowDebugVisualization(bool? ischecked) {
                 if (ischecked.HasValue && ischecked.Value) {
-                    gobj.ShowDebugVisualization(main.context.GetEntityManager());
-                    gobj.MoveTo(main.context.GetEntityManager());
+                    gobj.ShowDebugVisualization(main.context.GetEntityManager());                    
                 } else {
                     gobj.HideDebugVisualization(main.context.GetEntityManager());
                 }
+                main.ForceRender();
             }
 
             public override string ToString() {

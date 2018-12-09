@@ -11,7 +11,8 @@ namespace D3DLab.Wpf.Engine.App.Input {
         Pan = 2,
         Zoom = 3,
         Target = 4,
-        UnTarget = 5
+        UnTarget = 5,
+        KeywordDown = 6,
     }
     public struct InputEventState {
         public AllInputStates Type { get; set; }
@@ -26,6 +27,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             void Zoom(InputStateData state);
             void Pan(InputStateData state);
             void Idle();
+            void KeywordMove(InputStateData state);
         }
 
         public interface ITargetingInputHandler : InputObserver.IHandler {
@@ -62,6 +64,11 @@ namespace D3DLab.Wpf.Engine.App.Input {
             public override bool OnMouseWheel(InputStateData state) {
                 SwitchTo((int)AllInputStates.Zoom, state);
                 return base.OnMouseWheel(state);
+            }
+
+            public override bool KeyDown(InputStateData state) {
+                SwitchTo((int)AllInputStates.KeywordDown, state);
+                return true;
             }
         }
 
@@ -128,6 +135,54 @@ namespace D3DLab.Wpf.Engine.App.Input {
 
         #endregion
 
+        #region moving
+
+        protected class KeywordMovingState : CurrentStateMachine {
+            public KeywordMovingState(StateProcessor processor) : base(processor) {}
+
+            public override void EnterState(InputStateData state) {
+                state.IsKeywordDown = true;
+                Processor.InvokeHandler<ICameraInputHandler>(x => x.KeywordMove(state));
+            }
+
+            public override bool OnMouseMove(InputStateData state) {
+                state.IsKeywordDown = false;
+                SwitchTo((int)AllInputStates.Idle, state);
+                return base.OnMouseMove(state);
+            }
+
+            public override bool KeyUp(InputStateData state) {
+                state.IsKeywordDown = false;
+                switch (state.Keyword) {
+                    case GeneralKeywords.W:
+                    case GeneralKeywords.S:
+                    case GeneralKeywords.A:
+                    case GeneralKeywords.D:
+                        Processor.InvokeHandler<ICameraInputHandler>(x => x.KeywordMove(state));
+                        return true;
+                    default:
+                        SwitchTo((int)AllInputStates.Idle, state);
+                        return false;
+
+                }
+            }
+
+            public override bool KeyDown(InputStateData state) {
+                state.IsKeywordDown = true;
+                switch (state.Keyword) {
+                    case GeneralKeywords.W:
+                        Processor.InvokeHandler<ICameraInputHandler>(x => x.KeywordMove(state));
+                        return true;
+                    default:
+                        SwitchTo((int)AllInputStates.Idle, state);
+                        return false;
+
+                }
+            }
+        }
+
+        #endregion
+
         protected sealed class InputTargetState : CurrentStateMachine {
             public InputTargetState(StateProcessor processor) : base(processor) {
 
@@ -168,8 +223,13 @@ namespace D3DLab.Wpf.Engine.App.Input {
 
             states.Add((int)AllInputStates.Target, s => new InputTargetState(s));
 
+            states.Add((int)AllInputStates.KeywordDown, s => new KeywordMovingState(s));
+
             var router = new StateHandleProcessor<ICameraInputHandler>(states, this);
             router.SwitchTo((int)AllInputStates.Idle, InputStateData.Create());
+
+
+            
 
             return router;
         }
@@ -199,6 +259,12 @@ namespace D3DLab.Wpf.Engine.App.Input {
         public void Idle() {
             currentSnapshot.AddEvent(new CameraIdleCommand());
         }
+
+
+        public void KeywordMove(InputStateData state) {
+            currentSnapshot.AddEvent(new KeywordsMovingCommand(state.Clone()));
+        }
+
 
         public bool Target(InputStateData state) {
             //currentSnapshot.AddEvent(new InputEventState { Type = AllInputStates.Target, Data = state });

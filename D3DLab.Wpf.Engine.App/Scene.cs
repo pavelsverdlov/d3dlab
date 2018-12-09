@@ -46,7 +46,7 @@ namespace D3DLab.Wpf.Engine.App {
 
             game.Run(notify);
 
-            Initializing();
+           // Initializing();
 
             RenderStarted();
         }

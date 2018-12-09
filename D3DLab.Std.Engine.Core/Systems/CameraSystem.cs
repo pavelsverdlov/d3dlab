@@ -113,6 +113,33 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 camera.Position = newPosition;
             }
         }
+        class KeywordMovingHandler {
+            internal void Move(GeneralCameraComponent camera, KeywordMovingComponent movment) {
+                var down = movment.IsKeywordDown ? 1f : 0.5f;
+                var speedCorrection = 16f * down;
+                var rotateCorrection = 5f * down;
+                Vector3 move = Vector3.Zero;
+                switch (movment.Direction) {
+                    case KeywordMovingComponent.MovingDirection.MoveForward:
+                        //move = MoveForward(down);
+                        move = camera.LookDirection * speedCorrection;
+                        break;
+                    case KeywordMovingComponent.MovingDirection.MoveBackward:
+                        move = -camera.LookDirection * speedCorrection;
+                        break;
+                    case KeywordMovingComponent.MovingDirection.TurnLeft:
+                        var axis = camera.UpDirection;
+                        camera.LookDirection = camera.LookDirection
+                            .TransformNormal(Matrix4x4.CreateFromAxisAngle(axis, rotateCorrection.ToRad()));
+                        break;
+                    case KeywordMovingComponent.MovingDirection.TurnRight:
+                        camera.LookDirection = camera.LookDirection
+                            .TransformNormal(Matrix4x4.CreateFromAxisAngle(-camera.UpDirection, rotateCorrection.ToRad()));
+                        break;
+                }
+                camera.Position += move;
+            }
+        }
 
         protected class PerspectiveCameraMoveHandler : ICameraMovementComponentHandler {
             protected readonly PerspectiveCameraComponent camera;
@@ -135,7 +162,13 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
                 var look = camera.LookDirection;
 
-                camera.Position = position - look * 100;
+                camera.Position = position - look * camera.NearPlaneDistance * 1.2f;
+                camera.RotatePoint = position;
+            }
+
+            public void Execute(KeywordMovingComponent movment) {
+                var handler = new KeywordMovingHandler();
+                handler.Move(camera, movment);                
             }
 
             protected bool ChangeCameraDistance(ref float delta, Vector3 zoomAround) {
@@ -241,6 +274,10 @@ namespace D3DLab.Std.Engine.Core.Systems {
             public void Execute(IMoveToPositionComponent component) {
                 throw new NotImplementedException();
             }
+
+            public void Execute(KeywordMovingComponent component) {
+                throw new NotImplementedException();
+            }
         }
 
         protected virtual ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
@@ -250,6 +287,9 @@ namespace D3DLab.Std.Engine.Core.Systems {
             return new PerspectiveCameraMoveHandler(com, snapshot);
         }
 
+
+
+
         public void Execute(SceneSnapshot snapshot) {
             var window = snapshot.Window;
             IEntityManager emanager = snapshot.ContextState.GetEntityManager();
@@ -258,7 +298,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 foreach (var entity in emanager.GetEntities()) {
                     foreach (var com in entity.GetComponents<OrthographicCameraComponent>()) {
                         entity.GetComponents<CameraMovementComponent>().DoFirst(movment => {
-                            movment.Execute(CreateHandlerOrthographicHandler(com, snapshot));
+                            movment.Execute(CreateHandlerOrthographicHandler(com, snapshot));                            
                         });
 
                         com.UpdateViewMatrix();

@@ -19,7 +19,7 @@ namespace D3DLab.Std.Engine.Core {
         public virtual void HideDebugVisualization(IEntityManager manager) {
         }
 
-        public virtual void MoveTo(IEntityManager manager) {
+        public virtual void LookAtSelf(IEntityManager manager) {
         }
 
         protected void MoveTo(IEntityManager manager, ElementTag targetEntity) {

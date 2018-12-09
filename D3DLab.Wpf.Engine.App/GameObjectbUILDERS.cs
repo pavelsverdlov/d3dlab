@@ -38,13 +38,13 @@ namespace D3DLab.Wpf.Engine.App {
         public ElementTag Lines { get; private set; }
         public ElementTag[] Arrows { get; private set; }
 
-        public static CoordinateSystemLinesGameObject Build(IEntityManager manager) {
+        public static CoordinateSystemLinesGameObject Build(IEntityManager manager, Vector3 center = new Vector3()) {
             var llength = 100;
             var obj = new CoordinateSystemLinesGameObject();
             var points = new[] {
-                Vector3.Zero - Vector3.UnitX * llength, Vector3.Zero + Vector3.UnitX * llength,
-                Vector3.Zero- Vector3.UnitY  * llength, Vector3.Zero + Vector3.UnitY * llength,
-                Vector3.Zero- Vector3.UnitZ  * llength, Vector3.Zero + Vector3.UnitZ * llength,
+                center - Vector3.UnitX * llength, center + Vector3.UnitX * llength,
+                center- Vector3.UnitY  * llength, center + Vector3.UnitY * llength,
+                center- Vector3.UnitZ  * llength, center + Vector3.UnitZ * llength,
             };
             var color = new[] {
                 V4Colors.Green, V4Colors.Green,
@@ -60,7 +60,7 @@ namespace D3DLab.Wpf.Engine.App {
             obj.Arrows[0] = ArrowGameObject.BuildArrow(manager, new ArrowData {
                 axis = Vector3.UnitZ,
                 orthogonal = Vector3.UnitX,
-                center = Vector3.Zero + Vector3.UnitZ * (llength - lenght + 5),
+                center = center + Vector3.UnitZ * (llength - lenght + 5),
                 lenght = lenght,
                 radius = radius,
                 color = V4Colors.Blue,
@@ -69,7 +69,7 @@ namespace D3DLab.Wpf.Engine.App {
             obj.Arrows[1] = ArrowGameObject.BuildArrow(manager, new ArrowData {
                 axis = Vector3.UnitX,
                 orthogonal = Vector3.UnitY,
-                center = Vector3.Zero + Vector3.UnitX * (llength - lenght + 5),
+                center = center + Vector3.UnitX * (llength - lenght + 5),
                 lenght = lenght,
                 radius = radius,
                 color = V4Colors.Green,
@@ -78,7 +78,7 @@ namespace D3DLab.Wpf.Engine.App {
             obj.Arrows[2] = ArrowGameObject.BuildArrow(manager, new ArrowData {
                 axis = Vector3.UnitY,
                 orthogonal = Vector3.UnitZ,
-                center = Vector3.Zero + Vector3.UnitY * (llength - lenght + 5),
+                center = center + Vector3.UnitY * (llength - lenght + 5),
                 lenght = lenght,
                 radius = radius,
                 color = V4Colors.Red,
@@ -156,17 +156,14 @@ namespace D3DLab.Wpf.Engine.App {
         }
     }
 
-    public class SphereGameObject : GameObject {
+    public class SphereGameObject : SingleGameObject {
         public struct Data {
             public Vector3 Center;
             public Vector4 Color;
             public float Radius;
         }
 
-        private readonly ElementTag tag;
-
-        public SphereGameObject(ElementTag tag) :base("SphereByPoint") {
-            this.tag = tag;
+        public SphereGameObject(ElementTag tag) :base(tag,"SphereByPoint") {
         }
 
         public static SphereGameObject Create(IEntityManager manager) {
@@ -198,14 +195,6 @@ namespace D3DLab.Wpf.Engine.App {
 
 
             return new SphereGameObject(tag);
-        }
-
-        public override void Hide(IEntityManager manager) {
-            throw new NotImplementedException();
-        }
-
-        public override void Show(IEntityManager manager) {
-            throw new NotImplementedException();
         }
     }
 
@@ -399,6 +388,7 @@ namespace D3DLab.Wpf.Engine.App {
         static int lights = 0;
 
         GameObject debugVisualObject;
+        CoordinateSystemLinesGameObject coordinateSystemObject;
 
         public LightGameObject(ElementTag tag, string desc) : base(tag, desc) { }
 
@@ -453,6 +443,12 @@ namespace D3DLab.Wpf.Engine.App {
         }
 
         public override void ShowDebugVisualization(IEntityManager manager) {
+            if (debugVisualObject.IsNotNull()) {
+                debugVisualObject.Show(manager);
+                coordinateSystemObject.Show(manager);
+                return;
+            }
+
             var entity = manager.GetEntity(Tag);
             var l = entity.GetComponent<LightComponent>();
             var c = entity.GetComponent<ColorComponent>();
@@ -466,12 +462,20 @@ namespace D3DLab.Wpf.Engine.App {
                     });
                     break;
             }
-            
+
+            coordinateSystemObject = CoordinateSystemLinesGameObject.Build(manager, center);
 
             base.ShowDebugVisualization(manager);
         }
 
-        public override void MoveTo(IEntityManager manager) {
+        public override void HideDebugVisualization(IEntityManager manager) {
+            debugVisualObject.Hide(manager);
+            coordinateSystemObject.Hide(manager);
+
+            base.HideDebugVisualization(manager);
+        }
+
+        public override void LookAtSelf(IEntityManager manager) {
             var entity = manager.GetEntity(Tag);
             var l = entity.GetComponent<LightComponent>();
 

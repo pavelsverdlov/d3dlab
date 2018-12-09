@@ -13,6 +13,12 @@ namespace D3DLab.Std.Engine.Core.Input {
         XButton1 = 4,
         XButton2 = 5
     }
+    [Flags]
+    public enum GeneralKeywords {
+        None = 0,
+        W,S,A,D
+
+    }
 
     public struct WindowPoint {
         public readonly int X;
@@ -30,6 +36,7 @@ namespace D3DLab.Std.Engine.Core.Input {
         public WindowPoint CursorPointDown { get; set; }
     }
     public class InputStateData {
+        public GeneralKeywords Keyword { get; set; }
         public GeneralMouseButtons Buttons { get; set; }
         public Vector2 PrevPosition { get; set; }
         public Vector2 CurrentPosition { get; set; }//=> control.PointToClient(CursorCurrentPosition).ToVector2();
@@ -40,6 +47,8 @@ namespace D3DLab.Std.Engine.Core.Input {
                 return buttonsStates;
             }
         }
+
+        public bool IsKeywordDown { get; set; }
 
         readonly Dictionary<GeneralMouseButtons, ButtonsState> buttonsStates;
         public bool IsPressed(GeneralMouseButtons button) {
@@ -74,6 +83,8 @@ namespace D3DLab.Std.Engine.Core.Input {
             cloned.PrevPosition = PrevPosition;
             cloned.CursorCurrentPosition = CursorCurrentPosition;
             cloned.Delta = Delta;
+            cloned.IsKeywordDown = IsKeywordDown;
+            cloned.Keyword = Keyword;
 
             return cloned;
         }

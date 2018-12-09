@@ -38,6 +38,7 @@ namespace D3DLab.SDX.Engine {
                 smanager.CreateSystem<D3DCameraSystem>();
                 smanager.CreateSystem<LightsSystem>();
                 smanager.CreateSystem<MovementSystem>();
+                smanager.CreateSystem<MovingOnHeightMapSystem>();
                 smanager.CreateSystem<RenderSystem>().Init(device);
 
             }
