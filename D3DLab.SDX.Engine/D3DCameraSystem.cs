@@ -38,6 +38,10 @@ namespace D3DLab.SDX.Engine {
 
                 camera.Position -= camera.LookDirection * (delta);
 
+                snapshot.ContextState
+                    .GetEntityManager()
+                    .GetEntity(camera.EntityTag)
+                    .RemoveComponent(component);
 
                 //ChangeCameraDistance1(delta, zoomAround);
 

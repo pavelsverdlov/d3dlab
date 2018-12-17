@@ -70,7 +70,7 @@ namespace D3DLab.Std.Engine.Core {
             }, com);
         }
         public void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {
-            foreach (var com in GetComponents<T>(tagEntity)) {
+            foreach (var com in GetComponents<T>(tagEntity).ToList()) {
                 comSynchronizer.Add((owner, c) => {
                     owner._RemoveComponent(tagEntity, c);
                 }, com);
@@ -122,9 +122,9 @@ namespace D3DLab.Std.Engine.Core {
             comSynchronizer = new SynchronizationContext<EntityComponentManager, IGraphicComponent>(this);
         }
 
-        public void Synchronize() {
-            entitySynchronizer.Synchronize();
-            comSynchronizer.Synchronize();
+        public void Synchronize(int theadId) {
+            entitySynchronizer.Synchronize(theadId);
+            comSynchronizer.Synchronize(theadId);
         }
 
         public void Dispose() {

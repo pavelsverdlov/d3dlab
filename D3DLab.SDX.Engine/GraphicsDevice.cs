@@ -39,8 +39,8 @@ namespace D3DLab.SDX.Engine {
             Device.Dispose();
         }
 
-        public void Synchronize() {
-            synchronizer.Synchronize();
+        public void Synchronize(int theadId) {
+            synchronizer.Synchronize(theadId);
         }
     }
 

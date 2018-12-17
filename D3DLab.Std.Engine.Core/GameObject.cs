@@ -27,5 +27,10 @@ namespace D3DLab.Std.Engine.Core {
 
             manager.GetEntity(targetEntity).AddComponent(com);
         }
+
+        public virtual void Dispose(IEntityManager manager)
+        {
+
+        }
     }
 }

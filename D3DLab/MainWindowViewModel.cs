@@ -136,16 +136,16 @@ namespace D3DLab {
 
         #region items
 
-        public sealed class LoadedItem {
+        public class LoadedItem {
             public ICommand VisiblityChanged { get; }
             public ICommand ShowDebuggingVisualization { get; }
-            public ICommand LookAt{ get; }
+            public ICommand LookAt { get; }
             public string Header { get { return gobj.Description; } }
 
             public LoadedItem() { }
 
-            readonly GameObject gobj;
-            readonly MainWindowViewModel main;
+            protected GameObject gobj;
+            protected readonly MainWindowViewModel main;
 
             public LoadedItem(MainWindowViewModel main, GameObject gobj) {
                 this.main = main;
@@ -166,7 +166,7 @@ namespace D3DLab {
 
             void OnShowDebugVisualization(bool? ischecked) {
                 if (ischecked.HasValue && ischecked.Value) {
-                    gobj.ShowDebugVisualization(main.context.GetEntityManager());                    
+                    gobj.ShowDebugVisualization(main.context.GetEntityManager());
                 } else {
                     gobj.HideDebugVisualization(main.context.GetEntityManager());
                 }
@@ -205,6 +205,30 @@ namespace D3DLab {
             }
         }
 
+        public class ImportFileLoadedItem : LoadedItem {
+            readonly ImportFileInfo info;
+            readonly FileSystemWatcher watcher;
+            readonly ElementTag tag;
+            public ImportFileLoadedItem(MainWindowViewModel main, ImportFileInfo info) : base(main, null) {
+                this.info = info;
+                //
+                var bl = new EntityBuilder(main.context.GetEntityManager());
+                tag = bl.Build(info.File, info.Parser);
+                base.gobj = new SingleGameObject(tag, info.File.Name);
+                //
+                watcher = new FileSystemWatcher(info.File.DirectoryName, "*" + Path.GetExtension(info.File.Name));
+                watcher.EnableRaisingEvents = true;
+                watcher.Changed += OnFileChanged;
+            }
+            
+            private void OnFileChanged(object sender, FileSystemEventArgs e) {
+                if (e.FullPath == info.File.FullName) {
+                    var rbl = new EntityReBuilder(tag, main.context.GetEntityManager());
+                    rbl.ReBuildGeometry(info.File, info.Parser);
+                }
+            }
+        }
+
         #endregion
 
         private SceneView scene;
@@ -219,7 +243,7 @@ namespace D3DLab {
         public ICommand MoveToCenterWorld { get; }
         public ICommand ShowAxis { get; }
         public ICommand ClearConsoleOutput { get; }
-        
+
 
         public ICollectionView Items { get; set; }
         public ObservableCollection<string> ConsoleOutput { get; }
@@ -286,10 +310,8 @@ namespace D3DLab {
             win.ShowDialog();
         }
 
-        public void Load(FileInfo file, IFileParserPlugin parser) {
-            var bl = new EntityBuilder(context.GetEntityManager());
-            var tag = bl.Build(file, parser);
-            items.Add(new LoadedItem(this, new SingleGameObject(tag, file.Name)));
+        public void Load(ImportFileInfo info) {
+            items.Add(new ImportFileLoadedItem(this, info));
         }
 
         void ForceRender() {

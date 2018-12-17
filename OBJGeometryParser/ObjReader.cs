@@ -903,8 +903,8 @@ namespace OBJGeometryParser {
                     yield return new Object3D {
 
                         Geometry = this.meshBuilders[i].ToGeometry3D(),
-                        Material = this.materials[i],
-                        Transform = Matrix4x4.Identity
+                      //  Material = this.materials[i],
+                      //  Transform = Matrix4x4.Identity
                     };
                 }
             }

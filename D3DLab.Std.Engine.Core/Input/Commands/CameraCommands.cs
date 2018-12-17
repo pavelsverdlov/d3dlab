@@ -13,7 +13,9 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
             if (!find.Any()) {
                 return false;
             }
+
             entity.RemoveComponents<CameraMovementComponent>();
+
             return true;
         }
     }

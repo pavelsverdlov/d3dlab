@@ -1,6 +1,7 @@
 ﻿using D3DLab.Plugin.Contracts.Parsers;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Wpf.Engine.App;
 using System;
@@ -9,33 +10,13 @@ using System.Collections.Immutable;
 using System.IO;
 
 namespace D3DLab.Visualization {
-    class EntityBuilder : IParseResultVisiter {
-        readonly IEntityManager manager;
-        GraphicEntity entity;
+    class BaseEntityBuilder : IParseResultVisiter {
+        protected readonly IEntityManager manager;
+        protected readonly List<IGraphicComponent> components;
 
-        readonly List<IGraphicComponent> components;
-        public EntityBuilder(IEntityManager manager) {
+        public BaseEntityBuilder(IEntityManager manager) {
             this.manager = manager;
             components = new List<IGraphicComponent>();
-        }
-        public ElementTag Build(Stream stream, IFileParserPlugin parser) {
-            var tag = new ElementTag("Obj_"+DateTime.Now.Ticks);
-            entity = manager.CreateEntity(tag);
-
-            parser.Parse(stream, this);
-
-            components.Add(EntityBuilders.GetRenderAsTriangleColored());
-            components.Add(EntityBuilders.GetTransformation());
-
-            entity.AddComponents(components);
-
-            return tag;
-        }
-        public ElementTag Build(FileInfo file, IFileParserPlugin parser) {
-            using (var str = File.OpenRead(file.FullName)) {
-                Build(str, parser);
-            }
-            return entity.Tag;
         }
         public void Handle(AbstractGeometry3D mesh) {
             var com = new Std.Engine.Core.Components.GeometryComponent {
@@ -58,5 +39,48 @@ namespace D3DLab.Visualization {
             group.Combine();
             components.Add(group);
         }
+    }
+    class EntityReBuilder : BaseEntityBuilder {
+        readonly ElementTag entityTag;
+
+        public EntityReBuilder(ElementTag tag, IEntityManager manager):base(manager) {
+            this.entityTag = tag;
+        }
+
+        public void ReBuildGeometry(FileInfo file, IFileParserPlugin parser) {
+            using (var stream = File.OpenRead(file.FullName)) {
+                parser.Parse(stream, this);
+            }
+            var en = manager.GetEntity(entityTag);
+            en.RemoveComponents<IGeometryComponent>();
+
+            en.AddComponents(components);
+        }
+    }
+    class EntityBuilder : BaseEntityBuilder {
+        GraphicEntity entity;
+
+        public EntityBuilder(IEntityManager manager):base(manager) {
+        }
+        public ElementTag Build(Stream stream, IFileParserPlugin parser) {
+            var tag = new ElementTag("Obj_" + DateTime.Now.Ticks);
+            entity = manager.CreateEntity(tag);
+
+            parser.Parse(stream, this);
+
+            components.Add(EntityBuilders.GetRenderAsTriangleColored());
+            components.Add(EntityBuilders.GetTransformation());
+
+            entity.AddComponents(components);
+
+            return tag;
+        }
+        public ElementTag Build(FileInfo file, IFileParserPlugin parser) {
+            using (var str = File.OpenRead(file.FullName)) {
+                Build(str, parser);
+            }
+            return entity.Tag;
+        }
+        
     }
 }

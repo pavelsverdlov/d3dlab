@@ -33,9 +33,19 @@ namespace D3DLab.Parser {
         public string Name => parser.Name;
         public IFileParserPlugin Parser => parser;
     }
+    public class ImportFileInfo {
+        public readonly FileInfo File;
+        public readonly IFileParserPlugin Parser;
+        public readonly bool IsWatching;
+        public ImportFileInfo(FileInfo file, IFileParserPlugin parser, bool watching) {
+            File = file;
+            Parser = parser;
+            IsWatching = watching;
+        }
+    }
 
     public interface IFileLoader {
-        void Load(FileInfo file, IFileParserPlugin parser);
+        void Load(ImportFileInfo info);
     }
 
     public class ChooseParseViewModel {
@@ -80,7 +90,7 @@ namespace D3DLab.Parser {
             var file =(ImportingFile) ImportingFiles.CurrentItem;
             var parser = (ParserTypeItem)ParserTypes.CurrentItem;
             App.Current.Dispatcher.InvokeAsync(() => {
-                loader.Load(file.FileInfo, parser.Parser);
+                loader.Load(new ImportFileInfo(file.FileInfo, parser.Parser, true));
             });
         }
 

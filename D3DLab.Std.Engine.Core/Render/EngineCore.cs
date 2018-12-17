@@ -48,8 +48,8 @@ namespace D3DLab.Std.Engine.Core.Render {
             var imanager = Window.InputManager;
 
             //first synchronization
-            Context.GetEntityManager().Synchronize();
-            imanager.Synchronize();            
+            Context.GetEntityManager().Synchronize(Thread.CurrentThread.ManagedThreadId);
+            imanager.Synchronize(Thread.CurrentThread.ManagedThreadId);            
 
             var speed = new Stopwatch();
             var engineInfoTag = Context.GetEntityManager().GetEntities()
@@ -59,7 +59,7 @@ namespace D3DLab.Std.Engine.Core.Render {
             while (Window.IsActive && !token.IsCancellationRequested) {
                 speed.Restart();
 
-                imanager.Synchronize();
+                imanager.Synchronize(Thread.CurrentThread.ManagedThreadId);
                 OnSynchronizing();
 
                 var eman = Context.GetEntityManager();
@@ -94,13 +94,15 @@ namespace D3DLab.Std.Engine.Core.Render {
             if (!ishapshot.Events.Any() && !emanager.HasChanges) {//no input/changes no rendering 
                 return;
             }
-
-            emanager.Synchronize();
+            var id = Thread.CurrentThread.ManagedThreadId;
+            emanager.Synchronize(id);
 
             try {
                 var snapshot = new SceneSnapshot(Window, Context, ishapshot, TimeSpan.FromMilliseconds(millisec));
                 foreach (var sys in Context.GetSystemManager().GetSystems()) {
                     sys.Execute(snapshot);
+                    //run synchronization after each exetuted system, to synchronize state for the next system
+                    emanager.Synchronize(id);
                 }
             } catch (Exception ex) {
                 ex.ToString();

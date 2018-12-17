@@ -20,7 +20,7 @@ namespace D3DLab.SDX.Engine {
         }
 
         protected override void OnSynchronizing() {
-            device.Synchronize();
+            device.Synchronize(System.Threading.Thread.CurrentThread.ManagedThreadId);
             base.OnSynchronizing();
         }
 

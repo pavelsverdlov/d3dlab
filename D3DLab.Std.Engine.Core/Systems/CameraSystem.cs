@@ -287,12 +287,12 @@ namespace D3DLab.Std.Engine.Core.Systems {
             return new PerspectiveCameraMoveHandler(com, snapshot);
         }
 
-
+        //TODO: remake executer it looks bad :(
 
 
         public void Execute(SceneSnapshot snapshot) {
             var window = snapshot.Window;
-            IEntityManager emanager = snapshot.ContextState.GetEntityManager();
+            var emanager = snapshot.ContextState.GetEntityManager();
 
             try {
                 foreach (var entity in emanager.GetEntities()) {

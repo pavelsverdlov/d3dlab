@@ -32,6 +32,21 @@ namespace D3DLab.Wpf.Engine.App {
                   .GetComponent<IRenderableComponent>()
                   .CanRender = true;
         }
+
+        public override void LookAtSelf(IEntityManager manager) {
+            var entity = manager.GetEntity(Tag);
+            var geos = entity.GetComponents<IGeometryComponent>();
+            if (geos.Any()) {
+                var geo = geos.First();
+                var com = new MoveCameraToPositionComponent { Target = Tag, TargetPosition = geo.Box.GetCenter() };
+                entity.AddComponent(com);
+            }
+        }
+
+        public override void Dispose(IEntityManager manager) {
+            base.Dispose(manager);
+            manager.RemoveEntity(Tag);
+        }
     }
 
     public class CoordinateSystemLinesGameObject : GameObject {

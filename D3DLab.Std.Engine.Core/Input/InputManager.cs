@@ -30,8 +30,8 @@ namespace D3DLab.Std.Engine.Core.Input {
             synchronization.Add((own, input) => own.observer.PushCommand(input), cmd);
         }
 
-        public void Synchronize() {
-            synchronization.Synchronize();
+        public void Synchronize(int theadId) {
+            synchronization.Synchronize(theadId);
         }
     }
 }

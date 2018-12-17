@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace D3DLab.Std.Engine.Core {
     public interface ISynchronizationContext {
-        void Synchronize();
+        void Synchronize(int theadId);
     }
 
     public class SynchronizationContext<TOwner, TInput> {
         Queue<Tuple<Action<TOwner, TInput>, TInput>> queue;
         readonly TOwner owner;
         readonly object _loker;
+        int theadId;
 
         public bool IsChanged { get; private set; }
 
         public SynchronizationContext(TOwner owner) :this(owner, new object()){
+            theadId = -1;
         }
         public SynchronizationContext(TOwner owner, object _loker) {
             this.queue = new Queue<Tuple<Action<TOwner, TInput>, TInput>>();
@@ -23,7 +26,8 @@ namespace D3DLab.Std.Engine.Core {
             this._loker = _loker;
         }
 
-        public void Synchronize() {
+        public void Synchronize(int theadId) {
+            this.theadId = theadId;
             //copy to local
             Queue<Tuple<Action<TOwner, TInput>, TInput>> local;
             lock (_loker) { 
@@ -42,12 +46,22 @@ namespace D3DLab.Std.Engine.Core {
             }
         }
         public void Add(Action<TOwner, TInput> action, TInput input) {
+            //if(Thread.CurrentThread.ManagedThreadId == theadId) {
+            //    action(owner, input);
+            //    return;
+            //}
             lock (_loker) {
                 IsChanged = true;
                 queue.Enqueue(Tuple.Create(action, input));
             }
         }
         public void AddRange(Action<TOwner, TInput> action, IEnumerable<TInput> inputs) {
+            //if (Thread.CurrentThread.ManagedThreadId == theadId) {
+            //    foreach (var input in inputs) {
+            //        action(owner, input);
+            //    }
+            //    return;
+            //}
             lock (_loker) {
                 IsChanged = true;
                 foreach (var input in inputs) {

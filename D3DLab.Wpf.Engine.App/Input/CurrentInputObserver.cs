@@ -40,6 +40,14 @@ namespace D3DLab.Wpf.Engine.App.Input {
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Idle());
             }
 
+            public override void EnterState(InputStateData state) {
+                switch (state.Buttons) {
+                    case GeneralMouseButtons.Right:
+                        SwitchTo((int)AllInputStates.Rotate, state);
+                        break;
+                }
+            }
+
             public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
                     //camera
@@ -78,6 +86,9 @@ namespace D3DLab.Wpf.Engine.App.Input {
             public InputRotateState(StateProcessor processor) : base(processor) {
                 // Cursor.Hide();
             }
+            public override void EnterState(InputStateData state) {
+                Processor.InvokeHandler<ICameraInputHandler>(x => x.Rotate(state));
+            }
             public override bool OnMouseUp(InputStateData state) {
                 if ((state.Buttons & GeneralMouseButtons.Right) != GeneralMouseButtons.Right) {
                     SwitchTo((int)AllInputStates.Idle, state);
@@ -94,7 +105,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
                 return base.OnMouseDown(state);
             }
             public override bool OnMouseMove(InputStateData state) {
-               // Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPointDown.ToDrawingPoint();
+                // Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPointDown.ToDrawingPoint();
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Rotate(state));
                 return true;
             }
@@ -122,15 +133,20 @@ namespace D3DLab.Wpf.Engine.App.Input {
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Zoom(ev));
             }
 
+            public override bool OnMouseDown(InputStateData state) {
+                SwitchTo((int)AllInputStates.Idle, state);
+                return base.KeyDown(state);
+            }
+
             public override bool OnMouseWheel(InputStateData ev) {
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Zoom(ev));
                 return true;
             }
 
-            public override bool OnMouseMove(InputStateData state) {
-                SwitchTo((int)AllInputStates.Idle, state);
-                return false;
-            }
+            //public override bool OnMouseMove(InputStateData state) {
+            //    SwitchTo((int)AllInputStates.Idle, state);
+            //    return false;
+            //}
         }
 
         #endregion
@@ -138,7 +154,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
         #region moving
 
         protected class KeywordMovingState : CurrentStateMachine {
-            public KeywordMovingState(StateProcessor processor) : base(processor) {}
+            public KeywordMovingState(StateProcessor processor) : base(processor) { }
 
             public override void EnterState(InputStateData state) {
                 state.IsKeywordDown = true;
@@ -229,7 +245,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             router.SwitchTo((int)AllInputStates.Idle, InputStateData.Create());
 
 
-            
+
 
             return router;
         }
