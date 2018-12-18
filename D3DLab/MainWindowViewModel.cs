@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Numerics;
+using System.Threading;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -27,7 +28,7 @@ namespace D3DLab {
 
     class TraceOutputListener : System.Diagnostics.TraceListener {
         private ObservableCollection<string> output;
-
+        const int maxlines = 100;
         public TraceOutputListener(ObservableCollection<string> consoleOutput) {
             this.output = consoleOutput;
         }
@@ -39,6 +40,9 @@ namespace D3DLab {
         public override void WriteLine(string message) {
             App.Current.Dispatcher.InvokeAsync(() => {
                 output.Insert(0, $"[{DateTime.Now.TimeOfDay}] {message.Trim()}");
+                if(output.Count > maxlines) {
+                    output.RemoveAt(maxlines);
+                }
             });
         }
     }
@@ -152,15 +156,11 @@ namespace D3DLab {
                 this.gobj = gobj;
                 VisiblityChanged = new Command(this);
                 ShowDebuggingVisualization = new WpfActionCommand<bool?>(OnShowDebugVisualization);
-                LookAt = new WpfActionCommand<bool?>(OnLookAt);
+                LookAt = new WpfActionCommand(OnLookAt);
             }
 
-            private void OnLookAt(bool? ischecked) {
-                if (ischecked.HasValue && ischecked.Value) {
-                    gobj.LookAtSelf(main.context.GetEntityManager());
-                } else {
-                    //look at center of coordinate system
-                }
+            private void OnLookAt() {
+                gobj.LookAtSelf(main.context.GetEntityManager());
                 main.ForceRender();
             }
 
@@ -209,8 +209,13 @@ namespace D3DLab {
             readonly ImportFileInfo info;
             readonly FileSystemWatcher watcher;
             readonly ElementTag tag;
+            readonly ManualResetEventSlim reset;
+            readonly string tempFileName;
             public ImportFileLoadedItem(MainWindowViewModel main, ImportFileInfo info) : base(main, null) {
                 this.info = info;
+                reset = new ManualResetEventSlim(true);
+                tempFileName = Path.ChangeExtension(info.File.FullName, ".temp");
+                File.Delete(tempFileName);
                 //
                 var bl = new EntityBuilder(main.context.GetEntityManager());
                 tag = bl.Build(info.File, info.Parser);
@@ -220,11 +225,45 @@ namespace D3DLab {
                 watcher.EnableRaisingEvents = true;
                 watcher.Changed += OnFileChanged;
             }
-            
+            DateTime lastWriteTime;
             private void OnFileChanged(object sender, FileSystemEventArgs e) {
-                if (e.FullPath == info.File.FullName) {
-                    var rbl = new EntityReBuilder(tag, main.context.GetEntityManager());
-                    rbl.ReBuildGeometry(info.File, info.Parser);
+                var lastTime = File.GetLastWriteTime(info.File.FullName);
+                if (e.FullPath == info.File.FullName && lastWriteTime < lastTime) {                    
+                    Thread.Sleep(100);
+                    //reset.Wait();
+                    //reset.Reset();
+                    Stream stream = null;
+                    var tries = 3;
+                    while (tries --> 0) {
+                        try {
+                            File.Copy(info.File.FullName, tempFileName, true);
+                            stream = File.OpenRead(tempFileName);
+                            //using (var readed = File.OpenRead(temp)) {
+                            //stream = new MemoryStream();
+                            //readed.CopyTo(stream);
+                            //stream.Position = 0;
+                            //}                            
+                            lastWriteTime = lastTime;
+                            break;
+                        } catch {
+                            Thread.Sleep(100);
+                        }
+                    }
+                    if (stream.IsNull()) {
+                        return;
+                    }
+
+                    System.Diagnostics.Trace.WriteLine($"Reload [{info.File.FullName}]");
+
+                    try {
+                        var rbl = new EntityReBuilder(tag, main.context.GetEntityManager());
+                        rbl.ReBuildGeometry(stream, info.Parser);
+                    } catch (Exception ex) {
+                        System.Diagnostics.Trace.WriteLine($"Error [{ex.Message}]");
+                    } finally {
+                        stream.Dispose();
+                        //reset.Set();
+                    }
                 }
             }
         }

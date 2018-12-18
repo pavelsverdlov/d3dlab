@@ -19,6 +19,7 @@ namespace D3DLab.SDX.Engine.Components {
         public PrimitiveTopology PrimitiveTopology { get; set; }
 
         public bool IsModified { get; set; }
+        public bool IsValid => true;
 
         [IgnoreDebuging]
         public SharpDX.Direct3D11.Buffer VertexBuffer { get; internal set; }

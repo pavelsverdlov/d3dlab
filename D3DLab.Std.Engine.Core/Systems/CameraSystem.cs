@@ -94,7 +94,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 var xangle = d * 1 * delta.X / 180 * (float)Math.PI;
                 var yangle = d * delta.Y / 180 * (float)Math.PI;
 
-                System.Diagnostics.Trace.WriteLine($"up: {up}/{xangle}, right: {right}/{yangle}");
+                //System.Diagnostics.Trace.WriteLine($"up: {up}/{xangle}, right: {right}/{yangle}");
 
                 var q1 = Quaternion.CreateFromAxisAngle(up, xangle);
                 var q2 = Quaternion.CreateFromAxisAngle(right, yangle);
@@ -162,7 +162,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
                 var look = camera.LookDirection;
 
-                camera.Position = position - look * camera.NearPlaneDistance * 1.2f;
+                camera.Position = position - look * 10 * 1.2f;
                 camera.RotatePoint = position;
             }
 

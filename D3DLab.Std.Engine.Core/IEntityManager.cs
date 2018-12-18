@@ -12,6 +12,8 @@ namespace D3DLab.Std.Engine.Core {
         void Dispose();
 
         void RemoveEntity(ElementTag elementTag);
+
+        void FrameSynchronize(int theadId);
     }
 
 }

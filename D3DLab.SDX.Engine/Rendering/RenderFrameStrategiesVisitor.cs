@@ -5,6 +5,7 @@ using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.SDX.Engine.Rendering {
@@ -33,9 +34,20 @@ namespace D3DLab.SDX.Engine.Rendering {
             try {
                 var manager = contextState.GetComponentManager();
 
-                var geometry = manager.GetComponent<IGeometryComponent>(entityTag);
+                var geometries = manager.GetComponents<IGeometryComponent>(entityTag);
+                var trs = manager.GetComponents<D3DTransformComponent>(entityTag);
 
-                var tr = manager.GetComponent<D3DTransformComponent>(entityTag);
+                if(!geometries.Any() || !trs.Any()) {
+                    System.Diagnostics.Trace.WriteLine($"TriangleColored [{entityTag}] not all components to render");
+                    return;
+                }
+                var geometry = geometries.First();
+                var tr = trs.First();
+
+                if (!geometry.IsValid) {
+                    System.Diagnostics.Trace.WriteLine($"TriangleColored [{entityTag}] geometry is empty");
+                    return;
+                }
 
                 //var v = ran.NextVector3(new Vector3(-100, -100, -100), new Vector3(100, 100, 100));
                 tr.MatrixWorld = Matrix4x4.Identity;// Matrix4x4.CreateTranslation(v);

@@ -400,6 +400,7 @@ namespace D3DLab.Wpf.Engine.App {
     }
 
     public class LightGameObject : SingleGameObject {
+        static float lightpower = 1;
         static int lights = 0;
 
         GameObject debugVisualObject;
@@ -430,7 +431,7 @@ namespace D3DLab.Wpf.Engine.App {
                  .AddComponents(
                      new LightComponent {
                          Index = 1,
-                         Intensity = 0.6f,
+                         Intensity = 0.4f,
                          Position = position,
                          Type = LightTypes.Point
                      },
@@ -447,7 +448,7 @@ namespace D3DLab.Wpf.Engine.App {
                    .AddComponents(
                            new LightComponent {
                                Index = 0,
-                               Intensity = 0.2f,
+                               Intensity = 0.4f,
                                //Position = Vector3.Zero + Vector3.UnitZ * 1000,
                                Type = LightTypes.Ambient
                            },

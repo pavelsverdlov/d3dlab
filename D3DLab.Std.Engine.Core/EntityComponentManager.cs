@@ -108,7 +108,7 @@ namespace D3DLab.Std.Engine.Core {
 
         public bool HasChanges {
             get {
-                return entitySynchronizer.IsChanged || comSynchronizer.IsChanged;
+                return entitySynchronizer.IsChanged || comSynchronizer.IsChanged || frameChanges;
             }
         }
 
@@ -123,8 +123,19 @@ namespace D3DLab.Std.Engine.Core {
         }
 
         public void Synchronize(int theadId) {
+            frameChanges = false;
             entitySynchronizer.Synchronize(theadId);
             comSynchronizer.Synchronize(theadId);
+        }
+
+        bool frameChanges;
+        //not a good decision :(
+        public void FrameSynchronize(int theadId) {
+            if (!frameChanges) {
+                frameChanges = HasChanges;
+            }
+            entitySynchronizer.Synchronize(theadId);
+            comSynchronizer.Synchronize(theadId);            
         }
 
         public void Dispose() {

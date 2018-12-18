@@ -34,7 +34,7 @@ namespace D3DLab.SDX.Engine {
                 var zoomAround = D3DExt.ScreenToV3(camera, screen, winW, winH, delta);
 
                 var sign = Math.Sign(delta);
-                delta = delta * 0.1f; //);
+                delta = delta * 0.01f; //);
 
                 camera.Position -= camera.LookDirection * (delta);
 

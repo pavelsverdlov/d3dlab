@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 
 namespace D3DLab.Visualization {
     class BaseEntityBuilder : IParseResultVisiter {
@@ -43,24 +44,23 @@ namespace D3DLab.Visualization {
     class EntityReBuilder : BaseEntityBuilder {
         readonly ElementTag entityTag;
 
-        public EntityReBuilder(ElementTag tag, IEntityManager manager):base(manager) {
+        public EntityReBuilder(ElementTag tag, IEntityManager manager) : base(manager) {
             this.entityTag = tag;
         }
 
-        public void ReBuildGeometry(FileInfo file, IFileParserPlugin parser) {
-            using (var stream = File.OpenRead(file.FullName)) {
-                parser.Parse(stream, this);
-            }
+        public void ReBuildGeometry(Stream stream, IFileParserPlugin parser) {
+            parser.Parse(stream, this);
             var en = manager.GetEntity(entityTag);
-            en.RemoveComponents<IGeometryComponent>();
-
-            en.AddComponents(components);
+            if (components.All(x => x.IsValid)) {
+                en.RemoveComponents<IGeometryComponent>();
+                en.AddComponents(components);
+            }            
         }
     }
     class EntityBuilder : BaseEntityBuilder {
         GraphicEntity entity;
 
-        public EntityBuilder(IEntityManager manager):base(manager) {
+        public EntityBuilder(IEntityManager manager) : base(manager) {
         }
         public ElementTag Build(Stream stream, IFileParserPlugin parser) {
             var tag = new ElementTag("Obj_" + DateTime.Now.Ticks);
@@ -81,6 +81,6 @@ namespace D3DLab.Visualization {
             }
             return entity.Tag;
         }
-        
+
     }
 }

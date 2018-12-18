@@ -102,7 +102,7 @@ namespace D3DLab.Std.Engine.Core.Render {
                 foreach (var sys in Context.GetSystemManager().GetSystems()) {
                     sys.Execute(snapshot);
                     //run synchronization after each exetuted system, to synchronize state for the next system
-                    emanager.Synchronize(id);
+                    emanager.FrameSynchronize(id);
                 }
             } catch (Exception ex) {
                 ex.ToString();

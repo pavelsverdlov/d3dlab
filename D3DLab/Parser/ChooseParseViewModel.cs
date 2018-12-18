@@ -98,12 +98,15 @@ namespace D3DLab.Parser {
             foreach(var i in files) {
                importingFiles.Add(new ImportingFile(i));
             }
+            ImportingFiles.MoveCurrentToFirst();
         }
 
         public void AddParsers(IEnumerable<IFileParserPlugin> parsers) {
             foreach (var i in parsers) {
                 parserTypes.Add(new ParserTypeItem(i));
             }
+
+            ParserTypes.MoveCurrentToFirst();
         }
 
     }

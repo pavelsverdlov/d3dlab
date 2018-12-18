@@ -6,10 +6,12 @@ namespace D3DLab.Std.Engine.Core {
         ElementTag Tag { get; }
         ElementTag EntityTag { get; set; }
         bool IsModified { get; }
+        bool IsValid { get; }
     }
 
     public abstract class GraphicComponent : IGraphicComponent {
         public bool IsModified { get; set; }
+        public virtual bool IsValid => true;
         public ElementTag Tag { get; }
         public ElementTag EntityTag { get; set; }
 

@@ -7,6 +7,8 @@ using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
     public class GeometryComponent : GraphicComponent, IGeometryComponent {
+        public override bool IsValid => Positions.Length > 0 && Indices.Length > 0;
+
         public virtual ImmutableArray<Vector3> Positions { get; set; }
         public virtual ImmutableArray<Vector3> Normals { get; set; }
         public virtual ImmutableArray<Vector4> Colors {
