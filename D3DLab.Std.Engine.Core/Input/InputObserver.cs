@@ -48,6 +48,7 @@ namespace D3DLab.Std.Engine.Core.Input {
             public override bool OnMouseDown(InputStateData state) { return current.OnMouseDown(state); }
             public override bool OnMouseUp(InputStateData state) { return current.OnMouseUp(state); }
             public override bool OnMouseWheel(InputStateData ev) { return current.OnMouseWheel(ev); }
+            public override bool OnMouseDoubleDown(InputStateData state) => current.OnMouseDoubleDown(state);
 
             public override bool KeyDown(InputStateData ev) { return current.KeyDown(ev); }
             public override bool KeyUp(InputStateData ev) { return current.KeyUp(ev); }
@@ -79,6 +80,8 @@ namespace D3DLab.Std.Engine.Core.Input {
             public virtual bool OnMouseDown(InputStateData state) {
                 return false;
             }
+            public virtual bool OnMouseDoubleDown(InputStateData state) => false;
+
             public virtual bool OnMouseUp(InputStateData state) {
                 return false;
             }
@@ -137,6 +140,7 @@ namespace D3DLab.Std.Engine.Core.Input {
 
         public bool OnMouseMove(InputStateData state) { return StateMachine.OnMouseMove(state); }
         public bool OnMouseDown(InputStateData state) { return StateMachine.OnMouseDown(state); }
+        public bool OnMouseDoubleDown(InputStateData state) => StateMachine.OnMouseDoubleDown(state);
         public bool OnMouseUp(InputStateData state) { return StateMachine.OnMouseUp(state); }
         public bool OnMouseWheel(InputStateData ev) { return StateMachine.OnMouseWheel(ev); }
 

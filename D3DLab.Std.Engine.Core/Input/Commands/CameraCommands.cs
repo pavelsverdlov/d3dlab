@@ -150,26 +150,27 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         }
     }
 
-    #endregion
+    public class FocusToObjectCommand : CameraCommand {
+        public FocusToObjectCommand(InputStateData state) : base(state) { }
+        protected override bool Executing(GraphicEntity entity, GeneralCameraComponent comp) {
+            var p1 = state.PrevPosition;
+
+            var mcomp = new HitToTargetComponent();
+
+            mcomp.ScreenPosition = state.CurrentPosition;// new Vector2(state.CursorCurrentPosition.X, state.CursorCurrentPosition.Y);// CurrentPosition;
+
+            entity.AddComponent(mcomp);
 
 
-
-
-
-
-    public class ChangeCameraRotationCenter : IInputCommand {
-        public bool Execute(GraphicEntity entity) {
-            var find = entity.GetComponents<GeneralCameraComponent>();
-            if (!find.Any()) {
-                return false;
-            }
-
-
+            //entity.GetOrCreateComponent(new CameraRotatingComponent { State = comp.GetState() })
+            //   .MovementData = data;
 
             return true;
         }
     }
 
+    #endregion
+    
     public class CameraPanCommand : CameraCommand {
         public CameraPanCommand(InputStateData state) : base(state) { }
         protected override bool Executing(GeneralCameraComponent comp) {
@@ -195,10 +196,11 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
                 return false;
             }
             var ccom = find.First();
-            return Executing(ccom);
+            return Executing(entity, ccom) && Executing(ccom);
 
         }
-        protected abstract bool Executing(GeneralCameraComponent comp);
+        protected virtual bool Executing(GeneralCameraComponent comp) { return true; }
+        protected virtual bool Executing(GraphicEntity entity, GeneralCameraComponent comp) { return true; }
     }
 
     /*

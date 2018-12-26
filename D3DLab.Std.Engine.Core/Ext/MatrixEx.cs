@@ -5,6 +5,11 @@ using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Ext {
     public static class MatrixEx {
+        /// <summary>
+        /// Shouls be faster that Invert, but not sure :)
+        /// </summary>
+        /// <param name="viewMatrix"></param>
+        /// <returns></returns>
         public static Matrix4x4 PsudoInvert(this Matrix4x4 viewMatrix) {
             //var v33Transpose = new Matrix3x3(
             //    viewMatrix.M11, viewMatrix.M21, viewMatrix.M31,

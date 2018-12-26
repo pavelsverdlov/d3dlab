@@ -1,8 +1,25 @@
 ﻿using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Utilities;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
     public struct CameraState {
+        public static CameraState OrthographicState() {
+            return new CameraState {
+                type = CameraTypes.Orthographic
+            };
+        }
+        public static CameraState PerspectiveState() {
+            return new CameraState {
+                type = CameraTypes.Perspective
+            };
+        }
+
+        enum CameraTypes {
+            Perspective,
+            Orthographic
+        }
+
         public Vector3 UpDirection;
         public Vector3 LookDirection;
         public Vector3 Position;
@@ -10,6 +27,74 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         public Matrix4x4 ProjectionMatrix;
         public Matrix4x4 ViewMatrix;
+
+        public float NearPlaneDistance;
+        public float FarPlaneDistance;
+
+        CameraTypes type;
+
+        Ray Point2DtoPoint3D(Vector2 pointIn) {
+            var pointNear = new Vector3();
+            var pointFar = new Vector3();
+
+            var pointIn3D = new Vector3(pointIn.X, pointIn.Y, 0);
+            var view = ViewMatrix;
+            var proj = ProjectionMatrix;
+
+            Matrix4x4.Invert(view, out view);
+            Matrix4x4.Invert(proj, out proj);
+
+            var pointNormalized = Vector3.Transform(pointIn3D, proj);
+            pointNormalized.Z =NearPlaneDistance;
+            pointNear = Vector3.Transform(pointNormalized, view);
+            pointNormalized.Z = FarPlaneDistance;
+            pointFar = Vector3.Transform(pointNormalized, view);
+
+            var r = new Ray(pointNear, (pointFar - pointNear).Normalized());
+
+            return r;
+        }
+
+        public Ray GetRay(IAppWindow window, Vector2 point2d) {
+            var w = window.Width;
+            var h = window.Height;
+            var px = point2d.X;
+            var py = point2d.Y;
+            
+            var viewInverted = ViewMatrix.PsudoInvert();
+            var projMatrix = ProjectionMatrix;
+            //Matrix4x4.Invert(projMatrix, out projMatrix);
+
+            var v = new Vector3 {
+                X = (2 * px / w - 1) / projMatrix.M11,
+                Y = -(2 * py / h - 1) / projMatrix.M22,
+                Z = 1 / projMatrix.M33
+            };
+
+            var zf = Vector3.Transform(v, viewInverted);
+
+            var zn = Vector3.Zero;
+            switch (type) {
+                case CameraTypes.Orthographic:
+                    v.Z = 0;
+                    zn = Vector3.Transform(v, viewInverted);
+                    break;
+                case CameraTypes.Perspective:
+                    //v.Z = 0;
+                    //zn = Vector3.Transform(v, matrix);
+                    zn = Position;
+                    break;
+
+            }
+            var r = zf - zn;
+            r.Normalize();
+
+            var ray = new Ray(zn + r * NearPlaneDistance, r);
+
+            var ray1 = Point2DtoPoint3D(point2d);
+
+            return ray;
+        }
     }
 
     public class PerspectiveCameraComponent : GeneralCameraComponent {
@@ -42,6 +127,10 @@ namespace D3DLab.Std.Engine.Core.Components {
             Position = Vector3.UnitZ * 200f;
 
             FarPlaneDistance = Position.Length() * 70;
+        }
+
+        protected override void CreateState(out CameraState state) {
+            state = CameraState.PerspectiveState();
         }
     }
 
@@ -139,6 +228,9 @@ namespace D3DLab.Std.Engine.Core.Components {
 
             return new Veldrid.Utilities.Ray(Position, worldCoords);
         }
+        protected override void CreateState(out CameraState state) {
+            state = CameraState.OrthographicState();
+        }
     }
 
     public abstract class GeneralCameraComponent : GraphicComponent {
@@ -150,7 +242,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         public static readonly Vector3 ForwardRH = new Vector3(0, 0, -1);
 
         public Vector3 RotatePoint { get; set; }
-        
+
 
         public Vector3 Position { get; set; }
         public float NearPlaneDistance { get; set; }
@@ -174,16 +266,22 @@ namespace D3DLab.Std.Engine.Core.Components {
         public abstract Matrix4x4 UpdateProjectionMatrix(float width, float height);
 
         public CameraState GetState() {
-            return new CameraState {
-                LookDirection = LookDirection,
-                UpDirection = UpDirection,
-                Position = Position,
-                Target = Target,
+            CreateState(out var state);
 
-                ViewMatrix = ViewMatrix,
-                ProjectionMatrix = ProjectionMatrix
-            };
+            state.LookDirection = LookDirection;
+            state.UpDirection = UpDirection;
+            state.Position = Position;
+            state.Target = Target;
+
+            state.ViewMatrix = ViewMatrix;
+            state.ProjectionMatrix = ProjectionMatrix;
+            state.NearPlaneDistance = NearPlaneDistance;
+            state.FarPlaneDistance = FarPlaneDistance;
+
+            return state;
         }
+
+        protected abstract void CreateState(out CameraState state);
 
         public abstract void ResetToDefault();
     }

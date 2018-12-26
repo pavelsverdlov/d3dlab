@@ -6,26 +6,26 @@ namespace Veldrid.Utilities
 {
     public struct BoundingBox : IEquatable<BoundingBox>
     {
-        public Vector3 Min;
-        public Vector3 Max;
+        public Vector3 Minimum;
+        public Vector3 Maximum;
 
         public BoundingBox(Vector3 min, Vector3 max)
         {
-            Min = min;
-            Max = max;
+            Minimum = min;
+            Maximum = max;
         }
 
         public ContainmentType Contains(ref BoundingBox other)
         {
-            if (Max.X < other.Min.X || Min.X > other.Max.X
-                || Max.Y < other.Min.Y || Min.Y > other.Max.Y
-                || Max.Z < other.Min.Z || Min.Z > other.Min.Z)
+            if (Maximum.X < other.Minimum.X || Minimum.X > other.Maximum.X
+                || Maximum.Y < other.Minimum.Y || Minimum.Y > other.Maximum.Y
+                || Maximum.Z < other.Minimum.Z || Minimum.Z > other.Minimum.Z)
             {
                 return ContainmentType.Disjoint;
             }
-            else if (Min.X <= other.Min.X && Max.X >= other.Max.X
-                && Min.Y <= other.Min.Y && Max.Y >= other.Max.Y
-                && Min.Z <= other.Min.Z && Max.Z >= other.Max.Z)
+            else if (Minimum.X <= other.Minimum.X && Maximum.X >= other.Maximum.X
+                && Minimum.Y <= other.Minimum.Y && Maximum.Y >= other.Maximum.Y
+                && Minimum.Z <= other.Minimum.Z && Maximum.Z >= other.Maximum.Z)
             {
                 return ContainmentType.Contains;
             }
@@ -37,12 +37,12 @@ namespace Veldrid.Utilities
 
         public Vector3 GetCenter()
         {
-            return (Max + Min) / 2f;
+            return (Maximum + Minimum) / 2f;
         }
 
         public Vector3 GetDimensions()
         {
-            return Max - Min;
+            return Maximum - Minimum;
         }
 
         public static unsafe BoundingBox Transform(BoundingBox box, Matrix4x4 mat)
@@ -130,8 +130,8 @@ namespace Veldrid.Utilities
         public static BoundingBox Combine(BoundingBox box1, BoundingBox box2)
         {
             return new BoundingBox(
-                Vector3.Min(box1.Min, box2.Min),
-                Vector3.Max(box1.Max, box2.Max));
+                Vector3.Min(box1.Minimum, box2.Minimum),
+                Vector3.Max(box1.Maximum, box2.Maximum));
         }
 
         public static bool operator ==(BoundingBox first, BoundingBox second)
@@ -146,12 +146,12 @@ namespace Veldrid.Utilities
 
         public bool Equals(BoundingBox other)
         {
-            return Min == other.Min && Max == other.Max;
+            return Minimum == other.Minimum && Maximum == other.Maximum;
         }
 
         public override string ToString()
         {
-            return string.Format("Min:{0}, Max:{1}", Min, Max);
+            return string.Format("Min:{0}, Max:{1}", Minimum, Maximum);
         }
 
         public override bool Equals(object obj)
@@ -161,8 +161,8 @@ namespace Veldrid.Utilities
 
         public override int GetHashCode()
         {
-            int h1 = Min.GetHashCode();
-            int h2 = Max.GetHashCode();
+            int h1 = Minimum.GetHashCode();
+            int h2 = Maximum.GetHashCode();
             uint shift5 = ((uint)h1 << 5) | ((uint)h1 >> 27);
             return ((int)shift5 + h1) ^ h2;
         }
@@ -170,23 +170,23 @@ namespace Veldrid.Utilities
         public AlignedBoxCorners GetCorners()
         {
             AlignedBoxCorners corners;
-            corners.NearBottomLeft = new Vector3(Min.X, Min.Y, Max.Z);
-            corners.NearBottomRight = new Vector3(Max.X, Min.Y, Max.Z);
-            corners.NearTopLeft = new Vector3(Min.X, Max.Y, Max.Z);
-            corners.NearTopRight = new Vector3(Max.X, Max.Y, Max.Z);
+            corners.NearBottomLeft = new Vector3(Minimum.X, Minimum.Y, Maximum.Z);
+            corners.NearBottomRight = new Vector3(Maximum.X, Minimum.Y, Maximum.Z);
+            corners.NearTopLeft = new Vector3(Minimum.X, Maximum.Y, Maximum.Z);
+            corners.NearTopRight = new Vector3(Maximum.X, Maximum.Y, Maximum.Z);
 
-            corners.FarBottomLeft = new Vector3(Min.X, Min.Y, Min.Z);
-            corners.FarBottomRight = new Vector3(Max.X, Min.Y, Min.Z);
-            corners.FarTopLeft = new Vector3(Min.X, Max.Y, Min.Z);
-            corners.FarTopRight = new Vector3(Max.X, Max.Y, Min.Z);
+            corners.FarBottomLeft = new Vector3(Minimum.X, Minimum.Y, Minimum.Z);
+            corners.FarBottomRight = new Vector3(Maximum.X, Minimum.Y, Minimum.Z);
+            corners.FarTopLeft = new Vector3(Minimum.X, Maximum.Y, Minimum.Z);
+            corners.FarTopRight = new Vector3(Maximum.X, Maximum.Y, Minimum.Z);
 
             return corners;
         }
 
         public bool ContainsNaN()
         {
-            return float.IsNaN(Min.X) || float.IsNaN(Min.Y) || float.IsNaN(Min.Z)
-                || float.IsNaN(Max.X) || float.IsNaN(Max.Y) || float.IsNaN(Max.Z);
+            return float.IsNaN(Minimum.X) || float.IsNaN(Minimum.Y) || float.IsNaN(Minimum.Z)
+                || float.IsNaN(Maximum.X) || float.IsNaN(Maximum.Y) || float.IsNaN(Maximum.Z);
         }
 
     }

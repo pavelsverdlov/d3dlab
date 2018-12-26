@@ -27,7 +27,7 @@ namespace D3DLab {
     }
 
     class TraceOutputListener : System.Diagnostics.TraceListener {
-        private ObservableCollection<string> output;
+        readonly ObservableCollection<string> output;
         const int maxlines = 100;
         public TraceOutputListener(ObservableCollection<string> consoleOutput) {
             this.output = consoleOutput;
@@ -336,7 +336,7 @@ namespace D3DLab {
             items.Add(new LoadedItem(this, CameraGameObject.Create(context)));
             items.Add(new LoadedItem(this, LightGameObject.CreateAmbientLight(manager)));
             items.Add(new LoadedItem(this, LightGameObject.CreatePointLight(manager, Vector3.Zero + Vector3.UnitZ * 1000)));
-            items.Add(new LoadedItem(this, LightGameObject.CreateDirectionLight(manager, new Vector3(1, 4, 4).Normalize())));
+            items.Add(new LoadedItem(this, LightGameObject.CreateDirectionLight(manager, new Vector3(1, 4, 4).Normalized())));
 
         }
 
@@ -401,7 +401,7 @@ namespace D3DLab {
 
     public sealed class SceneView : Wpf.Engine.App.Scene {
 
-        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify)
+        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, EngineNotificator notify)
             : base(host, overlay, context, notify) {
 
 

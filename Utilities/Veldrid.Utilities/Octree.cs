@@ -400,8 +400,8 @@ namespace Veldrid.Utilities
             for (int i = 0; i < _items.Count; i++)
             {
                 OctreeItem<T> item = _items[i];
-                min = Vector3.Min(min, item.Bounds.Min);
-                max = Vector3.Max(max, item.Bounds.Max);
+                min = Vector3.Min(min, item.Bounds.Minimum);
+                max = Vector3.Max(max, item.Bounds.Maximum);
             }
 
             for (int i = 0; i < _children.Length; i++)
@@ -822,7 +822,7 @@ namespace Veldrid.Utilities
         {
             get
             {
-                return string.Format("{0} - {1}, Items:{2}", Bounds.Min, Bounds.Max, _items.Count);
+                return string.Format("{0} - {1}, Items:{2}", Bounds.Minimum, Bounds.Maximum, _items.Count);
             }
         }
 

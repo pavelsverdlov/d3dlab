@@ -17,16 +17,25 @@ namespace D3DLab.Wpf.Engine.App {
             Height = (float)Application.Current.MainWindow.Height;
             InputManager = new InputManager(input);
 
-            win.Resize += OnResize;
+            //win.Resize += OnResize;
+            Application.Current.MainWindow.SizeChanged += OnSizeChanged;
+        }
+
+        void OnSizeChanged(object sender, SizeChangedEventArgs e) {
+            Resized();
+            Width = (float)e.NewSize.Width;
+            Height = (float)e.NewSize.Height;
         }
 
         private void OnResize(object sender, EventArgs e) {
             Resized();
-            //Width = win.Width;
-            //Height = win.Height;
-            Width = (float)Application.Current.MainWindow.Width;
-            Height = (float)Application.Current.MainWindow.Height;
-            System.Diagnostics.Trace.WriteLine($"Resize[App:{Width}/{Height}, WinForm:{win.Width}/{win.Height}]");
+            Width = win.Width;
+            Height = win.Height;
+            //Width = (float)Application.Current.MainWindow.Width;
+            //Height = (float)Application.Current.MainWindow.Height;
+
+            
+            System.Diagnostics.Trace.WriteLine($"Resize[App:{Application.Current.MainWindow.Width}/{Application.Current.MainWindow.Height}, WinForm:{win.Width}/{win.Height}]");
         }
 
         public float Width { get; private set; }

@@ -17,11 +17,15 @@ namespace D3DLab.Std.Engine.Core.Ext {
         }
     }
     public static class Vector3Ex {
-        public static Vector3 Normalize(this Vector3 v) {
-            return Vector3.Normalize(v);
+        public static void Normalize(ref this Vector3 v) {
+            var n = Vector3.Normalize(v);
+            v.X = n.X;
+            v.Y = n.Y;
+            v.Z = n.Z;
         }
-        public static void Normalized(this Vector3 v) {
-            v = Vector3.Normalize(v);
+        public static Vector3 Normalized(this Vector3 v) {
+            return Vector3.Normalize(v);
+            
         }
         public static Vector3 Cross(this Vector3 v1, Vector3 v2) {
             return Vector3.Cross(v1, v2);
@@ -110,7 +114,7 @@ namespace D3DLab.Std.Engine.Core.Ext {
                     }
                 }
                 for (int i = 0; i < aNormals.Length; i++) {
-                    *(pNormal + i) = (*(pNormal + i)).Normalize();
+                    *(pNormal + i) = (*(pNormal + i)).Normalized();
                 }
             }
 
@@ -141,7 +145,7 @@ namespace D3DLab.Std.Engine.Core.Ext {
                     }
                 }
                 for (int i = 0; i < aNormals.Length; i++) {
-                    *(pNormal + i) = (*(pNormal + i)).Normalize();
+                    *(pNormal + i) = (*(pNormal + i)).Normalized();
                 }
             }
 

@@ -140,23 +140,23 @@ namespace Veldrid.Utilities
 
                 // Approach: http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
 
-                Vector3 positive = new Vector3(box.Min.X, box.Min.Y, box.Min.Z);
-                Vector3 negative = new Vector3(box.Max.X, box.Max.Y, box.Max.Z);
+                Vector3 positive = new Vector3(box.Minimum.X, box.Minimum.Y, box.Minimum.Z);
+                Vector3 negative = new Vector3(box.Maximum.X, box.Maximum.Y, box.Maximum.Z);
 
                 if (plane.Normal.X >= 0)
                 {
-                    positive.X = box.Max.X;
-                    negative.X = box.Min.X;
+                    positive.X = box.Maximum.X;
+                    negative.X = box.Minimum.X;
                 }
                 if (plane.Normal.Y >= 0)
                 {
-                    positive.Y = box.Max.Y;
-                    negative.Y = box.Min.Y;
+                    positive.Y = box.Maximum.Y;
+                    negative.Y = box.Minimum.Y;
                 }
                 if (plane.Normal.Z >= 0)
                 {
-                    positive.Z = box.Max.Z;
-                    negative.Z = box.Min.Z;
+                    positive.Z = box.Maximum.Z;
+                    negative.Z = box.Minimum.Z;
                 }
 
                 // If the positive vertex is outside (behind plane), the box is disjoint.

@@ -52,7 +52,10 @@ namespace D3DLab.Visualization {
             parser.Parse(stream, this);
             var en = manager.GetEntity(entityTag);
             if (components.All(x => x.IsValid)) {
-                en.RemoveComponents<IGeometryComponent>();
+                en.RemoveComponents<GeometryComponent>();
+                //components
+                //    .OfType<GeometryComponent>()
+                //    .ForEach(x => x.BuildTreeAsync());
                 en.AddComponents(components);
             }            
         }
@@ -67,7 +70,7 @@ namespace D3DLab.Visualization {
             entity = manager.CreateEntity(tag);
 
             parser.Parse(stream, this);
-
+            
             components.Add(EntityBuilders.GetRenderAsTriangleColored());
             components.Add(EntityBuilders.GetTransformation());
 

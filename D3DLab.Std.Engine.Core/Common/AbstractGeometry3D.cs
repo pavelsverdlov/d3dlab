@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
+using g3;
 
 namespace D3DLab.Std.Engine.Core.Common {
     public abstract class ReadOnlyList<T> where T : struct {
@@ -55,14 +57,21 @@ namespace D3DLab.Std.Engine.Core.Common {
 
         public Vector4 Color { get; set; }
 
+       
+
         public AbstractGeometry3D() {
             Colors = new List<Vector4>();
             Positions = new List<Vector3>();
             Normals = new List<Vector3>();
             TextureCoordinates = new List<Vector2>();
             Indices = new List<int>();
+
+
+
+            
         }
 
+        
 
     }
 }

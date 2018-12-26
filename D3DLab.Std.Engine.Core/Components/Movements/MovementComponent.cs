@@ -61,19 +61,20 @@ namespace D3DLab.Std.Engine.Core.Components.Movements {
 
 
 
-    public interface IMoveToPositionComponent {
+    public interface IMoveToPositionComponent : IGraphicComponent{
         Vector3 TargetPosition { get; set; }
     }
     public interface IMovementComponentHandler {
-        void Execute(MoveCameraToPositionComponent component);
+        void Execute(MoveCameraToTargetComponent component);
         void Execute(IMoveToPositionComponent component);
+        void Execute(HitToTargetComponent component);
     }
 
     public abstract class MovementComponent : GraphicComponent {
         public abstract void Execute(IMovementComponentHandler handler);
     }
 
-    public class MoveCameraToPositionComponent : MovementComponent {
+    public class MoveCameraToTargetComponent : MovementComponent {
         public ElementTag Target { get; set; }
         public Vector3 TargetPosition { get; set; }
 
@@ -82,5 +83,14 @@ namespace D3DLab.Std.Engine.Core.Components.Movements {
         }
     }
 
-    
+
+    public class HitToTargetComponent : MovementComponent {
+        public Vector2 ScreenPosition { get; set; }
+
+        public override void Execute(IMovementComponentHandler handler) {
+            handler.Execute(this);
+        }
+    }
+
+
 }

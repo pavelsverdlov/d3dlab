@@ -53,14 +53,12 @@ namespace D3DLab.Std.Engine.Core {
 
         public void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com) {
             comSynchronizer.AddRange((owner, inp) => {
-                inp.EntityTag = tagEntity;
-                owner.components[tagEntity].Add(inp);
+                owner._AddComponent(tagEntity, inp);
             }, com);
         }
         public IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com) {
             comSynchronizer.Add((owner, inp) => {
-                inp.EntityTag = tagEntity;
-                owner.components[tagEntity].Add(inp);
+                owner._AddComponent(tagEntity, inp);
             }, com);
             return com;
         }
@@ -99,9 +97,15 @@ namespace D3DLab.Std.Engine.Core {
         }
 
 
-        private void _RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
+        void _AddComponent(ElementTag tagEntity, IGraphicComponent com) {
+            com.EntityTag = tagEntity;
+            components[tagEntity].Add(com);
+            notify.NotifyChange(com);
+        }
+        void _RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
             components[tagEntity].Remove(com);
             com.Dispose();
+            notify.NotifyChange(com);
         }
 
         #endregion
@@ -135,7 +139,7 @@ namespace D3DLab.Std.Engine.Core {
                 frameChanges = HasChanges;
             }
             entitySynchronizer.Synchronize(theadId);
-            comSynchronizer.Synchronize(theadId);            
+            comSynchronizer.Synchronize(theadId);
         }
 
         public void Dispose() {

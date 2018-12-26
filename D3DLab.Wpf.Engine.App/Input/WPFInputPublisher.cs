@@ -6,13 +6,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace D3DLab.Wpf.Engine.App.Input {
     public class WPFInputPublisher : BaseInputPublisher {
-        private readonly System.Windows.FrameworkElement control;
+        readonly System.Windows.FrameworkElement control;
+        readonly DispatcherTimer clickTimer;
+        System.Windows.Input.MouseButtonEventArgs mouseDown;
 
         public WPFInputPublisher(System.Windows.FrameworkElement control) {
             this.control = control;
+            clickTimer = new DispatcherTimer() {
+                Interval = TimeSpan.FromMilliseconds(300)
+            };
+            clickTimer.Tick += EvaluateClicks;
 
             this.control.MouseDown += OnMouseDown;
             this.control.MouseUp += OnMouseUp;
@@ -21,7 +28,6 @@ namespace D3DLab.Wpf.Engine.App.Input {
             //this.control.MouseDoubleClick += OnMouseDoubleClick;
             this.control.MouseLeave += OnMouseLeave;
 
-            
             //    this.control.Leave += OnLeave;
             this.control.GotFocus += control_GotFocus;
             this.control.LostFocus += control_LostFocus;
@@ -67,11 +73,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             state.Keyword = Convert(e.Key);
             InvokeSubscribers((s, ev) => s.KeyDown(ev));
         }
-
-        private void OnMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-
-        }
-
+        
         private void OnMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e) {
             var point = e.GetPosition(control);
             var cp = Cursor.Position;
@@ -95,17 +97,50 @@ namespace D3DLab.Wpf.Engine.App.Input {
 
             InvokeSubscribers((s, ev) => s.OnMouseUp(ev));
         }
-        private void OnMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-            var btn = GetMouseButton(e.ChangedButton);
-            state.Buttons |= btn;
+
+        void EvaluateClicks(object source, EventArgs e) {
+            clickTimer.Stop();
+
+            var btn = GetMouseButton(mouseDown.ChangedButton);
+            state.Buttons = btn;// btn;
             state.ButtonsStates[btn] = new ButtonsState {
                 CursorPointDown = Cursor.Position.ToWindowPoint(),
-                PointDown = e.GetPosition(control).ToNumericsV2()
+                PointDown = mouseDown.GetPosition(control).ToNumericsV2()
             };
             InvokeSubscribers((s, ev) => s.OnMouseDown(ev));
         }
+        private void OnMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+            var count = e.ClickCount;
+            if(e.LeftButton != System.Windows.Input.MouseButtonState.Pressed) {
+                mouseDown = e;
+                EvaluateClicks(sender, e);
+                return;
+            }
+            if(count > 1) { // double click
+                clickTimer.Stop();
+                
+                var btn = GetMouseButton(e.ChangedButton);
+                state.Buttons = btn;//|= btn;
+                state.ButtonsStates[btn] = new ButtonsState {
+                    CursorPointDown = Cursor.Position.ToWindowPoint(),
+                    PointDown = e.GetPosition(control).ToNumericsV2()
+                };
+                
+                state.CursorCurrentPosition = Cursor.Position.ToWindowPoint();
+                state.CurrentPosition = e.GetPosition(control).ToNumericsV2();
+
+                InvokeSubscribers((s, ev) => s.OnMouseDoubleDown(ev));
+                return;
+            }
+            mouseDown = e;
+            clickTimer.Start();
+        }
 
         private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
+            if (clickTimer.IsEnabled) {
+                EvaluateClicks(sender, e);
+                return;
+            }
             var point = e.GetPosition(control);
             state.CursorCurrentPosition = Cursor.Position.ToWindowPoint();
             state.CurrentPosition = e.GetPosition(control).ToNumericsV2();

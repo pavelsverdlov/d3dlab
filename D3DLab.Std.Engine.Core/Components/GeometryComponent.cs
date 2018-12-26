@@ -1,12 +1,49 @@
 ﻿using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Utilities;
+using g3;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace D3DLab.Std.Engine.Core.Components {
-    public class GeometryComponent : GraphicComponent, IGeometryComponent {
+    public class GeometryComponent : BaseGeometryComponent, IGeometryComponent {
+
+        #region geometry3Sharp 
+
+        internal bool IsBuilt { get; private set; }
+        internal DMeshAABBTree3 Tree { get; private set; }
+        internal DMesh3 DMesh { get; private set; }
+
+        internal Task<GeometryComponent> BuildTreeAsync() {
+            if (!IsValid) { return Task<GeometryComponent>.FromResult(this); }
+            return Task.Run(() => {
+                var norm = Normals.IsDefaultOrEmpty ? null : ConvertToVector3f(Normals);
+                DMesh = DMesh3Builder.Build(ConvertToVector3f(Positions), Indices, norm);
+                Tree = new DMeshAABBTree3(DMesh);
+                Tree.Build();
+                IsBuilt = true;
+                return this;
+            });
+        }
+        #endregion
+
+        protected override BoundingBox CalcuateBox() {
+            return IsBuilt ? BoundingBox.CreateFromComponent(this) : BoundingBox.Empty;
+        }
+
+        static Vector3f[] ConvertToVector3f(ImmutableArray<Vector3> pos) {
+            var v3f = new Vector3f[pos.Length];
+            for(var i=0;i < v3f.Length; ++i) {
+                v3f[i] = pos[i].ToVector3f();
+            }
+            return v3f;
+        }
+    }
+
+    public abstract class BaseGeometryComponent : GraphicComponent {
         public override bool IsValid => Positions.Length > 0 && Indices.Length > 0;
 
         public virtual ImmutableArray<Vector3> Positions { get; set; }
@@ -25,29 +62,27 @@ namespace D3DLab.Std.Engine.Core.Components {
         public ImmutableArray<Vector2> TextureCoordinates { get; set; }
         public ImmutableArray<int> Indices { get; set; }
         /// <summary>
-        /// MOve to colot component
+        /// MOve to color component
         /// </summary>
         public Vector4 Color { get; set; }
 
-        public Veldrid.Utilities.BoundingBox Box => box.Value;
+        public BoundingBox Box => box.Value;
 
         ImmutableArray<Vector4> colors;
-        readonly Lazy<Veldrid.Utilities.BoundingBox> box;
+        readonly Lazy<BoundingBox> box;
 
-        public GeometryComponent() {
+        public BaseGeometryComponent() {
             colors = ImmutableArray<Vector4>.Empty;
             TextureCoordinates = ImmutableArray<Vector2>.Empty;
             IsModified = true;
             //
-            box = new Lazy<Veldrid.Utilities.BoundingBox>(CalcuateBox);
+            box = new Lazy<BoundingBox>(CalcuateBox);
         }
 
-        Veldrid.Utilities.BoundingBox CalcuateBox() {
-            return Veldrid.Utilities.BoundingBox.CreateFromVertices(Positions.ToArray());
-        }
+        protected abstract BoundingBox CalcuateBox();
 
         public void MarkAsRendered() {
             IsModified = false;
-        }
+        }        
     }
 }

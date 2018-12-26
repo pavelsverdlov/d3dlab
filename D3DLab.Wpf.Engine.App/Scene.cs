@@ -17,7 +17,7 @@ namespace D3DLab.Wpf.Engine.App {
     public class Scene {
         private readonly FormsHost host;
         private readonly FrameworkElement overlay;
-        private readonly IEntityRenderNotify notify;
+        private readonly EngineNotificator notify;
         readonly CurrentInputObserver input;
 
         D3DEngine game;
@@ -26,7 +26,7 @@ namespace D3DLab.Wpf.Engine.App {
         public IContextState Context { get; }
         public event Action RenderStarted = () => { };
 
-        public Scene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, IEntityRenderNotify notify) {
+        public Scene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, EngineNotificator notify) {
             this.host = host;
             this.overlay = overlay;
             host.HandleCreated += OnHandleCreated;
@@ -42,7 +42,7 @@ namespace D3DLab.Wpf.Engine.App {
         
         private void OnHandleCreated(WinFormsD3DControl win) {
             Window = new GameWindow(win, input);
-            game = new D3DEngine(Window, Context); 
+            game = new D3DEngine(Window, Context, notify); 
 
             game.Run(notify);
 

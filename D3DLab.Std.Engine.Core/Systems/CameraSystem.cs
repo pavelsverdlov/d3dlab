@@ -56,7 +56,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 }
 
                 var newLookDirection = newTarget - newPosition;
-                camera.LookDirection = newLookDirection.Normalize();
+                camera.LookDirection = newLookDirection.Normalized();
                 camera.Position = newPosition;
                 return true;
             }
@@ -164,6 +164,11 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
                 camera.Position = position - look * 10 * 1.2f;
                 camera.RotatePoint = position;
+
+                snapshot.ContextState
+                    .GetEntityManager()
+                    .GetEntity(camera.EntityTag)
+                    .RemoveComponent(component);
             }
 
             public void Execute(KeywordMovingComponent movment) {

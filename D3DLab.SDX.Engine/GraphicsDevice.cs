@@ -216,7 +216,7 @@ namespace D3DLab.SDX.Engine {
             };
             var depthDisabledStencilState = new DepthStencilState(D3DDevice, depthDisabledStencilDesc);
 
-            var viewport = new Viewport(0, 0, width, height);
+            var viewport = new SharpDX.Viewport(0, 0, width, height);
             ImmediateContext.Rasterizer.SetViewport(viewport);
             ImmediateContext.OutputMerger.SetTargets(depthStencilView, renderTargetView);
 

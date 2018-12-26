@@ -253,7 +253,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
             }
 
             for (int i = 0; i < normals.Count; i++) {
-                normals[i].Normalize();
+                normals[i] = normals[i].Normalized();
             }
         }
 
@@ -2625,7 +2625,7 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
                 for (int i = 0; i < this.normals.Count; i++) {
                     this.normals[i] = new Vector3(
                         this.normals[i].X * scaleX, this.normals[i].Y * scaleY, this.normals[i].Z * scaleZ);
-                    this.normals[i].Normalize();
+                    this.normals[i] = this.normals[i].Normalized();
                 }
             }
         }
@@ -3192,11 +3192,11 @@ namespace D3DLab.Std.Engine.Core.Utilities.Helix {
             var skipAngle = (Math.PI * 2) / (circleLength / skipLenght);
             var segmentAngle = dashAngle + skipAngle;
 
-            normal = normal.Normalize();
+            normal = normal.Normalized();
 
             var matrix = (normal == occlusionAxis) ?
                 Matrix4x4.Identity :
-                Vector3.Cross(normal, occlusionAxis).Normalize().RotationAround((float)(Math.PI / 2));
+                Vector3.Cross(normal, occlusionAxis).Normalized().RotationAround((float)(Math.PI / 2));
 
             for (double i = 0; i < Math.PI * 2; i += segmentAngle) {
                 var pointStart = new Vector3(

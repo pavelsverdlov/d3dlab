@@ -49,6 +49,7 @@ namespace D3DLab.Std.Engine.Core.Input {
         }
 
         public bool IsKeywordDown { get; set; }
+        public int ClickCount { get; set; }
 
         readonly Dictionary<GeneralMouseButtons, ButtonsState> buttonsStates;
         public bool IsPressed(GeneralMouseButtons button) {

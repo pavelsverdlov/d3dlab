@@ -69,13 +69,13 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
             var orto = data.orthogonal;
             var corner = zero + orto * radius;
-            normals.Add((corner - zero).Normalize());
+            normals.Add((corner - zero).Normalized());
 
             points.Add(corner);
             for (var i = 10; i < 360; i += 10) {
                 corner = Vector3.Transform(corner, rotate);
                 points.Add(corner);
-                normals.Add((corner - zero).Normalize());
+                normals.Add((corner - zero).Normalized());
             }
             points.Add(zero);
             normals.Add(-axis);

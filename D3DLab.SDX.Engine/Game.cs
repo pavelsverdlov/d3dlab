@@ -6,16 +6,36 @@ using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Render;
 using D3DLab.Std.Engine.Core.Systems;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
 namespace D3DLab.SDX.Engine {
+    internal class SDXCollision : ICollision {
+        public bool Intersects(ref Std.Engine.Core.Utilities.BoundingBox box, ref Std.Engine.Core.Utilities.Ray ray) {
+            float distance;
+            var sbox = new BoundingBox(box.Minimum.ToSDXVector3(), box.Maximum.ToSDXVector3());
+            var sray = new Ray(ray.Origin.ToSDXVector3(), ray.Direction.ToSDXVector3());
+            return Collision.RayIntersectsBox(ref sray, ref sbox, out distance);
+        }
+
+        public bool Intersects(ref Std.Engine.Core.Utilities.BoundingBox box, ref Std.Engine.Core.Utilities.Ray ray, out float distance) {
+            var sbox = new BoundingBox(box.Minimum.ToSDXVector3(), box.Maximum.ToSDXVector3());
+            var sray = new Ray(ray.Origin.ToSDXVector3(), ray.Direction.ToSDXVector3());
+            return Collision.RayIntersectsBox(ref sray, ref sbox, out distance);
+        }
+
+    }
     public class D3DEngine : EngineCore {
         readonly SynchronizedGraphics device;
+        
 
-        public D3DEngine(IAppWindow window, IContextState context) : base(window, context) {
+        public D3DEngine(IAppWindow window, IContextState context, EngineNotificator notificator) : 
+            base(window, context, new D3DViewport(), notificator) {
+            Statics.Collision = new SDXCollision();
+            
             device = new SynchronizedGraphics(window);
         }
 

@@ -137,6 +137,7 @@ namespace D3DLab.Debugger.Windows {
                     var existed = new HashSet<ElementTag>();
                     var coms = en.GetComponents();
                     foreach (var com in coms) {
+                        if(com == null) { continue; }
                         if (!item.TryRefresh(com)) {
                             item.Add(new VisualComponentItem(com, this));
                         }

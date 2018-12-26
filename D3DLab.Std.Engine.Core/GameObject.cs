@@ -23,7 +23,7 @@ namespace D3DLab.Std.Engine.Core {
         }
 
         protected void MoveTo(IEntityManager manager, ElementTag targetEntity) {
-            var com = new MoveCameraToPositionComponent { Target = targetEntity };
+            var com = new MoveCameraToTargetComponent { Target = targetEntity };
 
             manager.GetEntity(targetEntity).AddComponent(com);
         }

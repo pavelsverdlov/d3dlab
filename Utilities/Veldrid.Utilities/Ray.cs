@@ -22,16 +22,16 @@ namespace Veldrid.Utilities
         {
             // http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 
-            float tmin = (box.Min.X - Origin.X) / Direction.X;
-            float tmax = (box.Max.X - Origin.X) / Direction.X;
+            float tmin = (box.Minimum.X - Origin.X) / Direction.X;
+            float tmax = (box.Maximum.X - Origin.X) / Direction.X;
 
             if (tmin > tmax)
             {
                 Swap(ref tmin, ref tmax);
             }
 
-            float tymin = (box.Min.Y - Origin.Y) / Direction.Y;
-            float tymax = (box.Max.Y - Origin.Y) / Direction.Y;
+            float tymin = (box.Minimum.Y - Origin.Y) / Direction.Y;
+            float tymax = (box.Maximum.Y - Origin.Y) / Direction.Y;
 
             if (tymin > tymax)
             {
@@ -53,8 +53,8 @@ namespace Veldrid.Utilities
                 tmax = tymax;
             }
 
-            float tzmin = (box.Min.Z - Origin.Z) / Direction.Z;
-            float tzmax = (box.Max.Z - Origin.Z) / Direction.Z;
+            float tzmin = (box.Minimum.Z - Origin.Z) / Direction.Z;
+            float tzmax = (box.Maximum.Z - Origin.Z) / Direction.Z;
 
             if (tzmin > tzmax)
             {

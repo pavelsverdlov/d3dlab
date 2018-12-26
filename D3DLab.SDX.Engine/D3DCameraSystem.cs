@@ -8,10 +8,11 @@ using System;
 using System.Numerics;
 
 namespace D3DLab.SDX.Engine {
+    //TODO: refactor this!!!
     public class D3DCameraSystem : CameraSystem {
         static class D3DExt {
             public static Vector3 ScreenToV3(GeneralCameraComponent camera, Vector2 screen, float winW, float winH, float delta) {
-                var c = ViewportEx.UnProject(camera, winW, winH, screen);
+                var c = new Viewport().UnProject(camera.GetState(), winW, winH, screen);
 
                 var plane = new SharpDX.Plane(camera.Position.ToSDXVector3(), camera.LookDirection.ToSDXVector3());
                 var ray = new SharpDX.Ray(c.Origin.ToSDXVector3(), -c.Direction.ToSDXVector3());
@@ -31,7 +32,7 @@ namespace D3DLab.SDX.Engine {
                 float delta = component.Delta;
                 var screen = component.MovementData.End;
 
-                var zoomAround = D3DExt.ScreenToV3(camera, screen, winW, winH, delta);
+                var zoomAround = snapshot.Viewport.ScreenToV3(screen, camera.GetState(), snapshot.Window);
 
                 var sign = Math.Sign(delta);
                 delta = delta * 0.01f; //);

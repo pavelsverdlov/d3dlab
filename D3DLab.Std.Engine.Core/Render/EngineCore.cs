@@ -1,9 +1,12 @@
-﻿using D3DLab.Std.Engine.Core.Components;
+﻿using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Input;
+using D3DLab.Std.Engine.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,15 +23,22 @@ namespace D3DLab.Std.Engine.Core.Render {
         Task loopTask;
         readonly CancellationTokenSource tokensource;
         readonly CancellationToken token;
+        readonly IViewport viewport;
+        readonly EngineNotificator notificator;
+        readonly EntityOctree octree;
 
         public IContextState Context { get; }
 
-        public EngineCore(IAppWindow window, IContextState context) {
+        public EngineCore(IAppWindow window, IContextState context, IViewport viewport, EngineNotificator notificator) {
             Context = context;
+            this.viewport = viewport;
             this.Window = window;
-
+            this.notificator = notificator;
             tokensource = new CancellationTokenSource();
             token = tokensource.Token;
+            octree = new EntityOctree(BoundingBox.Create(new Vector3(-1000, -1000, -1000), new Vector3(1000, 1000, 1000)), 5);
+
+            notificator.Subscribe(octree);
         }
 
         protected abstract void Initializing();
@@ -98,7 +108,7 @@ namespace D3DLab.Std.Engine.Core.Render {
             emanager.Synchronize(id);
 
             try {
-                var snapshot = new SceneSnapshot(Window, Context, ishapshot, TimeSpan.FromMilliseconds(millisec));
+                var snapshot = new SceneSnapshot(Window, Context, viewport, octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
                 foreach (var sys in Context.GetSystemManager().GetSystems()) {
                     sys.Execute(snapshot);
                     //run synchronization after each exetuted system, to synchronize state for the next system

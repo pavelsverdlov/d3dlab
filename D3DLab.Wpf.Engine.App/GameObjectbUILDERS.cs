@@ -38,7 +38,7 @@ namespace D3DLab.Wpf.Engine.App {
             var geos = entity.GetComponents<IGeometryComponent>();
             if (geos.Any()) {
                 var geo = geos.First();
-                var com = new MoveCameraToPositionComponent { Target = Tag, TargetPosition = geo.Box.GetCenter() };
+                var com = new MoveCameraToTargetComponent { Target = Tag, TargetPosition = geo.Box.GetCenter() };
                 entity.AddComponent(com);
             }
         }
@@ -241,13 +241,17 @@ namespace D3DLab.Wpf.Engine.App {
         }
     }
 
-    public class TerrainGameObject : GameObject {
+    public class TerrainGameObject : SingleGameObject {
+        /*
+         * http://libnoise.sourceforge.net/ A portable, open-source, coherent noise-generating library for C++ 
+         * https://github.com/JacekPrzemieniecki/VoxelTerrain
+         * 
+         */
+
         const int textureRepeat = 8;
 
-        public ElementTag Tag;
 
-        public TerrainGameObject(ElementTag tag) : base(typeof(TerrainGameObject).Name) {
-            this.Tag = tag;
+        public TerrainGameObject(ElementTag tag) : base(tag,typeof(TerrainGameObject).Name) {
         }
 
         public static TerrainGameObject Create(IEntityManager manager) {
@@ -364,14 +368,7 @@ namespace D3DLab.Wpf.Engine.App {
             }
             return texture;
         }
-
-        public override void Hide(IEntityManager manager) {
-            throw new NotImplementedException();
-        }
-
-        public override void Show(IEntityManager manager) {
-            throw new NotImplementedException();
-        }
+        
     }
     public class CameraGameObject : SingleGameObject {
         static int cameras = 0;
@@ -495,7 +492,7 @@ namespace D3DLab.Wpf.Engine.App {
             var entity = manager.GetEntity(Tag);
             var l = entity.GetComponent<LightComponent>();
 
-            var com = new MoveCameraToPositionComponent { Target = Tag, TargetPosition =l.Position };
+            var com = new MoveCameraToTargetComponent { Target = Tag, TargetPosition =l.Position };
 
             manager.GetEntity(Tag).AddComponent(com);
         }

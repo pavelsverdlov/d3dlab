@@ -10,16 +10,12 @@ using System.Collections.Generic;
 using System.Numerics;
 
 namespace D3DLab.SDX.Engine.Components {
-    public class D3DRenderComponent {
+    public class D3DRenderComponent : GraphicComponent {
         public bool CanRender { get; set; }
-        public ElementTag Tag { get; set; }
-        public ElementTag EntityTag { get; set; }
 
         public D3DRasterizerState RasterizerState { get; protected set; }
         public PrimitiveTopology PrimitiveTopology { get; set; }
 
-        public bool IsModified { get; set; }
-        public bool IsValid => true;
 
         [IgnoreDebuging]
         public SharpDX.Direct3D11.Buffer VertexBuffer { get; internal set; }
@@ -30,9 +26,10 @@ namespace D3DLab.SDX.Engine.Components {
             CanRender = true;
         }
 
-        public virtual void Dispose() {
+        public override void Dispose() {
             VertexBuffer?.Dispose();
             IndexBuffer?.Dispose();
+            base.Dispose();
         }
 
     }

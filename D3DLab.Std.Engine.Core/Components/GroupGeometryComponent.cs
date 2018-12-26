@@ -1,10 +1,13 @@
 ﻿using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
+    [Obsolete("DO NOT USE, ONLY CLASS GeometryComponent", false)]
     public interface IGeometryComponent : IGraphicComponent {
         void MarkAsRendered();
 
@@ -15,7 +18,7 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         ImmutableArray<Vector2> TextureCoordinates { get; }
 
-        Veldrid.Utilities.BoundingBox Box { get; }
+        BoundingBox Box { get; }
     }
 
     public class GroupGeometryComponent : GraphicComponent, ICollection<GeometryComponent>, IGeometryComponent {
@@ -26,7 +29,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         public ImmutableArray<Vector3> Normals   { get; private set; }
         public ImmutableArray<Vector2> TextureCoordinates { get; private set; }
 
-        public Veldrid.Utilities.BoundingBox Box => new Veldrid.Utilities.BoundingBox();//TODO: !
+        public BoundingBox Box => new BoundingBox();//TODO: !
 
         readonly List<GeometryComponent> groups;
         
