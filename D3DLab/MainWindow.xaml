@@ -186,6 +186,12 @@
                                         </Canvas>
                                     </ToggleButton>
                                     <TextBlock Margin="5,0,0,0" Text="{Binding Header}"/>
+                                    
+                                    <DockPanel.InputBindings>
+                                        <MouseBinding MouseAction="LeftDoubleClick"
+                                            Command="{Binding OpenProperties}" />
+                                    </DockPanel.InputBindings>
+                                    
                                 </DockPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

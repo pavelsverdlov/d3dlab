@@ -1,13 +1,14 @@
 ﻿using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
-    [Obsolete("DO NOT USE, ONLY CLASS GeometryComponent", false)]
     public interface IGeometryComponent : IGraphicComponent {
         void MarkAsRendered();
 
@@ -21,37 +22,37 @@ namespace D3DLab.Std.Engine.Core.Components {
         BoundingBox Box { get; }
     }
 
-    public class GroupGeometryComponent : GraphicComponent, ICollection<GeometryComponent>, IGeometryComponent {
+    public class CompositeGeometryComponent : GraphicComponent, ICollection<GeometryComponent>, IGeometryComponent {
 
-        public ImmutableArray<Vector3> Positions {get;private set;}
-        public ImmutableArray<int>     Indices       {get;private set;}
-        public ImmutableArray<Vector4> Colors    {get;private set;}
-        public ImmutableArray<Vector3> Normals   { get; private set; }
+        public ImmutableArray<Vector3> Positions { get; private set; }
+        public ImmutableArray<int> Indices { get; private set; }
+        public ImmutableArray<Vector4> Colors { get; private set; }
+        public ImmutableArray<Vector3> Normals { get; private set; }
         public ImmutableArray<Vector2> TextureCoordinates { get; private set; }
 
         public BoundingBox Box => new BoundingBox();//TODO: !
 
         readonly List<GeometryComponent> groups;
-        
+
 
         public int Count => groups.Count;
 
         public bool IsReadOnly => false;
-        
-        public GroupGeometryComponent() {
+
+        public CompositeGeometryComponent() {
             IsModified = true;
             groups = new List<GeometryComponent>();
-            
+
         }
 
         public void Combine() {
             var value = new Utilities.Helix.MeshBuilder(true, false);
             groups.ForEach(x => value.Append(x));
             var combined = value.ToGeometry3D();
-            Positions= combined.Positions.ToImmutableArray();
-            Indices  = combined.Indices.ToImmutableArray();
-            Colors   = combined.Colors.ToImmutableArray();
-            Normals  = combined.Normals.ToImmutableArray();
+            Positions = combined.Positions.ToImmutableArray();
+            Indices = combined.Indices.ToImmutableArray();
+            Colors = combined.Colors.ToImmutableArray();
+            Normals = combined.Normals.ToImmutableArray();
         }
 
         public void Add(GeometryComponent item) {
@@ -84,6 +85,44 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         public void MarkAsRendered() {
             IsModified = false;
+        }
+    }
+
+    public class VirtualGroupGeometryComponent : HittableGeometryComponent, IGeometryComponent {
+        public readonly PartGeometry3D Combined;
+
+        public override ImmutableArray<Vector4> Colors {
+            get {
+                if (colors.IsEmpty) {
+                    var colors = new Vector4[Positions.Length];
+                    for (var i = 0; i < colors.Length; i++) {
+                        colors[i] = V4Colors.Red; //part.Color;
+                    }
+                    //foreach (var part in Combined.Parts) {
+                    //    for (var i = 0; i < part.PosGroupInfo.Count; i++) {
+                    //        colors[part.PosGroupInfo.StartIndex + i] = V4Colors.Red; //part.Color;
+                    //    }
+                    //}
+                    this.colors = colors.ToImmutableArray();
+                }
+                return colors;
+            }
+            set { }
+        }
+
+        ImmutableArray<Vector4> colors;
+
+        public VirtualGroupGeometryComponent(PartGeometry3D part) {
+            this.Combined = part;
+            Positions = part.Positions.ToImmutableArray();
+            Normals = part.Positions.ToArray().CalculateNormals(part.Indices.ToArray()).ToImmutableArray();
+            Indices = part.Indices.ToImmutableArray();
+            colors = ImmutableArray<Vector4>.Empty;
+        }
+
+        public void ClearColors() {
+            colors = ImmutableArray<Vector4>.Empty;
+            IsModified = true;
         }
     }
 }

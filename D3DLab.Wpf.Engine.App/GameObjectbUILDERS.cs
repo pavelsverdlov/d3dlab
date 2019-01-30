@@ -14,10 +14,74 @@ using System.Numerics;
 using System.Threading;
 
 namespace D3DLab.Wpf.Engine.App {
+    public static class EntityBuilders {
+        public static ElementTag BuildMeshElement(this IEntityManager manager, List<Vector3> pos, List<int> indexes, Vector4 color) {
+            return Build(manager, pos, indexes, pos.Select(x => color).ToList());
+        }
+
+        public static ElementTag BuildGroupMeshElement(this IEntityManager manager, IEnumerable<AbstractGeometry3D> objs) {
+            var group = new Std.Engine.Core.Components.CompositeGeometryComponent();
+            objs.ForEach(x => group.Add(new SimpleGeometryComponent {
+                Positions = x.Positions.ToImmutableArray(),
+                Indices = x.Indices.ToImmutableArray(),
+                Normals = x.Normals.ToImmutableArray(),
+                Color = x.Color
+            }));
+            group.Combine();
+            return manager
+                .CreateEntity(new ElementTag("GroupGeometry" + Guid.NewGuid()))
+                .AddComponent(group)
+                .AddComponent(new SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent())
+                .AddComponent(new SDX.Engine.Components.D3DTransformComponent() {
+                    MatrixWorld = Matrix4x4.CreateTranslation(Vector3.UnitY * 30)
+                })
+                .Tag;
+        }
+
+        public static ElementTag BuildLineEntity(this IEntityManager manager, Vector3[] points) {
+            return manager
+               .CreateEntity(new ElementTag("Points" + Guid.NewGuid()))
+               .AddComponent(new SimpleGeometryComponent() {
+                   Positions = points.ToImmutableArray(),
+                   Indices = ImmutableArray.Create<int>(),
+                   Color = new Vector4(0, 1, 0, 1)
+               })
+               .AddComponent(new SDX.Engine.Components.D3DLineVertexRenderComponent())
+               .Tag;
+        }
+
+
+        #region components 
+        public static IRenderableComponent GetObjGroupsRender() {
+            return D3DTriangleColoredVertexesRenderComponent.AsTriangleListCullMode();
+        }
+
+        public static IRenderableComponent GetRenderAsTriangleColored() {
+            return new SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent();
+        }
+        public static TransformComponent GetTransformation() {
+            return new SDX.Engine.Components.D3DTransformComponent();
+        }
+
+        #endregion
+
+        public static ElementTag Build(IEntityManager manager, List<Vector3> pos, List<int> indexes, List<Vector4> colors) {
+            return manager
+                .CreateEntity(new ElementTag("Geometry" + Guid.NewGuid()))
+                .AddComponent(new SimpleGeometryComponent() {
+                    Positions = pos.ToImmutableArray(),
+                    Indices = indexes.ToImmutableArray(),
+                    Colors = colors.ToImmutableArray()
+                })
+                .AddComponent(new SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent())
+                .Tag;
+        }
+    }
+
     public class SingleGameObject : GameObject {
         public ElementTag Tag { get; }
 
-        public SingleGameObject(ElementTag tag,string desc) :base(desc){
+        public SingleGameObject(ElementTag tag, string desc) : base(desc) {
             Tag = tag;
         }
 
@@ -43,9 +107,71 @@ namespace D3DLab.Wpf.Engine.App {
             }
         }
 
-        public override void Dispose(IEntityManager manager) {
-            base.Dispose(manager);
+        public override void Cleanup(IEntityManager manager) {
+            base.Cleanup(manager);
             manager.RemoveEntity(Tag);
+        }
+    }
+
+    public class CompositeGameObject : GameObject {
+        public List<ElementTag> Tags { get; }
+
+        public CompositeGameObject(IEnumerable<ElementTag> tags) : this(tags,"Group") {
+        }
+        public CompositeGameObject(string desc) : this(new ElementTag[0], desc) {
+        }
+        public CompositeGameObject(IEnumerable<ElementTag> tags, string desc) : base(desc) {
+            Tags = new List<ElementTag>(tags);
+        }
+
+        public void AddEntity(ElementTag tag) {
+            Tags.Add(tag);
+        }
+        public void RemoveEntity(ElementTag tag) {
+            Tags.Remove(tag);
+        }
+
+        public override void Hide(IEntityManager manager) {
+            foreach (var tag in Tags) {
+                manager.GetEntity(tag)
+                      .GetComponent<IRenderableComponent>()
+                      .CanRender = false;
+            }
+        }
+
+        public override void Show(IEntityManager manager) {
+            foreach (var tag in Tags) {
+                manager.GetEntity(tag)
+                  .GetComponent<IRenderableComponent>()
+                  .CanRender = true;
+            }
+        }
+
+        public override void LookAtSelf(IEntityManager manager) {
+            var combinedBox = new BoundingBox();
+            GraphicEntity entity = null ;
+            foreach (var tag in Tags) {
+                entity = manager.GetEntity(tag);
+                var geos = entity.GetComponents<IGeometryComponent>();
+                if (geos.Any()) {
+                    var geo = geos.First();
+                    combinedBox = combinedBox.Merge(geo.Box);
+                }
+            }
+
+            var com = new MoveCameraToTargetComponent { Target = entity.Tag, TargetPosition = combinedBox.GetCenter() };
+            entity.AddComponent(com);
+        }
+
+        public override void Cleanup(IEntityManager manager) {
+            base.Cleanup(manager);
+            foreach (var tag in Tags) {
+                manager.RemoveEntity(tag);
+            }
+        }
+
+        public override IEnumerable<GraphicEntity> GetEntities(IEntityManager manager) {
+            return Tags.Select(x => manager.GetEntity(x));
         }
     }
 
@@ -125,7 +251,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .CanRender = false;
         }
 
-        public CoordinateSystemLinesGameObject():base(typeof(CoordinateSystemLinesGameObject).Name) {
+        public CoordinateSystemLinesGameObject() : base(typeof(CoordinateSystemLinesGameObject).Name) {
 
         }
     }
@@ -178,13 +304,13 @@ namespace D3DLab.Wpf.Engine.App {
             public float Radius;
         }
 
-        public SphereGameObject(ElementTag tag) :base(tag,"SphereByPoint") {
+        public SphereGameObject(ElementTag tag) : base(tag, "SphereByPoint") {
         }
 
         public static SphereGameObject Create(IEntityManager manager) {
             var tag = manager
                .CreateEntity(new ElementTag("Sphere_" + DateTime.Now.Ticks))
-               .AddComponent(new GeometryComponent() {
+               .AddComponent(new SimpleGeometryComponent() {
                    Indices = new[] { 0 }.ToImmutableArray(),
                    Positions = new Vector3[] { Vector3.Zero }.ToImmutableArray(),
                    Color = V4Colors.Red,
@@ -199,7 +325,7 @@ namespace D3DLab.Wpf.Engine.App {
         public static SphereGameObject Create(IEntityManager manager, Data data) {
             var tag = manager
                .CreateEntity(new ElementTag("Sphere_" + DateTime.Now.Ticks))
-               .AddComponent(new GeometryComponent() {
+               .AddComponent(new SimpleGeometryComponent() {
                    Indices = new[] { 0 }.ToImmutableArray(),
                    Positions = new Vector3[] { data.Center }.ToImmutableArray(),
                    Color = data.Color,
@@ -229,7 +355,7 @@ namespace D3DLab.Wpf.Engine.App {
 
             var tag1 = manager
                .CreateEntity(tag)
-               .AddComponent(new Std.Engine.Core.Components.GeometryComponent() {
+               .AddComponent(new SimpleGeometryComponent() {
                    Positions = points.ToImmutableArray(),
                    Indices = indeces.ToImmutableArray(),
                    Colors = color.ToImmutableArray(),
@@ -251,7 +377,7 @@ namespace D3DLab.Wpf.Engine.App {
         const int textureRepeat = 8;
 
 
-        public TerrainGameObject(ElementTag tag) : base(tag,typeof(TerrainGameObject).Name) {
+        public TerrainGameObject(ElementTag tag) : base(tag, typeof(TerrainGameObject).Name) {
         }
 
         public static TerrainGameObject Create(IEntityManager manager) {
@@ -275,7 +401,7 @@ namespace D3DLab.Wpf.Engine.App {
                 }
             }
             //
-            var geo = new GeometryComponent();
+            var geo = new SimpleGeometryComponent();
             TriangulateMap(HeightMap, height, width, geo);
 
             manager.CreateEntity(tag)
@@ -368,7 +494,7 @@ namespace D3DLab.Wpf.Engine.App {
             }
             return texture;
         }
-        
+
     }
     public class CameraGameObject : SingleGameObject {
         static int cameras = 0;
@@ -492,7 +618,7 @@ namespace D3DLab.Wpf.Engine.App {
             var entity = manager.GetEntity(Tag);
             var l = entity.GetComponent<LightComponent>();
 
-            var com = new MoveCameraToTargetComponent { Target = Tag, TargetPosition =l.Position };
+            var com = new MoveCameraToTargetComponent { Target = Tag, TargetPosition = l.Position };
 
             manager.GetEntity(Tag).AddComponent(com);
         }

@@ -44,7 +44,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
                     color.Add(a.color);
                 }
             }
-            return new GeometryComponent {
+            return new SimpleGeometryComponent {
                 Colors = color.ToImmutableArray(),
                 Positions = lines.ToImmutableArray(),
                 Indices = ImmutableArray.Create<int>(),
@@ -91,7 +91,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             points.Clear();
             pp.ForEach(x => points.Add(Vector3.Transform(x, move)));
 
-            return new GeometryComponent {
+            return new SimpleGeometryComponent {
                 Positions = points.ToImmutableArray(),
                 Indices = index.ToImmutableArray(),
                 Normals = normals.ToImmutableArray(),

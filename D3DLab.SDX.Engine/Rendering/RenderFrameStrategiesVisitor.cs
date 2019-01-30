@@ -3,10 +3,13 @@ using D3DLab.SDX.Engine.Rendering.Strategies;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Components.Materials;
+using D3DLab.Std.Engine.Core.Ext;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 
 namespace D3DLab.SDX.Engine.Rendering {
     internal class RenderFrameStrategiesVisitor {
@@ -37,26 +40,28 @@ namespace D3DLab.SDX.Engine.Rendering {
                 var geometries = manager.GetComponents<IGeometryComponent>(entityTag);
                 var trs = manager.GetComponents<D3DTransformComponent>(entityTag);
 
-                if(!geometries.Any() || !trs.Any()) {
-                    System.Diagnostics.Trace.WriteLine($"TriangleColored [{entityTag}] not all components to render");
+                if (!geometries.Any() || !trs.Any()) {
+                    //System.Diagnostics.Trace.WriteLine($"TriangleColored [{entityTag}] not all components to render");
                     return;
                 }
                 var geometry = geometries.First();
                 var tr = trs.First();
 
                 if (!geometry.IsValid) {
-                    System.Diagnostics.Trace.WriteLine($"TriangleColored [{entityTag}] geometry is empty");
+                    //System.Diagnostics.Trace.WriteLine($"TriangleColored [{entityTag}] geometry is empty");
                     return;
                 }
+
+                var color = manager.GetComponent<ColorComponent>(entityTag);
 
                 //var v = ran.NextVector3(new Vector3(-100, -100, -100), new Vector3(100, 100, 100));
                 tr.MatrixWorld = Matrix4x4.Identity;// Matrix4x4.CreateTranslation(v);
 
-                GetOrCreate(() => new ColoredVertexesRenderStrategy(compilator, 
+                GetOrCreate(() => new ColoredVertexesRenderStrategy(compilator,
                     StategyStaticShaders.ColoredVertexes.GetPasses(),
                     StategyStaticShaders.ColoredVertexes.GetLayoutConstructor()))
-                    .RegisterEntity(component, geometry, tr);
-            }catch(Exception ex) {
+                    .RegisterEntity(component, geometry, tr, color);
+            } catch (Exception ex) {
                 ex.ToString();
                 throw ex;
             }
@@ -95,7 +100,7 @@ namespace D3DLab.SDX.Engine.Rendering {
 
             var geometry = manager.GetComponent<IGeometryComponent>(entityTag);
 
-            var material = manager.GetComponent<D3DTexturedMaterialComponent>(entityTag); 
+            var material = manager.GetComponent<D3DTexturedMaterialComponent>(entityTag);
 
             GetOrCreate(() => new TerrainRenderStrategy(compilator,
                     StategyStaticShaders.Terrain.GetPasses(),
@@ -103,14 +108,27 @@ namespace D3DLab.SDX.Engine.Rendering {
                 .RegisterEntity(com, geometry, material);
         }
 
+        //readonly ReaderWriterLockSlim slim = new ReaderWriterLockSlim();
 
         T GetOrCreate<T>(Func<T> creator) where T : IRenderStrategy {
             var type = typeof(T);
+            //using (new ReadLockSlim(slim)) {
+            //    if (dic.ContainsKey(type)) {
+            //        return (T)dic[type];
+            //    }
+            //}
+
+            //using (new WriteLockSlim(slim)) {
+            //    var crt = creator();
+            //    dic[type] = crt;
+            //    return crt;
+            //}
+
+
             if (!dic.TryGetValue(type, out var str)) {
                 dic[type] = creator();
                 str = dic[type];
             }
-
             return (T)str;
         }
 

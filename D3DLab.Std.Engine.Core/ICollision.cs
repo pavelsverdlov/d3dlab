@@ -13,5 +13,6 @@ namespace D3DLab.Std.Engine.Core {
     public interface ICollision {
         bool Intersects(ref BoundingBox box, ref Ray ray);
         bool Intersects(ref BoundingBox box, ref Ray ray, out float distance);
+        void Merge(ref BoundingBox value1, ref BoundingBox value2, out BoundingBox result);
     }
 }

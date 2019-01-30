@@ -127,6 +127,10 @@
     <Compile Include="IDE\Visitor.cs" />
     <Compile Include="Infrastructure\IVisualEntity.cs" />
     <Compile Include="Model\VisualComponentItem.cs" />
+    <Compile Include="Modules\Obj\ObjDetailsWindow.xaml.cs">
+      <DependentUpon>ObjDetailsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Modules\Obj\ObjGroup.cs" />
     <Compile Include="NullToVisibilityConverter.cs" />
     <Compile Include="NumericsTypes.cs" />
     <Compile Include="Presentation\OpenPropertiesEditorCommand.cs" />
@@ -147,6 +151,7 @@
     </Compile>
     <Compile Include="ScriptExetuter.cs" />
     <Compile Include="IDE\ShaderDevelopmentEnvironment.cs" />
+    <Compile Include="TraceOutputListener.cs" />
     <Compile Include="Windows\ShaderEditor.xaml.cs">
       <DependentUpon>ShaderEditor.xaml</DependentUpon>
     </Compile>
@@ -161,6 +166,10 @@
     <Compile Include="Windows\VisualTreeviewerViewModel.cs" />
     <Compile Include="WPF.cs" />
     <Page Include="IDE\IntellisensePopup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Modules\Obj\ObjDetailsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

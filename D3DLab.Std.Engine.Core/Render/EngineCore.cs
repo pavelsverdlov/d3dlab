@@ -46,7 +46,7 @@ namespace D3DLab.Std.Engine.Core.Render {
         public void Run(IEntityRenderNotify notify) {
             this.notify = notify;
             Initializing();
-            loopTask = Task.Run((Action)Loop);
+            loopTask = Task.Factory.StartNew((Action)Loop, TaskCreationOptions.LongRunning);
         }
 
         protected virtual void OnSynchronizing() {

@@ -1,4 +1,5 @@
 ﻿using D3DLab.Debugger;
+using D3DLab.Debugger.Modules.Obj;
 using D3DLab.Debugger.Presentation.ScriptConsole;
 using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
@@ -7,6 +8,7 @@ using D3DLab.Plugin.Contracts.Parsers;
 using D3DLab.Plugins;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.MeshFormats;
 using D3DLab.Visualization;
 using D3DLab.Wpf.Engine.App;
 using D3DLab.Wpf.Engine.App.Host;
@@ -15,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Windows;
@@ -25,28 +28,7 @@ namespace D3DLab {
     public interface IDropFiles {
         void Dropped(string[] files);
     }
-
-    class TraceOutputListener : System.Diagnostics.TraceListener {
-        readonly ObservableCollection<string> output;
-        const int maxlines = 100;
-        public TraceOutputListener(ObservableCollection<string> consoleOutput) {
-            this.output = consoleOutput;
-        }
-
-        public override void Write(string message) {
-
-        }
-
-        public override void WriteLine(string message) {
-            App.Current.Dispatcher.InvokeAsync(() => {
-                output.Insert(0, $"[{DateTime.Now.TimeOfDay}] {message.Trim()}");
-                if(output.Count > maxlines) {
-                    output.RemoveAt(maxlines);
-                }
-            });
-        }
-    }
-
+   
     public sealed class MainWindowViewModel : IDropFiles, IFileLoader {
 
         #region commands
@@ -141,6 +123,7 @@ namespace D3DLab {
         #region items
 
         public class LoadedItem {
+            public ICommand OpenProperties { get; }
             public ICommand VisiblityChanged { get; }
             public ICommand ShowDebuggingVisualization { get; }
             public ICommand LookAt { get; }
@@ -157,6 +140,11 @@ namespace D3DLab {
                 VisiblityChanged = new Command(this);
                 ShowDebuggingVisualization = new WpfActionCommand<bool?>(OnShowDebugVisualization);
                 LookAt = new WpfActionCommand(OnLookAt);
+                OpenProperties = new WpfActionCommand(OnOpenProperties);
+            }
+
+            void OnOpenProperties() {
+                main.OpenObjDetailsWin(gobj);                
             }
 
             private void OnLookAt() {
@@ -205,21 +193,24 @@ namespace D3DLab {
             }
         }
 
+        
+
         public class ImportFileLoadedItem : LoadedItem {
             readonly ImportFileInfo info;
             readonly FileSystemWatcher watcher;
-            readonly ElementTag tag;
             readonly ManualResetEventSlim reset;
             readonly string tempFileName;
+            readonly CompositeGameObject compositeGameObject;
             public ImportFileLoadedItem(MainWindowViewModel main, ImportFileInfo info) : base(main, null) {
                 this.info = info;
                 reset = new ManualResetEventSlim(true);
                 tempFileName = Path.ChangeExtension(info.File.FullName, ".temp");
                 File.Delete(tempFileName);
                 //
-                var bl = new EntityBuilder(main.context.GetEntityManager());
-                tag = bl.Build(info.File, info.Parser);
-                base.gobj = new SingleGameObject(tag, info.File.Name);
+                var bl = new GameObjectBuilder(main.context.GetEntityManager());
+                compositeGameObject = bl.Build(info.File, info.Parser);
+
+                base.gobj = compositeGameObject;
                 //
                 watcher = new FileSystemWatcher(info.File.DirectoryName, "*" + Path.GetExtension(info.File.Name));
                 watcher.EnableRaisingEvents = true;
@@ -256,8 +247,10 @@ namespace D3DLab {
                     System.Diagnostics.Trace.WriteLine($"Reload [{info.File.FullName}]");
 
                     try {
-                        var rbl = new EntityReBuilder(tag, main.context.GetEntityManager());
-                        rbl.ReBuildGeometry(stream, info.Parser);
+                        compositeGameObject.Cleanup(main.context.GetEntityManager());
+
+                        var rbl = new GameObjectReBuilder(compositeGameObject, main.context.GetEntityManager());
+                        rbl.Build(stream, info.Parser);
                     } catch (Exception ex) {
                         System.Diagnostics.Trace.WriteLine($"Error [{ex.Message}]");
                     } finally {
@@ -282,6 +275,7 @@ namespace D3DLab {
         public ICommand MoveToCenterWorld { get; }
         public ICommand ShowAxis { get; }
         public ICommand ClearConsoleOutput { get; }
+        
 
 
         public ICollectionView Items { get; set; }
@@ -310,7 +304,9 @@ namespace D3DLab {
 
             plugins = new PluginImporter();
             ConsoleOutput = new ObservableCollection<string>();
-            System.Diagnostics.Trace.Listeners.Add(new TraceOutputListener(ConsoleOutput));
+            System.Diagnostics.Trace.Listeners.Add(new TraceOutputListener(ConsoleOutput, App.Current.Dispatcher));
+
+            //new Debugger.Modules.Obj.ObjDetailsWindow().Show();
         }
 
         public void Init(FormsHost host, FrameworkElement overlay) {
@@ -326,6 +322,7 @@ namespace D3DLab {
 
             VisualTreeviewer.RenderModeSwither = new RenderModeSwitherCommand(context);
         }
+
 
         private void OnRenderStarted() {
             VisualTreeviewer.GameWindow = scene.Window;
@@ -360,102 +357,24 @@ namespace D3DLab {
         void ClearConsole() {
             ConsoleOutput.Clear();
         }
-    }
 
-    public sealed class GenneralContextState : BaseContextState {
-        public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor, new ManagerContainer(notificator)) {
-        }
-    }
+        #region windows
 
-    public sealed class ViewportSubscriber :
-        IManagerChangeSubscriber<GraphicEntity>,
-        IManagerChangeSubscriber<IComponentSystem>,
-        IEntityRenderSubscriber {
-        private readonly MainWindowViewModel mv;
+        void OpenObjDetailsWin(GameObject gobj) {
+            //gobj.GetEntities(main.context.GetEntityManager())
+            //        .SelectMany(en => en.GetComponents<ObjGroupsComponent>())
+            //        .DoFirst(com => {
 
-        public ViewportSubscriber(MainWindowViewModel mv) {
-            this.mv = mv;
+            //        });
+            ObjDetailsPopup.Open(gobj, context.GetEntityManager());
         }
 
-        public void Change(GraphicEntity entity) {
-            App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.Add(entity);
-            }));
-        }
-
-        public void Change(IComponentSystem sys) {
-            App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.SystemsView.AddSystem(sys);
-            }));
-        }
-
-        public void Render(IEnumerable<GraphicEntity> entities) {
-            if (App.Current == null) { return; }
-            App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.Refresh(entities);
-            }));
-        }
-    }
-
-
-
-    public sealed class SceneView : Wpf.Engine.App.Scene {
-
-        public SceneView(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, EngineNotificator notify)
-            : base(host, overlay, context, notify) {
-
-
-            //try {
-            //    Fwk.ImageSharp.ImagePr.Load(Path.Combine(AppContext.BaseDirectory, "Textures", "spnza_bricks_a_diff.png"));
-            //} catch (Exception ex) {
-            //    ex.ToString();
-            //}
-
-            //var center = new Vector3();
-            //var point = new Vector3(10, 10, 10);
-            //var res = point + center;
-
-            //var v = new Vector3(10, 10, 10) + new Vector3(5, 20, 0);
-            //var v = new Vector3(5, 20, 0) - new Vector3(10, 10, 10);
-            //var normal = v;
-            //normal.Normalize();
-
-            //var point1 = new Vector3(5, 20, 0) - normal * v.Length()/2;
-            //var point2 = new Vector3(10, 10, 10) + normal * v.Length() / 2;
-
-
-
-        }
-
-        public class LineBuilder {
-            private readonly List<Vector3> positions;
-            private readonly List<int> lineListIndices;
-
-            public LineBuilder() {
-                positions = new List<Vector3>();
-                lineListIndices = new List<int>();
-            }
-
-            public void Build(IEnumerable<Vector3> points, bool closed = false) {
-                var first = positions.Count;
-                positions.AddRange(points);
-                var lineCount = positions.Count - first - 1;
-
-                for (var i = 0; i < lineCount; i++) {
-                    lineListIndices.Add(first + i);
-                    lineListIndices.Add(first + i + 1);
-                }
-
-                if (closed) {
-                    lineListIndices.Add(positions.Count - 1);
-                    lineListIndices.Add(first);
-                }
-            }
-
+        void ObjDetailsRefreshEntity(IEnumerable<ObjGroupsViewModel.ColorFilterViewItem> obj) {
+        
         }
 
 
-
+        #endregion
     }
 
 

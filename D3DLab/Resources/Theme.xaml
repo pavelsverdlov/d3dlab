@@ -181,13 +181,18 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}" >
-                    <Grid Background="Black">
+                    <Grid Background="{StaticResource BlackBackgroundColor}">
                         
                     <ContentPresenter />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type TextBox}"  BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextColor}"/>        
     </Style>
 
 </ResourceDictionary>

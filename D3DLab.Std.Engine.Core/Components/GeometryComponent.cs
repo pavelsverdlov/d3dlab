@@ -9,8 +9,48 @@ using System.Numerics;
 using System.Threading.Tasks;
 
 namespace D3DLab.Std.Engine.Core.Components {
+    public class HittableGeometryComponent : GeometryComponent {
+        public bool IsBuilt { get; private set; }
+
+        #region geometry3Sharp 
+
+        internal DMeshAABBTree3 Tree { get; private set; }
+        internal DMesh3 DMesh { get; private set; }
+
+        public HittableGeometryComponent() {
+
+        }
+
+        internal Task<HittableGeometryComponent> BuildTreeAsync() {
+            if (!IsValid) { return Task<HittableGeometryComponent>.FromResult(this); }
+            return Task.Run(() => {
+                var norm = Normals.IsDefaultOrEmpty ? null : ConvertToVector3f(Normals);
+                DMesh = DMesh3Builder.Build(ConvertToVector3f(Positions), Indices, norm);
+                Tree = new DMeshAABBTree3(DMesh);
+                Tree.Build();
+                IsBuilt = true;
+                return this;
+            });
+        }
+        #endregion
+
+        protected override BoundingBox CalcuateBox() {
+            return IsBuilt ? BoundingBox.CreateFromComponent(this) : BoundingBox.Empty;
+        }
+
+        static Vector3f[] ConvertToVector3f(ImmutableArray<Vector3> pos) {
+            var v3f = new Vector3f[pos.Length];
+            for (var i = 0; i < v3f.Length; ++i) {
+                v3f[i] = pos[i].ToVector3f();
+            }
+            return v3f;
+        }
+
+    }
+    /*
     public class GeometryComponent : BaseGeometryComponent, IGeometryComponent {
 
+        //TODO: maybe need to separate DMesh functional to HittableGeometryComponent
         #region geometry3Sharp 
 
         internal bool IsBuilt { get; private set; }
@@ -41,9 +81,16 @@ namespace D3DLab.Std.Engine.Core.Components {
             }
             return v3f;
         }
+    }*/
+
+    public class SimpleGeometryComponent : GeometryComponent, IGeometryComponent {
+        protected override BoundingBox CalcuateBox() {
+            return BoundingBox.Empty;
+        }
     }
 
-    public abstract class BaseGeometryComponent : GraphicComponent {
+
+    public abstract class GeometryComponent : GraphicComponent {
         public override bool IsValid => Positions.Length > 0 && Indices.Length > 0;
 
         public virtual ImmutableArray<Vector3> Positions { get; set; }
@@ -71,7 +118,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         ImmutableArray<Vector4> colors;
         readonly Lazy<BoundingBox> box;
 
-        public BaseGeometryComponent() {
+        public GeometryComponent() {
             colors = ImmutableArray<Vector4>.Empty;
             TextureCoordinates = ImmutableArray<Vector2>.Empty;
             IsModified = true;

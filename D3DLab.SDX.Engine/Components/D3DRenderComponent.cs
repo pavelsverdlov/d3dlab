@@ -42,9 +42,17 @@ namespace D3DLab.SDX.Engine.Components {
             };
         }
 
-        public D3DTriangleColoredVertexesRenderComponent() {
+        public static D3DTriangleColoredVertexesRenderComponent AsTriangleListCullMode() {
+            return new D3DTriangleColoredVertexesRenderComponent(CullMode.None) {
+                PrimitiveTopology = PrimitiveTopology.TriangleStrip
+            };
+        }
+        public D3DTriangleColoredVertexesRenderComponent():this(CullMode.Front) {
+
+        }
+        public D3DTriangleColoredVertexesRenderComponent(CullMode cull) {
             RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
-                CullMode = CullMode.Front,
+                CullMode = cull,
                 FillMode = FillMode.Solid,
                 IsMultisampleEnabled = false,
 

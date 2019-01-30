@@ -61,7 +61,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     var manager = snapshot.ContextState.GetEntityManager();
                     var res = snapshot.Octree.GetColliding(ray, tag => {
                         var entity = manager.GetEntity(tag);
-                        var geo = entity.GetComponent<GeometryComponent>();
+                        var geo = entity.GetComponent<HittableGeometryComponent>();
                         if (!geo.IsBuilt) {
                             return false;
                         }

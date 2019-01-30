@@ -1,6 +1,7 @@
 ﻿using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Shaders;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
@@ -85,19 +86,26 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
         }
 
-    }
+    } 
 
     internal class ColoredVertexesRenderStrategy : RenderStrategy, IRenderStrategy {
+        class RenderEntity {
+            public D3DTriangleColoredVertexesRenderComponent Render;
+            public IGeometryComponent Geometry;
+            public D3DTransformComponent Transform;
+            public ColorComponent Material;
+        }
 
-        readonly List<Tuple<D3DTriangleColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>> entities;
+        
+        readonly LinkedList<RenderEntity> entities;
 
         public ColoredVertexesRenderStrategy(D3DShaderCompilator compilator, IRenderTechniquePass pass, VertexLayoutConstructor layoutConstructor) :
             base(compilator, pass, layoutConstructor) {
-            entities = new List<Tuple<D3DTriangleColoredVertexesRenderComponent, IGeometryComponent, D3DTransformComponent>>();
+            entities = new LinkedList<RenderEntity>();
         }
 
-        public void RegisterEntity(Components.D3DTriangleColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr) {
-            entities.Add(Tuple.Create(rcom, geocom, tr));
+        public void RegisterEntity(Components.D3DTriangleColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr, ColorComponent color) {
+            entities.AddFirst(new RenderEntity { Render = rcom, Geometry = geocom, Transform = tr, Material = color });
         }
 
         protected override void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
@@ -108,18 +116,19 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
 
             foreach (var en in entities) {
-                var renderCom = en.Item1;
-                var geometryCom = en.Item2;
-                var trcom = en.Item3;
+                var renderCom = en.Render;
+                var geometryCom = en.Geometry;
+                var trcom = en.Transform;
 
                 context.InputAssembler.PrimitiveTopology = renderCom.PrimitiveTopology;
-
-                if (geometryCom.IsModified) {
+                
+                if (geometryCom.IsModified || en.Material.IsModified) {
                     try {
                         var indexes = geometryCom.Indices.ToArray();
                         var vertices = new StategyStaticShaders.ColoredVertexes.VertexPositionColor[geometryCom.Positions.Length];
                         for (var index = 0; index < vertices.Length; index++) {
-                            vertices[index] = new StategyStaticShaders.ColoredVertexes.VertexPositionColor(geometryCom.Positions[index], geometryCom.Normals[index], geometryCom.Colors[index]);
+                            vertices[index] = new StategyStaticShaders.ColoredVertexes.VertexPositionColor(
+                                geometryCom.Positions[index], geometryCom.Normals[index], en.Material.Color);
                         }
                         geometryCom.MarkAsRendered();
 
@@ -142,7 +151,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
                     trcom.TransformBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref tr);
 
                     //} else {
-                    //    graphics.UpdateSubresource(ref tr, trcom.TransformBuffer, TransforStructBuffer.RegisterResourceSlot);
+                     //  graphics.UpdateSubresource(ref tr, trcom.TransformBuffer, TransforStructBuffer.RegisterResourceSlot);
                     //}
                 }
 

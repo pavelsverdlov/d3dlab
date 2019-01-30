@@ -14,6 +14,9 @@
             //return new System.Numerics.Vector4(color.R, color.G, color.B, color.A);
         }
 
+        internal static System.Numerics.Vector3 ToNVector3(this SharpDX.Vector3 v) {
+            return new System.Numerics.Vector3(v.X, v.Y, v.Z);
+        }
 
         class Color {
             private static byte ToByte(float component) {

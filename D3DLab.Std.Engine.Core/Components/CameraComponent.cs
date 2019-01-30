@@ -122,7 +122,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         public override void ResetToDefault() {
             UpDirection = Vector3.UnitY;
             FieldOfViewRadians = 1.05f;
-            NearPlaneDistance = 100f;
+            NearPlaneDistance = 1f;
             LookDirection = ForwardRH;
             Position = Vector3.UnitZ * 200f;
 

@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Rendering\Shaders\Custom\Lines.hlsl" />
     <None Remove="Rendering\Shaders\Game.hlsl" />
     <None Remove="Rendering\Shaders\Light.hlsl" />
     <None Remove="Rendering\Shaders\Math.hlsl" />
@@ -22,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Rendering\Shaders\Custom\Lines.hlsl" />
     <EmbeddedResource Include="Rendering\Shaders\Game.hlsl" />
     <EmbeddedResource Include="Rendering\Shaders\Light.hlsl" />
     <EmbeddedResource Include="Rendering\Shaders\Math.hlsl" />

@@ -21,6 +21,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
         #endregion
 
         public static class LineVertex {
+            const string path = @"D3DLab.SDX.Engine.Rendering.Shaders.Custom.Lines.hlsl";
             static readonly D3DShaderTechniquePass pass;
             static readonly VertexLayoutConstructor layconst;
 
@@ -28,11 +29,14 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
                 layconst = new VertexLayoutConstructor()
                    .AddPositionElementAsVector3()
                    .AddColorElementAsVector4();
-                pass = new D3DShaderTechniquePass(new IShaderInfo[] {
-                    new ShaderInMemoryInfo("LV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                   // new ShaderInMemoryInfo("LV_GeometryShader", geometryShaderText, null, ShaderStages.Geometry.ToString(), "main"),
-                    new ShaderInMemoryInfo("LV_FragmentShader", pixelShaderNoLogicText, null, ShaderStages.Fragment.ToString(), "main"),
-                });
+
+                var d = new CombinedShadersLoader();
+                pass = new D3DShaderTechniquePass(d.Load(path, "LV_"));
+                //pass = new D3DShaderTechniquePass(new IShaderInfo[] {
+                //    new ShaderInMemoryInfo("LV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
+                //   // new ShaderInMemoryInfo("LV_GeometryShader", geometryShaderText, null, ShaderStages.Geometry.ToString(), "main"),
+                //    new ShaderInMemoryInfo("LV_FragmentShader", pixelShaderNoLogicText, null, ShaderStages.Fragment.ToString(), "main"),
+                //});
             }
 
             public static D3DShaderTechniquePass GetPasses() => pass;

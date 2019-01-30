@@ -163,7 +163,7 @@ namespace D3DLab.SDX.Engine.Shader {
         }
 
         private static ShaderStages ConvertToShaderStage(string stage) {
-            return (ShaderStages)Enum.Parse(typeof(ShaderStages), stage);
+            return (ShaderStages)Enum.Parse(typeof(ShaderStages), stage, true);
         }
 
         internal void AddIncludeMapping(string include, string resource) {

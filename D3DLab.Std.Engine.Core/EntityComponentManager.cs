@@ -142,6 +142,10 @@ namespace D3DLab.Std.Engine.Core {
             comSynchronizer.Synchronize(theadId);
         }
 
+        public void PushSynchronization() {
+            frameChanges = true;
+        }
+
         public void Dispose() {
             foreach (var coms in components) {
                 foreach (var com in coms.Value) {

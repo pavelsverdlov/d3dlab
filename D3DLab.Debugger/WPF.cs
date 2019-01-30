@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace D3DLab.Debugger {
+
+    public abstract class NotifyProperty : INotifyPropertyChanged {
+        public event PropertyChangedEventHandler PropertyChanged = (x, y) => { };
+        protected void RisePropertyChanged(string name) {
+            PropertyChanged(this, new PropertyChangedEventArgs(name));
+        }
+    }
     public class WpfActionCommand<T> : BaseWPFCommand<T> {
         readonly Action<T> action;
         public WpfActionCommand(Action<T> action) {

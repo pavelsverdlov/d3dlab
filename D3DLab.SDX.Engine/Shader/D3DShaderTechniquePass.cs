@@ -23,7 +23,7 @@ namespace D3DLab.SDX.Engine.Shader {
             this.ShaderInfos = shaderInfos;
             shaders = new Dictionary<ShaderStages, IShaderInfo>();
             foreach (var info in shaderInfos) {
-                var stage = (ShaderStages)Enum.Parse(typeof(ShaderStages), info.Stage);
+                var stage = (ShaderStages)Enum.Parse(typeof(ShaderStages), info.Stage, true);
                 if (shaders.ContainsKey(stage)) {
                     throw new Exception($"One pass can contain only one {stage} shader");
                 }

@@ -2,12 +2,14 @@
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components.Materials {
-    
-    public class ColorComponent : GraphicComponent {
+    public class MaterialComponent : GraphicComponent {
+
+    }
+    public class ColorComponent : MaterialComponent {
         public Vector4 Color { get; set; }
     }
 
-    public class MaterialComponent : GraphicComponent {
+    public class MaterialComponent1 : GraphicComponent {
         public float Specular { get; set; } = -1; // -1 not specular
 
         public Vector4 AmbientColor { get; set; }

@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace D3DLab.SDX.Engine.Rendering {
     public class RenderSystem : BaseComponentSystem, IComponentSystem, IShadersContainer {
@@ -43,13 +44,14 @@ namespace D3DLab.SDX.Engine.Rendering {
 
             using (var frame = graphics.Device.FrameBegin()) {
                 try {
-                    foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
+                    //Parallel.ForEach(emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>()), entity => {
+                        foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
                         foreach (var com in entity.GetComponents<ID3DRenderableComponent>()) {
                             if (com.CanRender) {
                                 com.Accept(visiter);
                             }
                         }
-                    }
+                    }//);
 
                     var camera = snapshot.Camera;
                     var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();

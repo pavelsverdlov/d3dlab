@@ -93,7 +93,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             //BoundsUtil.Bounds(,)
             return new BoundingBox(min, max, new AxisAlignedBox3f(min.ToVector3f(), max.ToVector3f()));
         }
-        public static BoundingBox CreateFromComponent(GeometryComponent com) {
+        public static BoundingBox CreateFromComponent(HittableGeometryComponent com) {
             return new BoundingBox(com.DMesh.GetBounds());
         }
         //TODO
@@ -108,7 +108,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
         public BoundingBox(Vector3 min, Vector3 max) {
             Minimum = min;
             Maximum = max;
-            boxf = AxisAlignedBox3f.Empty;
+            boxf = AxisAlignedBox3f.Empty; 
             boxd = AxisAlignedBox3d.Empty;
         }
         BoundingBox(Vector3 min, Vector3 max, AxisAlignedBox3f box3F) {
@@ -123,6 +123,12 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             boxf = new AxisAlignedBox3f(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
             boxd = box3d;
         }
+
+        public BoundingBox Merge(BoundingBox box) {
+            Statics.Collision.Merge(ref this, ref box, out var res);
+            return res;
+        }
+
 
         public BoundingContainmentType Contains(ref BoundingBox other) {
             if (Maximum.X < other.Minimum.X || Minimum.X > other.Maximum.X
@@ -139,9 +145,8 @@ namespace D3DLab.Std.Engine.Core.Utilities {
         }
 
         public bool Intersects(ref Ray ray, out float distance) {
-            var b1 = ray.Intersects(ref this);
+            //var b1 = ray.Intersects(ref this);
             var b =  Statics.Collision.Intersects(ref this, ref ray, out distance);
-
             return b;
         }
         public bool Intersects(ref BoundingBox bb) {

@@ -17,7 +17,7 @@ namespace D3DLab.Std.Engine.Core.Common {
         }
 
         public void Change(IGraphicComponent com) {
-            if (com is GeometryComponent geo) { // TODO remove this IF, remake additing to Manager base on Generic type
+            if (com is HittableGeometryComponent geo) { // TODO remove this IF, remake additing to Manager base on Generic type
                 if (geo.IsDisposed) {
                     Remove(geo.EntityTag);
                 } else {

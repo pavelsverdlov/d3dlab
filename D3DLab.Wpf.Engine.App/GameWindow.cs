@@ -18,13 +18,13 @@ namespace D3DLab.Wpf.Engine.App {
             InputManager = new InputManager(input);
 
             //win.Resize += OnResize;
-            Application.Current.MainWindow.SizeChanged += OnSizeChanged;
+            Application.Current.MainWindow.SizeChanged += OnSizeChanged;          
         }
 
         void OnSizeChanged(object sender, SizeChangedEventArgs e) {
-            Resized();
             Width = (float)e.NewSize.Width;
             Height = (float)e.NewSize.Height;
+            Resized();
         }
 
         private void OnResize(object sender, EventArgs e) {

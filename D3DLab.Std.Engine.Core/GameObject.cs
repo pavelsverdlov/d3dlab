@@ -1,11 +1,12 @@
-﻿using D3DLab.Std.Engine.Core.Components.Movements;
+﻿using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Components.Movements;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace D3DLab.Std.Engine.Core {   
+namespace D3DLab.Std.Engine.Core {
     public abstract class GameObject {
-        public string Description { get;  }
+        public string Description { get; }
 
         protected GameObject(string desc) {
             Description = desc;
@@ -28,9 +29,18 @@ namespace D3DLab.Std.Engine.Core {
             manager.GetEntity(targetEntity).AddComponent(com);
         }
 
-        public virtual void Dispose(IEntityManager manager)
-        {
+        protected virtual void UppdateGeometry(IEntityManager manager, ElementTag tag, GeometryComponent geo) {
+            var en = manager.GetEntity(tag);
+            en.RemoveComponents<GeometryComponent>();
+            en.AddComponent(geo);
+        }
 
+        public virtual void Cleanup(IEntityManager manager) {
+
+        }
+        
+        public virtual IEnumerable<GraphicEntity> GetEntities(IEntityManager manager) {
+            return new GraphicEntity[0];
         }
     }
 }
