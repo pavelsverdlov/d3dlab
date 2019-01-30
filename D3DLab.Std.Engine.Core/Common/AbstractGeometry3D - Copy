@@ -67,10 +67,10 @@ namespace D3DLab.Std.Engine.Core.Common {
             groupsmap = new Dictionary<string, PartGeometry3D>();
         }
 
-        public PartGeometry3D CreatePart(string fullName) {
-            if(!groupsmap.TryGetValue(fullName, out var p)) {
-                p = new PartGeometry3D(this, fullName);
-                groupsmap.Add(fullName, p);
+        public PartGeometry3D CreatePart(string key, string fullName) {
+            if(!groupsmap.TryGetValue(key, out var p)) {
+                p = new PartGeometry3D(this, key);
+                groupsmap.Add(key, p);
             }
             p.Groups.Add(new ObjGroup(fullName));
             return p;
@@ -81,14 +81,26 @@ namespace D3DLab.Std.Engine.Core.Common {
             mapper.Clear();
             foreach(var kv in groupsmap.Values.ToList()) {
                 if (kv.IsEmpty) {
-                    groupsmap.Remove(kv.Name);
+                    groupsmap.Remove(kv.Key);
                 }
             }
         }
-        
+
+        public PartGeometry3D GetGroupByPosIndexes(IList<int> ind, string fullName) {
+            var gr = posIndexToPartMapper[ind[0]];
+            gr.Groups.Add(new ObjGroup(fullName));
+            return gr;
+        }
     }
 
-    
+    public class ObjGroup {
+        public ObjGroupInfo PosGroupInfo;
+        public ObjGroupInfo IndxGroupInfo;
+        public readonly string Name;
+        public ObjGroup(string name) {
+            Name = name;
+        }
+    }
 
     public class PartGeometry3D {
         public IReadOnlyCollection<Vector3> Positions => mapper.Keys;
@@ -99,15 +111,15 @@ namespace D3DLab.Std.Engine.Core.Common {
         readonly List<int> indices;
         readonly Dictionary<Vector3, int> mapper;
         readonly GroupGeometry3D full;
-        public readonly string Name;
+        internal readonly string Key;
 
-        public readonly List<ObjGroup> Groups;
+        public List<ObjGroup> Groups;
 
         public PartGeometry3D(GroupGeometry3D group, string key) {
             mapper = new Dictionary<Vector3, int>();
             indices = new List<int>();
             this.full = group;
-            this.Name = key;
+            this.Key = key;
             Groups = new List<ObjGroup>();
         }
 
@@ -130,18 +142,33 @@ namespace D3DLab.Std.Engine.Core.Common {
             }
 
             group.PosGroupInfo.Count += 1;
+            mapper.Add(v, mapper.Count);
+
+            full.posIndexToPartMapper.Add(index, this);
+
+            //if(new HashSet<Vector3>(full.positions).Count != full.positions.Count) {
+
+            //}
         }
 
-        public void AddTriangle(IList<int> ind) {
+        public bool TryAddTriangle(IList<int> ind) {
             var group = Groups.Last();
+            var val = new HashSet<int>();
+            var vv = new HashSet<Vector3>();
+
+            if(Key == "A ID14 NID0 LT02c2 LL0a000000") {
+
+            }
+
+            if (ind.Any(i=> !mapper.ContainsKey(full.positions[i]))) {
+                //AddPosition(ref v);
+                return false;
+            }
+
             for (var i=0;i< ind.Count; ++i) {
                 try {
                     var index = ind[i];
                     var v = full.positions[index];
-                    if (!mapper.TryGetValue(v, out var partIndex)) {
-                        partIndex = mapper.Count;
-                        mapper.Add(v, partIndex);
-                    }
 
                     if (group.IndxGroupInfo == null) {
                         group.IndxGroupInfo = new ObjGroupInfo {
@@ -153,11 +180,19 @@ namespace D3DLab.Std.Engine.Core.Common {
                         group.IndxGroupInfo.Count += 1;
                     }
                     full.indices.Add(index);
-                    indices.Add(partIndex);
+                    indices.Add(mapper[v]);
+                    val.Add(mapper[v]);
+                    vv.Add(v);
                 } catch(Exception ex) {
                     ex.ToString();
+                    return false;
                 }
             }
+            if (val.Count != 3 || vv.Count != 3 ) {
+
+            }
+
+            return true;
         }
     }
 

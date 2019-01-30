@@ -107,6 +107,10 @@ namespace D3DLab.Std.Engine.Core.Ext {
                             Vector3 w = Vector3.Cross(u, v);
                             w.Normalize();
 
+                            if (float.IsNaN(w.X)) {
+
+                            }
+
                             *(pNormal + index0) = Vector3.Add(*(pNormal + index0), w);
                             *(pNormal + index1) = Vector3.Add(*(pNormal + index1), w);
                             *(pNormal + index2) = Vector3.Add(*(pNormal + index2), w);

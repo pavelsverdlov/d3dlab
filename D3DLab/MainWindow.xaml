@@ -118,14 +118,27 @@
 
                 <TabControl Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" Opacity="0.8"
                             Background="{StaticResource BlackBackgroundColor}">
-                    <TabItem Header="Entities" BorderThickness="0" BorderBrush="Transparent" >
+                    <TabItem BorderThickness="0" BorderBrush="Transparent" >
+                        <TabItem.Header>
+                            <TextBlock>
+                                <Run Text="Entities "/>
+                                <Run Text="{Binding VisualTreeviewer.ItemsCount, Mode=OneWay}"/>
+                            </TextBlock>
+                        </TabItem.Header>
+                        
                         <debug:TreeViewerElement DataContext="{Binding VisualTreeviewer}" 
                                                   Background="Transparent" 
                                                  BorderBrush="Transparent" BorderThickness="0"
                                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                          />
                     </TabItem>
-                    <TabItem Header="Systems" BorderThickness="0" BorderBrush="Transparent">
+                    <TabItem BorderThickness="0" BorderBrush="Transparent">
+                        <TabItem.Header>
+                            <TextBlock>
+                                <Run Text="Systems "/>
+                                <Run Text="{Binding SystemsView.ViewState.Count, Mode=OneWay}"/>
+                            </TextBlock>
+                        </TabItem.Header>
                         <debugsys:SystemsView DataContext="{Binding SystemsView,Mode=OneWay}"/>
                     </TabItem>
                 </TabControl>

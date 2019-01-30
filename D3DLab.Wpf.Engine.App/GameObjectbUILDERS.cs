@@ -53,7 +53,7 @@ namespace D3DLab.Wpf.Engine.App {
 
         #region components 
         public static IRenderableComponent GetObjGroupsRender() {
-            return D3DTriangleColoredVertexesRenderComponent.AsTriangleListCullMode();
+            return D3DTriangleColoredVertexesRenderComponent.AsTriangleListCullNone();
         }
 
         public static IRenderableComponent GetRenderAsTriangleColored() {

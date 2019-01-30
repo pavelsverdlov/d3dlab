@@ -89,7 +89,7 @@ namespace D3DLab.Std.Engine.Core.Components {
     }
 
     public class VirtualGroupGeometryComponent : HittableGeometryComponent, IGeometryComponent {
-        public readonly PartGeometry3D Combined;
+        public readonly PartGeometry3D PartGeometry;
 
         public override ImmutableArray<Vector4> Colors {
             get {
@@ -113,16 +113,12 @@ namespace D3DLab.Std.Engine.Core.Components {
         ImmutableArray<Vector4> colors;
 
         public VirtualGroupGeometryComponent(PartGeometry3D part) {
-            this.Combined = part;
+            this.PartGeometry = part;
             Positions = part.Positions.ToImmutableArray();
             Normals = part.Positions.ToArray().CalculateNormals(part.Indices.ToArray()).ToImmutableArray();
             Indices = part.Indices.ToImmutableArray();
             colors = ImmutableArray<Vector4>.Empty;
         }
-
-        public void ClearColors() {
-            colors = ImmutableArray<Vector4>.Empty;
-            IsModified = true;
-        }
+        
     }
 }

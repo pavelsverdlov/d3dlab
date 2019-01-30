@@ -1,9 +1,12 @@
 ﻿using D3DLab.Plugin.Contracts.Parsers;
 using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.MeshFormats;
 using D3DLab.Std.Engine.Core.Utilities.Helix;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -903,8 +906,8 @@ namespace OBJGeometryParser {
                     yield return new Object3D {
 
                         Geometry = this.meshBuilders[i].ToGeometry3D(),
-                      //  Material = this.materials[i],
-                      //  Transform = Matrix4x4.Identity
+                        //  Material = this.materials[i],
+                        //  Transform = Matrix4x4.Identity
                     };
                 }
             }
@@ -995,20 +998,30 @@ namespace OBJGeometryParser {
     }
 
     public class ObjSpanReader {
-        public readonly AbstractGeometry3D FullGeometry = new AbstractGeometry3D();
-        Dictionary<string, AbstractGeometry3D> meshes;
-        readonly List<Vector3> positions = new List<Vector3>();
-        readonly Dictionary<int, int> map = new Dictionary<int, int>();
+        static Vector4 GetColor(string group) {
+            //if (group.StartsWith("I")) {
+            //    return V4Colors.Yellow;
+            //}
+            //if (group.StartsWith("A")) {
+            //    return V4Colors.Blue;
+            //}
+            return V4Colors.Red;
+        }
+        public readonly AbstractGeometry3D FullGeometry1 = new AbstractGeometry3D();
+        public readonly GroupGeometry3D FullGeometry = new GroupGeometry3D();
+
+        Dictionary<string, PartGeometry3D> meshes;
 
         public void Read(Stream stream) {
-            meshes = new Dictionary<string, AbstractGeometry3D>();
-            
+            meshes = new Dictionary<string, PartGeometry3D>();
+
             var group = new ReadOnlySpan<char>(new[] { 'g' });
             var vector = new ReadOnlySpan<char>(new[] { 'v' });
             var face = new ReadOnlySpan<char>(new[] { 'f' });
             var comm = new ReadOnlySpan<char>(new[] { '#' });
             //Memory<byte> buffer = new Memory<byte>();
             var groupname = "noname";
+            PartGeometry3D current = null;
             using (var reader = new StreamReader(stream)) {
                 while (!reader.EndOfStream) {
                     var span = reader.ReadLine().AsSpan();
@@ -1017,20 +1030,25 @@ namespace OBJGeometryParser {
                     }
                     var part = span.Slice(2, span.Length - 2).Trim();
                     if (span.StartsWith(group)) {
-                        groupname = part.Trim().ToString();
-                        if (!meshes.ContainsKey(groupname)) {
-                            meshes.Add(groupname, new AbstractGeometry3D());
-                        }
+                        var names = part.Trim().ToString().SplitOnWhitespace();
+                        groupname = string.Join(" ", names);//[0].ToString();
+                        var key  = string.Join(" ", names.Take(names.Length-1));//[0].ToString();
+                        current = FullGeometry.CreatePart(groupname);
                     } else if (span.StartsWith(vector)) {
                         var val = SplitFloat(part, ' ');
                         var v = new Vector3(val[0], val[1], val[2]);
-                        FullGeometry.Positions.Add(v);
-                       // meshes[groupname].Positions.Add(v);
+
+                        FullGeometry1.Positions.Add(v);
+                        current.AddPosition(ref v);
                     } else if (span.StartsWith(face)) {
                         var val = SplitInt(part, ' ');
-                        foreach (var v in val) {
-                            FullGeometry.Indices.Add(v);
+
+                        if(new HashSet<int>(val).Count != 3 ) {
+
                         }
+
+                        FullGeometry1.Indices.AddRange(val);
+                        current.AddTriangle(val);
                     }
                 }
             }
@@ -1040,10 +1058,10 @@ namespace OBJGeometryParser {
             var index = 0;
             while (index < 3) {
                 var end = span.IndexOf(' ');
-                if(end == -1) {
+                if (end == -1) {
                     end = span.Length;
                 }
-                var part = span.Slice(0,end).Trim();
+                var part = span.Slice(0, end).Trim();
                 val[index] = float.Parse(part.ToString(), CultureInfo.InvariantCulture);
                 index++;
                 span = span.Slice(end, span.Length - end).Trim();
@@ -1060,14 +1078,14 @@ namespace OBJGeometryParser {
                 }
                 var part = span.Slice(0, end).Trim();
                 var sep = part.IndexOf('/');
-                if(sep != -1) {
+                if (sep != -1) {
                     part = span.Slice(0, sep).Trim();
                 }
-                val.Add(int.Parse(part.ToString(), CultureInfo.InvariantCulture)-1);
+                val.Add(int.Parse(part.ToString(), CultureInfo.InvariantCulture) - 1);
                 index++;
                 span = span.Slice(end, span.Length - end).Trim();
             }
-            if(val.Count > 3) {
+            if (val.Count > 3) {
                 var triangleFan = new List<int>();
                 for (int i = 0; i + 2 < val.Count; i++) {
                     triangleFan.Add(val[0]);
@@ -1079,22 +1097,24 @@ namespace OBJGeometryParser {
 
             return val;
         }
-        
+
 
     }
     public class ObjStringReader {
         public readonly AbstractGeometry3D FullGeometry = new AbstractGeometry3D();
+
 
         readonly List<Vector3> positions = new List<Vector3>();
         readonly Dictionary<int, int> map = new Dictionary<int, int>();
 
         Dictionary<string, AbstractGeometry3D> meshes;
         public void Read(Stream stream) {
+
             meshes = new Dictionary<string, AbstractGeometry3D>();
 
             var group = "g";
-            var vector =  "v";
-            var face = "f" ;
+            var vector = "v";
+            var face = "f";
             //Memory<byte> buffer = new Memory<byte>();
             var groupname = "noname";
             using (var reader = new StreamReader(stream)) {
@@ -1117,9 +1137,9 @@ namespace OBJGeometryParser {
                         //var p = positions [val[0]];
                         //var p1 = positions[val[1]];
                         //var p2 = positions[val[2]];
-                        FullGeometry.Indices.Add(val[0]-1);
-                        FullGeometry.Indices.Add(val[1]-1);
-                        FullGeometry.Indices.Add(val[2]-1);
+                        FullGeometry.Indices.Add(val[0] - 1);
+                        FullGeometry.Indices.Add(val[1] - 1);
+                        FullGeometry.Indices.Add(val[2] - 1);
                     }
                 }
             }
@@ -1177,9 +1197,38 @@ namespace OBJGeometryParser {
                 sw.Stop();
                 Trace.WriteLine($"Reader {sw.Elapsed.TotalMilliseconds}");
 
-                r.FullGeometry.Color = new Vector4(0, 1, 0, 1);
-                r.FullGeometry.Normals = r.FullGeometry.Positions.CalculateNormals(r.FullGeometry.Indices);
-                visiter.Handle(r.FullGeometry);
+                r.FullGeometry1.Color = new Vector4(0, 1, 0, 1);
+                r.FullGeometry1.Normals = r.FullGeometry1.Positions.CalculateNormals(r.FullGeometry.Indices.ToList());
+
+                var full = r.FullGeometry1;// r.FullGeometry;
+                //var c = new SimpleGeometryComponent {
+                //    Positions = full.Positions.ToImmutableArray(),
+                //    Indices = full.Indices.ToImmutableArray(),
+                //    Normals = full.Positions.ToList().CalculateNormals(full.Indices.ToList()).ToImmutableArray(),
+
+                //};
+
+
+                //    visiter.Handle(c);
+                var onlypoints = new List<Vector3>();
+                var onlypoints1 = new List<Vector3>();
+                r.FullGeometry.Fixed();
+
+                if(new HashSet<Vector3>(r.FullGeometry.Positions).Count != r.FullGeometry.Positions.Count) {
+
+                }
+                var com = new ObjGroupsComponent();
+                foreach (var part in r.FullGeometry.Parts) {
+                    com.OrderedGroups.Add(new OrderedObjGroups(part.Name, part.Groups));
+                    if (part.Groups.Any(i => i.IndxGroupInfo != null)) {
+                        visiter.Handle(new VirtualGroupGeometryComponent(part));
+                    } else {
+                        onlypoints.AddRange(part.Positions);
+                    }
+                    //break;
+                }
+                
+
             } catch (Exception exc) {
                 exc.ToString();
             }
@@ -1198,9 +1247,16 @@ namespace OBJGeometryParser {
                 Object3D m = res[i];
                 var mesh = m.Geometry;
                 mesh.Color = colors.Length > i ? colors[i] : colors[0];
-                meshes.Add(mesh);
+                //meshes.Add(mesh);
+                var c = new SimpleGeometryComponent {
+                    Positions = mesh.Positions.ToImmutableArray(),
+                    Indices = mesh.Indices.ToImmutableArray(),
+                    Normals = mesh.Positions.ToList().CalculateNormals(mesh.Indices.ToList()).ToImmutableArray(),
+
+                };
+                visiter.Handle(c);
             }
-            visiter.Handle(meshes);
+            
         }
     }
 }

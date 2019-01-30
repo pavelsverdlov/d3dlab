@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace D3DLab.Debugger {
-
+    
     public abstract class NotifyProperty : INotifyPropertyChanged {
         public event PropertyChangedEventHandler PropertyChanged = (x, y) => { };
         protected void RisePropertyChanged(string name) {
@@ -69,5 +69,6 @@ namespace D3DLab.Debugger {
                 action(i);
             }
         }
+        
     }
 }

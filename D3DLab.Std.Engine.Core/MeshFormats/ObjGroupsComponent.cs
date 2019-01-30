@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace D3DLab.Std.Engine.Core.MeshFormats {
     public class ObjGroupInfo {
@@ -8,25 +9,28 @@ namespace D3DLab.Std.Engine.Core.MeshFormats {
         public int StartIndex;
         public int Count;
     }
-
-    //public class ObjGroupsInfo {
-    //    public readonly List<ObjGroupInfo> Faces;
-    //    public readonly List<ObjGroupInfo> Indexes;
-
-    //    public ObjGroupsInfo() {
-    //        Faces = new List<ObjGroupInfo>();
-    //        Indexes = new List<ObjGroupInfo>();
-    //    }
-    //}
-
+    public class ObjGroup {
+        public ObjGroupInfo PosGroupInfo;
+        public ObjGroupInfo IndxGroupInfo;
+        public readonly string Name;
+        public ObjGroup(string name) {
+            Name = name;
+        }
+    }
+    public class OrderedObjGroups {
+        public readonly List<ObjGroup> Groups;
+        public readonly string Name;
+        public OrderedObjGroups(string name, List<ObjGroup> groups) {
+            Name = name;
+            Groups = groups;
+        }
+    }
 
     public class ObjGroupsComponent : GraphicComponent {
-        public readonly List<ObjGroupInfo> Faces;
-        public readonly List<ObjGroupInfo> Indexes;
+        public readonly List<OrderedObjGroups> OrderedGroups;
 
         public ObjGroupsComponent() {
-            Faces = new List<ObjGroupInfo>();
-            Indexes = new List<ObjGroupInfo>();
+            OrderedGroups = new List<OrderedObjGroups>();
         }
     }
 

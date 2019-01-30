@@ -31,6 +31,7 @@ namespace D3DLab.Debugger.Presentation.SystemList {
     }
 
     public class ViewState {
+        public int Count => items.Count;
         public ICollectionView Items { get; }
         readonly ObservableCollection<SystemItemViewModel> items;
 

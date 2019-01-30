@@ -83,15 +83,18 @@ namespace D3DLab.Debugger.Windows {
                 PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Title)));
             }
         }
+
+        public int ItemsCount => items.Count;
+
         public System.ComponentModel.ICollectionView Items { get; set; }
-        public ObservableCollection<IVisualTreeEntityItem> items { get; set; }
+        ObservableCollection<IVisualTreeEntityItem> items;
         public IVisualComponentItem SelectedComponent { get; set; }
 
         public BaseWPFCommand<IVisualTreeEntityItem> RenderModeSwither {
             get => _renderModeSwither;
             set {
-                _renderModeSwither = value;
-                PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(RenderModeSwither)));
+                _renderModeSwither = value; 
+                 PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(RenderModeSwither)));
             }
         }
 
@@ -151,6 +154,7 @@ namespace D3DLab.Debugger.Windows {
                     }
                 }
             }
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(ItemsCount)));
         }
 
         public void Execute(string code) {

@@ -6,7 +6,15 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
 
     }
     public class ColorComponent : MaterialComponent {
-        public Vector4 Color { get; set; }
+        private Vector4 color;
+
+        public Vector4 Color {
+            get => color;
+            set {
+                color = value;
+                IsModified = true;
+            }
+        }
     }
 
     public class MaterialComponent1 : GraphicComponent {
@@ -16,7 +24,7 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
         public Vector4 DiffuseColor { get; set; }
 
     }
-    
+
     public class TexturedMaterialComponent : GraphicComponent {
         public FileInfo Image { get; }
 
@@ -24,6 +32,6 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
             Image = image;
         }
 
-        
+
     }
 }
