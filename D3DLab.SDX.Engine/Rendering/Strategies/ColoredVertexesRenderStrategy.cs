@@ -93,7 +93,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             public D3DTriangleColoredVertexesRenderComponent Render;
             public IGeometryComponent Geometry;
             public D3DTransformComponent Transform;
-            public ColorComponent Material;
+            public MaterialComponent Material;
         }
 
         
@@ -104,7 +104,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             entities = new LinkedList<RenderEntity>();
         }
 
-        public void RegisterEntity(Components.D3DTriangleColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr, ColorComponent color) {
+        public void RegisterEntity(Components.D3DTriangleColoredVertexesRenderComponent rcom, IGeometryComponent geocom, D3DTransformComponent tr, MaterialComponent color) {
             entities.AddFirst(new RenderEntity { Render = rcom, Geometry = geocom, Transform = tr, Material = color });
         }
 
@@ -127,8 +127,9 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
                         var indexes = geometryCom.Indices.ToArray();
                         var vertices = new StategyStaticShaders.ColoredVertexes.VertexPositionColor[geometryCom.Positions.Length];
                         for (var index = 0; index < vertices.Length; index++) {
+                            var color = en.Material.GetVertexColor(index);
                             vertices[index] = new StategyStaticShaders.ColoredVertexes.VertexPositionColor(
-                                geometryCom.Positions[index], geometryCom.Normals[index], en.Material.Color);
+                                geometryCom.Positions[index], geometryCom.Normals[index], color);
                         }
                         geometryCom.MarkAsRendered();
 

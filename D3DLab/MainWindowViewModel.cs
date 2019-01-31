@@ -1,5 +1,5 @@
 ﻿using D3DLab.Debugger;
-using D3DLab.Debugger.Modules.Obj;
+using D3DLab.Debugger.Modules.OBJFileFormat;
 using D3DLab.Debugger.Presentation.ScriptConsole;
 using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
@@ -143,8 +143,8 @@ namespace D3DLab {
                 OpenProperties = new WpfActionCommand(OnOpenProperties);
             }
 
-            void OnOpenProperties() {
-                main.OpenObjDetailsWin(gobj);                
+            protected virtual void OnOpenProperties() {
+                      
             }
 
             private void OnLookAt() {
@@ -200,7 +200,7 @@ namespace D3DLab {
             readonly FileSystemWatcher watcher;
             readonly ManualResetEventSlim reset;
             readonly string tempFileName;
-            readonly CompositeGameObject compositeGameObject;
+            readonly CompositeGameObjectFromFile compositeGameObject;
             public ImportFileLoadedItem(MainWindowViewModel main, ImportFileInfo info) : base(main, null) {
                 this.info = info;
                 reset = new ManualResetEventSlim(true);
@@ -216,6 +216,11 @@ namespace D3DLab {
                 watcher.EnableRaisingEvents = true;
                 watcher.Changed += OnFileChanged;
             }
+
+            protected override void OnOpenProperties() {
+                main.OpenObjDetailsWin(compositeGameObject);
+            }
+
             DateTime lastWriteTime;
             private void OnFileChanged(object sender, FileSystemEventArgs e) {
                 var lastTime = File.GetLastWriteTime(info.File.FullName);
@@ -360,12 +365,7 @@ namespace D3DLab {
 
         #region windows
 
-        void OpenObjDetailsWin(GameObject gobj) {
-            //gobj.GetEntities(main.context.GetEntityManager())
-            //        .SelectMany(en => en.GetComponents<ObjGroupsComponent>())
-            //        .DoFirst(com => {
-
-            //        });
+        void OpenObjDetailsWin(CompositeGameObjectFromFile gobj) {
             ObjDetailsPopup.Open(gobj, context.GetEntityManager());
         }
 
@@ -375,7 +375,5 @@ namespace D3DLab {
 
 
         #endregion
-    }
-
-
+    }   
 }

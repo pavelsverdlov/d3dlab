@@ -52,7 +52,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                     return;
                 }
 
-                var color = manager.GetComponent<ColorComponent>(entityTag);
+                var color = manager.GetComponent<MaterialComponent>(entityTag);
 
                 //var v = ran.NextVector3(new Vector3(-100, -100, -100), new Vector3(100, 100, 100));
                 tr.MatrixWorld = Matrix4x4.Identity;// Matrix4x4.CreateTranslation(v);

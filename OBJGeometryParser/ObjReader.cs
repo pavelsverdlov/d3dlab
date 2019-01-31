@@ -1213,21 +1213,18 @@ namespace OBJGeometryParser {
                 var onlypoints = new List<Vector3>();
                 var onlypoints1 = new List<Vector3>();
                 r.FullGeometry.Fixed();
-
-                if(new HashSet<Vector3>(r.FullGeometry.Positions).Count != r.FullGeometry.Positions.Count) {
-
-                }
+                
                 var com = new ObjGroupsComponent();
                 foreach (var part in r.FullGeometry.Parts) {
-                    com.OrderedGroups.Add(new OrderedObjGroups(part.Name, part.Groups));
-                    if (part.Groups.Any(i => i.IndxGroupInfo != null)) {
+                    //com.OrderedGroups.Add(new OrderedObjGroups(part.Name, part.Groups));
+                    if (part.Groups.Any(i => i.IndxGroupInfo != null)) { // geo is created only by triangles
                         visiter.Handle(new VirtualGroupGeometryComponent(part));
                     } else {
                         onlypoints.AddRange(part.Positions);
                     }
                     //break;
                 }
-                
+                //visiter.Handle(com);
 
             } catch (Exception exc) {
                 exc.ToString();

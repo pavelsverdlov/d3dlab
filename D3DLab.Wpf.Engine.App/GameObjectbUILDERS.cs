@@ -112,69 +112,7 @@ namespace D3DLab.Wpf.Engine.App {
             manager.RemoveEntity(Tag);
         }
     }
-
-    public class CompositeGameObject : GameObject {
-        public List<ElementTag> Tags { get; }
-
-        public CompositeGameObject(IEnumerable<ElementTag> tags) : this(tags,"Group") {
-        }
-        public CompositeGameObject(string desc) : this(new ElementTag[0], desc) {
-        }
-        public CompositeGameObject(IEnumerable<ElementTag> tags, string desc) : base(desc) {
-            Tags = new List<ElementTag>(tags);
-        }
-
-        public void AddEntity(ElementTag tag) {
-            Tags.Add(tag);
-        }
-        public void RemoveEntity(ElementTag tag) {
-            Tags.Remove(tag);
-        }
-
-        public override void Hide(IEntityManager manager) {
-            foreach (var tag in Tags) {
-                manager.GetEntity(tag)
-                      .GetComponent<IRenderableComponent>()
-                      .CanRender = false;
-            }
-        }
-
-        public override void Show(IEntityManager manager) {
-            foreach (var tag in Tags) {
-                manager.GetEntity(tag)
-                  .GetComponent<IRenderableComponent>()
-                  .CanRender = true;
-            }
-        }
-
-        public override void LookAtSelf(IEntityManager manager) {
-            var combinedBox = new BoundingBox();
-            GraphicEntity entity = null ;
-            foreach (var tag in Tags) {
-                entity = manager.GetEntity(tag);
-                var geos = entity.GetComponents<IGeometryComponent>();
-                if (geos.Any()) {
-                    var geo = geos.First();
-                    combinedBox = combinedBox.Merge(geo.Box);
-                }
-            }
-
-            var com = new MoveCameraToTargetComponent { Target = entity.Tag, TargetPosition = combinedBox.GetCenter() };
-            entity.AddComponent(com);
-        }
-
-        public override void Cleanup(IEntityManager manager) {
-            base.Cleanup(manager);
-            foreach (var tag in Tags) {
-                manager.RemoveEntity(tag);
-            }
-        }
-
-        public override IEnumerable<GraphicEntity> GetEntities(IEntityManager manager) {
-            return Tags.Select(x => manager.GetEntity(x));
-        }
-    }
-
+    
     public class CoordinateSystemLinesGameObject : GameObject {
         public ElementTag Lines { get; private set; }
         public ElementTag[] Arrows { get; private set; }

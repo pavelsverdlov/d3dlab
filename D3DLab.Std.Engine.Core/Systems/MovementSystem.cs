@@ -12,9 +12,11 @@ namespace D3DLab.Std.Engine.Core.Systems {
         public void Execute(SceneSnapshot snapshot) {
             var emanager = snapshot.ContextState.GetEntityManager();
             foreach (var entity in emanager.GetEntities()) {
-                foreach (var com in entity.GetComponents<MovementComponent>()) {
-                    com.Execute(new Handlers(entity, snapshot));
-                }
+                //if (entity.GetComponents<IRenderableComponent>().Any(x => x.CanRender)) {
+                    foreach (var com in entity.GetComponents<MovementComponent>()) {
+                        com.Execute(new Handlers(entity, snapshot));
+                    }
+                //}
             }
         }
 
@@ -61,6 +63,12 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     var manager = snapshot.ContextState.GetEntityManager();
                     var res = snapshot.Octree.GetColliding(ray, tag => {
                         var entity = manager.GetEntity(tag);
+
+                        var renderable = entity.GetComponents<IRenderableComponent>().Any(x=>x.CanRender);
+                        if (!renderable) {
+                            return false;
+                        }
+
                         var geo = entity.GetComponent<HittableGeometryComponent>();
                         if (!geo.IsBuilt) {
                             return false;

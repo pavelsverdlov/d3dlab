@@ -56,8 +56,8 @@ namespace D3DLab.Std.Engine.Core.Common {
         internal readonly Dictionary<Vector3, int> mapper;
         internal readonly Dictionary<int, PartGeometry3D> posIndexToPartMapper;
         readonly Dictionary<string, PartGeometry3D> groupsmap;
-        internal readonly List<Vector3> positions;
-        internal readonly List<int> indices;
+        public readonly List<Vector3> positions;
+        public readonly List<int> indices;
 
         public GroupGeometry3D() {
             posIndexToPartMapper = new Dictionary<int, PartGeometry3D>();
@@ -97,8 +97,8 @@ namespace D3DLab.Std.Engine.Core.Common {
         public bool IsEmpty => mapper.Count == 0 && indices.Count == 0;
 
         readonly List<int> indices;
-        readonly Dictionary<Vector3, int> mapper;
-        readonly GroupGeometry3D full;
+        public readonly Dictionary<Vector3, int> mapper;
+        public readonly GroupGeometry3D full;
         public readonly string Name;
 
         public readonly List<ObjGroup> Groups;

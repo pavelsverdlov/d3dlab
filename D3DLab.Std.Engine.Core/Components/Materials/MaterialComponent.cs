@@ -2,8 +2,8 @@
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components.Materials {
-    public class MaterialComponent : GraphicComponent {
-
+    public abstract class MaterialComponent : GraphicComponent {
+        public abstract Vector4 GetVertexColor(int vertexInd);
     }
     public class ColorComponent : MaterialComponent {
         private Vector4 color;
@@ -14,6 +14,22 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
                 color = value;
                 IsModified = true;
             }
+        }
+
+        public override Vector4 GetVertexColor(int vertexInd) {
+            return color;
+        }
+    }
+    public class PositionColorsComponent : MaterialComponent {
+        public Vector4[] Colors { get; set; }
+
+        public override Vector4 GetVertexColor(int vertexInd) {
+            return Colors[vertexInd];
+        }
+
+        public void UpdateColor(int index, Vector4 color) {
+            Colors[index] = color;
+            IsModified = true;
         }
     }
 

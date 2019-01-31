@@ -1,9 +1,11 @@
-﻿using D3DLab.Plugin.Contracts.Parsers;
+﻿using D3DLab.Debugger.Modules.OBJFileFormat;
+using D3DLab.Plugin.Contracts.Parsers;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.GameObjects;
 using D3DLab.Wpf.Engine.App;
 using System;
 using System.Collections.Generic;
@@ -37,25 +39,26 @@ namespace D3DLab.Parser {
     }
 
     class GameObjectReBuilder : GameObjectBuilder {
-        public GameObjectReBuilder(CompositeGameObject go, IEntityManager manager) : base(manager, go) {
+        public GameObjectReBuilder(CompositeGameObjectFromFile go, IEntityManager manager) : base(manager, go) {
         }
     }
 
     class GameObjectBuilder : PluginParseVisiter {
-        readonly CompositeGameObject gobj;
+        readonly CompositeGameObjectFromFile gobj;
 
-        public GameObjectBuilder(IEntityManager manager) : this(manager, new CompositeGameObject($"Composite{DateTime.Now.Ticks}")) {
+        public GameObjectBuilder(IEntityManager manager) : this(manager, new CompositeGameObjectFromFile($"Composite{DateTime.Now.Ticks}")) {
         }
-        protected GameObjectBuilder(IEntityManager manager, CompositeGameObject gobj) : base(manager) {
+        protected GameObjectBuilder(IEntityManager manager, CompositeGameObjectFromFile gobj) : base(manager) {
             this.gobj = gobj;
         }
-        public CompositeGameObject Build(Stream stream, IFileParserPlugin parser) {
+        public CompositeGameObjectFromFile Build(Stream stream, IFileParserPlugin parser) {
             parser.Parse(stream, this);
             var colors = new Queue<Vector4>();
             colors.Enqueue(V4Colors.Red);
             colors.Enqueue(V4Colors.Blue);
             colors.Enqueue(V4Colors.Green);
             colors.Enqueue(V4Colors.Yellow);
+
             foreach (var com in components) {
                 var tag = new ElementTag("Obj_" + Guid.NewGuid());//DateTime.Now.Ticks
                 var entity = manager.CreateEntity(tag);
@@ -63,6 +66,13 @@ namespace D3DLab.Parser {
                 cc.Add(com);
                 cc.Add(EntityBuilders.GetObjGroupsRender());
                 cc.Add(EntityBuilders.GetTransformation());
+                //var material = new PositionColorsComponent();
+
+                //material.Colors = new Vector4[com.Positions.Length];
+                //for (var i =0;i < com.Positions.Length; ++i) {
+                //    material.Colors[i] = V4Colors.Red;
+                //}
+
                 cc.Add(new ColorComponent { Color = V4Colors.Red });
 
                 entity.AddComponents(cc);
@@ -72,7 +82,7 @@ namespace D3DLab.Parser {
 
             return gobj; //new SingleGameObject(tag, info.File.Name);
         }
-        public CompositeGameObject Build(FileInfo file, IFileParserPlugin parser) {
+        public CompositeGameObjectFromFile Build(FileInfo file, IFileParserPlugin parser) {
             using (var str = File.OpenRead(file.FullName)) {
                 return Build(str, parser);
             }
