@@ -9,6 +9,7 @@ using D3DLab.Std.Engine.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -112,7 +113,7 @@ namespace D3DLab.Wpf.Engine.App {
             manager.RemoveEntity(Tag);
         }
     }
-    
+
     public class CoordinateSystemLinesGameObject : GameObject {
         public ElementTag Lines { get; private set; }
         public ElementTag[] Arrows { get; private set; }
@@ -322,6 +323,7 @@ namespace D3DLab.Wpf.Engine.App {
             var tag = new ElementTag("Terrain");
             var heigtmap = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\heightmap01.bmp";
             var texture_bnm = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\dirt03.bmp";
+            var colorMapping = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\colorTerrainMap.bmp";
 
             var width = 0;
             var height = 0;
@@ -339,8 +341,11 @@ namespace D3DLab.Wpf.Engine.App {
                 }
             }
             //
-            var geo = new SimpleGeometryComponent();
+            var geo = new HittableGeometryComponent();
+
             TriangulateMap(HeightMap, height, width, geo);
+
+            geo.Colors = LoadColourMap(colorMapping, width, height).ToImmutableArray();
 
             manager.CreateEntity(tag)
                 .AddComponents(new IGraphicComponent[] {
@@ -383,7 +388,7 @@ namespace D3DLab.Wpf.Engine.App {
             geometry.Positions = vertices.ToImmutableArray();
             geometry.Normals = normals.ToImmutableArray();
             geometry.TextureCoordinates = CalculateTextureCoordinates(HeightMap, width, height).ToImmutableArray();
-            geometry.Color = V4Colors.White;
+            geometry.Color = V4Colors.White;            
 
             //Light.SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
             //Light.SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -403,6 +408,10 @@ namespace D3DLab.Wpf.Engine.App {
             int tuCount = 0;
             int tvCount = 0;
             var texture = new Vector2[HeightMap.Count];
+
+            var tvIncrementValue = incrementValue;
+            var tuIncrementValue = incrementValue;
+
             // Loop through the entire height map and calculate the tu and tv texture coordinates for each vertex.
             for (int j = 0; j < height; j++) {
                 for (int i = 0; i < width; i++) {
@@ -410,29 +419,59 @@ namespace D3DLab.Wpf.Engine.App {
                     texture[(height * j) + i] = new Vector2(tuCoordinate, tvCoordinate);
 
                     // Increment the tu texture coordinate by the increment value and increment the index by one.
-                    tuCoordinate += incrementValue;
+                    tuCoordinate += tuIncrementValue;
                     tuCount++;
 
                     // Check if at the far right end of the texture and if so then start at the beginning again.
                     if (tuCount == incrementCount) {
-                        tuCoordinate = 0.0f;
+                        tuIncrementValue *= -1;
+                        //tuCoordinate = 0.0f;
                         tuCount = 0;
                     }
                 }
-
                 // Increment the tv texture coordinate by the increment value and increment the index by one.
-                tvCoordinate -= incrementValue;
+                tvCoordinate -= tvIncrementValue;
                 tvCount++;
 
                 // Check if at the top of the texture and if so then start at the bottom again.
                 if (tvCount == incrementCount) {
-                    tvCoordinate = 1.0f;
+                    tvIncrementValue *= -1;
+                    //tvCoordinate = 1.0f;
                     tvCount = 0;
                 }
             }
             return texture;
         }
+        static Vector4[] LoadColourMap(string fullPath, int width, int height) {
+            Bitmap colourBitMap = null;
+            try {
+                colourBitMap = new Bitmap(fullPath);
+                // This check is optional.
+                // Make sure the color map dimensions are the same as the terrain dimensions for easy 1 to 1 mapping.
+                var btmW = colourBitMap.Width;
+                var btmH = colourBitMap.Height;
 
+                var colors = new Vector4[btmH * btmW];
+
+                if ((btmW != width) || (btmH != height)) {
+                    throw new Exception("Textures are not compatible.");
+                }
+
+                // Read the image data into the color map portion of the height map structure.
+                int index;
+                for (int j = 0; j < btmH; j++)
+                    for (int i = 0; i < btmW; i++) {
+                        index = (btmH * j) + i;
+                        colors[index].X = colourBitMap.GetPixel(i, j).R / 255.0f; // 117.75f; //// 0.678431392
+                        colors[index].Y = colourBitMap.GetPixel(i, j).G / 255.0f;  //117.75f; // 0.619607866
+                        colors[index].Z = colourBitMap.GetPixel(i, j).B / 255.0f;  // 117.75f; // 0.549019635
+                    }
+
+                return colors;
+            } finally {
+                colourBitMap?.Dispose();
+            }
+        }
     }
     public class CameraGameObject : SingleGameObject {
         static int cameras = 0;
