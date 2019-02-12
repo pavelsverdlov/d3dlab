@@ -1048,7 +1048,11 @@ namespace OBJGeometryParser {
                         }
 
                         FullGeometry1.Indices.AddRange(val);
-                        current.AddTriangle(val);
+                        try {
+                            current.AddTriangle(val);
+                        }catch(Exception ex) {
+                            //TODO collect info for displaing in output 
+                        }
                     }
                 }
             }

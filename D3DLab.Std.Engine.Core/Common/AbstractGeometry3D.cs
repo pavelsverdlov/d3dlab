@@ -50,7 +50,7 @@ namespace D3DLab.Std.Engine.Core.Common {
 
     public class GroupGeometry3D {
         public IReadOnlyCollection<PartGeometry3D> Parts => groupsmap.Values;
-        public IReadOnlyCollection<Vector3> Positions => positions.AsReadOnly();
+        public IReadOnlyCollection<Vector3> Positions => mapper.Keys;
         public IReadOnlyCollection<int> Indices => indices.AsReadOnly();
 
         internal readonly Dictionary<Vector3, int> mapper;
@@ -68,7 +68,7 @@ namespace D3DLab.Std.Engine.Core.Common {
         }
 
         public PartGeometry3D CreatePart(string fullName) {
-            if(!groupsmap.TryGetValue(fullName, out var p)) {
+            if (!groupsmap.TryGetValue(fullName, out var p)) {
                 p = new PartGeometry3D(this, fullName);
                 groupsmap.Add(fullName, p);
             }
@@ -79,16 +79,16 @@ namespace D3DLab.Std.Engine.Core.Common {
         public void Fixed() {
             posIndexToPartMapper.Clear();
             mapper.Clear();
-            foreach(var kv in groupsmap.Values.ToList()) {
+            foreach (var kv in groupsmap.Values.ToList()) {
                 if (kv.IsEmpty) {
                     groupsmap.Remove(kv.Name);
                 }
             }
         }
-        
+
     }
 
-    
+
 
     public class PartGeometry3D {
         public IReadOnlyCollection<Vector3> Positions => mapper.Keys;
@@ -114,13 +114,13 @@ namespace D3DLab.Std.Engine.Core.Common {
         public void AddPosition(ref Vector3 v) {
             var group = Groups.Last();
             var index = full.mapper.Count;
-            
+
             if (full.mapper.ContainsKey(v)) {
                 index = full.mapper[v];
             } else {
                 full.mapper.Add(v, index);
-                full.positions.Add(v);
             }
+            full.positions.Add(v);
 
             if (group.PosGroupInfo == null) {
                 group.PosGroupInfo = new ObjGroupInfo {
@@ -133,11 +133,24 @@ namespace D3DLab.Std.Engine.Core.Common {
         }
 
         public void AddTriangle(IList<int> ind) {
+            var newindexes = new HashSet<int>();
+            for (var i = 0; i < ind.Count; ++i) {
+                var index = ind[i];
+                var v = full.positions[index];
+                newindexes.Add(full.mapper[v]);
+            }
+
+            if(newindexes.Count < 3) {// triangle is not triangle ... it is line, skip it
+                throw new Exception($"Triangle is not triangle ... it is line [{string.Join(",", ind)}]");
+            }
+
             var group = Groups.Last();
-            for (var i=0;i< ind.Count; ++i) {
+            for (var i = 0; i < ind.Count; ++i) {
                 try {
                     var index = ind[i];
                     var v = full.positions[index];
+                    index = full.mapper[v];
+
                     if (!mapper.TryGetValue(v, out var partIndex)) {
                         partIndex = mapper.Count;
                         mapper.Add(v, partIndex);
@@ -154,7 +167,7 @@ namespace D3DLab.Std.Engine.Core.Common {
                     }
                     full.indices.Add(index);
                     indices.Add(partIndex);
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.ToString();
                 }
             }

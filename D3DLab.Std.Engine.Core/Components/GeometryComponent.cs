@@ -9,7 +9,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 
 namespace D3DLab.Std.Engine.Core.Components {
-    public class HittableGeometryComponent : GeometryComponent {
+    public class HittableGeometryComponent : GeometryComponent, IGeometryComponent {
         public bool IsBuilt { get; private set; }
 
         #region geometry3Sharp 

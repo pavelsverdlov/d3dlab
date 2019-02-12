@@ -53,7 +53,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     var ray = snapshot.Viewport.UnProject(component.ScreenPosition, snapshot.Camera, snapshot.Window);
                     //var ray = snapshot.Camera.GetRay(snapshot.Window, component.ScreenPosition);
 
-                    System.Diagnostics.Trace.WriteLine($"{ray.Origin} {ray.Direction}");
+                    //System.Diagnostics.Trace.WriteLine($"{ray.Origin} {ray.Direction}");
 
                     //return;
                     IntrRay3Triangle3 hitted = null;
