@@ -12,12 +12,11 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
     internal class SphereRenderStrategy : RenderStrategy, IRenderStrategy {
         readonly List<Tuple<D3DSphereRenderComponent, IGeometryComponent>> entities;
 
-        public SphereRenderStrategy(D3DShaderCompilator compilator, IRenderTechniquePass pass, VertexLayoutConstructor layoutConstructor) :
-            base(compilator, pass, layoutConstructor) {
+        public SphereRenderStrategy() { 
             entities = new List<Tuple<D3DSphereRenderComponent, IGeometryComponent>>();
         }
 
-        public void Cleanup() {
+        public new void Cleanup() {
             entities.Clear();
         }
         public void RegisterEntity(D3DSphereRenderComponent rcom, IGeometryComponent geocom) {

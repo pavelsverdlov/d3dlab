@@ -1017,6 +1017,7 @@ namespace OBJGeometryParser {
 
             var group = new ReadOnlySpan<char>(new[] { 'g' });
             var vector = new ReadOnlySpan<char>(new[] { 'v' });
+            var texture = new ReadOnlySpan<char>(new[] { 'v','t' });
             var face = new ReadOnlySpan<char>(new[] { 'f' });
             var comm = new ReadOnlySpan<char>(new[] { '#' });
             //Memory<byte> buffer = new Memory<byte>();
@@ -1034,12 +1035,19 @@ namespace OBJGeometryParser {
                         groupname = string.Join(" ", names);//[0].ToString();
                         var key  = string.Join(" ", names.Take(names.Length-1));//[0].ToString();
                         current = FullGeometry.CreatePart(groupname);
-                    } else if (span.StartsWith(vector)) {
-                        var val = SplitFloat(part, ' ');
-                        var v = new Vector3(val[0], val[1], val[2]);
+                    } else if (span.StartsWith(texture)) {
 
-                        FullGeometry1.Positions.Add(v);
-                        current.AddPosition(ref v);
+                    } else if (span.StartsWith(vector)) {
+                        try {
+                            var val = SplitFloat(part, ' ');
+                            var v = new Vector3(val[0], val[1], val[2]);
+
+                            FullGeometry1.Positions.Add(v);
+                            current.AddPosition(ref v);
+                        }catch(Exception ex) {
+                            ex.ToString();
+                        }
+
                     } else if (span.StartsWith(face)) {
                         var val = SplitInt(part, ' ');
 

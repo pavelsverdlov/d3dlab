@@ -11,6 +11,7 @@ using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.MeshFormats;
 using D3DLab.Visualization;
 using D3DLab.Wpf.Engine.App;
+using D3DLab.Wpf.Engine.App.GameObjects;
 using D3DLab.Wpf.Engine.App.Host;
 using System;
 using System.Collections.Generic;
@@ -97,9 +98,11 @@ namespace D3DLab {
                 //main.plugins.Import();
 
                 //var tag = bl.Build(file, main.plugins.ParserPlugins.First());
+                var path = @"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Models\skydome.txt";
 
 
                 // main.items.Add(item);
+               // var obj = SkyGameObject.Create(main.context.GetEntityManager());
                 var obj = TerrainGameObject.Create(main.context.GetEntityManager());
 
                 main.items.Add(new LoadedItem(main, obj));

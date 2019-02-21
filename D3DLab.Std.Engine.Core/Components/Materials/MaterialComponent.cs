@@ -2,12 +2,29 @@
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components.Materials {
+       
     public abstract class MaterialComponent : GraphicComponent {
-        public abstract Vector4 GetVertexColor(int vertexInd);
+
     }
+
+    public class GradientMaterialComponent : MaterialComponent {
+        public Vector4 Apex { get; set; }
+        public Vector4 Center { get; set; }
+
+        public GradientMaterialComponent() {
+            // Set the Pink color at the top of the sky dome.
+            Apex = new Vector4(0.0f, 0.15f, 0.66f, 1.0f); ;
+            // Set the Blue color at the center of the sky dome.
+            Center = new Vector4(0.81f, 0.38f, 0.66f, 1.0f);
+        }
+    }
+
+    public interface IColoringMaterialComponent : IGraphicComponent {
+        Vector4 GetVertexColor(int vertexInd);
+    }
+
     public class ColorComponent : MaterialComponent {
         private Vector4 color;
-
         public Vector4 Color {
             get => color;
             set {
@@ -15,23 +32,8 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
                 IsModified = true;
             }
         }
-
-        public override Vector4 GetVertexColor(int vertexInd) {
-            return color;
-        }
     }
-    public class PositionColorsComponent : MaterialComponent {
-        public Vector4[] Colors { get; set; }
-
-        public override Vector4 GetVertexColor(int vertexInd) {
-            return Colors[vertexInd];
-        }
-
-        public void UpdateColor(int index, Vector4 color) {
-            Colors[index] = color;
-            IsModified = true;
-        }
-    }
+    
 
     public class MaterialComponent1 : GraphicComponent {
         public float Specular { get; set; } = -1; // -1 not specular
@@ -41,11 +43,14 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
 
     }
 
-    public class TexturedMaterialComponent : GraphicComponent {
-        public FileInfo Image { get; }
+    public class TexturedMaterialComponent : MaterialComponent {
+        /// <summary>
+        /// Order is important! the same order will be setted in shader recources
+        /// </summary>
+        public FileInfo[] Images { get; }
 
-        public TexturedMaterialComponent(FileInfo image) {
-            Image = image;
+        public TexturedMaterialComponent(params FileInfo[] image) {
+            Images = image;
         }
 
 

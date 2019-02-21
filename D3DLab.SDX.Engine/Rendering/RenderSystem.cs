@@ -14,7 +14,7 @@ namespace D3DLab.SDX.Engine.Rendering {
 
         SharpDX.Direct3D11.Buffer gameDataBuffer;
         SharpDX.Direct3D11.Buffer lightDataBuffer;
-        RenderFrameStrategiesVisitor visiter;
+        RenderStrategyRegistrator visiter;
 
         internal void Init(SynchronizedGraphics graphics) {
             this.graphics = graphics;
@@ -22,7 +22,7 @@ namespace D3DLab.SDX.Engine.Rendering {
 
             UpdateBuffers(graphics.Device);
 
-            visiter = new RenderFrameStrategiesVisitor(graphics.Device.Compilator);
+            visiter = new RenderStrategyRegistrator(graphics.Device.Compilator);
         }
 
         void UpdateBuffers(GraphicsDevice device) {
@@ -40,18 +40,12 @@ namespace D3DLab.SDX.Engine.Rendering {
             IEntityManager emanager = snapshot.ContextState.GetEntityManager();
             var Ticks = (float)snapshot.FrameRateTime.TotalMilliseconds;
 
-            visiter.SetContext(snapshot.ContextState);
+            try {
+                using (var frame = graphics.Device.FrameBegin()) {
 
-            using (var frame = graphics.Device.FrameBegin()) {
-                try {
-                    //Parallel.ForEach(emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>()), entity => {
-                        foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
-                        foreach (var com in entity.GetComponents<ID3DRenderableComponent>()) {
-                            if (com.CanRender) {
-                                com.Accept(visiter);
-                            }
-                        }
-                    }//);
+                    foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
+                        visiter.Register(entity);
+                    }
 
                     var camera = snapshot.Camera;
                     var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();
@@ -65,24 +59,24 @@ namespace D3DLab.SDX.Engine.Rendering {
                         str.Render(frame.Graphics, gameDataBuffer, lightDataBuffer);
                         // frame.Graphics.Present();
                     }
-
-                } catch (SharpDX.CompilationException cex) {
-                    System.Diagnostics.Trace.WriteLine($"CompilationException[\n{cex.Message.Trim()}]");
-                } catch (SharpDX.SharpDXException shex) {
-                    //var reason = frame.Graphics.D3DDevice.DeviceRemovedReason;
-                    System.Diagnostics.Trace.WriteLine(shex.Message);
-                    throw shex;
-                } catch (Exception ex) {                    
-                    throw ex;
-                } finally {
-                    visiter.Cleanup();
                 }
+            } catch (SharpDX.CompilationException cex) {
+                System.Diagnostics.Trace.WriteLine($"CompilationException[\n{cex.Message.Trim()}]");
+            } catch (SharpDX.SharpDXException shex) {
+                //var reason = frame.Graphics.D3DDevice.DeviceRemovedReason;
+                System.Diagnostics.Trace.WriteLine(shex.Message);
+                throw shex;
+            } catch (Exception ex) {
+                throw ex;
+            } finally {
+                visiter.Cleanup();
             }
+
         }
 
         #region IShaderEditingSystem
 
-        public IRenderTechniquePass[] Pass => visiter.Strategies.Select(x => x.GetPass()).ToArray();
+        public IRenderTechniquePass[] Pass => visiter.Strategies.SelectMany(x => x.GetPass()).ToArray();
 
         public IShaderCompilator GetCompilator() {
             return graphics.Device.Compilator;

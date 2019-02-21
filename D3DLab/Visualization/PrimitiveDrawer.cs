@@ -2,6 +2,7 @@
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Wpf.Engine.App;
+using D3DLab.Wpf.Engine.App.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +47,7 @@ namespace D3DLab.Visualization {
                 colors.Add(V4Colors.Red);
             }
             PolylineGameObject.Create(context.GetEntityManager(), 
-                new ElementTag("Poly_" + DateTime.Now.Ticks), points, colors);
+                new ElementTag("Poly_" + DateTime.Now.Ticks), points, colors.ToArray());
         } 
 
         #endregion

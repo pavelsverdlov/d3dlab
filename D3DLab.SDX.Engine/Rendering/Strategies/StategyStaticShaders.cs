@@ -32,11 +32,6 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
 
                 var d = new CombinedShadersLoader();
                 pass = new D3DShaderTechniquePass(d.Load(path, "LV_"));
-                //pass = new D3DShaderTechniquePass(new IShaderInfo[] {
-                //    new ShaderInMemoryInfo("LV_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                //   // new ShaderInMemoryInfo("LV_GeometryShader", geometryShaderText, null, ShaderStages.Geometry.ToString(), "main"),
-                //    new ShaderInMemoryInfo("LV_FragmentShader", pixelShaderNoLogicText, null, ShaderStages.Fragment.ToString(), "main"),
-                //});
             }
 
             public static D3DShaderTechniquePass GetPasses() => pass;
@@ -51,60 +46,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
                     Position = position;
                     Color = color;
                 }
-            }
-
-            public const string vertexShaderText =
-@"
-#include ""Game""
-
-struct InputFS {
-	float4 position : SV_Position;
-	float4 color : COLOR;
-};
-InputFS main(float4 position : POSITION, float4 color : COLOR){
-    InputFS output;
-
-    output.position = mul(World, position);
-    output.position = mul(View, output.position);
-    output.position = mul(Projection, output.position);
-    output.color = color;
-
-    return output;
-}
-";
-
-            public const string geometryShaderText =
-    @"
-float THICKNESS = 10;
-float2 WIN_SCALE = float2(300, 600);
-
-struct InputFS {
-	float4 position : SV_Position;
-	float4 color : COLOR;
-};
-
-
-float2 screen_space(float4 vertex) {
-    return float2( vertex.xy / vertex.w ) * WIN_SCALE;
-}
-
-[maxvertexcount(2)]
-void main(line InputFS points[2], inout LineStream<InputFS> output) {
-    
-    InputFS fs = (InputFS)0;
-    fs.position = points[0].position;
-    fs.color = points[0].color;
-    output.Append(fs);
-
-    fs = (InputFS)0;
-    fs.position = points[1].position;
-    fs.color = points[1].color;
-    output.Append(fs);
-
-	output.RestartStrip();
-}
-";
-
+            }            
         }
 
         public static class ColoredVertexes {
@@ -291,6 +233,8 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
         }
 
         public static class Terrain {
+            const string path = @"D3DLab.SDX.Engine.Rendering.Shaders.Custom.terrain.hlsl";
+
             static readonly D3DShaderTechniquePass pass;
             static readonly VertexLayoutConstructor layconst;
 
@@ -300,10 +244,10 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
                    .AddNormalElementAsVector3()
                    .AddColorElementAsVector4()
                    .AddTexCoorElementAsVector2();
-                pass = new D3DShaderTechniquePass(new IShaderInfo[] {
-                    new ShaderInMemoryInfo("TRR_VertexShader", vertexShaderText, null, ShaderStages.Vertex.ToString(), "main"),
-                    new ShaderInMemoryInfo("TRR_FragmentShader", pixelShader, null, ShaderStages.Fragment.ToString(), "main"),
-                });
+
+                var d = new CombinedShadersLoader();
+
+                pass = new D3DShaderTechniquePass(d.Load(path, "TRR_"));
             }
 
             [StructLayout(LayoutKind.Sequential)]
@@ -318,46 +262,7 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
 
             public static D3DShaderTechniquePass GetPasses() => pass;
             public static VertexLayoutConstructor GetLayoutConstructor() => layconst;
-
-            const string vertexShaderText =
-@"
-#include ""Game""
-#include ""Light""
-
-struct VSOut
-{
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
-    float2 tex : TEXCOORD0;
-};
-VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 tex : TEXCOORD) { 
-    VSOut output = (VSOut)0;
-    
-    // Change the position vector to be 4 units for proper matrix calculations.
-    position.w = 1.0f;
-
-    output.position = mul(World, position);
-    output.position = mul(View, output.position);
-    output.position = mul(Projection, output.position);
-
-    output.tex = tex;
-
-    normal = mul(World, normal);
-    normal = normalize(normal);
-
-    output.color = color * computeLight(output.position.xyz, normal, -LookDirection.xyz, 1000);
-
-    return output;
-}";
-            const string pixelShader =
-@"
-Texture2D shaderTexture;
-SamplerState SampleType;
-float4 main(float4 position : SV_POSITION, float4 color : COLOR, float2 tex : TEXCOORD) : SV_TARGET {
-    float4 textureColor = shaderTexture.Sample(SampleType, tex);
-    return color * textureColor;
-}
-";
+            
         }
     }
 }

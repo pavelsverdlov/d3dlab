@@ -195,7 +195,10 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameObjectBuilders.cs" />
+    <Compile Include="EntityBuilders.cs" />
+    <Compile Include="GameObjects\CameraGameObject.cs" />
+    <Compile Include="GameObjects\ArrowGameObject.cs" />
+    <Compile Include="GameObjects\CoordinateSystemLinesGameObject.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="Host\FormsHost.cs" />
     <Compile Include="Host\WinFormsD3DControl.cs">
@@ -203,6 +206,9 @@
     </Compile>
     <Compile Include="Input\CurrentInputObserver.cs" />
     <Compile Include="Input\WPFInputPublisher.cs" />
+    <Compile Include="GameObjects\LightGameObject.cs" />
+    <Compile Include="GameObjects\PolylineGameObject.cs" />
+    <Compile Include="GameObjects\OrbitsRotationGameObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -217,6 +223,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Scene.cs" />
+    <Compile Include="GameObjects\SingleGameObject.cs" />
+    <Compile Include="GameObjects\TerrainGameObject.cs" />
+    <Compile Include="GameObjects\SphereGameObject.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
