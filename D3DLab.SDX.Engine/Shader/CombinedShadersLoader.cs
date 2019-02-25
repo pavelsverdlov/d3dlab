@@ -7,10 +7,18 @@ using D3DLab.Std.Engine.Core.Shaders;
 namespace D3DLab.SDX.Engine.Shader {
     public class CombinedShadersLoader {
         const string entry = "main";
+        readonly Type type;
+
+        public CombinedShadersLoader()  {
+            type = this.GetType();
+        }
+        public CombinedShadersLoader(Type assembly) {
+            type = assembly;
+        }
 
         public IShaderInfo[] Load(string resource, string keyname) {
             string text;
-            using (var srt = this.GetType().Assembly.GetManifestResourceStream(resource)) {
+            using (var srt = type.Assembly.GetManifestResourceStream(resource)) {
                 var reader = new StreamReader(srt);
                 text = reader.ReadToEnd();
             }

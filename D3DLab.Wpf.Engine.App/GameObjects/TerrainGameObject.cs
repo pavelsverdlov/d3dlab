@@ -7,6 +7,7 @@ using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
+using D3DLab.Wpf.Engine.App.D3D.Components;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

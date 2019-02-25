@@ -4,7 +4,7 @@ using System.Text;
 using SharpDX.Direct3D11;
 
 namespace D3DLab.SDX.Engine {
-    internal static class D3DBlendStateDescriptions {
+    public static class D3DBlendStateDescriptions {
         public static BlendStateDescription BlendStateDisabled {
             get {
                 var blendStateDesc = new BlendStateDescription();
@@ -21,7 +21,7 @@ namespace D3DLab.SDX.Engine {
         }
 
     }
-    internal static class D3DDepthStencilStateDescriptions {
+    public static class D3DDepthStencilStateDescriptions {
         // Now create a second depth stencil state which turns off the Z buffer for 2D rendering.
         // The difference is that DepthEnable is set to false.
         // All other parameters are the same as the other depth stencil state.

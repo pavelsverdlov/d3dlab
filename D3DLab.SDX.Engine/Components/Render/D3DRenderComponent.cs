@@ -20,11 +20,11 @@ namespace D3DLab.SDX.Engine.Components {
         public PrimitiveTopology PrimitiveTopology { get; set; }
 
         [IgnoreDebuging]
-        internal SharpDX.Direct3D11.Buffer TransformWorldBuffer { get; set; }
+        public SharpDX.Direct3D11.Buffer TransformWorldBuffer { get; set; }
         [IgnoreDebuging]
-        internal DisposableSetter<SharpDX.Direct3D11.Buffer> VertexBuffer { get;  }
+        public DisposableSetter<SharpDX.Direct3D11.Buffer> VertexBuffer { get;  }
         [IgnoreDebuging]
-        internal DisposableSetter<SharpDX.Direct3D11.Buffer> IndexBuffer { get; }
+        public DisposableSetter<SharpDX.Direct3D11.Buffer> IndexBuffer { get; }
 
         public IRenderTechniquePass Pass { get; set; }
         public VertexLayoutConstructor LayoutConstructor { get; set; }

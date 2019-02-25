@@ -36,12 +36,12 @@ namespace D3DLab.SDX.Engine {
     }
     public class D3DEngine : EngineCore {
         readonly SynchronizedGraphics device;
-        
+        public event Action<SynchronizedGraphics> Initialize;
 
-        public D3DEngine(IAppWindow window, IContextState context, EngineNotificator notificator) : 
+        public D3DEngine(IAppWindow window, IContextState context, EngineNotificator notificator) :
             base(window, context, new D3DViewport(), notificator) {
             Statics.Collision = new SDXCollision();
-            
+
             device = new SynchronizedGraphics(window);
         }
 
@@ -57,65 +57,27 @@ namespace D3DLab.SDX.Engine {
         }
 
         protected override void Initializing() {
-            {   //systems creating
-                var smanager = Context.GetSystemManager();
+            Initialize?.Invoke(device);
+            //{   //systems creating
+            //    var smanager = Context.GetSystemManager();
 
-                smanager.CreateSystem<InputSystem>();
-                smanager.CreateSystem<D3DCameraSystem>();
-                smanager.CreateSystem<LightsSystem>();
-                smanager.CreateSystem<MovementSystem>();
-                smanager.CreateSystem<MovingOnHeightMapSystem>();
-                smanager.CreateSystem<AnimationSystem>();
-                smanager
-                    .CreateSystem<RenderSystem>()
-                    .Init(device)
-                    .CreateNested<SkyGradientColoringRenderTechnique>()
-                    .CreateNested<SkyPlaneWithParallaxRenderTechnique>();
+            //    smanager.CreateSystem<InputSystem>();
+            //    smanager.CreateSystem<D3DCameraSystem>();
+            //    smanager.CreateSystem<LightsSystem>();
+            //    smanager.CreateSystem<MovementSystem>();
+            //    smanager.CreateSystem<MovingOnHeightMapSystem>();
+            //    smanager.CreateSystem<AnimationSystem>();
+            //    smanager
+            //        .CreateSystem<RenderSystem>()
+            //        .Init(device)
+            //        .CreateNested<SkyGradientColoringRenderTechnique>()
+            //        .CreateNested<SkyPlaneWithParallaxRenderTechnique>();
 
-            }
+            //}
             var em = Context.GetEntityManager();
             EngineInfoBuilder.Build(em, Window);
 
             /*
-            var cameraTag = new ElementTag("CameraEntity");
-            {   //default entities
-                var em = Context.GetEntityManager();
-
-                EngineInfoBuilder.Build(em, Window);
-
-                em.CreateEntity(cameraTag)
-                    //.AddComponent(new OrthographicCameraComponent(Window.Width, Window.Height));
-                    .AddComponent(new PerspectiveCameraComponent());
-
-                em.CreateEntity(new ElementTag("AmbientLight"))
-                    .AddComponent(new D3DLightComponent {
-                        Index = 0,
-                        Intensity = 0.2f,
-                        //Position = Vector3.Zero + Vector3.UnitZ * 1000,
-                        Type = LightTypes.Ambient })
-                    .AddComponent(new ColorComponent { Color = new Vector4(1,1,1,1) });
-
-                em.CreateEntity(new ElementTag("PointLight"))
-                    .AddComponent(new D3DLightComponent {
-                        Index = 1,
-                        Intensity = 0.6f,
-                        //Position = new Vector3(2, 1, 0),
-                        Position = Vector3.Zero + Vector3.UnitZ * 1000,
-                        Type = LightTypes.Point
-                    })
-                    .AddComponent(new ColorComponent { Color = new Vector4(1, 1, 1, 1) });
-
-                em.CreateEntity(new ElementTag("DirectionLight"))
-                    .AddComponent(new D3DLightComponent {
-                        Index = 2,
-                        Intensity = 0.2f,
-                        Direction = new Vector3(1, 4, 4).Normalize(),
-                        Type = LightTypes.Directional
-                    })
-                    .AddComponent(new ColorComponent { Color = new Vector4(1, 1, 1, 1) });
-
-
-            }
             {//entities ordering 
                 Context.EntityOrder
                        .RegisterOrder<RenderSystem>(cameraTag, 0)

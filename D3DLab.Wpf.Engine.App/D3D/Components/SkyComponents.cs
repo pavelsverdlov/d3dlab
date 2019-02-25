@@ -1,8 +1,10 @@
-﻿using D3DLab.SDX.Engine.Rendering;
+﻿using D3DLab.SDX.Engine.Components;
+using D3DLab.SDX.Engine.Rendering;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Systems;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using System;
@@ -10,8 +12,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace D3DLab.SDX.Engine.Components {
-    public class SkyPlaneParallaxAnimationComponent : GraphicComponent {
+namespace D3DLab.Wpf.Engine.App.D3D.Components {
+    public class SkyPlaneParallaxAnimationComponent : GraphicComponent, IAnimationComponent {
         public Vector2 translate1;
         public Vector2 translate2;
 
@@ -45,13 +47,21 @@ namespace D3DLab.SDX.Engine.Components {
 
 
     public class D3DSkyPlaneRenderComponent : D3DRenderComponent {
+        [IgnoreDebuging]
         public SharpDX.Direct3D11.Buffer ParallaxAnimation { get; set; }
+        [IgnoreDebuging]
+        internal EnumerableDisposableSetter<ShaderResourceView[]> TextureResources { get; set; }
+        [IgnoreDebuging]
+        internal DisposableSetter<SamplerState> SampleState { get; set; }
 
-        public D3DSkyPlaneRenderComponent() : base() {}
+        public D3DSkyPlaneRenderComponent() {
+            SampleState = new DisposableSetter<SamplerState>();
+            TextureResources = new EnumerableDisposableSetter<ShaderResourceView[]>();
+        }
 
         public override void Dispose() {
             base.Dispose();
-            Disposer.DisposeAll(ParallaxAnimation);
+            Disposer.DisposeAll(ParallaxAnimation, SampleState, TextureResources);
         }
     }
 

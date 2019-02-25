@@ -12,6 +12,7 @@ using System.Numerics;
 using System.Threading;
 
 namespace D3DLab.SDX.Engine.Rendering {
+    /*
     class FilterByType<TCom1>
         where TCom1 : IGraphicComponent {
         public virtual IEnumerable<GraphicEntity> Filter(IEnumerable<GraphicEntity> entities) {
@@ -45,8 +46,7 @@ namespace D3DLab.SDX.Engine.Rendering {
 
     }
 
-    
-
+    */
 
 
     

@@ -102,8 +102,8 @@ namespace D3DLab {
 
 
                 // main.items.Add(item);
-                var obj = SkyGameObject.Create(main.context.GetEntityManager());
-              //  var obj = TerrainGameObject.Create(main.context.GetEntityManager());
+                var obj1 = SkyGameObject.Create(main.context.GetEntityManager());
+                var obj = TerrainGameObject.Create(main.context.GetEntityManager());
                
 
                 main.items.Add(new LoadedItem(main, obj));

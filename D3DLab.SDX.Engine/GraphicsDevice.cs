@@ -94,9 +94,9 @@ namespace D3DLab.SDX.Engine {
     public class GraphicsDevice {
         public readonly D3DShaderCompilator Compilator;
 
-        internal TexturedLoader TexturedLoader { get; }
-        internal SharpDX.Direct3D11.Device D3DDevice { get; private set; }
-        internal DeviceContext ImmediateContext { get; private set; }
+        public TexturedLoader TexturedLoader { get; }
+        public SharpDX.Direct3D11.Device D3DDevice { get; private set; }
+        public DeviceContext ImmediateContext { get; private set; }
         public string VideoCardDescription { get; }
 
         RenderTargetView renderTargetView;

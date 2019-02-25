@@ -12,6 +12,7 @@ using D3DLab.Wpf.Engine.App.Input;
 using System;
 using System.Numerics;
 using System.Windows;
+using D3DLab.Wpf.Engine.App.D3D.Techniques;
 
 namespace D3DLab.Wpf.Engine.App {
     public class Scene {
@@ -39,62 +40,35 @@ namespace D3DLab.Wpf.Engine.App {
         private void OnUnloaded(object sender, RoutedEventArgs e) {
             game.Dispose();
         }
-        
+
         private void OnHandleCreated(WinFormsD3DControl win) {
             Window = new GameWindow(win, input);
-            game = new D3DEngine(Window, Context, notify); 
-
+            game = new D3DEngine(Window, Context, notify);
+            game.Initialize += Initializing;
             game.Run(notify);
 
-           // Initializing();
+            // Initializing();
 
             RenderStarted();
         }
 
-        void Initializing() {
+        void Initializing(SynchronizedGraphics device) {
             var cameraTag = new ElementTag("CameraEntity");
-            {   //default entities
-                var em = Context.GetEntityManager();
+            {   //systems creating
+                var smanager = Context.GetSystemManager();
 
-                //em.CreateEntity(cameraTag)
-                //    //.AddComponent(new OrthographicCameraComponent(Window.Width, Window.Height));
-                //    .AddComponent(new PerspectiveCameraComponent());
-
-                //em.CreateEntity(new ElementTag("AmbientLight"))
-                //    .AddComponents(
-                //            new LightComponent {
-                //                Index = 0,
-                //                Intensity = 0.2f,
-                //                //Position = Vector3.Zero + Vector3.UnitZ * 1000,
-                //                Type = LightTypes.Ambient
-                //            }, 
-                //            new ColorComponent { Color = V4Colors.White }
-                //        );
-                    
-
-                //em.CreateEntity(new ElementTag("PointLight"))
-                //    .AddComponents(
-                //        new LightComponent {
-                //            Index = 1,
-                //            Intensity = 0.6f,
-                //            //Position = new Vector3(2, 1, 0),
-                //            Position = Vector3.Zero + Vector3.UnitZ * 1000,
-                //            Type = LightTypes.Point
-                //        },
-                //        new ColorComponent { Color = new Vector4(1, 1, 1, 1) }
-                //    );
-
-                //em.CreateEntity(new ElementTag("DirectionLight"))
-                //    .AddComponents(
-                //        new LightComponent {
-                //            Index = 2,
-                //            Intensity = 0.2f,
-                //            Direction = new Vector3(1, 4, 4).Normalize(),
-                //            Type = LightTypes.Directional
-                //        },
-                //        new ColorComponent { Color = new Vector4(1, 1, 1, 1) }
-                //    );
-
+                smanager.CreateSystem<InputSystem>();
+                smanager.CreateSystem<D3DCameraSystem>();
+                smanager.CreateSystem<LightsSystem>();
+                smanager.CreateSystem<MovementSystem>();
+                //smanager.CreateSystem<MovingOnHeightMapSystem>();
+                smanager.CreateSystem<AnimationSystem>();
+                smanager
+                    .CreateSystem<RenderSystem>()
+                    .Init(device)
+                    .CreateNested<SkyGradientColoringRenderTechnique>()
+                    .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
+                    .CreateNested<TerrainRenderTechnique>();
 
             }
             {//entities ordering 

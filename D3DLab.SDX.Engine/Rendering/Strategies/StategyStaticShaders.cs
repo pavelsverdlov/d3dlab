@@ -230,37 +230,5 @@ void main(point InputFS points[1], inout TriangleStream<InputFS> output) {
 ";
         }
 
-        public static class Terrain {
-            const string path = @"D3DLab.SDX.Engine.Rendering.Shaders.Custom.terrain.hlsl";
-
-            static readonly D3DShaderTechniquePass pass;
-            static readonly VertexLayoutConstructor layconst;
-
-            static Terrain() {
-                layconst = new VertexLayoutConstructor()
-                   .AddPositionElementAsVector3()
-                   .AddNormalElementAsVector3()
-                   .AddColorElementAsVector4()
-                   .AddTexCoorElementAsVector2();
-
-                var d = new CombinedShadersLoader();
-
-                pass = new D3DShaderTechniquePass(d.Load(path, "TRR_"));
-            }
-
-            [StructLayout(LayoutKind.Sequential)]
-            internal struct TerrainVertex {
-                internal Vector3 position;                
-                internal Vector3 normal;
-                internal Vector4 color;
-                internal Vector2 texcoor;
-
-                public static readonly int Size = Unsafe.SizeOf<TerrainVertex>();
-            }
-
-            public static D3DShaderTechniquePass GetPasses() => pass;
-            public static VertexLayoutConstructor GetLayoutConstructor() => layconst;
-            
-        }
     }
 }

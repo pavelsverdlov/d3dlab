@@ -19,16 +19,15 @@ VSOut main(float4 position : POSITION, float2 tex : TEXCOORD) {//, float3 normal
 }
 
 @fragment@
+
 Texture2D cloudTexture1 : register(t0);
 Texture2D cloudTexture2 : register(t1);
 SamplerState SampleType;
 
-cbuffer SkyBuffer
+cbuffer SkyBuffer : register(b0)
 {
-	float firstTranslationX;
-	float firstTranslationZ;
-	float secondTranslationX;
-	float secondTranslationZ;
+	float2 firstTranslation;
+	float2 secondTranslation;
 	float brightness;
 	float3 padding;
 };
@@ -48,15 +47,15 @@ float4 main(PSIn input) : SV_TARGET{
 
 
 	// Translate the position where we sample the pixel from using the first texture translation values.
-	sampleLocation.x = input.tex.x + firstTranslationX;
-	sampleLocation.y = input.tex.y + firstTranslationZ;
+	sampleLocation.x = input.tex.x + firstTranslation.x;
+	sampleLocation.y = input.tex.y + firstTranslation.y;
 
 	// Sample the pixel color from the first cloud texture using the sampler at this texture coordinate location.
 	textureColor1 = cloudTexture1.Sample(SampleType, sampleLocation);
 
 	// Translate the position where we sample the pixel from using the second texture translation values.
-	sampleLocation.x = input.tex.x + secondTranslationX;
-	sampleLocation.y = input.tex.y + secondTranslationZ;
+	sampleLocation.x = input.tex.x + secondTranslation.x;
+	sampleLocation.y = input.tex.y + secondTranslation.y;
 
 	// Sample the pixel color from the second cloud texture using the sampler at this texture coordinate location.
 	textureColor2 = cloudTexture2.Sample(SampleType, sampleLocation);

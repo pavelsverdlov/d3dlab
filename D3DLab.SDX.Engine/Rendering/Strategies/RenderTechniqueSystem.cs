@@ -1,8 +1,10 @@
 ﻿using D3DLab.SDX.Engine.Components;
+using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Materials;
+using D3DLab.Std.Engine.Core.Filter;
 using D3DLab.Std.Engine.Core.Shaders;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
@@ -24,18 +26,9 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
         void RegisterEntity(GraphicEntity entity);
         bool IsAplicable(GraphicEntity entity);
     }
-    class EntityHasSet {
-        readonly Type[] types;
-        public EntityHasSet(params Type[] types) {
-            this.types = types;
-        }
+    
 
-        public bool HasComponents(GraphicEntity entity) {
-            return entity.Has(types);
-        }
-    }
-
-    internal abstract class RenderTechniqueSystem {
+    public abstract class RenderTechniqueSystem {
         protected readonly LinkedList<GraphicEntity> entities;
         protected RasterizerStateDescription rasterizerStateDescription;
         protected BlendStateDescription blendStateDescription;
@@ -60,25 +53,7 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
 
         protected abstract void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer);
-
-
-        #region updates 
-
-
-        protected static void UpdateTransformWorld(GraphicsDevice graphics,
-           D3DRenderComponent render, TransformComponent trcom) {
-            render.TransformWorldBuffer?.Dispose();
-            var tr = new TransforStructBuffer(Matrix4x4.Identity);
-            render.TransformWorldBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref tr);
-        }
-
-        protected static void UpdaeTextureToPixelShaders(DeviceContext context, D3DTexturedMaterialComponent renderCom) {
-            context.PixelShader.SetShaderResources(0, renderCom.TextureResources);
-            context.PixelShader.SetSampler(0, renderCom.SampleState);
-        }
         
-        #endregion
-
         public void RegisterEntity(GraphicEntity entity) {
             entities.AddLast(entity);
         }
@@ -131,6 +106,15 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
             context.OutputMerger.SetDepthStencilState(render.DepthStencilState, 0);
             var blendFactor = new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0);
             context.OutputMerger.SetBlendState(render.BlendingState, blendFactor, -1);
+        }
+
+        protected ShaderResourceView[] ConvertToResources(TexturedMaterialComponent material, TexturedLoader loader) {
+            var resources = new ShaderResourceView[material.Images.Length];
+            for (var i = 0; i < material.Images.Length; i++) {
+                var file = material.Images[i];
+                resources[i] = loader.LoadShaderResource(file);
+            }
+            return resources;
         }
     }
 }

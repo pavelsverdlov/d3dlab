@@ -54,7 +54,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         public RenderSystem() {
         }
 
-        internal RenderSystem Init(SynchronizedGraphics graphics) {
+        public RenderSystem Init(SynchronizedGraphics graphics) {
             this.graphics = graphics;
             graphics.Changed += UpdateBuffers;
             UpdateBuffers(graphics.Device);

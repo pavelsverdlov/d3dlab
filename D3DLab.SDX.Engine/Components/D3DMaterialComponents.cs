@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 namespace D3DLab.SDX.Engine.Components {
-    internal interface ID3DRenderable : IGraphicComponent {
+    public interface ID3DRenderable : IGraphicComponent {
         void Update(GraphicsDevice graphics);
         void Render(GraphicsDevice graphics);
     }
@@ -23,10 +23,14 @@ namespace D3DLab.SDX.Engine.Components {
     }
 
     
-    public class D3DTexturedMaterialComponent : TexturedMaterialComponent, ID3DRenderable, ID3DMaterialComponent {
+    public class D3DTexturedMaterialComponent : TexturedMaterialComponent, ID3DMaterialComponent {
+        
+        /// <summary>
+        /// TODO: make wrapper as for D3DRasterizerState to allow online debugging
+        /// </summary>
+        public SamplerStateDescription SampleDescription { get; }
 
         public D3DTexturedMaterialComponent(params FileInfo[] image) : base(image) {
-            TextureResources = new ShaderResourceView[0];
             SampleDescription = new SamplerStateDescription() {
                 Filter = Filter.MinMagMipLinear,
                 AddressU = TextureAddressMode.Wrap,
@@ -41,46 +45,5 @@ namespace D3DLab.SDX.Engine.Components {
             };
             IsModified = true;
         }
-
-        public override void Dispose() {
-            TextureResources.ForEach(x => x.Dispose());
-            SampleState?.Dispose();
-            base.Dispose();
-        }
-
-        #region D3D
-
-        /// <summary>
-        /// TODO: make wrapper as for D3DRasterizerState to allow online debugging
-        /// </summary>
-        public SamplerStateDescription SampleDescription { get; }
-
-        [IgnoreDebuging]
-        internal ShaderResourceView[] TextureResources { get; set; }
-        [IgnoreDebuging]
-        internal SamplerState SampleState { get; set; }
-
-        ShaderResourceView[] ConvertToResources(TexturedLoader loader) {
-            var resources = new ShaderResourceView[Images.Length];
-            for (var i = 0; i < Images.Length; i++) {
-                var file = Images[i];
-                resources[i] = loader.LoadShaderResource(file);
-            }
-            return resources;
-        }
-
-        void ID3DRenderable.Update(GraphicsDevice graphics) {
-            TextureResources = ConvertToResources(graphics.TexturedLoader);
-            SampleState = graphics.CreateSampler(SampleDescription);
-            IsModified = false;
-        }
-
-        void ID3DRenderable.Render(GraphicsDevice graphics) {
-            var context = graphics.ImmediateContext;
-            context.PixelShader.SetShaderResources(0, TextureResources);
-            context.PixelShader.SetSampler(0, SampleState);
-        }
-
-        #endregion
     }
 }

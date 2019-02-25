@@ -34,21 +34,21 @@ namespace D3DLab.SDX.Engine.Rendering {
          * This value must be 0 for an element that contains per-vertex data (PerVertexData)
          */
 
-        internal VertexLayoutConstructor AddPositionElementAsVector3() {
+        public VertexLayoutConstructor AddPositionElementAsVector3() {
             elements.Add(new InputElement(SemanticPositionName, 0, Vector3, GetOffset(), 0, perverxdata, 0));
             return this;
         }
 
-        internal VertexLayoutConstructor AddNormalElementAsVector3() {
+        public VertexLayoutConstructor AddNormalElementAsVector3() {
             elements.Add(new InputElement(SemanticNormalName, 0, Vector3, GetOffset(), 0, perverxdata, 0));
             return this;
         }
 
-        internal VertexLayoutConstructor AddColorElementAsVector4() {
+        public VertexLayoutConstructor AddColorElementAsVector4() {
             elements.Add(new InputElement(SemanticColorName, 0, Vector4, GetOffset(), 0, perverxdata, 0));
             return this;
         }
-        internal VertexLayoutConstructor AddTexCoorElementAsVector2() {
+        public VertexLayoutConstructor AddTexCoorElementAsVector2() {
             elements.Add(new InputElement(SemanticTexCoorName, 0, Vector2, GetOffset(), 0, perverxdata, 0));
             return this;
         }
