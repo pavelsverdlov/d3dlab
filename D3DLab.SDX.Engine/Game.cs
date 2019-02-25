@@ -65,7 +65,12 @@ namespace D3DLab.SDX.Engine {
                 smanager.CreateSystem<LightsSystem>();
                 smanager.CreateSystem<MovementSystem>();
                 smanager.CreateSystem<MovingOnHeightMapSystem>();
-                smanager.CreateSystem<RenderSystem>().Init(device);
+                smanager.CreateSystem<AnimationSystem>();
+                smanager
+                    .CreateSystem<RenderSystem>()
+                    .Init(device)
+                    .CreateNested<SkyGradientColoringRenderTechnique>()
+                    .CreateNested<SkyPlaneWithParallaxRenderTechnique>();
 
             }
             var em = Context.GetEntityManager();

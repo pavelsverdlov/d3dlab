@@ -91,7 +91,7 @@ namespace D3DLab.SDX.Engine {
         }
     }
 
-    internal class GraphicsDevice {
+    public class GraphicsDevice {
         public readonly D3DShaderCompilator Compilator;
 
         internal TexturedLoader TexturedLoader { get; }
@@ -189,32 +189,8 @@ namespace D3DLab.SDX.Engine {
             using (var zBufferTexture = new Texture2D(D3DDevice, zBufferTextureDescription)) {
                 depthStencilView = new DepthStencilView(D3DDevice, zBufferTexture);
             }
-            var depthDisabledStencilDesc = new DepthStencilStateDescription() {
-                // true - correct overlap objects based on depth 
-                // false - overlap based on rendering order
-                IsDepthEnabled = true,
 
-                DepthWriteMask = DepthWriteMask.All,
-                DepthComparison = Comparison.Less,
-                IsStencilEnabled = true,
-                StencilReadMask = 0xFF,
-                StencilWriteMask = 0xFF,
-                // Stencil operation if pixel front-facing.
-                FrontFace = new DepthStencilOperationDescription() {
-                    FailOperation = StencilOperation.Keep,
-                    DepthFailOperation = StencilOperation.Increment,
-                    PassOperation = StencilOperation.Keep,
-                    Comparison = Comparison.Always
-                },
-                // Stencil operation if pixel is back-facing.
-                BackFace = new DepthStencilOperationDescription() {
-                    FailOperation = StencilOperation.Keep,
-                    DepthFailOperation = StencilOperation.Decrement,
-                    PassOperation = StencilOperation.Keep,
-                    Comparison = Comparison.Always
-                }
-            };
-            var depthDisabledStencilState = new DepthStencilState(D3DDevice, depthDisabledStencilDesc);
+            var depthEnabledStencilState = new DepthStencilState(D3DDevice, D3DDepthStencilStateDescriptions.DepthEnabled);
 
             var viewport = new SharpDX.Viewport(0, 0, width, height);
             ImmediateContext.Rasterizer.SetViewport(viewport);
@@ -224,7 +200,7 @@ namespace D3DLab.SDX.Engine {
             //ImmediateContext.OutputMerger.SetRenderTargets(renderTargetView);
 
             //with zbuffer / DepthStencil
-            ImmediateContext.OutputMerger.SetDepthStencilState(depthDisabledStencilState, 0);
+            ImmediateContext.OutputMerger.SetDepthStencilState(depthEnabledStencilState, 0);
 
             //var blendStateDesc = new BlendStateDescription();
             //blendStateDesc.RenderTarget[0].IsBlendEnabled = true;
@@ -241,7 +217,7 @@ namespace D3DLab.SDX.Engine {
             //Device.ImmediateContext.OutputMerger.SetBlendState(blend, blendFactor, -1);
         }
 
-        public GraphicsFrame FrameBegin() {
+        internal GraphicsFrame FrameBegin() {
             return new GraphicsFrame(this);
         }
 
@@ -301,15 +277,33 @@ namespace D3DLab.SDX.Engine {
           where T : struct {
             return SharpDX.Direct3D11.Buffer.Create(D3DDevice, range, desc);
         }
-        /// <summary>
-        /// For referrence types and any arrays
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="range"></param>
-        /// <param name="structureByteStride"></param>
-        /// <param name="sizeInBytes"></param>
-        /// <returns></returns>
-        public SharpDX.Direct3D11.Buffer CreateDynamicBuffer<T>(T[] range, int sizeInBytes)
+        public SharpDX.Direct3D11.Buffer CreateBuffer<T>(ref T data, BufferDescription desc)
+         where T : struct {
+            return SharpDX.Direct3D11.Buffer.Create(D3DDevice, ref data, desc);
+        }
+
+        public SharpDX.Direct3D11.Buffer CreateDynamicBuffer<T>(ref T range, int sizeInBytes)
+        where T : struct {
+            var des = new BufferDescription() {
+                Usage = ResourceUsage.Dynamic,
+                SizeInBytes = sizeInBytes,
+                BindFlags = BindFlags.ConstantBuffer,
+                CpuAccessFlags = CpuAccessFlags.Write,
+                OptionFlags = ResourceOptionFlags.None,
+                StructureByteStride = 0
+            };
+            return SharpDX.Direct3D11.Buffer.Create(D3DDevice, ref range, des);
+        }
+
+            /// <summary>
+            /// For referrence types and any arrays
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="range"></param>
+            /// <param name="structureByteStride"></param>
+            /// <param name="sizeInBytes"></param>
+            /// <returns></returns>
+            public SharpDX.Direct3D11.Buffer CreateDynamicBuffer<T>(T[] range, int sizeInBytes)
          where T : struct {
             return SharpDX.Direct3D11.Buffer.Create(D3DDevice, range, new BufferDescription {
                 BindFlags = BindFlags.ConstantBuffer,
@@ -332,6 +326,14 @@ namespace D3DLab.SDX.Engine {
                 ImmediateContext.UnmapSubresource(buffer, slot);
             } finally {
 
+            }
+        }
+
+        public void UpdateDynamicBuffer<T>(ref T newdata, SharpDX.Direct3D11.Buffer buffer) where T : struct {
+            ImmediateContext.MapSubresource(buffer, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None, out var mappedResource);
+            using (mappedResource) {
+                mappedResource.Write(newdata);
+                ImmediateContext.UnmapSubresource(buffer, 0);
             }
         }
 

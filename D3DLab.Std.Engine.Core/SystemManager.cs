@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace D3DLab.Std.Engine.Core {
     public sealed class SystemManager : ISystemManager {
-        readonly List<IComponentSystem> systems = new List<IComponentSystem>();
-        public TSystem CreateSystem<TSystem>() where TSystem : class, IComponentSystem {
+        readonly List<IGraphicSystem> systems = new List<IGraphicSystem>();
+        public TSystem CreateSystem<TSystem>() where TSystem : class, IGraphicSystem {
             var sys = Activator.CreateInstance<TSystem>();
             if(sys is IComponentSystemIncrementId incrementId) {
                 incrementId.ID = systems.Count;
@@ -13,7 +13,7 @@ namespace D3DLab.Std.Engine.Core {
             notify.NotifyChange(sys);
             return sys;
         }
-        public IEnumerable<IComponentSystem> GetSystems() {
+        public IEnumerable<IGraphicSystem> GetSystems() {
             return systems;
         }
 

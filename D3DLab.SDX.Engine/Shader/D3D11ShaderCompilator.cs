@@ -79,6 +79,25 @@ namespace D3DLab.SDX.Engine.Shader {
     }
 
     internal class D3D11Compilator {
+        /*
+         * some info 
+         * https://github.com/sharpdx/Toolkit/blob/master/Source/Toolkit/SharpDX.Toolkit/Graphics/EffectCompilerFlags.cs
+         * 
+         * */
+
+        ///Directs the compiler to pack matrices in column-major order on input and output from the shader. 
+        ///This type of packing is generally more efficient because a series of dot-products can then perform vector-matrix multiplication.
+        ///PackMatrixColumnMajor 
+        ///
+        /// Directs the compiler to pack matrices in row-major order on input and output from the shader.
+        ///PackMatrixRowMajor 
+
+
+        /*
+         * with default state of ShaderFlags.None we should Transpose all matrix before set them tos shaders or set flag ShaderFlags.PackMatrixRowMajor for compiller
+         *          
+         */
+
         readonly ShaderFlags sFlags = ShaderFlags.None;
         readonly EffectFlags eFlags = EffectFlags.None;
 

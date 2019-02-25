@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Systems {
-    public class CameraSystem : BaseComponentSystem, IComponentSystem {
+    public class CameraSystem : BaseEntitySystem, IGraphicSystem {
 
         protected static class Ext {
             public static bool ChangeCameraDistance(GeneralCameraComponent camera,ref float delta, Vector3 zoomAround) {

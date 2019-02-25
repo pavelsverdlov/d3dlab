@@ -12,94 +12,82 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace D3DLab.SDX.Engine.Components {
+
     public abstract class D3DRenderComponent : GraphicComponent, ID3DRenderable, IRenderableComponent {
         public bool CanRender { get; set; }
 
-        public D3DRasterizerState RasterizerState { get; protected set; }
+        public D3DRasterizerState RasterizerState { get; set; }
         public PrimitiveTopology PrimitiveTopology { get; set; }
 
         [IgnoreDebuging]
         internal SharpDX.Direct3D11.Buffer TransformWorldBuffer { get; set; }
-
-        #region geo
         [IgnoreDebuging]
-        internal SharpDX.Direct3D11.Buffer VertexBuffer { get; set; }
+        internal DisposableSetter<SharpDX.Direct3D11.Buffer> VertexBuffer { get;  }
         [IgnoreDebuging]
-        internal SharpDX.Direct3D11.Buffer IndexBuffer { get; set; }
-
-        public int VertexSize { get; set; }
-
-        #endregion
+        internal DisposableSetter<SharpDX.Direct3D11.Buffer> IndexBuffer { get; }
 
         public IRenderTechniquePass Pass { get; set; }
         public VertexLayoutConstructor LayoutConstructor { get; set; }
+        public DepthStencilState DepthStencilState { get; private set; }
+        public BlendState BlendingState { get; private set; }
 
-        InputLayout layout;
-        VertexShader vertexShader;
-        PixelShader pixelShader;
-        GeometryShader geometryShader;
+
+        public InputLayout layout;
+        public VertexShader vertexShader;
+        public PixelShader pixelShader;
+        public GeometryShader geometryShader;
+
+        public int VertexSize { get; set; }
 
         public D3DRenderComponent() {
             CanRender = true;
             IsModified = true;
+            VertexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>();
+            IndexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>();
         }
 
         public override void Dispose() {
-            VertexBuffer?.Dispose();
-            IndexBuffer?.Dispose();
-            TransformWorldBuffer?.Dispose();
-            layout?.Dispose();
-            vertexShader?.Dispose();
-            pixelShader?.Dispose();
-            geometryShader?.Dispose();
+            Disposer.DisposeAll(
+                VertexBuffer,
+                IndexBuffer,
+                TransformWorldBuffer,
+                layout,
+                vertexShader,
+                pixelShader,
+                geometryShader,
+                DepthStencilState);
 
             base.Dispose();
             CanRender = false;
         }
 
-        void ID3DRenderable.Update(GraphicsDevice graphics) {
-            var context = graphics.ImmediateContext;
 
-            if (!Pass.IsCompiled) {
-                Pass.Compile(graphics.Compilator);
-            }
+        public void SetStates(BlendState blend, DepthStencilState depth) {
+            DepthStencilState?.Dispose();
+            BlendingState?.Dispose();
 
-            InitializeShaders(graphics);
-
-            IsModified = false;
+            DepthStencilState = depth;
+            BlendingState = blend;
         }
 
+        void ID3DRenderable.Update(GraphicsDevice graphics) {
+        }
         void ID3DRenderable.Render(GraphicsDevice graphics) {
-            var context = graphics.ImmediateContext;
-
-            context.VertexShader.Set(vertexShader);
-            context.GeometryShader.Set(geometryShader);
-            context.PixelShader.Set(pixelShader);
-
-            graphics.ImmediateContext.InputAssembler.InputLayout = layout;
-            graphics.ImmediateContext.InputAssembler.PrimitiveTopology = PrimitiveTopology;
-            graphics.UpdateRasterizerState(RasterizerState.GetDescription());
         }
 
         internal virtual void Draw(GraphicsDevice graphics, IGeometryComponent geo) {
-            UpdateGeometry(graphics, geo);
-
-            graphics.ImmediateContext.DrawIndexed(geo.Indices.Length, 0, 0);
         }
 
         internal void UpdateGeometry(GraphicsDevice graphics, IGeometryComponent geo) {
-            var context = graphics.ImmediateContext;
-            if (geo.IsModified) {
-                VertexBuffer?.Dispose();
-                IndexBuffer?.Dispose();
+            //var context = graphics.ImmediateContext;
+            //if (geo.IsModified) {
+            //    VertexBuffer = GetVertexBuffer(graphics, geo);
+            //    IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, geo.Indices.ToArray());
 
-                VertexBuffer = GetVertexBuffer(graphics, geo);
-                IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, geo.Indices.ToArray());
-
-                geo.MarkAsRendered();
-            }
-            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(VertexBuffer, VertexSize, 0));
-            context.InputAssembler.SetIndexBuffer(IndexBuffer, Format.R32_UInt, 0);
+            //    geo.MarkAsRendered();
+            //}
+            //context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(VertexBuffer, VertexSize, 0));
+            //context.InputAssembler.SetIndexBuffer(IndexBuffer, Format.R32_UInt, 0);
         }
 
         //TODO: should be abstract
@@ -107,27 +95,6 @@ namespace D3DLab.SDX.Engine.Components {
             return null;
         }
 
-        void InitializeShaders(GraphicsDevice graphics) {
-            var device = graphics.D3DDevice;
-
-            var vertexShaderByteCode = Pass.VertexShader.ReadCompiledBytes();
-
-            var inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
-            layout = new InputLayout(device, inputSignature, LayoutConstructor.ConstuctElements());
-
-            vertexShader?.Dispose();
-            pixelShader?.Dispose();
-            geometryShader?.Dispose();
-
-            vertexShader = new VertexShader(device, vertexShaderByteCode);
-
-            if (Pass.GeometryShader != null) {
-                geometryShader = new GeometryShader(device, Pass.GeometryShader.ReadCompiledBytes());
-            }
-            if (Pass.PixelShader != null) {
-                pixelShader = new PixelShader(device, Pass.PixelShader.ReadCompiledBytes());
-            }
-        }
     }
 
 }

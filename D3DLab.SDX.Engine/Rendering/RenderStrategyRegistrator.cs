@@ -12,38 +12,42 @@ using System.Numerics;
 using System.Threading;
 
 namespace D3DLab.SDX.Engine.Rendering {
-    class RenderStrategyRegistrator {
-        public IEnumerable<IRenderStrategy> Strategies { get { return dic.Values; } }
-        readonly Dictionary<Type, IRenderStrategy> dic;
+    class FilterByType<TCom1>
+        where TCom1 : IGraphicComponent {
+        public virtual IEnumerable<GraphicEntity> Filter(IEnumerable<GraphicEntity> entities) {
+            return entities.Where(x => x.Has<TCom1>());
+        }
 
-        public RenderStrategyRegistrator(D3DShaderCompilator compilator) {
-            dic = new Dictionary<Type, IRenderStrategy>();
-        }
-      
-        public void Register(GraphicEntity entity) {
-            var renders = entity.GetComponents<D3DRenderComponent>();
-            if (renders.Any() && renders.All(x=>x.CanRender)) {
-                if(!entity.Has<IGeometryComponent>() || !entity.Has<D3DTransformComponent>()) {
-                    throw new Exception("There are not all necessary components in entity to render."); 
-                }
-
-                GetOrCreate(() => new DefaultRenderStrategy())
-                    .RegisterEntity(entity);
-            }
-        }
-        T GetOrCreate<T>(Func<T> creator) where T : IRenderStrategy {
-            var type = typeof(T);
-            ///TODO:
-            if (!dic.TryGetValue(type, out var str)) {
-                dic[type] = creator();
-                str = dic[type];
-            }
-            return (T)str;
-        }
-        public void Cleanup() {
-            foreach (var s in Strategies) {
-                s.Cleanup();
-            }
+    }
+    class FilterByType<TCom1, TCom2> : FilterByType<TCom1>
+        where TCom1 : IGraphicComponent 
+        where TCom2 : IGraphicComponent {
+        public override IEnumerable<GraphicEntity> Filter(IEnumerable<GraphicEntity> entities) {
+            return base.Filter(entities).Where(x => x.Has<TCom2>());
         }
     }
+
+    class EntityHasSet<TCom1>
+        where TCom1 : IGraphicComponent {
+
+        public virtual bool Has(GraphicEntity entity) {
+            return entity.Has<TCom1>();
+        }
+
+    }
+    class EntityHasSet<TCom1, TCom2> : EntityHasSet<TCom1>
+        where TCom1 : IGraphicComponent
+        where TCom2 : IGraphicComponent {
+
+        public override bool Has(GraphicEntity entity) {
+            return base.Has(entity) && entity.Has<TCom2>();
+        }
+
+    }
+
+    
+
+
+
+    
 }

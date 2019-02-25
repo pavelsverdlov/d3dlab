@@ -4,8 +4,8 @@ using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Shaders;
 
 namespace D3DLab.SDX.Engine.Rendering.Strategies {
-    class DefaultRenderStrategy : RenderStrategy, IRenderStrategy {        
-        public DefaultRenderStrategy() { 
+    class DefaultRenderStrategy : RenderTechniqueSystem {        
+        public DefaultRenderStrategy() :base(null){ 
         }
         
         protected override void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {

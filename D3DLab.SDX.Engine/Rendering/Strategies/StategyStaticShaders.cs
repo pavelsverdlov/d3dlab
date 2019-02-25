@@ -96,11 +96,9 @@ struct VSOut
 VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR) { 
     VSOut output = (VSOut)0;
     
-    output.position = mul(World, position);
-    output.position = mul(View, output.position);
-    output.position = mul(Projection, output.position);
+    output.position = toWVP(position);
 
-    output.normal = mul(World, normal);
+    output.normal = mul(normal,World);
     output.normal = normalize(output.normal);
 
     output.color = color * computeLight(output.position.xyz, output.normal, -LookDirection.xyz, 1000);
@@ -167,7 +165,7 @@ struct InputFS {
 InputFS main(float4 position : POSITION, float4 color : COLOR){
     InputFS output;
 
-    output.position = mul(World, position);
+    output.position = mul(position, World);
     //output.position = mul(View, output.position);
     //output.position = mul(Projection, output.position);
     output.color = color;

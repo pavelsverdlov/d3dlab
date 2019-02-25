@@ -28,6 +28,12 @@ namespace D3DLab.SDX.Engine.Rendering {
             return elements.ToArray();
         }
 
+        /*
+         * InputElement.InstanceDataStepRate 
+         * The number of instances to draw using the same per-instance data before advancing in the buffer by one element. 
+         * This value must be 0 for an element that contains per-vertex data (PerVertexData)
+         */
+
         internal VertexLayoutConstructor AddPositionElementAsVector3() {
             elements.Add(new InputElement(SemanticPositionName, 0, Vector3, GetOffset(), 0, perverxdata, 0));
             return this;

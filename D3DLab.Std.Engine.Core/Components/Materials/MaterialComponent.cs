@@ -16,6 +16,7 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
             Apex = new Vector4(0.0f, 0.15f, 0.66f, 1.0f); ;
             // Set the Blue color at the center of the sky dome.
             Center = new Vector4(0.81f, 0.38f, 0.66f, 1.0f);
+            IsModified = true;
         }
     }
 

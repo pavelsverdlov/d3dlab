@@ -18,6 +18,7 @@ namespace D3DLab.Std.Engine.Core {
                 owner.entities.Add(tag, input);
                 owner.notify.NotifyChange(input);
                 owner.components.Add(input.Tag, new List<IGraphicComponent>());
+                entityHas.Add(input.Tag, new HashSet<Type>());
             }, en);
 
             return en;
@@ -31,6 +32,7 @@ namespace D3DLab.Std.Engine.Core {
                     }
                     owner.entities.Remove(entity.Tag);
                     owner.components.Remove(entity.Tag);
+                    entityHas.Remove(entity.Tag);
                 }
             }, null);
         }
@@ -41,6 +43,10 @@ namespace D3DLab.Std.Engine.Core {
         public GraphicEntity GetEntity(ElementTag tag) {
             return entities[tag];
         }
+        public IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate) {
+            return entities.Values.Where(predicate);
+        }
+
         public void SetFilter(Func<GraphicEntity, bool> predicate) {
             this.predicate = predicate;
         }
@@ -48,6 +54,8 @@ namespace D3DLab.Std.Engine.Core {
 
         #region IComponentManager
 
+        //TODO:
+        readonly Dictionary<ElementTag, HashSet<Type>> entityHas = new Dictionary<ElementTag, HashSet<Type>>();
         readonly Dictionary<ElementTag, List<IGraphicComponent>> components = new Dictionary<ElementTag, List<IGraphicComponent>>();
         readonly EntityOrderContainer orderContainer;
 
@@ -87,6 +95,10 @@ namespace D3DLab.Std.Engine.Core {
         public bool Has<T>(ElementTag tag) where T : IGraphicComponent {
             return components[tag].Any(x => x is T);
         }
+        public bool Has(ElementTag tag, params Type[] types) {
+            return types.All(type => entityHas[tag].Contains(type));
+        }
+
         public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {
             var any = GetComponents<T>(tagEntity);
             if (any.Any()) {
@@ -100,10 +112,12 @@ namespace D3DLab.Std.Engine.Core {
         void _AddComponent(ElementTag tagEntity, IGraphicComponent com) {
             com.EntityTag = tagEntity;
             components[tagEntity].Add(com);
+            entityHas[tagEntity].Add(com.GetType());
             notify.NotifyChange(com);
         }
         void _RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
             components[tagEntity].Remove(com);
+            entityHas[tagEntity].Add(com.GetType());
             com.Dispose();
             notify.NotifyChange(com);
         }

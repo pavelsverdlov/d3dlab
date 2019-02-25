@@ -18,3 +18,14 @@ float4 toScreen(float3 v) {
 	p = mul(Projection, p);
 	return p;
 }
+
+float4 toWVP(float4 position) {
+	// Change the position vector to be 4 units for proper matrix calculations.
+	position.w = 1.0f;
+
+	position = mul(position, World);
+	position = mul(position, View);
+	position = mul(position, Projection);
+
+	return position;
+}

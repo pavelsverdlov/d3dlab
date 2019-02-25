@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace D3DLab {
     public sealed class ViewportSubscriber :
         IManagerChangeSubscriber<GraphicEntity>,
-        IManagerChangeSubscriber<IComponentSystem>,
+        IManagerChangeSubscriber<IGraphicSystem>,
         IEntityRenderSubscriber {
         private readonly MainWindowViewModel mv;
 
@@ -19,7 +19,7 @@ namespace D3DLab {
             }));
         }
 
-        public void Change(IComponentSystem sys) {
+        public void Change(IGraphicSystem sys) {
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
                 mv.SystemsView.AddSystem(sys);
             }));

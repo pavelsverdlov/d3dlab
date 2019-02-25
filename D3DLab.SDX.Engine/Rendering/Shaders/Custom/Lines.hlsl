@@ -10,9 +10,7 @@ struct InputFS {
 InputFS main(float4 position : POSITION, float4 color : COLOR) {
 	InputFS output;
 
-	output.position = mul(World, position);
-	output.position = mul(View, output.position);
-	output.position = mul(Projection, output.position);
+	output.position = toWVP(position);
 	output.color = color;
 
 	return output;

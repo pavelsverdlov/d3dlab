@@ -22,44 +22,7 @@ namespace D3DLab.SDX.Engine.Components {
 
     }
 
-    public class D3DGradientMaterialComponent : GradientMaterialComponent, ID3DRenderable, ID3DMaterialComponent {
-        [StructLayout(LayoutKind.Sequential)]
-        public struct GradientBuffer {
-            public Vector4 apexColor;
-            public Vector4 centerColor;
-        }
-
-        public D3DGradientMaterialComponent() {
-            IsModified = true;
-        }
-
-        public override void Dispose() {
-            base.Dispose();
-            ConstantBuffer?.Dispose();
-        }
-
-
-        #region D3D
-
-        internal SharpDX.Direct3D11.Buffer ConstantBuffer { get; private set; }
-
-        void ID3DRenderable.Update(GraphicsDevice graphics) {
-            var str = new GradientBuffer {
-                apexColor = Apex,
-                centerColor = Center
-            };
-            ConstantBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref str);
-            IsModified = false;
-        }
-        void ID3DRenderable.Render(GraphicsDevice graphics) {
-            var context = graphics.ImmediateContext;
-            context.PixelShader.SetConstantBuffer(0, ConstantBuffer);
-        }
-
-        #endregion
-
-
-    }
+    
     public class D3DTexturedMaterialComponent : TexturedMaterialComponent, ID3DRenderable, ID3DMaterialComponent {
 
         public D3DTexturedMaterialComponent(params FileInfo[] image) : base(image) {

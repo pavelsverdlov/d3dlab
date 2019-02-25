@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Systems {
-    public class MovingOnHeightMapSystem : BaseComponentSystem, IComponentSystem {
+    public class MovingOnHeightMapSystem : BaseEntitySystem, IGraphicSystem {
              
 
         public void Execute(SceneSnapshot snapshot) {

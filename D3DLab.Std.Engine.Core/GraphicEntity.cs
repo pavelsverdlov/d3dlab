@@ -55,8 +55,10 @@ namespace D3DLab.Std.Engine.Core {
                 manager.RemoveComponent(Tag, component);
             }
         }
-        
 
+        public bool Has(params Type[] types) {
+            return manager.Has(Tag, types);
+        }
         public bool Has<T>() where T : IGraphicComponent {
             return manager.Has<T>(Tag);
         }
@@ -65,7 +67,7 @@ namespace D3DLab.Std.Engine.Core {
         }
 
         public int GetOrderIndex<TSys>()
-            where TSys : IComponentSystem  {
+            where TSys : IGraphicSystem  {
             return order.Get<TSys>(Tag);
         }
     }
@@ -81,7 +83,7 @@ namespace D3DLab.Std.Engine.Core {
             systemsOrder = new Dictionary<Type, int>();
         }
         public EntityOrderContainer RegisterOrder<TSys>(ElementTag tag,int index) 
-            where TSys : IComponentSystem{
+            where TSys : IGraphicSystem{
             OrderSystemContainer ordering;
             if (!componentOrderIndex.TryGetValue(tag, out ordering)) {
                 ordering = new OrderSystemContainer();
@@ -96,7 +98,7 @@ namespace D3DLab.Std.Engine.Core {
         }
 
         public EntityOrderContainer RegisterOrder<TSys>(ElementTag tag)
-           where TSys : IComponentSystem {
+           where TSys : IGraphicSystem {
             OrderSystemContainer ordering;
             if (!componentOrderIndex.TryGetValue(tag, out ordering)) {
                 ordering = new OrderSystemContainer();
@@ -110,7 +112,7 @@ namespace D3DLab.Std.Engine.Core {
         }
 
         public int Get<TSys>(ElementTag tag)
-            where TSys : IComponentSystem {
+            where TSys : IGraphicSystem {
             if (!componentOrderIndex.ContainsKey(tag)) {
                 return int.MaxValue;
             }

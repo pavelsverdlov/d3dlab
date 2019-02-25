@@ -1,63 +1,70 @@
 ﻿using D3DLab.SDX.Engine.Rendering;
 using D3DLab.SDX.Engine.Shader;
+using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Ext;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace D3DLab.SDX.Engine.Components {
+    public class SkyPlaneParallaxAnimationComponent : GraphicComponent {
+        public Vector2 translate1;
+        public Vector2 translate2;
+
+        Vector2 vectorSpeed1;
+        Vector2 vectorSpeed2;
+
+        public SkyPlaneParallaxAnimationComponent() {
+            // texture translation speed.
+            vectorSpeed1 = new Vector2(0.0003f, 0.0f);
+            vectorSpeed2 = new Vector2(0.00015f, 0.0f);
+            IsModified = true;
+        }
+
+        public void Animate(GraphicEntity owner, TimeSpan frameRateTime) {
+            // Increment the translation values to simulate the moving clouds.
+            // implementation for comparing FPS, when not using VSync.
+            translate1 += vectorSpeed1;
+            translate2 += vectorSpeed2;
+
+            // Keep the values in the zero to one range.
+            if (translate1.X > 1.0f)
+                translate1.X -= 1.0f;
+            if (translate1.Y > 1.0f)
+                translate1.Y -= 1.0f;
+            if (translate2.X > 1.0f)
+                translate2.X -= 1.0f;
+            if (translate2.Y > 1.0f)
+                translate2.Y -= 1.0f;
+        }
+    }
+
+
+    public class D3DSkyPlaneRenderComponent : D3DRenderComponent {
+        public SharpDX.Direct3D11.Buffer ParallaxAnimation { get; set; }
+
+        public D3DSkyPlaneRenderComponent() : base() {}
+
+        public override void Dispose() {
+            base.Dispose();
+            Disposer.DisposeAll(ParallaxAnimation);
+        }
+    }
+
+    /// <summary>
+    
+    /// </summary>
     public class D3DSkyRenderComponent : D3DRenderComponent {
-        const string path = @"D3DLab.SDX.Engine.Rendering.Shaders.Custom.sky.hlsl";
+        public SharpDX.Direct3D11.Buffer GradientBuffer { get; set; }
 
-        static readonly D3DShaderTechniquePass pass;
-        static readonly VertexLayoutConstructor layconst;
 
-        static D3DSkyRenderComponent() {
-            layconst = new VertexLayoutConstructor()
-               .AddPositionElementAsVector3();
-            //.AddNormalElementAsVector3()
-            //.AddTexCoorElementAsVector2();
-
-            var d = new CombinedShadersLoader();
-            pass = new D3DShaderTechniquePass(d.Load(path, "SKY_"));
-        }
-
-        public D3DSkyRenderComponent() : base() {
-            Pass = pass;
-            LayoutConstructor = layconst;
-            PrimitiveTopology = PrimitiveTopology.TriangleList;
-            RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
-                IsAntialiasedLineEnabled = false,
-                CullMode = CullMode.None,
-                DepthBias = 0,
-                DepthBiasClamp = .0f,
-                IsDepthClipEnabled = true,
-                FillMode = FillMode.Solid,
-                IsFrontCounterClockwise = false,
-                IsMultisampleEnabled = false,
-                IsScissorEnabled = false,
-                SlopeScaledDepthBias = .0f
-            });
-        }
-
-        internal override SharpDX.Direct3D11.Buffer GetVertexBuffer(GraphicsDevice graphics, IGeometryComponent geo) {
-            var vertex = new SkyPoint[geo.Positions.Length];
-            for (var i = 0; i < geo.Positions.Length; i++) {
-                vertex[i] = new SkyPoint(geo.Positions[i]);
-            }
-            VertexSize = SkyPoint.Size;
-            return graphics.CreateBuffer(BindFlags.VertexBuffer, vertex);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SkyPoint {
-            public readonly Vector3 Position;
-            public SkyPoint(Vector3 position) {
-                Position = position;
-            }
-            public static readonly int Size = Unsafe.SizeOf<SkyPoint>();
+        public override void Dispose() {
+            base.Dispose();
+            Disposer.DisposeAll(GradientBuffer);
         }
     }
 

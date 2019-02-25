@@ -8,6 +8,9 @@ namespace D3DLab.Std.Engine.Core {
         GraphicEntity CreateEntity(ElementTag tag);
         IEnumerable<GraphicEntity> GetEntities();
         GraphicEntity GetEntity(ElementTag tag);
+        IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate);
+
+
         void SetFilter(Func<GraphicEntity, bool> predicate);
         void Dispose();
 

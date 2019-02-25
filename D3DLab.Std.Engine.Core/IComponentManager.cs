@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace D3DLab.Std.Engine.Core {
 
@@ -15,6 +16,7 @@ namespace D3DLab.Std.Engine.Core {
         T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent;
 
         bool Has<T>(ElementTag tag) where T : IGraphicComponent;
+        bool Has(ElementTag tag, params Type[] types);
 
         void Dispose();
     }

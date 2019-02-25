@@ -13,12 +13,7 @@ struct VSOut
 VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 tex : TEXCOORD) {
 	VSOut output = (VSOut)0;
 
-	// Change the position vector to be 4 units for proper matrix calculations.
-	position.w = 1.0f;
-
-	output.position = mul(World, position);
-	output.position = mul(View, output.position);
-	output.position = mul(Projection, output.position);
+	output.position = toWVP(position);
 
 	output.tex = tex;
 

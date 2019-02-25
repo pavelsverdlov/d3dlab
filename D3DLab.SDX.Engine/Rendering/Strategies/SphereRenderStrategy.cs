@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.Numerics;
 
 namespace D3DLab.SDX.Engine.Rendering.Strategies {
-    internal class SphereRenderStrategy : RenderStrategy, IRenderStrategy {
+    internal class SphereRenderStrategy : RenderTechniqueSystem {
         readonly List<Tuple<D3DSphereRenderComponent, IGeometryComponent>> entities;
 
-        public SphereRenderStrategy() { 
+        public SphereRenderStrategy() :base(null){ 
             entities = new List<Tuple<D3DSphereRenderComponent, IGeometryComponent>>();
         }
 
@@ -46,18 +46,15 @@ namespace D3DLab.SDX.Engine.Rendering.Strategies {
 
                     geometryCom.MarkAsRendered();
 
-                    renderCom.VertexBuffer?.Dispose();
-                    renderCom.IndexBuffer?.Dispose();
-
-                    renderCom.VertexBuffer = graphics.CreateBuffer(BindFlags.VertexBuffer, vertices);
-                    renderCom.IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer,new[] { 0 });
+                    renderCom.VertexBuffer.Set(graphics.CreateBuffer(BindFlags.VertexBuffer, vertices));
+                    renderCom.IndexBuffer.Set(graphics.CreateBuffer(BindFlags.IndexBuffer,new[] { 0 }));
                 }
                 var tr = new TransforStructBuffer(Matrix4x4.Identity);
                 var TransformBuffer = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref tr);
 
                 context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, TransformBuffer);
-                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer, SharpDX.Utilities.SizeOf<StategyStaticShaders.SphereByPoint.SpherePoint>(), 0));
-                context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer, Format.R32_UInt, 0);
+                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(renderCom.VertexBuffer.Get(), SharpDX.Utilities.SizeOf<StategyStaticShaders.SphereByPoint.SpherePoint>(), 0));
+                context.InputAssembler.SetIndexBuffer(renderCom.IndexBuffer.Get(), Format.R32_UInt, 0);
 
                 graphics.UpdateRasterizerState(renderCom.RasterizerState.GetDescription());
                 //graphics.ImmediateContext.DrawIndexed(indexCount, 0, 0);

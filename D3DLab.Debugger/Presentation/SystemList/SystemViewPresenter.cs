@@ -14,18 +14,18 @@ using System.Windows.Input;
 
 namespace D3DLab.Debugger.Presentation.SystemList {
     public class SystemItemViewModel {
-        readonly IComponentSystem system;
+        readonly IGraphicSystem system;
 
         public string Header { get; }
         public bool IsShaderEditable { get; }
 
-        public SystemItemViewModel(IComponentSystem system) {
+        public SystemItemViewModel(IGraphicSystem system) {
             this.system = system;
             Header = system.ToString().Split('.').Last();
             IsShaderEditable = system is Std.Engine.Core.Shaders.IShadersContainer;
         }
 
-        public IComponentSystem GetOriginSystem() {
+        public IGraphicSystem GetOriginSystem() {
             return system;
         }
     }
@@ -97,7 +97,7 @@ namespace D3DLab.Debugger.Presentation.SystemList {
             
         }
 
-        public void AddSystem(IComponentSystem system) {
+        public void AddSystem(IGraphicSystem system) {
             var item = new SystemItemViewModel(system);
             State.AddItem(item);
         }

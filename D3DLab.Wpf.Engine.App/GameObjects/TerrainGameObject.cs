@@ -4,6 +4,7 @@ using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Materials;
+using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
 using System;
@@ -15,7 +16,7 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Wpf.Engine.App {
-   
+
     public class SkyGameObject : SingleGameObject {
         /*
         * Sky
@@ -59,28 +60,27 @@ namespace D3DLab.Wpf.Engine.App {
                     new D3DSkyRenderComponent() { },
                     geo,
                     new D3DTransformComponent(),
-                    new D3DGradientMaterialComponent(                        
-                    )
+                    new GradientMaterialComponent(),
+                    new FollowUpCameraPositionComponent()
                 });
 
             var planemesh = GeometryBuilder.BuildSkyPlane(SkyPlaneData.Default);
-            //manager.CreateEntity(plane)
-            //    .AddComponents(new IGraphicComponent[] {
-            //        new D3DTexturedRenderComponent(),
-            //        new D3DTexturedMaterialComponent(
-            //            new System.IO.FileInfo(""),
-            //            new System.IO.FileInfo("")
-            //        ),
-            //        new SimpleGeometryComponent {
-            //            Positions = planemesh.Positions.ToImmutableArray(),
-            //            Indices = planemesh.Indices.ToImmutableArray(),
-            //            TextureCoordinates = planemesh.TextureCoordinates.ToImmutableArray(),
-
-            //        }
-
-            //    });
-
-
+            manager.CreateEntity(plane)
+                .AddComponents(new IGraphicComponent[] {
+                    new D3DSkyPlaneRenderComponent(),
+                    new D3DTexturedMaterialComponent(
+                        new System.IO.FileInfo(@"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Data\cloud001.bmp"),
+                        new System.IO.FileInfo(@"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Data\cloud002.bmp")
+                    ),
+                    new SimpleGeometryComponent {
+                        Positions = planemesh.Positions.ToImmutableArray(),
+                        Indices = planemesh.Indices.ToImmutableArray(),
+                        TextureCoordinates = planemesh.TextureCoordinates.ToImmutableArray(),
+                    },
+                    new D3DTransformComponent(),
+                    new FollowUpCameraPositionComponent(),
+                    new SkyPlaneParallaxAnimationComponent()
+                });
 
             return new SkyGameObject(tag);
         }
@@ -89,7 +89,7 @@ namespace D3DLab.Wpf.Engine.App {
             //{Minimum:X:-2 Y:-2 Z:-2 Maximum:X:2 Y:2 Z:2}
             var com = new SimpleGeometryComponent();
 
-            for(var angle = stepDegree; angle < 360f; angle+= stepDegree) {
+            for (var angle = stepDegree; angle < 360f; angle += stepDegree) {
 
             }
 
@@ -100,7 +100,7 @@ namespace D3DLab.Wpf.Engine.App {
         }
     }
 
-
+   
     public class TerrainGameObject : SingleGameObject {
         /*
          * http://libnoise.sourceforge.net/ A portable, open-source, coherent noise-generating library for C++ 
@@ -116,7 +116,7 @@ namespace D3DLab.Wpf.Engine.App {
 
         const int textureRepeat = 8;
 
-       
+
 
 
         public TerrainGameObject(ElementTag tag) : base(tag, typeof(TerrainGameObject).Name) {
@@ -159,7 +159,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .AddComponents(new IGraphicComponent[] {
                     new D3DTerrainRenderComponent() {
                         Width = width,
-                        Heigth = height                      
+                        Heigth = height
                     },
                     geo,
                     new D3DTexturedMaterialComponent(
