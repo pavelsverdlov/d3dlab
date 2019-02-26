@@ -60,7 +60,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .AddComponents(new IGraphicComponent[] {
                     new D3DSkyRenderComponent() { },
                     geo,
-                    new D3DTransformComponent(),
+                    new D3DWorldTransformComponent(),
                     new GradientMaterialComponent(),
                     new FollowUpCameraPositionComponent()
                 });
@@ -69,7 +69,7 @@ namespace D3DLab.Wpf.Engine.App {
             manager.CreateEntity(plane)
                 .AddComponents(new IGraphicComponent[] {
                     new D3DSkyPlaneRenderComponent(),
-                    new D3DTexturedMaterialComponent(
+                    new D3DTexturedMaterialSamplerComponent(
                         new System.IO.FileInfo(@"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Data\cloud001.bmp"),
                         new System.IO.FileInfo(@"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Data\cloud002.bmp")
                     ),
@@ -78,7 +78,7 @@ namespace D3DLab.Wpf.Engine.App {
                         Indices = planemesh.Indices.ToImmutableArray(),
                         TextureCoordinates = planemesh.TextureCoordinates.ToImmutableArray(),
                     },
-                    new D3DTransformComponent(),
+                    new D3DWorldTransformComponent(),
                     new FollowUpCameraPositionComponent(),
                     new SkyPlaneParallaxAnimationComponent()
                 });
@@ -163,12 +163,12 @@ namespace D3DLab.Wpf.Engine.App {
                         Heigth = height
                     },
                     geo,
-                    new D3DTexturedMaterialComponent(
+                    new D3DTexturedMaterialSamplerComponent(
                         new System.IO.FileInfo(grass),
                         new System.IO.FileInfo(slope),
                         new System.IO.FileInfo(rock)
                         ),
-                    new D3DTransformComponent(),
+                    new D3DWorldTransformComponent(),
                 });
 
             return new TerrainGameObject(tag);

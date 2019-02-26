@@ -26,8 +26,6 @@ namespace D3DLab.SDX.Engine.Components {
         [IgnoreDebuging]
         public DisposableSetter<SharpDX.Direct3D11.Buffer> IndexBuffer { get; }
 
-        public IRenderTechniquePass Pass { get; set; }
-        public VertexLayoutConstructor LayoutConstructor { get; set; }
         public DepthStencilState DepthStencilState { get; private set; }
         public BlendState BlendingState { get; private set; }
 

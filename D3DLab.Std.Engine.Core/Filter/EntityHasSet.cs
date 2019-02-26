@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Filter {
+    /// <summary>
+    /// NOTE: not support interface types
+    /// </summary>
     public class EntityHasSet {
         readonly Type[] types;
         public EntityHasSet(params Type[] types) {

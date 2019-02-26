@@ -11,7 +11,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                .CreateEntity(new ElementTag("OrbitsRotationGameObject"))
                .AddComponent(geo)
                .AddComponent(D3DLineVertexRenderComponent.AsLineStrip())
-               .AddComponent(new SDX.Engine.Components.D3DTransformComponent())
+               .AddComponent(new SDX.Engine.Components.D3DWorldTransformComponent())
                .Tag;
 
             return new OrbitsRotationGameObject();

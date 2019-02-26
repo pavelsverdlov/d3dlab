@@ -1,4 +1,5 @@
-﻿using D3DLab.Std.Engine.Core;
+﻿using D3DLab.SDX.Engine.Components;
+using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Utilities;
 using System;
 
@@ -17,8 +18,8 @@ namespace D3DLab.Wpf.Engine.App {
               .CreateEntity(data.tag)
               .AddComponents(
                 geo,
-                SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent.AsStrip(),
-                new SDX.Engine.Components.D3DTransformComponent()
+                D3DTriangleColoredVertexRenderComponent.AsStrip(),
+                new D3DWorldTransformComponent()
                 );
 
             return new ArrowGameObject(en.Tag);
@@ -30,8 +31,8 @@ namespace D3DLab.Wpf.Engine.App {
             return manager
                .CreateEntity(data.tag)
                .AddComponent(geo)
-               .AddComponent(SDX.Engine.Components.D3DTriangleColoredVertexesRenderComponent.AsStrip())
-               .AddComponent(new SDX.Engine.Components.D3DTransformComponent())
+               .AddComponent(D3DTriangleColoredVertexRenderComponent.AsStrip())
+               .AddComponent(new D3DWorldTransformComponent())
                .Tag;
         }
     }

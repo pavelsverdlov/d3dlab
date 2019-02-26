@@ -29,7 +29,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                .CreateEntity(tag)
                .AddComponent(geo)
                .AddComponent(SDX.Engine.Components.D3DLineVertexRenderComponent.AsLineList())
-               .AddComponent(new D3DTransformComponent())
+               .AddComponent(new D3DWorldTransformComponent())
                //.AddComponent(new PositionColorsComponent { Colors = color })
                .Tag;
 

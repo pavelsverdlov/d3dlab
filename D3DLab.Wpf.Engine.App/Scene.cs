@@ -68,7 +68,9 @@ namespace D3DLab.Wpf.Engine.App {
                     .Init(device)
                     .CreateNested<SkyGradientColoringRenderTechnique>()
                     .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
-                    .CreateNested<TerrainRenderTechnique>();
+                    .CreateNested<TerrainRenderTechnique>()
+                    .CreateNested<TriangleColoredVertexRenderTechnique>()
+                    .CreateNested<LineVertexRenderTechnique>();
 
             }
             {//entities ordering 

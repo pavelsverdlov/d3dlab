@@ -58,7 +58,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
             : base(new EntityHasSet(
                 typeof(D3DSkyPlaneRenderComponent),
                 typeof(SkyPlaneParallaxAnimationComponent),
-                typeof(D3DTexturedMaterialComponent))){
+                typeof(D3DTexturedMaterialSamplerComponent))){
 
             rasterizerStateDescription = new RasterizerStateDescription() {
                 IsAntialiasedLineEnabled = false,
@@ -97,7 +97,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 var render = en.GetComponent<D3DSkyPlaneRenderComponent>();
                 var geo = en.GetComponent<IGeometryComponent>();
                 var animation = en.GetComponent<SkyPlaneParallaxAnimationComponent>();
-                var material = en.GetComponent<D3DTexturedMaterialComponent>();
+                var material = en.GetComponent<D3DTexturedMaterialSamplerComponent>();
 
                 var components = en.GetComponents<ID3DRenderable>();
 

@@ -9,9 +9,9 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.SDX.Engine.Components {
-    public class D3DTransformComponent : TransformComponent, ID3DRenderable {
+    public class D3DWorldTransformComponent : TransformComponent, ID3DRenderable {
         public SharpDX.Direct3D11.Buffer TransformBuffer { get; set; }
-        public D3DTransformComponent() {
+        public D3DWorldTransformComponent() {
             IsModified = true;
         }
 

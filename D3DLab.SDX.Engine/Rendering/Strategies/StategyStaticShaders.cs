@@ -19,7 +19,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
 ";
 
         #endregion
-
+        /*
         public static class LineVertex {
             const string path = @"D3DLab.SDX.Engine.Rendering.Shaders.Custom.Lines.hlsl";
             static readonly D3DShaderTechniquePass pass;
@@ -47,7 +47,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
                     Color = color;
                 }
             }            
-        }
+        }*/
 
         public static class ColoredVertexes {
             static readonly D3DShaderTechniquePass pass;

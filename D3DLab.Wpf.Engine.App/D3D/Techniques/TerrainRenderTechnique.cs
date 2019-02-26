@@ -49,7 +49,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
         }
 
         public TerrainRenderTechnique()
-            : base(new EntityHasSet(typeof(D3DTerrainRenderComponent), typeof(D3DTexturedMaterialComponent))) {
+            : base(new EntityHasSet(typeof(D3DTerrainRenderComponent), typeof(D3DTexturedMaterialSamplerComponent))) {
             rasterizerStateDescription = new RasterizerStateDescription() {
                 CullMode = CullMode.Front,
                 FillMode = FillMode.Solid,
@@ -70,7 +70,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
             foreach (var en in entities) {
                 var render = en.GetComponent<D3DTerrainRenderComponent>();
                 var geo = en.GetComponent<IGeometryComponent>();
-                var material = en.GetComponent<D3DTexturedMaterialComponent>();
+                var material = en.GetComponent<D3DTexturedMaterialSamplerComponent>();
                 var components = en.GetComponents<ID3DRenderable>();
 
                 foreach (var com in components) {

@@ -26,7 +26,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                    Color = V4Colors.Red,
                })
                .AddComponent(new D3DSphereRenderComponent())
-               .AddComponent(new SDX.Engine.Components.D3DTransformComponent())
+               .AddComponent(new SDX.Engine.Components.D3DWorldTransformComponent())
                .Tag;
 
 
@@ -41,7 +41,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                    Color = data.Color,
                })
                .AddComponent(new D3DSphereRenderComponent())
-               .AddComponent(new SDX.Engine.Components.D3DTransformComponent())
+               .AddComponent(new SDX.Engine.Components.D3DWorldTransformComponent())
                .Tag;
 
 
