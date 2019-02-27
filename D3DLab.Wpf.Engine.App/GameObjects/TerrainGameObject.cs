@@ -29,14 +29,11 @@ namespace D3DLab.Wpf.Engine.App {
         */
 
         public static SkyGameObject Create(IEntityManager manager) {
-            var folder = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\sky\";
-            //var skyFile = Path.Combine(folder, "sky1.jpg");//"hemispherical_33%size.tif"
-            var skyFile = Path.Combine(folder, "hemispherical_33%size.tif");
             var tag = new ElementTag("SkyDome");
             var plane = new ElementTag("SkyPlane");
 
             //var geo = GenerateSphere(2, Vector3.Zero, 15f.ToRad());
-            var file = new FileInfo(@"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Models\sky.obj");
+            var file = new FileInfo(@"C:\Storage\projects\sv\3d\d3dlab\D3DLab.Wpf.Engine.App\Resources\sky\sky.obj");
             var points = new List<Vector3>();
             var indx = new List<int>();
 
@@ -113,6 +110,12 @@ namespace D3DLab.Wpf.Engine.App {
          * 
          * https://developer.nvidia.com/sites/default/files/akamai/gamedev/files/sdk/11/TerrainTessellation_WhitePaper.pdf
          * https://www.reddit.com/r/gamedev/comments/6i03ix/realistic_procedural_height_maps/
+         * 
+         * https://github.com/srajangarg/mesh-simplify
+         * 
+         * http://vterrain.org/LOD/Implementations/
+         * 
+         * https://apps.dtic.mil/dtic/tr/fulltext/u2/a439499.pdf
          */
 
         const int textureRepeat = 8;
@@ -125,14 +128,12 @@ namespace D3DLab.Wpf.Engine.App {
 
         public static TerrainGameObject Create(IEntityManager manager) {
             var tag = new ElementTag("Terrain");
-            var folder = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab\bin\x64\Debug\Resources\terrain\";
-            //should have image size Width==Height
-            var heigtmap = folder + "1024x1024_1.bmp";
-            var texture_bnm = folder + "dirt03.bmp";
-            var colorMapping = folder + "colorTerrainMap.bmp";
-            var grass = folder + "grass.bmp";
-            var slope = folder + "slope.bmp";
-            var rock = folder + "rock.bmp";
+
+            var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/terrain/");
+            var grass = Path.Combine(resources, "images.jpg");// @"C:\Storage\projects\sv\3d\d3dlab\D3DLab.Wpf.Engine.App\Resources\terrain\images.jpg";// folder + "grass.bmp";
+            var slope = Path.Combine(resources, "slope.bmp");
+            var rock = Path.Combine(resources,"rock.bmp");
+            var heigtmap = Path.Combine(resources,"1024x1024_1.bmp");
 
             var width = 0;
             var height = 0;

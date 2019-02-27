@@ -37,7 +37,6 @@ namespace D3DLab.SDX.Engine.Rendering {
                .AddPositionElementAsVector3()
                .AddColorElementAsVector4();
 
-
             var d = new CombinedShadersLoader();
             pass = new D3DShaderTechniquePass(d.Load(path, "LV_"));
         }
@@ -58,7 +57,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;
         }
 
-        protected override void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
+        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 
@@ -84,8 +83,8 @@ namespace D3DLab.SDX.Engine.Rendering {
 
                 SetShaders(context, render);
 
-                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
-                context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
+                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);
+                context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, game.Lights);
 
                 if (geo.IsModified) {
                     var pos = geo.Positions;

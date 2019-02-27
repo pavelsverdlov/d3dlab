@@ -13,47 +13,53 @@ using System.Linq;
 
 namespace D3DLab.SDX.Engine.Components {
 
-    public abstract class D3DRenderComponent : GraphicComponent, ID3DRenderable, IRenderableComponent {
+    public abstract class D3DRenderComponent : GraphicComponent, IRenderableComponent {
         public bool CanRender { get; set; }
 
         public D3DRasterizerState RasterizerState { get; set; }
         public PrimitiveTopology PrimitiveTopology { get; set; }
 
         [IgnoreDebuging]
+        [Obsolete("NOT USED YET")]
         public SharpDX.Direct3D11.Buffer TransformWorldBuffer { get; set; }
         [IgnoreDebuging]
-        public DisposableSetter<SharpDX.Direct3D11.Buffer> VertexBuffer { get;  }
+        public DisposableSetter<SharpDX.Direct3D11.Buffer> VertexBuffer { get; private set; }
         [IgnoreDebuging]
-        public DisposableSetter<SharpDX.Direct3D11.Buffer> IndexBuffer { get; }
-
-        public DepthStencilState DepthStencilState { get; private set; }
-        public BlendState BlendingState { get; private set; }
-
-
-        public InputLayout layout;
-        public VertexShader vertexShader;
-        public PixelShader pixelShader;
-        public GeometryShader geometryShader;
+        public DisposableSetter<SharpDX.Direct3D11.Buffer> IndexBuffer { get; private set; }
+        [IgnoreDebuging]
+        public DisposableSetter<DepthStencilState> DepthStencilState { get; private set; }
+        [IgnoreDebuging]
+        public DisposableSetter<BlendState> BlendingState { get; private set; }
+        [IgnoreDebuging]
+        public DisposableSetter<InputLayout> Layout { get; private set; }
+        [IgnoreDebuging]
+        public DisposableSetter<VertexShader> VertexShader { get; private set; }
+        [IgnoreDebuging]
+        public DisposableSetter<PixelShader> PixelShader { get; private set; }
+        [IgnoreDebuging]
+        public DisposableSetter<GeometryShader> GeometryShader { get; private set; }
 
         public int VertexSize { get; set; }
 
+        readonly DisposeWatcher disposer;
         public D3DRenderComponent() {
             CanRender = true;
             IsModified = true;
-            VertexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>();
-            IndexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>();
+            disposer = new DisposeWatcher();
+            VertexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>(disposer);
+            IndexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>(disposer);
+            DepthStencilState = new DisposableSetter<DepthStencilState>(disposer);
+            BlendingState = new DisposableSetter<BlendState>(disposer);
+            Layout = new DisposableSetter<InputLayout>(disposer);
+            VertexShader = new DisposableSetter<VertexShader>(disposer);
+            PixelShader = new DisposableSetter<PixelShader>(disposer);
+            GeometryShader = new DisposableSetter<GeometryShader>(disposer);
         }
 
         public override void Dispose() {
             Disposer.DisposeAll(
-                VertexBuffer,
-                IndexBuffer,
-                TransformWorldBuffer,
-                layout,
-                vertexShader,
-                pixelShader,
-                geometryShader,
-                DepthStencilState);
+                disposer,
+                TransformWorldBuffer);
 
             base.Dispose();
             CanRender = false;
@@ -61,36 +67,8 @@ namespace D3DLab.SDX.Engine.Components {
 
 
         public void SetStates(BlendState blend, DepthStencilState depth) {
-            DepthStencilState?.Dispose();
-            BlendingState?.Dispose();
-
-            DepthStencilState = depth;
-            BlendingState = blend;
-        }
-
-        void ID3DRenderable.Update(GraphicsDevice graphics) {
-        }
-        void ID3DRenderable.Render(GraphicsDevice graphics) {
-        }
-
-        internal virtual void Draw(GraphicsDevice graphics, IGeometryComponent geo) {
-        }
-
-        internal void UpdateGeometry(GraphicsDevice graphics, IGeometryComponent geo) {
-            //var context = graphics.ImmediateContext;
-            //if (geo.IsModified) {
-            //    VertexBuffer = GetVertexBuffer(graphics, geo);
-            //    IndexBuffer = graphics.CreateBuffer(BindFlags.IndexBuffer, geo.Indices.ToArray());
-
-            //    geo.MarkAsRendered();
-            //}
-            //context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(VertexBuffer, VertexSize, 0));
-            //context.InputAssembler.SetIndexBuffer(IndexBuffer, Format.R32_UInt, 0);
-        }
-
-        //TODO: should be abstract
-        internal virtual SharpDX.Direct3D11.Buffer GetVertexBuffer(GraphicsDevice graphics, IGeometryComponent geo) {
-            return null;
+            DepthStencilState.Set(depth);
+            BlendingState.Set(blend);
         }
 
     }

@@ -13,6 +13,15 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace D3DLab.SDX.Engine.Rendering {
+    public class DefaultGameBuffers {
+        public readonly SharpDX.Direct3D11.Buffer Game;
+        public readonly SharpDX.Direct3D11.Buffer Lights;
+        public DefaultGameBuffers(SharpDX.Direct3D11.Buffer game, SharpDX.Direct3D11.Buffer light) {
+            Game = game;
+            Lights = light;
+        }
+    }
+
     public class RenderSystem : ContainerSystem<IRenderTechniqueSystem>, IGraphicSystem, IShadersContainer {
         class RenderTechniqueRegistrator {
             public IEnumerable<IRenderTechniqueSystem> Techniques { get { return dic.Values; } }
@@ -99,7 +108,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                     frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer, LightStructBuffer.RegisterResourceSlot);
 
                     foreach (var str in registrator.Techniques) {
-                        str.Render(frame.Graphics, gameDataBuffer, lightDataBuffer);
+                        str.Render(frame.Graphics, new DefaultGameBuffers(gameDataBuffer, lightDataBuffer));
                     }
                 }
             } catch (SharpDX.CompilationException cex) {

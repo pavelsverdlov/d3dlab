@@ -42,6 +42,8 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
                 translate2.X -= 1.0f;
             if (translate2.Y > 1.0f)
                 translate2.Y -= 1.0f;
+
+            IsModified = true;
         }
     }
 

@@ -110,7 +110,7 @@
                                 </Canvas>
                             </Grid>
                         </Button>
-                        <Button Content="Duck" Command="{Binding LoadDuck}" Height="50" Width="100" Margin="5" />
+                        <Button Content="Test!" Command="{Binding LoadDuck}" Height="50" Width="100" Margin="5" />
                     </DockPanel>
                 </Border>
 

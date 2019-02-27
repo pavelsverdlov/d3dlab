@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -85,6 +86,40 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
 
     public class TextBoxViewProperty : ViewProperty<string> {
         public TextBoxViewProperty(Action<string> change) : base(change) { }
+    }
+
+    class ObjUpdaterInArray {
+        readonly System.Collections.IList array;
+        public readonly int Index;
+        readonly object obj;
+        readonly PropertyInfo prinfo;
+        public ObjUpdaterInArray(System.Collections.IList array, int index) {
+            this.array = array;
+            this.Index = index;
+            this.obj = obj;
+            this.prinfo = prinfo;
+        }
+        public void Update<T>(T val) {
+            array[Index] = val;
+        }
+    }
+
+
+
+
+    public class TextBoxViewProperty<TValue> : TextBoxViewProperty {
+        readonly Action<TValue, string> change;
+
+        public TValue Obj { get; }
+
+        public TextBoxViewProperty(TValue obj, Action<TValue, string> change) : base(x=> { }) {
+            this.change = change;
+            Obj = obj;
+        }
+        public override void UpdateValue(string val) {
+            change(Obj, val);
+            base.UpdateValue(val);
+        }
     }
 
     public class ComboBoxViewProperty : ViewProperty<string> {
@@ -184,17 +219,27 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
             //  dictionary.Add(key, pr);
             Value.Add(pr);
         }
+        private void AddFileInfo(ObjUpdaterInArray updater, FileInfo fi) {//new ObjUpdater(obj, prinfo)
+            var pr = new TextBoxViewProperty<ObjUpdaterInArray>(updater, (o,v) => {
+                o.Update(new FileInfo(v));
+            });
+            pr.Title = updater.Index.ToString();
+            pr.Value = fi.FullName;
+            Value.Add(pr);
+        }
 
 
         public void Analyze(object com, HashSet<int> hashed) {
             Analyze(com, this, com.GetType(), hashed);
         }
 
-        void Analyze(object com, GroupViewProperty property, Type type, HashSet<int> hashed) {
+        void Analyze(object com, GroupViewProperty property, Type type, HashSet<int> hashed) { 
             foreach (var pr in type.GetProperties()) {
                 Analyze(com, property, pr, hashed);
             }
         }
+
+
         void AnalyzeValueType(object com, GroupViewProperty property, Type basetype) {
             foreach (var field in basetype.GetFields()) {
                 var name = field.Name;
@@ -307,12 +352,20 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     //        break;
                     //}
                 } else if (type.IsArray) {
-                    var array = ((Array)val);
-                    foreach (var i in array) {
-                        //var val = com.IsNull() ? null : pr.GetValue(com);
-                        //var type = pr.PropertyType;
-                        group.Analyze(i, group, i.GetType(), hashed);
-                    }
+                    var list = (System.Collections.IList)val;
+                    if(list.Count < 10) {
+                        for (var index = 0; index < list.Count; index++) {
+                            var i = list[index];
+                            switch (i) {
+                                case System.IO.FileInfo fi:
+                                    group.AddFileInfo(new ObjUpdaterInArray(list, index), fi);
+                                    break;
+                                //default:
+                                //    group.Analyze(i, group, i.GetType(), hashed);
+                                //    break;
+                            }
+                        }
+                    }                    
                 } else {
                     group.Analyze(val, group, type, hashed);
                 }

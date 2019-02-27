@@ -48,7 +48,7 @@ float4 main(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET {
                 }
             }            
         }*/
-
+        /*
         public static class ColoredVertexes {
             static readonly D3DShaderTechniquePass pass;
             static readonly VertexLayoutConstructor layconst;
@@ -122,7 +122,7 @@ float4 main(PSIn input) : SV_TARGET {
             #endregion
 
         }
-
+        */
         public static class SphereByPoint {
 
             static readonly D3DShaderTechniquePass pass;

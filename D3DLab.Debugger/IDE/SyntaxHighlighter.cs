@@ -34,7 +34,7 @@ namespace D3DLab.Debugger.IDE {
             //ApplyBackgroundValue(lexer, Brushes.LightBlue);
         }
         public void UnHighlightSelection(LexerNode lexer) {
-            ApplyFontWeight(lexer, FontWeights.Normal);
+            ApplyFontWeight(lexer, FontWeights.Normal); 
             //ApplyBackgroundValue(lexer, Brushes.Transparent);
         }
 

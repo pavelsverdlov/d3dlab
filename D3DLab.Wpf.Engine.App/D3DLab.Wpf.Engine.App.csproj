@@ -281,5 +281,9 @@
   <ItemGroup>
     <EmbeddedResource Include="D3D\Shaders\terrain.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\sky\" />
+    <Folder Include="Resources\terrain\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

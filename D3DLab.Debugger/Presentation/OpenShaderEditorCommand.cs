@@ -18,7 +18,7 @@ namespace D3DLab.Debugger.Presentation {
 
         public override void Execute(T item) {
             var editable = Convert(item);
-            var win = new ShaderEditorPopup();
+            var win = new Avalonia.ShaderEditorPopup();
             win.ViewModel.LoadShader(editable.Pass, editable.GetCompilator(), updater);
             win.Show();
         }

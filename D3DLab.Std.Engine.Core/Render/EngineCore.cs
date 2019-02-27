@@ -101,9 +101,9 @@ namespace D3DLab.Std.Engine.Core.Render {
         void Rendering(IEntityManager emanager, IInputManager imanager, double millisec) {
             var ishapshot = imanager.GetInputSnapshot();
 
-            if (!ishapshot.Events.Any() && !emanager.HasChanges) {//no input/changes no rendering 
-                return;
-            }
+            //if (!ishapshot.Events.Any() && !emanager.HasChanges) {//no input/changes no rendering 
+            //    return;
+            //}
             var id = Thread.CurrentThread.ManagedThreadId;
             emanager.Synchronize(id);
 

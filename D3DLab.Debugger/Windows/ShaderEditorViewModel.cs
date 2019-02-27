@@ -16,20 +16,20 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 namespace D3DLab.Debugger.Windows {
-    
 
-    public sealed class ShaderEditorPopup {
-        private ShaderEditor win;
-        public ShaderEditorViewModel ViewModel { get; }
 
-        public ShaderEditorPopup() {
-            win = new ShaderEditor();
-            ViewModel = (ShaderEditorViewModel)win.DataContext;
-        }
-        public void Show() {
-            win.Show();
-        }
-    }
+    //public sealed class ShaderEditorPopup {
+    //    private ShaderEditor win;
+    //    public ShaderEditorViewModel ViewModel { get; }
+
+    //    public ShaderEditorPopup() {
+    //        win = new ShaderEditor();
+    //        ViewModel = (ShaderEditorViewModel)win.DataContext;
+    //    }
+    //    public void Show() {
+    //        win.Show();
+    //    }
+    //}
 
     public class EditorHistory {
         public void Undo() {
@@ -56,7 +56,7 @@ namespace D3DLab.Debugger.Windows {
             shaderEditorViewModel.Save();
         }
     }
-   
+
     public enum IntellisenseTypes {
         AutoComplete,
         Dot,
@@ -75,7 +75,7 @@ namespace D3DLab.Debugger.Windows {
                     var world = selection.CaretPointer.GetVariableName();
 
                     environment.HighlightRelations(world, selection.GetRange());
-                }catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.ToString();
                 }
 
@@ -108,7 +108,7 @@ namespace D3DLab.Debugger.Windows {
                             result = environment.GetProperiesOfType(name, presenter.TargetVariable.GetRange());
                             break;
                         case IntellisenseTypes.AutoComplete:
-                            result = 
+                            result =
                                 environment.GetVariablesOfScope(name, presenter.TargetVariable.GetRange())
                                     .Union(environment.GetShaderKeywords(name))
                                     .Union(environment.GetGlobalTypes(name));
@@ -116,7 +116,7 @@ namespace D3DLab.Debugger.Windows {
                     }
                 }
 
-                
+
 
                 if (!result.Any()) {
                     environment.UnHighlightAll();
@@ -153,7 +153,7 @@ namespace D3DLab.Debugger.Windows {
                     return;
                 }
                 var caret = editor.ShaderDocument.ContentStart.GetOffsetToPosition(args.TextBox.CaretPosition);
-                editor.ShaderDocument.Dispatcher.InvokeAsync(() => {                    
+                editor.ShaderDocument.Dispatcher.InvokeAsync(() => {
                     editor.ReLoad(new TextRange(editor.ShaderDocument.ContentStart, editor.ShaderDocument.ContentEnd).Text);
                     args.TextBox.CaretPosition = editor.ShaderDocument.ContentStart.GetPositionAtOffset(caret);
                 });
@@ -270,8 +270,8 @@ namespace D3DLab.Debugger.Windows {
                 Errors.Insert(0, $"{DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss")} Compile: {selected.Info.Stage} succeeded");
                 updater.Update();
             } catch (Exception ex) {
-                foreach(var line in Regex.Split(ex.Message, Environment.NewLine)){
-                    Errors.Insert(0,line);
+                foreach (var line in Regex.Split(ex.Message, Environment.NewLine)) {
+                    Errors.Insert(0, line);
                 }
                 Errors.Add($"{DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss")} Compile: {selected.Info.Stage} failed");
             }

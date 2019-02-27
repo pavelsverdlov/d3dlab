@@ -43,6 +43,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
             internal Vector2 secondTranslation;
             internal float brightness;
             internal Vector3 padding;
+            public static readonly int Size = Unsafe.SizeOf<ParallaxAnimationParams>();
         }
 
         static SkyPlaneWithParallaxRenderTechnique() {
@@ -88,8 +89,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
 
         public IRenderTechniquePass GetPass() => pass;
 
-        protected override void Rendering(GraphicsDevice graphics,
-            SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
+        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 
@@ -121,22 +121,22 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 //render
                 SetShaders(context, render);
 
-                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
-                //context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
+                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);
 
                 //update animate buff
                 if (animation.IsModified) {
                     var ani = new ParallaxAnimationParams {
                         firstTranslation = animation.translate1,
                         secondTranslation = animation.translate2,
-                        brightness = 1,
+                        brightness = 0.5f,
                         padding = Vector3.One
                     };
                     if (render.ParallaxAnimation == null) {
-                        render.ParallaxAnimation = graphics.CreateBuffer(BindFlags.ConstantBuffer, ref ani);
+                        render.ParallaxAnimation = graphics.CreateDynamicBuffer(ref ani, ParallaxAnimationParams.Size);
                     } else {
-                        graphics.UpdateSubresource(ref ani, render.ParallaxAnimation, 0);
+                        graphics.UpdateDynamicBuffer(ref ani, render.ParallaxAnimation);
                     }
+                    animation.IsModified = false;
                 }
                 context.PixelShader.SetConstantBuffer(0, render.ParallaxAnimation);
 

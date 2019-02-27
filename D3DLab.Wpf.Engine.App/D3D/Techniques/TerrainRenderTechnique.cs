@@ -63,7 +63,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
 
         public IRenderTechniquePass GetPass() => pass;
 
-        protected override void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
+        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 
@@ -91,18 +91,18 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 }
 
                 SetShaders(context, render);
-
-                {// material
-                    if (material.IsModified) {
-                        render.TextureResources.Set(ConvertToResources(material, graphics.TexturedLoader));
-                        render.SampleState.Set(graphics.CreateSampler(material.SampleDescription));
-                    }
-                    context.PixelShader.SetShaderResources(0, render.TextureResources.Get());
-                    context.PixelShader.SetSampler(0, render.SampleState.Get());
+                //
+                if (material.IsModified) {
+                    render.TextureResources.Set(ConvertToResources(material, graphics.TexturedLoader));
+                    render.SampleState.Set(graphics.CreateSampler(material.SampleDescription));
+                    material.IsModified = false;
                 }
-
-                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
-                context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, lightDataBuffer);
+                //
+                context.PixelShader.SetShaderResources(0, render.TextureResources.Get());
+                context.PixelShader.SetSampler(0, render.SampleState.Get());
+                
+                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);
+                context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, game.Lights);
 
                 if (geo.IsModified) {
                     var pos = geo.Positions;

@@ -70,7 +70,8 @@ namespace D3DLab.Wpf.Engine.App {
                     .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
                     .CreateNested<TerrainRenderTechnique>()
                     .CreateNested<TriangleColoredVertexRenderTechnique>()
-                    .CreateNested<LineVertexRenderTechnique>();
+                    .CreateNested<LineVertexRenderTechnique>()
+                    .CreateNested<SpherePointRenderStrategy>();
 
             }
             {//entities ordering 

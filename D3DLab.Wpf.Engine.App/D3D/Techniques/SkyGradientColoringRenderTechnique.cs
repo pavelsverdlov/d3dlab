@@ -66,7 +66,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
 
         public IRenderTechniquePass GetPass() => pass;
 
-        protected override void Rendering(GraphicsDevice graphics, SharpDX.Direct3D11.Buffer gameDataBuffer, SharpDX.Direct3D11.Buffer lightDataBuffer) {
+        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 
@@ -105,7 +105,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 }
 
                 context.PixelShader.SetConstantBuffer(0, render.GradientBuffer);
-                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, gameDataBuffer);
+                context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);
 
                 if (geo.IsModified) {
                     var vertex = new Vertex[geo.Positions.Length];

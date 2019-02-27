@@ -3,15 +3,37 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Ext {
+    public class DisposeWatcher : IDisposable {
+        readonly List<IDisposable> disposable;
+        public DisposeWatcher() {
+            disposable = new List<IDisposable>();
+        }
+
+        public void Dispose() {
+            Disposer.DisposeAll(disposable);
+        }
+
+        public void Watch(IDisposable dis) {
+            disposable.Add(dis);
+        }
+
+    }
+
     public class DisposableSetter<T> : IDisposable where T : IDisposable {
         T disposable;
         public void Dispose() {
-            disposable?.Dispose();
+            Disposer.DisposeAll(disposable);
         }
         public T Get() => disposable;
         public void Set(T b) {
-            disposable?.Dispose();
+            Dispose();
             disposable = b;
+        }
+
+        public DisposableSetter(DisposeWatcher watcher) {
+            watcher.Watch(this);
+        }
+        public DisposableSetter() {
         }
     }
 

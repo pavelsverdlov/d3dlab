@@ -25,7 +25,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                    Positions = new Vector3[] { Vector3.Zero }.ToImmutableArray(),
                    Color = V4Colors.Red,
                })
-               .AddComponent(new D3DSphereRenderComponent())
+               .AddComponent(new D3DSpherePointRenderComponent())
                .AddComponent(new SDX.Engine.Components.D3DWorldTransformComponent())
                .Tag;
 
@@ -40,7 +40,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                    Positions = new Vector3[] { data.Center }.ToImmutableArray(),
                    Color = data.Color,
                })
-               .AddComponent(new D3DSphereRenderComponent())
+               .AddComponent(new D3DSpherePointRenderComponent())
                .AddComponent(new SDX.Engine.Components.D3DWorldTransformComponent())
                .Tag;
 
