@@ -152,6 +152,11 @@ namespace D3DLab.SDX.Engine {
 
         public void Dispose() {
             renderTargetView.Dispose();
+            
+            ImmediateContext.ClearState();
+            ImmediateContext.Flush();
+            ImmediateContext.Dispose();
+
             D3DDevice.Dispose();
             swapChain.Dispose();
         }
