@@ -41,7 +41,7 @@ namespace D3DLab.SDX.Engine.Components {
 
         public int VertexSize { get; set; }
 
-        readonly DisposeWatcher disposer;
+        protected readonly DisposeWatcher disposer;
         public D3DRenderComponent() {
             CanRender = true;
             IsModified = true;

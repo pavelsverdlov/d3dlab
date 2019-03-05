@@ -11,6 +11,7 @@ namespace D3DLab.Debugger {
         readonly ObservableCollection<string> output;
         readonly Dispatcher dispatcher;
         const int maxlines = 100;
+        string lastMessage;
         public TraceOutputListener(ObservableCollection<string> consoleOutput, Dispatcher dispatcher) {
             this.output = consoleOutput;
             this.dispatcher = dispatcher;
@@ -22,10 +23,15 @@ namespace D3DLab.Debugger {
 
         public override void WriteLine(string message) {
             dispatcher.InvokeAsync(() => {
-                output.Insert(0, $"[{DateTime.Now.TimeOfDay}] {message.Trim()}");
+                if (message == lastMessage) {
+                    return;
+                }
+                var mess = $"[{DateTime.Now.TimeOfDay}] {message.Trim()}";
+                output.Insert(0, mess);
                 if (output.Count > maxlines) {
                     output.RemoveAt(maxlines);
                 }
+                lastMessage = message;
             });
         }
     }

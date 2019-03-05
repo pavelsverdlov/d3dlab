@@ -97,6 +97,10 @@ namespace D3DLab.Debugger.Model {
             return com;
         }
 
+        public void MarkAsModified() {
+            com.IsModified = true;
+        }
+
         public void Refresh() {
             PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Name)));
         }

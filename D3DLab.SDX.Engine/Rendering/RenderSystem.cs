@@ -118,6 +118,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                 System.Diagnostics.Trace.WriteLine(shex.Message);
                 throw shex;
             } catch (Exception ex) {
+                System.Diagnostics.Trace.WriteLine(ex.Message);
                 throw ex;
             } finally {
                 registrator.Cleanup();

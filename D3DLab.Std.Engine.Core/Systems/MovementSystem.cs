@@ -7,6 +7,8 @@ using D3DLab.Std.Engine.Core.Utilities;
 using g3;
 
 namespace D3DLab.Std.Engine.Core.Systems {
+    
+
     public class MovementSystem : BaseEntitySystem, IGraphicSystem {
 
         public void Execute(SceneSnapshot snapshot) {
@@ -105,6 +107,10 @@ namespace D3DLab.Std.Engine.Core.Systems {
             public void Execute(FollowUpTargetComponent follower) {
                 var target = emanager.GetEntity(follower.IsTarget).First();
                 follower.Follow(entity, target);
+            }
+
+            public void Execute(TranslateMovementComponent translate) {
+                
             }
 
         }

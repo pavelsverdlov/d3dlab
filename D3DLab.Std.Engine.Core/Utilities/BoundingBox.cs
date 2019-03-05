@@ -88,7 +88,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
     /// COPY/PASTE
     /// </summary>
     public struct BoundingBox : IEquatable<BoundingBox> {
-        public static BoundingBox Empty => new BoundingBox(AxisAlignedBox3d.Empty);
+        public static BoundingBox Zero => new BoundingBox(AxisAlignedBox3d.Zero);
         public static BoundingBox Create(Vector3 min, Vector3 max) {
             //BoundsUtil.Bounds(,)
             return new BoundingBox(min, max, new AxisAlignedBox3f(min.ToVector3f(), max.ToVector3f()));

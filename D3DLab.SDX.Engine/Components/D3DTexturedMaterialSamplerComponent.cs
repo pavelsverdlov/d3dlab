@@ -20,6 +20,7 @@ namespace D3DLab.SDX.Engine.Components {
         public SamplerStateDescription SampleDescription { get; }
 
         public D3DTexturedMaterialSamplerComponent(params FileInfo[] image) : base(image) {
+            
             SampleDescription = new SamplerStateDescription() {
                 Filter = Filter.MinMagMipLinear,
                 AddressU = TextureAddressMode.Wrap,
@@ -32,6 +33,8 @@ namespace D3DLab.SDX.Engine.Components {
                 MinimumLod = 0,
                 MaximumLod = float.MaxValue
             };
+
+//            SampleDescription = SamplerStateDescription.Default();
             IsModified = true;
         }
     }

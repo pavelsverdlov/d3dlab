@@ -98,15 +98,13 @@ namespace D3DLab {
                 //main.plugins.Import();
 
                 //var tag = bl.Build(file, main.plugins.ParserPlugins.First());
-                var path = @"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Models\skydome.txt";
+             //   var path = @"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Models\skydome.txt";
 
+                //main.items.ForEach(i=> i.GameObj.Cleanup(main.context.GetEntityManager()));
+                //main.items.Clear();               
 
-                // main.items.Add(item);
-                var obj1 = SkyGameObject.Create(main.context.GetEntityManager());
-                var obj = TerrainGameObject.Create(main.context.GetEntityManager());
-               
-
-                main.items.Add(new LoadedItem(main, obj));
+                main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
+                main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {
@@ -131,16 +129,16 @@ namespace D3DLab {
             public ICommand VisiblityChanged { get; }
             public ICommand ShowDebuggingVisualization { get; }
             public ICommand LookAt { get; }
-            public string Header { get { return gobj.Description; } }
+            public string Header { get { return GameObj.Description; } }
 
             public LoadedItem() { }
 
-            protected GameObject gobj;
+            public GameObject GameObj { get; protected set; }
             protected readonly MainWindowViewModel main;
 
             public LoadedItem(MainWindowViewModel main, GameObject gobj) {
                 this.main = main;
-                this.gobj = gobj;
+                this.GameObj = gobj;
                 VisiblityChanged = new Command(this);
                 ShowDebuggingVisualization = new WpfActionCommand<bool?>(OnShowDebugVisualization);
                 LookAt = new WpfActionCommand(OnLookAt);
@@ -152,30 +150,30 @@ namespace D3DLab {
             }
 
             private void OnLookAt() {
-                gobj.LookAtSelf(main.context.GetEntityManager());
+                GameObj.LookAtSelf(main.context.GetEntityManager());
                 main.ForceRender();
             }
 
             void OnShowDebugVisualization(bool? ischecked) {
                 if (ischecked.HasValue && ischecked.Value) {
-                    gobj.ShowDebugVisualization(main.context.GetEntityManager());
+                    GameObj.ShowDebugVisualization(main.context.GetEntityManager());
                 } else {
-                    gobj.HideDebugVisualization(main.context.GetEntityManager());
+                    GameObj.HideDebugVisualization(main.context.GetEntityManager());
                 }
                 main.ForceRender();
             }
 
             public override string ToString() {
-                return gobj.ToString();
+                return GameObj.ToString();
             }
 
             private void Hide() {
-                gobj.Hide(main.context.GetEntityManager());
+                GameObj.Hide(main.context.GetEntityManager());
                 main.ForceRender();
             }
 
             private void Show() {
-                gobj.Show(main.context.GetEntityManager());
+                GameObj.Show(main.context.GetEntityManager());
                 main.ForceRender();
             }
 
@@ -214,7 +212,7 @@ namespace D3DLab {
                 var bl = new GameObjectBuilder(main.context.GetEntityManager());
                 compositeGameObject = bl.Build(info.File, info.Parser);
 
-                base.gobj = compositeGameObject;
+                base.GameObj = compositeGameObject;
                 //
                 watcher = new FileSystemWatcher(info.File.DirectoryName, "*" + Path.GetExtension(info.File.Name));
                 watcher.EnableRaisingEvents = true;

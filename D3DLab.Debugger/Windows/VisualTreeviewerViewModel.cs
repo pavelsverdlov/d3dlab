@@ -39,6 +39,10 @@ namespace D3DLab.Debugger.Windows {
         public EditingPropertiesComponentItem(IVisualComponentItem item) {
             this.item = item;
         }
+
+        public void MarkAsModified() {
+            item.MarkAsModified();
+        }
     }
 
     public interface ITreeItemActions {
@@ -112,7 +116,7 @@ namespace D3DLab.Debugger.Windows {
         }
 
         public void Update() {
-            GameWindow.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
+            //GameWindow.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
         }
 
         public void Add(GraphicEntity entity) {

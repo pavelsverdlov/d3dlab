@@ -63,6 +63,10 @@ namespace D3DLab.Debugger.Presentation.SystemList {
                 public EditingPropertiesComponentItem(SystemItemViewModel item) {
                     this.item = item;
                 }
+
+                public void MarkAsModified() {
+                    throw new NotImplementedException();
+                }
             }
 
             public OpenPropertiesEditorSystemItemCommand(IRenderUpdater updater) : base(updater) { }
@@ -103,7 +107,7 @@ namespace D3DLab.Debugger.Presentation.SystemList {
         }
 
         public void Update() {
-            GameWindow.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
+            //GameWindow.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
         }
     }
 }

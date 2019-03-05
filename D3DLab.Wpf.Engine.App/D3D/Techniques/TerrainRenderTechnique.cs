@@ -79,7 +79,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                     }
                 }
 
-                if (render.IsModified) {//update
+                if (render.IsModified || !pass.IsCompiled) {//update
                     if (!pass.IsCompiled) {
                         pass.Compile(graphics.Compilator);
                     }

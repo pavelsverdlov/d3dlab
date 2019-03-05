@@ -26,7 +26,14 @@ namespace D3DLab.Std.Engine.Core.Components {
             return Task.Run(() => {
                 var norm = Normals.IsDefaultOrEmpty ? null : ConvertToVector3f(Normals);
                 DMesh = DMesh3Builder.Build(ConvertToVector3f(Positions), Indices, norm);
-                Tree = new DMeshAABBTree3(DMesh);
+
+                //var sm = new LaplacianMeshSmoother(DMesh);
+                //sm.Initialize();
+                //sm.SolveAndUpdateMesh();
+
+                //DMesh = sm.Mesh;
+
+                 Tree = new DMeshAABBTree3(DMesh);
                 Tree.Build();
                 IsBuilt = true;
                 return this;
@@ -35,7 +42,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         #endregion
 
         protected override BoundingBox CalcuateBox() {
-            return IsBuilt ? BoundingBox.CreateFromComponent(this) : BoundingBox.Empty;
+            return IsBuilt ? BoundingBox.CreateFromComponent(this) : BoundingBox.Zero;
         }
 
         static Vector3f[] ConvertToVector3f(ImmutableArray<Vector3> pos) {
@@ -85,7 +92,7 @@ namespace D3DLab.Std.Engine.Core.Components {
 
     public class SimpleGeometryComponent : GeometryComponent, IGeometryComponent {
         protected override BoundingBox CalcuateBox() {
-            return BoundingBox.Empty;
+            return BoundingBox.Zero;
         }
     }
 
@@ -113,7 +120,7 @@ namespace D3DLab.Std.Engine.Core.Components {
         /// </summary>
         public Vector4 Color { get; set; }
 
-        public BoundingBox Box => box.Value;
+        public BoundingBox Box => CalcuateBox();
 
         ImmutableArray<Vector4> colors;
         readonly Lazy<BoundingBox> box;
@@ -123,7 +130,7 @@ namespace D3DLab.Std.Engine.Core.Components {
             TextureCoordinates = ImmutableArray<Vector2>.Empty;
             IsModified = true;
             //
-            box = new Lazy<BoundingBox>(CalcuateBox);
+           // box = new Lazy<BoundingBox>(CalcuateBox);
         }
 
         protected abstract BoundingBox CalcuateBox();

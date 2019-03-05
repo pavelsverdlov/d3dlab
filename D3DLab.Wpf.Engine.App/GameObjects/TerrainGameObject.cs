@@ -29,11 +29,12 @@ namespace D3DLab.Wpf.Engine.App {
         */
 
         public static SkyGameObject Create(IEntityManager manager) {
+            var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/sky/");
             var tag = new ElementTag("SkyDome");
             var plane = new ElementTag("SkyPlane");
 
             //var geo = GenerateSphere(2, Vector3.Zero, 15f.ToRad());
-            var file = new FileInfo(@"C:\Storage\projects\sv\3d\d3dlab\D3DLab.Wpf.Engine.App\Resources\sky\sky.obj");
+            var file = new FileInfo(Path.Combine(resources, "sky.obj"));
             var points = new List<Vector3>();
             var indx = new List<int>();
 
@@ -67,8 +68,8 @@ namespace D3DLab.Wpf.Engine.App {
                 .AddComponents(new IGraphicComponent[] {
                     new D3DSkyPlaneRenderComponent(),
                     new D3DTexturedMaterialSamplerComponent(
-                        new System.IO.FileInfo(@"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Data\cloud001.bmp"),
-                        new System.IO.FileInfo(@"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Data\cloud002.bmp")
+                        new System.IO.FileInfo(Path.Combine(resources,"cloud001.bmp")),
+                        new System.IO.FileInfo(Path.Combine(resources,"cloud002.bmp"))
                     ),
                     new SimpleGeometryComponent {
                         Positions = planemesh.Positions.ToImmutableArray(),
@@ -98,7 +99,7 @@ namespace D3DLab.Wpf.Engine.App {
         }
     }
 
-   
+
     public class TerrainGameObject : SingleGameObject {
         /*
          * http://libnoise.sourceforge.net/ A portable, open-source, coherent noise-generating library for C++ 
@@ -118,11 +119,6 @@ namespace D3DLab.Wpf.Engine.App {
          * https://apps.dtic.mil/dtic/tr/fulltext/u2/a439499.pdf
          */
 
-        const int textureRepeat = 8;
-
-
-
-
         public TerrainGameObject(ElementTag tag) : base(tag, typeof(TerrainGameObject).Name) {
         }
 
@@ -130,44 +126,41 @@ namespace D3DLab.Wpf.Engine.App {
             var tag = new ElementTag("Terrain");
 
             var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/terrain/");
-            var grass = Path.Combine(resources, "images.jpg");// @"C:\Storage\projects\sv\3d\d3dlab\D3DLab.Wpf.Engine.App\Resources\terrain\images.jpg";// folder + "grass.bmp";
+            var grass = Path.Combine(resources, "1.jpg");
             var slope = Path.Combine(resources, "slope.bmp");
-            var rock = Path.Combine(resources,"rock.bmp");
-            var heigtmap = Path.Combine(resources,"1024x1024_1.bmp");
+            var rock = Path.Combine(resources, "rock.bmp");
+            var seafloor = Path.Combine(resources, "seafloor.bmp");
+            var sand = Path.Combine(resources, "dirt04.bmp");
+            var shore = Path.Combine(resources, "cm.bmp");
+            var dirt = Path.Combine(resources, "dirt.bmp");
+            var snow = Path.Combine(resources, "snow01n.bmp");
 
-            var width = 0;
-            var height = 0;
-            var HeightMap = new List<Vector3>();
 
-            using (var bitmap = new System.Drawing.Bitmap(heigtmap)) {
-                width = bitmap.Width;
-                height = bitmap.Height;
-                float normalizeHeightMap = 10;
-                // Read the image data into the height map
-                for (var j = 0; j < bitmap.Height; j++) {
-                    for (var i = 0; i < bitmap.Width; i++) {
-                        HeightMap.Add(new Vector3(i, bitmap.GetPixel(i, j).R / normalizeHeightMap, -j));
-                    }
-                }
-            }
-            //
-            var geo = new HittableGeometryComponent();
-
-            TriangulateMap(HeightMap, height, width, geo);
-
-            // geo.Colors = LoadColourMap(colorMapping, width, height).ToImmutableArray();
+            var heigtmap = Path.Combine(resources, "test.bmp");
 
             manager.CreateEntity(tag)
                 .AddComponents(new IGraphicComponent[] {
                     new D3DTerrainRenderComponent() {
-                        Width = width,
-                        Heigth = height
+                        CanRender = false
                     },
-                    geo,
+                    new Std.Engine.Core.Systems.TerrainConfigurationComponent {
+                        Width = 256,
+                        Height = 256,
+                        TextureRepeat = 8,
+
+                        ElevationPower = 2
+
+                    },
                     new D3DTexturedMaterialSamplerComponent(
+                        new System.IO.FileInfo(seafloor),
+                        new System.IO.FileInfo(shore),
+                        new System.IO.FileInfo(sand),
                         new System.IO.FileInfo(grass),
-                        new System.IO.FileInfo(slope),
-                        new System.IO.FileInfo(rock)
+                        new System.IO.FileInfo(dirt),
+                        new System.IO.FileInfo(rock),
+                        new System.IO.FileInfo(snow),
+                        new System.IO.FileInfo(slope)
+                        
                         ),
                     new D3DWorldTransformComponent(),
                 });
@@ -175,88 +168,7 @@ namespace D3DLab.Wpf.Engine.App {
             return new TerrainGameObject(tag);
         }
 
-        static void TriangulateMap(List<Vector3> HeightMap, int height, int width, GeometryComponent geometry) {
-            var count = (width - 1) * (height - 1) * 6;
-            var indices = new int[count];
-            var vertices = HeightMap.ToArray();
-            var index = 0;
-            for (int j = 0; j < (height - 1); j++) {
-                var row = height * j;
-                var row2 = height * (j + 1);
-                for (int i = 0; i < (width - 1); i++) {
-                    var indx1 = row + i;
-                    var indx2 = row + i + 1;
-                    var indx3 = row2 + i;
-                    var indx4 = row2 + i + 1;
-
-                    indices[index++] = indx1;
-                    indices[index++] = indx2;
-                    indices[index++] = indx3;
-
-                    indices[index++] = indx2;
-                    indices[index++] = indx4;
-                    indices[index++] = indx3;
-                }
-            }
-            var normals = vertices.CalculateNormals(indices);
-            geometry.Indices = indices.ToImmutableArray();
-            geometry.Positions = vertices.ToImmutableArray();
-            geometry.Normals = normals.ToImmutableArray();
-            geometry.TextureCoordinates = CalculateTextureCoordinates(HeightMap, width, height).ToImmutableArray();
-            geometry.Color = V4Colors.White;
-
-            //Light.SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
-            //Light.SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        static Vector2[] CalculateTextureCoordinates(List<Vector3> HeightMap, int width, int height) {
-            // Calculate how much to increment the texture coordinates by.
-            float incrementValue = (float)textureRepeat / (float)width;
-
-            // Calculate how many times to repeat the texture.
-            int incrementCount = width / textureRepeat;
-
-            // Initialize the tu and tv coordinate values.
-            float tuCoordinate = 0.0f;
-            float tvCoordinate = 1.0f;
-
-            // Initialize the tu and tv coordinate indexes.
-            int tuCount = 0;
-            int tvCount = 0;
-            var texture = new Vector2[HeightMap.Count];
-
-            var tvIncrementValue = incrementValue;
-            var tuIncrementValue = incrementValue;
-
-            // Loop through the entire height map and calculate the tu and tv texture coordinates for each vertex.
-            for (int j = 0; j < height; j++) {
-                for (int i = 0; i < width; i++) {
-                    // Store the texture coordinate in the height map.
-                    texture[(height * j) + i] = new Vector2(tuCoordinate, tvCoordinate);
-
-                    // Increment the tu texture coordinate by the increment value and increment the index by one.
-                    tuCoordinate += tuIncrementValue;
-                    tuCount++;
-
-                    // Check if at the far right end of the texture and if so then start at the beginning again.
-                    if (tuCount == incrementCount) {
-                        tuIncrementValue *= -1;
-                        //tuCoordinate = 0.0f;
-                        tuCount = 0;
-                    }
-                }
-                // Increment the tv texture coordinate by the increment value and increment the index by one.
-                tvCoordinate -= tvIncrementValue;
-                tvCount++;
-
-                // Check if at the top of the texture and if so then start at the bottom again.
-                if (tvCount == incrementCount) {
-                    tvIncrementValue *= -1;
-                    //tvCoordinate = 1.0f;
-                    tvCount = 0;
-                }
-            }
-            return texture;
-        }
+        
         static Vector4[] LoadColourMap(string fullPath, int width, int height) {
             Bitmap colourBitMap = null;
             try {

@@ -394,6 +394,10 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     return _in => _in;
                 case TypeCode.Single:
                     return _in => float.Parse(_in);
+                case TypeCode.Double:
+                    return _in => double.Parse(_in);
+                case TypeCode.Int32:
+                    return _in => int.Parse(_in);
                 default:
                     return x => null;
             }
@@ -417,6 +421,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
     public interface IEditingProperties {
         string Titile { get; }
         object TargetObject { get; }
+        void MarkAsModified();
     }
 
     public class PropertiesEditorWindowViewModel : GroupViewProperty, System.ComponentModel.INotifyPropertyChanged {
@@ -460,6 +465,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         void OnApply() {
             Value.Clear();
             hash.Clear();
+            item.MarkAsModified();
             Analyze(item.TargetObject, hash);
             RenderUpdater.Update();
         }

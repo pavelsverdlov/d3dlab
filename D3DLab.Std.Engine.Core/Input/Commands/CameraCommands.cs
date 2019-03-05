@@ -203,6 +203,12 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         protected virtual bool Executing(GraphicEntity entity, GeneralCameraComponent comp) { return true; }
     }
 
+    public class CaptureTargetUnderMouseCameraCommand : CameraCommand {
+        public CaptureTargetUnderMouseCameraCommand(InputStateData state) : base(state) {
+
+        }
+    }
+
     /*
     public class ZoomToObjectCommand : IInputCommand {
         readonly BoundingBox box;

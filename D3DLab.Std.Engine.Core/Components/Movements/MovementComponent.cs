@@ -35,6 +35,7 @@ namespace D3DLab.Std.Engine.Core.Components.Movements {
         void Execute(IMoveToPositionComponent component);
         void Execute(HitToTargetComponent component);
         void Execute(FollowUpTargetComponent component);
+        void Execute(TranslateMovementComponent translate);
     }
 
     public abstract class MovementComponent : GraphicComponent {
@@ -54,6 +55,12 @@ namespace D3DLab.Std.Engine.Core.Components.Movements {
     public class HitToTargetComponent : MovementComponent {
         public Vector2 ScreenPosition { get; set; }
 
+        public override void Execute(IMovementComponentHandler handler) {
+            handler.Execute(this);
+        }
+    }
+
+    public class TranslateMovementComponent : MovementComponent {
         public override void Execute(IMovementComponentHandler handler) {
             handler.Execute(this);
         }

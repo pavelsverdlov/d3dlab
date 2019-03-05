@@ -72,7 +72,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                     }
                 }
 
-                if (render.IsModified) {
+                if (render.IsModified || !pass.IsCompiled) {
                     if (!pass.IsCompiled) {
                         pass.Compile(graphics.Compilator);
                     }

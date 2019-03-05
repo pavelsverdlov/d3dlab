@@ -5,7 +5,7 @@ namespace D3DLab.Std.Engine.Core {
     public interface IGraphicComponent : IDisposable {
         ElementTag Tag { get; }
         ElementTag EntityTag { get; set; }
-        bool IsModified { get; }
+        bool IsModified { get; set; }
         bool IsValid { get; }
         bool IsDisposed { get; }
 

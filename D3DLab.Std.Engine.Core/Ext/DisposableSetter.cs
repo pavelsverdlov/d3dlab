@@ -39,6 +39,13 @@ namespace D3DLab.Std.Engine.Core.Ext {
 
     public class EnumerableDisposableSetter<T> : IDisposable where T : IEnumerable<IDisposable> {
         T disposable;
+
+        public EnumerableDisposableSetter(DisposeWatcher watcher) {
+            watcher.Watch(this);
+        }
+        public EnumerableDisposableSetter() {
+        }
+
         public void Dispose() {
             Disposer.DisposeAll(disposable);
         }

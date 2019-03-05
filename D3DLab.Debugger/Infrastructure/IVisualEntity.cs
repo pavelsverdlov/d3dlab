@@ -21,6 +21,7 @@ namespace D3DLab.Debugger.Infrastructure {
         IGraphicComponent GetOriginComponent();
 
         void Refresh();
+        void MarkAsModified();
     }
 
     public interface IVisualTreeEntityItem {
