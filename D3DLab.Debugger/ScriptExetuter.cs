@@ -43,11 +43,11 @@ namespace D3DLab.Debugger {
             var imports = new[] {
                 "System",
                 "System.Numerics",
-                //"System.ValueTuple",
+                "System.ValueTuple",
             };
             var asemblyis = new[] {
                 typeof(System.Numerics.Vector2).Assembly,
-                typeof(System.ValueTuple).Assembly,
+               // typeof(System.ValueTuple).Assembly,
             };
           //  code = namaspaces + code;// "DrawPoint(new Vector3())";// "var sqrt = System.Math.Sqrt(2);var point = new []{ new Vector3(), new Vector3()};";
             try {
