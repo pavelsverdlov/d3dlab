@@ -29,6 +29,7 @@ namespace D3DLab.SDX.Engine.Shader {
             for (var i = 0; i < parts.Length; ++i){
                 if(CreateInfo(res, keyname, parts, ShaderStages.Vertex.ToString().ToLower(), ref i)) { continue; }
                 if(CreateInfo(res, keyname, parts, ShaderStages.Fragment.ToString().ToLower(), ref i)) { continue; }
+                if(CreateInfo(res, keyname, parts, ShaderStages.Geometry.ToString().ToLower(), ref i)) { continue; }
             }
             return res.ToArray();
         }
