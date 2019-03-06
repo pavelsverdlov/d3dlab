@@ -60,6 +60,7 @@ namespace D3DLab.Wpf.Engine.App {
                 smanager.CreateSystem<InputSystem>();
                 smanager.CreateSystem<D3DCameraSystem>();
                 smanager.CreateSystem<LightsSystem>();
+                smanager.CreateSystem<CollidingSystem>();
                 smanager.CreateSystem<MovementSystem>();
                 //smanager.CreateSystem<MovingOnHeightMapSystem>();
                 smanager.CreateSystem<AnimationSystem>();

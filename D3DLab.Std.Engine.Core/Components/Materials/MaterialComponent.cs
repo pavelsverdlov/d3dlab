@@ -24,7 +24,7 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
         Vector4 GetVertexColor(int vertexInd);
     }
 
-    public class ColorComponent : MaterialComponent {
+    public class ColorComponent : MaterialComponent, IColoringMaterialComponent {
         private Vector4 color;
         public Vector4 Color {
             get => color;
@@ -32,6 +32,10 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
                 color = value;
                 IsModified = true;
             }
+        }
+
+        public Vector4 GetVertexColor(int vertexInd) {
+            throw new System.NotImplementedException();
         }
     }
     

@@ -2,9 +2,11 @@
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
 using System;
+using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Systems {
+
     public class CameraSystem : BaseEntitySystem, IGraphicSystem {
 
         protected static class Ext {
@@ -150,30 +152,19 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 this.snapshot = snapshot;
             }
 
-            public void Execute(CameraRotatingComponent component) {
+            public void Handle(CameraRotatingComponent component) {
                 var rotate = new RotationHandler(camera);
                 rotate.Execute(component);
             }
 
-            public virtual void Execute(CameraZoomingComponent component) { }
-
-            public void Execute(IMoveToPositionComponent component) {
-                var position = component.TargetPosition;
-
-                var look = camera.LookDirection;
-
-                camera.Position = position - look * 10 * 1.2f;
-                camera.RotatePoint = position;
-
-                snapshot.ContextState
-                    .GetEntityManager()
-                    .GetEntity(camera.EntityTag)
-                    .RemoveComponent(component);
-            }
-
-            public void Execute(KeywordMovingComponent movment) {
+            public virtual void Handle(CameraZoomingComponent component) { }
+            
+            public void Handle(KeywordMovingComponent movment) {
                 var handler = new KeywordMovingHandler();
                 handler.Move(camera, movment);                
+            }
+            public void Handle(CameraMoveToPositionComponent component) {
+                MoveToPosition(camera,component.TargetPosition);
             }
 
             protected bool ChangeCameraDistance(ref float delta, Vector3 zoomAround) {
@@ -267,20 +258,20 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 this.snapshot = snapshot;
             }
 
-            public void Execute(CameraRotatingComponent component) {
+            public void Handle(CameraRotatingComponent component) {
                 var rotate = new RotationHandler(camera);
                 rotate.Execute(component);
             }
 
-            public virtual void Execute(CameraZoomingComponent component) {
+            public virtual void Handle(CameraZoomingComponent component) {
 
             }
-
-            public void Execute(IMoveToPositionComponent component) {
+            
+            public void Handle(KeywordMovingComponent component) {
                 throw new NotImplementedException();
             }
 
-            public void Execute(KeywordMovingComponent component) {
+            public void Handle(CameraMoveToPositionComponent component) {
                 throw new NotImplementedException();
             }
         }
@@ -302,8 +293,10 @@ namespace D3DLab.Std.Engine.Core.Systems {
             try {
                 foreach (var entity in emanager.GetEntities()) {
                     foreach (var com in entity.GetComponents<OrthographicCameraComponent>()) {
-                        entity.GetComponents<CameraMovementComponent>().DoFirst(movment => {
-                            movment.Execute(CreateHandlerOrthographicHandler(com, snapshot));                            
+                        entity
+                            .GetComponents<CameraMovementComponent>()
+                            .DoFirst(movment => {
+                                movment.Execute(CreateHandlerOrthographicHandler(com, snapshot));                            
                         });
 
                         com.UpdateViewMatrix();
@@ -311,15 +304,34 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
                         snapshot.UpdateCamera(entity.Tag,com.GetState());
                     }
-                    foreach (var com in entity.GetComponents<PerspectiveCameraComponent>()) {
-                        entity.GetComponents<CameraMovementComponent>().DoFirst(movment => {
-                            movment.Execute(CreateHandlerPerspectiveHandler(com, snapshot));
-                        });
 
-                        com.UpdateViewMatrix();
-                        com.UpdateProjectionMatrix(window.Width, window.Height);
+                    var isCamera = entity.GetComponents<PerspectiveCameraComponent>();
+                    if (isCamera.Any()) {
+                        var cameraCom = isCamera.Single();
 
-                        snapshot.UpdateCamera(entity.Tag, com.GetState());
+                        foreach (var component in entity.GetComponents()) {
+                            switch (component) {
+                                case CameraMovementComponent movment:
+                                    movment.Execute(CreateHandlerPerspectiveHandler(cameraCom, snapshot));
+                                    //entity.RemoveComponent(movment);
+                                    break;
+                                case RayCollidedWithEntityComponent c:
+                                    //the case when camera is moved to position on some object mesh
+                                    MoveToPosition(cameraCom, c.IntersectionPosition);
+                                    entity.RemoveComponent(c);
+                                    break;
+                                //case MoveCameraToTargetComponent mvtt:
+                                //    MoveToPosition(cameraCom, mvtt.TargetPosition);
+                                //    entity.RemoveComponent(mvtt);
+                                //    break;
+
+                            }
+                        }
+
+                        cameraCom.UpdateViewMatrix();
+                        cameraCom.UpdateProjectionMatrix(window.Width, window.Height);
+
+                        snapshot.UpdateCamera(entity.Tag, cameraCom.GetState());
                     }
 
                 }
@@ -329,6 +341,11 @@ namespace D3DLab.Std.Engine.Core.Systems {
             }
         }
 
+        static void MoveToPosition(PerspectiveCameraComponent camera, Vector3 position) {
+            var look = camera.LookDirection;
+            camera.Position = position - look * 10 * 1.2f;
+            camera.RotatePoint = position;            
+        }
 
     }
 }

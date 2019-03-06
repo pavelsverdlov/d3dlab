@@ -5,29 +5,30 @@ using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Components.Movements {
     public interface ICameraMovementComponentHandler {
-        void Execute(CameraRotatingComponent component);
-        void Execute(CameraZoomingComponent component);
-        void Execute(IMoveToPositionComponent component);
-        void Execute(KeywordMovingComponent component);
+        void Handle(CameraRotatingComponent component);
+        void Handle(CameraZoomingComponent component);
+        void Handle(KeywordMovingComponent component);
+        void Handle(CameraMoveToPositionComponent component);
     }
 
-    public class CameraMoveToPositionComponent : CameraMovementComponent, IMoveToPositionComponent {
+    public class CameraMoveToPositionComponent : CameraMovementComponent {
         public Vector3 TargetPosition { get; set; }
 
         public override void Execute(ICameraMovementComponentHandler handler) {
-            handler.Execute(this);
+            handler.Handle(this);
         }
     }
+
     public class CameraRotatingComponent : CameraMovementComponent {
         public override void Execute(ICameraMovementComponentHandler handler) {
-            handler.Execute(this);
+            handler.Handle(this);
         }
     }
     public class CameraZoomingComponent : CameraMovementComponent {
         public int Delta { get; set; }
 
         public override void Execute(ICameraMovementComponentHandler handler) {
-            handler.Execute(this);
+            handler.Handle(this);
         }
     }
 

@@ -229,7 +229,8 @@ namespace D3DLab.Debugger.Modules.OBJFileFormat {
                 .GetEntity(item.Entity)
                 .GetComponent<ColorComponent>();
             comp.Color = color;
-            entityManager.PushSynchronization();
+            comp.IsModified = true;
+            //entityManager.PushSynchronization();
         }
 
         ObjGroupViewItem GetCurrentItem() {

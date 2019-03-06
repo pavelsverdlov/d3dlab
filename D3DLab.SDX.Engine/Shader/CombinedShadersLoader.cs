@@ -35,7 +35,7 @@ namespace D3DLab.SDX.Engine.Shader {
         }
         bool CreateInfo(List<IShaderInfo> infos, string keyname, string[] parts, string partName, ref int i) {
             var part = parts[i].Trim();
-            if (part.Length == partName.Length && string.Compare(part, partName, true) == 0) {
+            if (part.Length == partName.Length && string.Compare(part, partName, true) == 0 && parts.Length > (i + 1)) {
                 i++;
                 var info = new ShaderInMemoryInfo($"{keyname}_{partName}Shader", parts[i].Trim(), null,
                     partName, entry);               

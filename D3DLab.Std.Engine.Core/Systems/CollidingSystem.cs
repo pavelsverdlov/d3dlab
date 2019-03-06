@@ -5,66 +5,89 @@ using System.Numerics;
 using System.Text;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Input.Commands;
 using D3DLab.Std.Engine.Core.Utilities;
 using g3;
 
 namespace D3DLab.Std.Engine.Core.Systems {
 
-    public interface ICollidableComponent :IGraphicComponent{
-        void Execute(ICollidingSystemHandlers handlers);
+    public interface ICollidableComponent : IGraphicComponent {
     }
 
-    public interface ICollidingFromScreenComponent : ICollidableComponent {
-        Vector2 ScreenPosition { get; }
+    public class CollidingWithScreenRayComponent : GraphicComponent, ICollidableComponent {
+        public Vector2 ScreenPosition { get; set; }
     }
 
-    public interface ICollidingSystemHandlers {
-        void Handle(ICollidingFromScreenComponent component);
+    public class RayCollidedWithEntityComponent : GraphicComponent {
+        public ElementTag With { get; set; }
+        public Vector3 IntersectionPosition { get; set; }
     }
 
     public class CollidingSystem : BaseEntitySystem, IGraphicSystem {
         public void Execute(SceneSnapshot snapshot) {
+            var colliding = new Colliding(snapshot);
             var emanager = snapshot.ContextState.GetEntityManager();
+
+            foreach (var ev in snapshot.Snapshot.Events) {
+                switch (ev) {
+                    case CaptureTargetUnderMouseCameraCommand capture:
+                        if (colliding.TryToColliding(capture.ScreenPosition, out var collidedWith)) {
+                            var entity = emanager.GetEntity(collidedWith.EntityTag);
+                            var has = entity.GetComponents<ManipulatableComponent>();
+                            if (has.Any()) {
+                                entity.AddComponent(new CapturedToManipulateComponent() {
+                                    CapturePoint = collidedWith.IntersectionPosition,
+                                });
+                                snapshot.Snapshot.RemoveEvent(ev);
+                            }
+                        }
+                        break;
+                }
+            }
+
             foreach (var entity in emanager.GetEntities()) {
                 foreach (var com in entity.GetComponents<ICollidableComponent>()) {
-                    com.Execute(new Handler(snapshot, entity, com));
+                    switch (com) {
+                        case CollidingWithScreenRayComponent byRay:
+                            try {
+                                if (colliding.TryToColliding(byRay.ScreenPosition, out var collidedWith)) {
+                                    entity.AddComponent(collidedWith);
+                                }
+                            } finally {
+                                entity.RemoveComponent(byRay);
+                            }
+                            break;
+                    }
                 }
             }
         }
 
-        class Handler : ICollidingSystemHandlers {
+        class Colliding {
             readonly SceneSnapshot snapshot;
-            readonly GraphicEntity entity;
-            readonly ICollidableComponent component;
 
-            public Handler(SceneSnapshot snapshot, GraphicEntity entity, ICollidableComponent component) {
+            public Colliding(SceneSnapshot snapshot) {
                 this.snapshot = snapshot;
-                this.entity = entity;
-                this.component = component;
             }
 
-            public void Handle(ICollidingFromScreenComponent component) {
-                var ray = snapshot.Viewport.UnProject(component.ScreenPosition, snapshot.Camera, snapshot.Window);
-                if (TryToColliding(ray)) {
-                    
-                }
-            }
+            public bool TryToColliding(Vector2 pos, out RayCollidedWithEntityComponent collided) {
+                var ray = snapshot.Viewport.UnProject(pos, snapshot.Camera, snapshot.Window);
+                collided = new RayCollidedWithEntityComponent();
 
-            bool TryToColliding(Ray ray) {
-                var geo = entity.GetComponent<HittableGeometryComponent>();
-                if (geo.IsNull() || !geo.IsBuilt) {
-                    return false;
-                }
-
-                IntrRay3Triangle3 hitted = null;
                 var minDistance = double.MaxValue;
 
+                IntrRay3Triangle3 local = null;
+                var tag = ElementTag.Empty;
                 //find object
                 var res = snapshot.Octree.GetColliding(ray, tag => {
                     var entity = snapshot.ContextState.GetEntityManager().GetEntity(tag);
 
                     var renderable = entity.GetComponents<IRenderableComponent>().Any(x => x.CanRender);
                     if (!renderable) {
+                        return false;
+                    }
+
+                    var geo = entity.GetComponent<HittableGeometryComponent>();
+                    if (geo.IsNull() || !geo.IsBuilt) {
                         return false;
                     }
 
@@ -77,20 +100,23 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
                     if (minDistance > hit_dist) {
                         minDistance = hit_dist;
-                        hitted = intr;
+                        local = intr;
+                        tag = entity.Tag;
                         return true;
                     }
                     return false;
                 });
-                if (!res.Any() || hitted.IsNull()) {
+                if (!res.Any() || local.IsNull()) {
                     return false;
                 }
 
+                collided.IntersectionPosition = local.Triangle.V1.ToVector3();
+                collided.With = tag;
 
-                return false;
+                return true;
             }
         }
 
-       
+
     }
 }

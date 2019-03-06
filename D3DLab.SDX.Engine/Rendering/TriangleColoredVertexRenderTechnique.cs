@@ -3,6 +3,7 @@ using D3DLab.SDX.Engine.Rendering;
 using D3DLab.SDX.Engine.Rendering.Strategies;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core.Components;
+using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Filter;
 using D3DLab.Std.Engine.Core.Shaders;
 using SharpDX.Direct3D11;
@@ -65,6 +66,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                 var render = en.GetComponent<D3DTriangleColoredVertexRenderComponent>();
                 var geo = en.GetComponent<IGeometryComponent>();
                 var components = en.GetComponents<ID3DRenderable>();
+                var color = en.GetComponents<ColorComponent>(); 
 
                 foreach (var com in components) {
                     if (com.IsModified) {
@@ -86,11 +88,19 @@ namespace D3DLab.SDX.Engine.Rendering {
                 context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);
                 context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, game.Lights);
 
-                if (geo.IsModified) {
+                if (geo.IsModified || color.Any(x=>x.IsModified)) {
                     var vertex = new Vertex[geo.Positions.Length];
-                    for (var index = 0; index < vertex.Length; index++) {
-                        vertex[index] = new Vertex(
-                            geo.Positions[index], geo.Normals[index], geo.Colors[index]);
+                    if (color.Any()) {
+                        var c = color.Single();
+                        for (var index = 0; index < vertex.Length; index++) {
+                            vertex[index] = new Vertex(
+                                geo.Positions[index], geo.Normals[index], c.Color);
+                        }
+                    } else {
+                        for (var index = 0; index < vertex.Length; index++) {
+                            vertex[index] = new Vertex(
+                                geo.Positions[index], geo.Normals[index], geo.Colors[index]);
+                        }
                     }
 
                     render.VertexBuffer.Set(graphics.CreateBuffer(BindFlags.VertexBuffer, vertex));

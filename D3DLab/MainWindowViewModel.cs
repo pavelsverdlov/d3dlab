@@ -103,8 +103,8 @@ namespace D3DLab {
                 //main.items.ForEach(i=> i.GameObj.Cleanup(main.context.GetEntityManager()));
                 //main.items.Clear();               
 
-              //  main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
-              //  main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
+                main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
+                main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {

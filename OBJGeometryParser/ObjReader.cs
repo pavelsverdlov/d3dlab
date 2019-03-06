@@ -1022,7 +1022,7 @@ namespace OBJGeometryParser {
             var comm = new ReadOnlySpan<char>(new[] { '#' });
             //Memory<byte> buffer = new Memory<byte>();
             var groupname = "noname";
-            PartGeometry3D current = null;
+            PartGeometry3D current = FullGeometry.CreatePart(groupname);
             using (var reader = new StreamReader(stream)) {
                 while (!reader.EndOfStream) {
                     var span = reader.ReadLine().AsSpan();
@@ -1209,10 +1209,10 @@ namespace OBJGeometryParser {
                 sw.Stop();
                 Trace.WriteLine($"Reader {sw.Elapsed.TotalMilliseconds}");
 
-                r.FullGeometry1.Color = new Vector4(0, 1, 0, 1);
-                r.FullGeometry1.Normals = r.FullGeometry1.Positions.CalculateNormals(r.FullGeometry.Indices.ToList());
+                //r.FullGeometry1.Color = new Vector4(0, 1, 0, 1);
+                //r.FullGeometry1.Normals = r.FullGeometry1.Positions.CalculateNormals(r.FullGeometry.Indices.ToList());
 
-                var full = r.FullGeometry1;// r.FullGeometry;
+                //var full = r.FullGeometry1;// r.FullGeometry;
                 //var c = new SimpleGeometryComponent {
                 //    Positions = full.Positions.ToImmutableArray(),
                 //    Indices = full.Indices.ToImmutableArray(),

@@ -58,7 +58,7 @@ namespace D3DLab.Std.Engine.Core {
         readonly Dictionary<ElementTag, HashSet<Type>> entityHas = new Dictionary<ElementTag, HashSet<Type>>();
         readonly Dictionary<ElementTag, List<IGraphicComponent>> components = new Dictionary<ElementTag, List<IGraphicComponent>>();
         readonly EntityOrderContainer orderContainer;
-
+        
         public void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com) {
             comSynchronizer.AddRange((owner, inp) => {
                 owner._AddComponent(tagEntity, inp);
@@ -97,6 +97,11 @@ namespace D3DLab.Std.Engine.Core {
         }
         public bool Has(ElementTag tag, params Type[] types) {
             return types.All(type => entityHas[tag].Contains(type));
+        }
+
+        public IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types) {
+            //TODO: temporary decision
+            return components[tag].Where(x => types.Any(t => t == x.GetType()));
         }
 
         public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {

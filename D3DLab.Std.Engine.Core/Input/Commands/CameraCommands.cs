@@ -92,8 +92,6 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
     #region mouse events 
 
-
-
     public class CameraZoomCommand : IInputCommand {
         const float scrollSpeed = 0.5f;
         readonly InputStateData state;
@@ -153,17 +151,9 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
     public class FocusToObjectCommand : CameraCommand {
         public FocusToObjectCommand(InputStateData state) : base(state) { }
         protected override bool Executing(GraphicEntity entity, GeneralCameraComponent comp) {
-            var p1 = state.PrevPosition;
-
-            var mcomp = new HitToTargetComponent();
-
-            mcomp.ScreenPosition = state.CurrentPosition;// new Vector2(state.CursorCurrentPosition.X, state.CursorCurrentPosition.Y);// CurrentPosition;
-
+            var mcomp = new Systems.CollidingWithScreenRayComponent();
+            mcomp.ScreenPosition = state.CurrentPosition;
             entity.AddComponent(mcomp);
-
-
-            //entity.GetOrCreateComponent(new CameraRotatingComponent { State = comp.GetState() })
-            //   .MovementData = data;
 
             return true;
         }
@@ -205,7 +195,13 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
     public class CaptureTargetUnderMouseCameraCommand : CameraCommand {
         public CaptureTargetUnderMouseCameraCommand(InputStateData state) : base(state) {
+            ScreenPosition = state.CurrentPosition;
+        }
 
+        public Vector2 ScreenPosition { get; }
+
+        protected override bool Executing(GeneralCameraComponent comp) {
+            return false;
         }
     }
 

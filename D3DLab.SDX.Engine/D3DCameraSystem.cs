@@ -26,7 +26,7 @@ namespace D3DLab.SDX.Engine {
             public D3DPerspMoveHandler(PerspectiveCameraComponent camera, SceneSnapshot snapshot) : base(camera, snapshot) {
             }
 
-            public override void Execute(CameraZoomingComponent component) {
+            public override void Handle(CameraZoomingComponent component) {
                 var winW = snapshot.Window.Width;
                 var winH = snapshot.Window.Height;
                 float delta = component.Delta;
@@ -112,7 +112,7 @@ namespace D3DLab.SDX.Engine {
         class D3DOrthoMoveHandler : OrthographicCameraMoveHandler {
             public D3DOrthoMoveHandler(OrthographicCameraComponent camera, SceneSnapshot snapshot) : base(camera, snapshot) { }
 
-            public override void Execute(CameraZoomingComponent component) {
+            public override void Handle(CameraZoomingComponent component) {
                 var winW = snapshot.Window.Width;
                 var winH = snapshot.Window.Height;
                 float delta = component.Delta;

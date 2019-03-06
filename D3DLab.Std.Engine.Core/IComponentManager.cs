@@ -18,6 +18,9 @@ namespace D3DLab.Std.Engine.Core {
         bool Has<T>(ElementTag tag) where T : IGraphicComponent;
         bool Has(ElementTag tag, params Type[] types);
 
+
+        IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types);
+
         void Dispose();
     }
 

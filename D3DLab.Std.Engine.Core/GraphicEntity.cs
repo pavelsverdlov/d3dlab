@@ -23,6 +23,10 @@ namespace D3DLab.Std.Engine.Core {
         public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent {
             return manager.GetComponents<T>(Tag);
         }
+        public IEnumerable<IGraphicComponent> GetComponents(params Type[] types) {
+            return manager.GetComponents(Tag, types);
+        }
+
         public T GetOrCreateComponent<T>(T newone) where T : IGraphicComponent {
             return manager.GetOrCreateComponent<T>(Tag, newone);
         }

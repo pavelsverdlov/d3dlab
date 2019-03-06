@@ -115,9 +115,8 @@ namespace D3DLab.Std.Engine.Core.Components {
         }
         public ImmutableArray<Vector2> TextureCoordinates { get; set; }
         public ImmutableArray<int> Indices { get; set; }
-        /// <summary>
-        /// MOve to color component
-        /// </summary>
+        
+        [Obsolete("MOve to color component")]
         public Vector4 Color { get; set; }
 
         public BoundingBox Box => CalcuateBox();

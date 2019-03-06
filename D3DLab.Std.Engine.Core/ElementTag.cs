@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace D3DLab.Std.Engine.Core {
     public struct ElementTag : IEquatable<ElementTag> {
+        public static ElementTag Empty = new ElementTag(string.Empty);
+
         readonly string tag;      
         public ElementTag(string tag) {
             this.tag = tag;
