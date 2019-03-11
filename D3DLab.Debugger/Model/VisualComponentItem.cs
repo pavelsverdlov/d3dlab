@@ -24,12 +24,12 @@ namespace D3DLab.Debugger.Model {
         //public ICommand OpenShaderEditor { get; }
         //public ICommand OpenPropertiesEditor { get; }
 
-        private readonly Dictionary<ElementTag, IVisualComponentItem> hash;
+        readonly Dictionary<ElementTag, IVisualComponentItem> hash;
 
-        readonly GraphicEntity entity;
+        readonly GraphicEntityAdapter entity;
         readonly ITreeItemActions actions;
 
-        public VisualTreeItem(GraphicEntity entity, ITreeItemActions actions) {
+        public VisualTreeItem(GraphicEntityAdapter entity, ITreeItemActions actions) {
             this.entity = entity;
             this.actions = actions;
             Components = new ObservableCollection<IVisualComponentItem>();
@@ -50,6 +50,7 @@ namespace D3DLab.Debugger.Model {
         }
         public void Clear() {
             Components.Clear();
+            hash.Clear();
         }
         public void Remove(IVisualComponentItem com) {
             Components.Remove(com);

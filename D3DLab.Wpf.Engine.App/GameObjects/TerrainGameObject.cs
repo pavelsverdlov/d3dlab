@@ -58,7 +58,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .AddComponents(new IGraphicComponent[] {
                     new D3DSkyRenderComponent() { },
                     geo,
-                    new D3DWorldTransformComponent(),
+                    new TransformComponent(),
                     new GradientMaterialComponent(),
                     new FollowUpCameraPositionComponent()
                 });
@@ -76,7 +76,7 @@ namespace D3DLab.Wpf.Engine.App {
                         Indices = planemesh.Indices.ToImmutableArray(),
                         TextureCoordinates = planemesh.TextureCoordinates.ToImmutableArray(),
                     },
-                    new D3DWorldTransformComponent(),
+                    new TransformComponent(),
                     new FollowUpCameraPositionComponent(),
                     new SkyPlaneParallaxAnimationComponent()
                 });
@@ -162,7 +162,7 @@ namespace D3DLab.Wpf.Engine.App {
                         new System.IO.FileInfo(slope)
                         
                         ),
-                    new D3DWorldTransformComponent(),
+                    new TransformComponent(),
                 });
 
             return new TerrainGameObject(tag);

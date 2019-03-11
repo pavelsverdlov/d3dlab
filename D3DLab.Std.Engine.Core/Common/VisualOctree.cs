@@ -10,25 +10,78 @@ using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
 
 namespace D3DLab.Std.Engine.Core.Common {
-    public class EntityOctree : VisualOctree<ElementTag> , IManagerChangeSubscriber<IGraphicComponent> {
+    public interface IOctree : IManagerChangeSubscriber<IGraphicComponent>, ISynchronizationContext {
+        void Draw(IEntityManager emanager);
+        IEnumerable<OctreeItem<ElementTag>> GetColliding(Ray ray, Func<ElementTag, bool> predicate);
+    }
+
+    public abstract class EntityOctree : VisualOctree<ElementTag>, IOctree {
         readonly object _lock;
-        public EntityOctree(BoundingBox box, int MaximumChildren) : base(box, MaximumChildren) {
+        readonly IContextState context;
+        protected bool isActualStateDrawed;
+        readonly SynchronizationContext<EntityOctree, IGraphicComponent> synchronizer;
+        readonly object loker;
+
+        protected EntityOctree(IContextState context, BoundingBox box, int MaximumChildren) : base(box, MaximumChildren) {
             _lock = new object();
+            this.context = context;
+            isActualStateDrawed = false;
+            loker = new object();
+            synchronizer = new SynchronizationContext<EntityOctree, IGraphicComponent>(this, loker);
         }
 
         public void Change(IGraphicComponent com) {
-            if (com is HittableGeometryComponent geo) { // TODO remove this IF, remake additing to Manager base on Generic type
-                if (geo.IsDisposed) {
-                    Remove(geo.EntityTag);
-                } else {
-                    geo.BuildTreeAsync()
-                        .ContinueWith(x => { lock (_lock) { Add(x.Result.Box, x.Result.EntityTag); } });
-                }
+            switch (com) {
+                case HittableGeometryComponent geo:// TODO remove this IF, remake additing to Manager base on Generic type                   
+                    if (geo.IsDisposed) {
+                        synchronizer.Add((_, cc) => {
+                            _.Remove(cc.EntityTag);
+                            _.isActualStateDrawed = false;
+                        }, geo);
+                    } else {
+                        geo.BuildTreeAsync()
+                            .ContinueWith(x => {
+                                synchronizer.Add((_, cc) => {
+                                    var g = (HittableGeometryComponent)cc;
+                                    _.Add(g.Box, g.EntityTag);
+                                    _.isActualStateDrawed = false;
+                                }, x.Result);
+                            });
+                    }
+                    break;
+                case TransformComponent tr when TryGet(tr.EntityTag, out var found):
+                    var entity = tr.EntityTag;
+                    var box = context
+                        .GetComponentManager()
+                        .GetComponent<HittableGeometryComponent>(entity).Box;
+
+                    synchronizer.Add((_, cc) => {
+                        var t = (TransformComponent)cc;
+                        _.Remove(entity);
+                        var worldBox = box.Transform(t.MatrixWorld);
+                        _.Add(worldBox, entity);
+                        _.isActualStateDrawed = false;
+                    }, tr);
+
+                    break;
             }
+        }
+
+        public override void Draw(IEntityManager emanager) {
+            base.Draw(emanager);
+            isActualStateDrawed = true;
+        }
+
+        public void Synchronize(int theadId) {
+            synchronizer.Synchronize(theadId);
         }
     }
 
 
+
+    internal interface IOctreeDrawer<TItem> {
+        void DrawBox(TItem tag, BoundingBox box, IEntityManager emanager);
+    }
     /*
      * https://habr.com/post/334990/
      * https://www.gamedev.net/articles/programming/general-and-gameplay-programming/introduction-to-octrees-r3529/
@@ -40,7 +93,7 @@ namespace D3DLab.Std.Engine.Core.Common {
      * https://www.wobblyduckstudios.com/Code/IntersectionRecord.cs
      */
 
-    public class VisualOctree<T> {//where T : class
+    public class VisualOctree<T> : IOctreeDrawer<T> {//where T : class
         readonly OctreeNode<T> root;
         readonly Dictionary<T, OctreeItem<T>> items;
 
@@ -63,6 +116,13 @@ namespace D3DLab.Std.Engine.Core.Common {
         public void Remove(T item) {
             items[item].SelfRemove();
             items.Remove(item);
+        }
+
+        public bool TryGet(T key, out OctreeItem<T> item) {
+            if (items.TryGetValue(key, out item)) {
+                return true;
+            }
+            return false;
         }
 
         public bool TryRemove(T item) {
@@ -100,12 +160,16 @@ namespace D3DLab.Std.Engine.Core.Common {
         }
 
 
-        public void Draw() {
-            root.Draw();
+        public virtual void Draw(IEntityManager emanager) {
+            root.Draw(this, emanager);
+        }
+
+        public virtual void DrawBox(T item, BoundingBox box, IEntityManager emanager) {
+
         }
     }
 
-    public class OctreeNode<T>  {
+    public class OctreeNode<T> {
         private readonly Guid key;
         public static OctreeNode<T> CreateRoot(ref BoundingBox box, int maximumChildren) {
             var node = new OctreeNode<T>(ref box, maximumChildren, null);
@@ -253,18 +317,17 @@ namespace D3DLab.Std.Engine.Core.Common {
             }
         }
 
-
-        public void Draw() {
-            //if (IsLeaf()) {
-            //    Bounds.DrawBox();
-            //} else {
-            //    for (int i = 0; i < Nodes.Length; i++) {
-            //        Nodes[i].Draw();
-            //    }
-            //}
-            //foreach (var i in items) {
-            //    i.Bound.DrawBox(global::SharpDX.Color.Beige);
-            //}
+        internal void Draw(IOctreeDrawer<T> drawer, IEntityManager emanager) {
+            if (IsLeaf()) {
+                drawer.DrawBox(default, Bounds, emanager);
+            } else {
+                for (int i = 0; i < Nodes.Length; i++) {
+                    Nodes[i].Draw(drawer, emanager);
+                }
+            }
+            foreach (var i in items) {
+                drawer.DrawBox(i.Item, i.Bound, emanager);
+            }
         }
 
         public void Remove(OctreeItem<T> item) {
@@ -331,7 +394,7 @@ namespace D3DLab.Std.Engine.Core.Common {
         }
     }
 
-    public class OctreeItem<T>  {
+    public class OctreeItem<T> {
         readonly List<OctreeNode<T>> owners;
         public BoundingBox Bound;
         public T Item { get; }

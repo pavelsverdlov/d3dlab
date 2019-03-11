@@ -10,7 +10,7 @@ namespace D3DLab.Std.Engine.Core.Ext {
         /// </summary>
         /// <param name="viewMatrix"></param>
         /// <returns></returns>
-        public static Matrix4x4 PsudoInvert(this Matrix4x4 viewMatrix) {
+        public static Matrix4x4 PsudoInverted(this Matrix4x4 viewMatrix) {
             //var v33Transpose = new Matrix3x3(
             //    viewMatrix.M11, viewMatrix.M21, viewMatrix.M31,
             //    viewMatrix.M12, viewMatrix.M22, viewMatrix.M32,
@@ -28,6 +28,20 @@ namespace D3DLab.Std.Engine.Core.Ext {
                 viewMatrix.M11, viewMatrix.M21, viewMatrix.M31, 0,
                 viewMatrix.M12, viewMatrix.M22, viewMatrix.M32, 0,
                 viewMatrix.M13, viewMatrix.M23, viewMatrix.M33, 0, -x, -y, -z, 1);
+        }
+        /// <summary>
+        /// See remarks!!
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// return Identity if Matrix4x4 can be inverted
+        /// </remarks>
+        public static Matrix4x4 Inverted(this Matrix4x4 m) {
+            if(Matrix4x4.Invert(m, out var inverted)) {
+                return inverted;
+            }
+            return Matrix4x4.Identity;
         }
     }
 }

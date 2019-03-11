@@ -20,8 +20,7 @@ namespace D3DLab.SDX.Engine.Components {
         public PrimitiveTopology PrimitiveTopology { get; set; }
 
         [IgnoreDebuging]
-        [Obsolete("NOT USED YET")]
-        public SharpDX.Direct3D11.Buffer TransformWorldBuffer { get; set; }
+        public DisposableSetter<SharpDX.Direct3D11.Buffer> TransformWorldBuffer { get; set; }
         [IgnoreDebuging]
         public DisposableSetter<SharpDX.Direct3D11.Buffer> VertexBuffer { get; private set; }
         [IgnoreDebuging]
@@ -46,6 +45,7 @@ namespace D3DLab.SDX.Engine.Components {
             CanRender = true;
             IsModified = true;
             disposer = new DisposeWatcher();
+            TransformWorldBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>(disposer);
             VertexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>(disposer);
             IndexBuffer = new DisposableSetter<SharpDX.Direct3D11.Buffer>(disposer);
             DepthStencilState = new DisposableSetter<DepthStencilState>(disposer);

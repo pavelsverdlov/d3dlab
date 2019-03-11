@@ -7,15 +7,15 @@ namespace D3DLab.Std.Engine.Core {
 
         #region IEntityManager
 
-        readonly Dictionary<ElementTag, GraphicEntity> entities = new Dictionary<ElementTag, GraphicEntity>();
-        Func<GraphicEntity, bool> predicate = x => true;
+        readonly HashSet<ElementTag> entities = new HashSet<ElementTag>();
+        Func<ElementTag, bool> predicate = x => true;
         readonly IManagerChangeNotify notify;
 
         public GraphicEntity CreateEntity(ElementTag tag) {
-            var en = new GraphicEntity(tag, this, this, orderContainer);
+            var en = _CreateEntity(tag);
 
             entitySynchronizer.Add((owner, input) => {
-                owner.entities.Add(tag, input);
+                owner.entities.Add(tag);
                 owner.notify.NotifyChange(input);
                 owner.components.Add(input.Tag, new List<IGraphicComponent>());
                 entityHas.Add(input.Tag, new HashSet<Type>());
@@ -26,7 +26,9 @@ namespace D3DLab.Std.Engine.Core {
 
         public void RemoveEntity(ElementTag elementTag) {
             entitySynchronizer.Add((owner, input) => {
-                if (owner.entities.TryGetValue(elementTag, out GraphicEntity entity)) {
+                if (owner.entities.Contains(elementTag)) {
+                    var entity = _CreateEntity(elementTag);
+
                     foreach (var component in owner.GetComponents(entity.Tag)) {
                         owner._RemoveComponent(entity.Tag, component);
                     }
@@ -38,18 +40,37 @@ namespace D3DLab.Std.Engine.Core {
         }
 
         public IEnumerable<GraphicEntity> GetEntities() {
-            return entities.Values.Where(predicate);
+            return entities.Where(predicate).Select(_CreateEntity);
         }
         public GraphicEntity GetEntity(ElementTag tag) {
-            return entities[tag];
+            if (!entities.Contains(tag)) {
+                throw new Exception($"There is no {tag} ");
+            }
+            return new GraphicEntity(tag, this, this, orderContainer);
         }
         public IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate) {
-            return entities.Values.Where(predicate);
+            var res = new List<GraphicEntity>();
+            foreach(var tag in entities) {
+                var en = _CreateEntity(tag);
+                if (predicate(en)) {
+                    res.Add(en);
+                }
+            }
+            return res;
         }
 
-        public void SetFilter(Func<GraphicEntity, bool> predicate) {
+        public void SetFilter(Func<ElementTag, bool> predicate) {
             this.predicate = predicate;
         }
+
+        public bool IsExisted(ElementTag tag) {
+            return entities.Contains(tag);
+        }
+
+        GraphicEntity _CreateEntity(ElementTag tag) {
+            return new GraphicEntity(tag, this, this, orderContainer);
+        }
+
         #endregion
 
         #region IComponentManager
@@ -90,6 +111,9 @@ namespace D3DLab.Std.Engine.Core {
             return components[tagEntity].OfType<T>();
         }
         public IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity) {
+            if (!components.ContainsKey(tagEntity)) {
+                return new IGraphicComponent[0];
+            }
             return components[tagEntity].ToArray();
         }
         public bool Has<T>(ElementTag tag) where T : IGraphicComponent {

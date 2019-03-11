@@ -6,6 +6,7 @@ using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.GameObjects;
+using D3DLab.Std.Engine.Core.Systems;
 using D3DLab.Wpf.Engine.App;
 using System;
 using System.Collections.Generic;
@@ -74,6 +75,7 @@ namespace D3DLab.Parser {
                 //}
 
                 cc.Add(new ColorComponent { Color = V4Colors.Red });
+                cc.Add(new ManipulatableComponent());
 
                 entity.AddComponents(cc);
                 entity.AddComponents(others);

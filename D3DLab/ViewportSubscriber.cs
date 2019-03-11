@@ -1,6 +1,7 @@
 ﻿using D3DLab.Std.Engine.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace D3DLab {
     public sealed class ViewportSubscriber :
@@ -14,8 +15,9 @@ namespace D3DLab {
         }
 
         public void Change(GraphicEntity entity) {
+            var en = new Debugger.Windows.GraphicEntityAdapter(entity);
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.Add(entity);
+                mv.VisualTreeviewer.Add(en);
             }));
         }
 
@@ -27,8 +29,9 @@ namespace D3DLab {
 
         public void Render(IEnumerable<GraphicEntity> entities) {
             if (App.Current == null) { return; }
+            var en = entities.Select(x => new Debugger.Windows.GraphicEntityAdapter(x)).ToList();
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.Refresh(entities);
+                mv.VisualTreeviewer.Refresh(en);
             }));
         }
     }

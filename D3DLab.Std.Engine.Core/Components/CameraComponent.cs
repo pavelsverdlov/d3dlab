@@ -61,7 +61,7 @@ namespace D3DLab.Std.Engine.Core.Components {
             var px = point2d.X;
             var py = point2d.Y;
             
-            var viewInverted = ViewMatrix.PsudoInvert();
+            var viewInverted = ViewMatrix.PsudoInverted();
             var projMatrix = ProjectionMatrix;
             //Matrix4x4.Invert(projMatrix, out projMatrix);
 

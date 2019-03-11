@@ -73,9 +73,7 @@ namespace D3DLab.SDX.Engine {
             //        .CreateNested<SkyGradientColoringRenderTechnique>()
             //        .CreateNested<SkyPlaneWithParallaxRenderTechnique>();
 
-            //}
-            var em = Context.GetEntityManager();
-            EngineInfoBuilder.Build(em, Window);
+            //}          
 
             /*
             {//entities ordering 

@@ -1,5 +1,6 @@
 ﻿using D3DLab.SDX.Engine.Components;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Utilities;
 using System.Numerics;
 
@@ -11,7 +12,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                .CreateEntity(new ElementTag("OrbitsRotationGameObject"))
                .AddComponent(geo)
                .AddComponent(D3DLineVertexRenderComponent.AsLineStrip())
-               .AddComponent(new SDX.Engine.Components.D3DWorldTransformComponent())
+               .AddComponent(new TransformComponent())
                .Tag;
 
             return new OrbitsRotationGameObject();

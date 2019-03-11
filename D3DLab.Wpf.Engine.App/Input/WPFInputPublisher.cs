@@ -87,10 +87,11 @@ namespace D3DLab.Wpf.Engine.App.Input {
             var btn = GetMouseButton(e.ChangedButton);
             state.Buttons ^= btn;
             state.ButtonsStates[btn] = new ButtonsState {
-                CursorPointDown = new WindowPoint(),
-                PointDown = System.Numerics.Vector2.Zero
+                CursorPoint = new WindowPoint(),
+                PointV2 = System.Numerics.Vector2.Zero,
+                Condition = ButtonStates.Released
             };
-
+            //System.Windows.Input.Mouse.LeftButton.
             //if (state.Buttons == MouseButtons.None) {
             //    ReleaseCapture();
             //}
@@ -104,8 +105,9 @@ namespace D3DLab.Wpf.Engine.App.Input {
             var btn = GetMouseButton(mouseDown.ChangedButton);
             state.Buttons = btn;// btn;
             state.ButtonsStates[btn] = new ButtonsState {
-                CursorPointDown = Cursor.Position.ToWindowPoint(),
-                PointDown = mouseDown.GetPosition(control).ToNumericsV2()
+                CursorPoint = Cursor.Position.ToWindowPoint(),
+                PointV2 = mouseDown.GetPosition(control).ToNumericsV2(),
+                Condition = ButtonStates.Pressed
             };
             InvokeSubscribers((s, ev) => s.OnMouseDown(ev));
         }
@@ -122,8 +124,9 @@ namespace D3DLab.Wpf.Engine.App.Input {
                 var btn = GetMouseButton(e.ChangedButton);
                 state.Buttons = btn;//|= btn;
                 state.ButtonsStates[btn] = new ButtonsState {
-                    CursorPointDown = Cursor.Position.ToWindowPoint(),
-                    PointDown = e.GetPosition(control).ToNumericsV2()
+                    CursorPoint = Cursor.Position.ToWindowPoint(),
+                    PointV2 = e.GetPosition(control).ToNumericsV2(),
+                    Condition = ButtonStates.Pressed,
                 };
                 
                 state.CursorCurrentPosition = Cursor.Position.ToWindowPoint();

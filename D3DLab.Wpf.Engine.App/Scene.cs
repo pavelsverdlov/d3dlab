@@ -13,8 +13,41 @@ using System;
 using System.Numerics;
 using System.Windows;
 using D3DLab.Wpf.Engine.App.D3D.Techniques;
+using D3DLab.Std.Engine.Core.Utilities;
+using D3DLab.Wpf.Engine.App.GameObjects;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace D3DLab.Wpf.Engine.App {
+    public class OctreeImp : EntityOctree {
+        readonly Random random;
+        readonly List<PolylineGameObject> debug;
+
+        public OctreeImp(IContextState context,BoundingBox box, int MaximumChildren) : base(context, box, MaximumChildren) {
+            random = new Random();
+            debug = new List<PolylineGameObject>();
+        }
+        public override void Draw(IEntityManager emanager) {
+            if(isActualStateDrawed) {
+                return;
+            }
+            foreach(var obj in debug) {
+                obj.Cleanup(emanager);
+            }
+            debug.Clear();
+            base.Draw(emanager);
+        }
+
+        public override void DrawBox(ElementTag tag, BoundingBox box, IEntityManager emanager) {
+            var points = GeometryBuilder.BuildBox(box);
+            var color = V4Colors.NextColor(random);
+            if (tag.IsEmpty) {
+                tag = new ElementTag(DateTime.Now.Ticks.ToString());
+            }
+            debug.Add(PolylineGameObject.Create(emanager, new ElementTag("OctreeBox_" + tag.ToString()), points, points.Select(x => color).ToArray()));
+        }
+    }
+
     public class Scene {
         private readonly FormsHost host;
         private readonly FrameworkElement overlay;
@@ -44,6 +77,7 @@ namespace D3DLab.Wpf.Engine.App {
         private void OnHandleCreated(WinFormsD3DControl win) {
             Window = new GameWindow(win, input);
             game = new D3DEngine(Window, Context, notify);
+            game.SetOctree(new OctreeImp(Context, BoundingBox.Create(new Vector3(-1000, -1000, -1000), new Vector3(1000, 1000, 1000)), 5));
             game.Initialize += Initializing;
             game.Run(notify);
 
@@ -53,6 +87,7 @@ namespace D3DLab.Wpf.Engine.App {
         }
 
         void Initializing(SynchronizedGraphics device) {
+            var em = Context.GetEntityManager();
             var cameraTag = new ElementTag("CameraEntity");
             {   //systems creating
                 var smanager = Context.GetSystemManager();
@@ -75,6 +110,9 @@ namespace D3DLab.Wpf.Engine.App {
                     .CreateNested<LineVertexRenderTechnique>()
                     .CreateNested<SpherePointRenderStrategy>();
 
+            }
+            {
+               var engine = EngineInfoBuilder.Build(em, Window);               
             }
             {//entities ordering 
                 Context.EntityOrder

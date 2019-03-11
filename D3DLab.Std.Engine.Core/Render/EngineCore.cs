@@ -25,7 +25,7 @@ namespace D3DLab.Std.Engine.Core.Render {
         readonly CancellationToken token;
         readonly IViewport viewport;
         readonly EngineNotificator notificator;
-        readonly EntityOctree octree;
+        public IOctree Octree { get; private set; }
 
         public IContextState Context { get; }
 
@@ -36,9 +36,11 @@ namespace D3DLab.Std.Engine.Core.Render {
             this.notificator = notificator;
             tokensource = new CancellationTokenSource();
             token = tokensource.Token;
-            octree = new EntityOctree(BoundingBox.Create(new Vector3(-1000, -1000, -1000), new Vector3(1000, 1000, 1000)), 5);
+        }
 
-            notificator.Subscribe(octree);
+        public void SetOctree(IOctree o) {
+            Octree = o;
+            notificator.Subscribe(Octree);
         }
 
         protected abstract void Initializing();
@@ -104,10 +106,15 @@ namespace D3DLab.Std.Engine.Core.Render {
             //if (!ishapshot.Events.Any() && !emanager.HasChanges) {//no input/changes no rendering 
             //    return;
             //}
+
             var id = Thread.CurrentThread.ManagedThreadId;
+
+            Octree.Synchronize(id);
+            Octree.Draw(Context.GetEntityManager());
+            
             emanager.Synchronize(id);
 
-            var snapshot = new SceneSnapshot(Window, Context, viewport, octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
+            var snapshot = new SceneSnapshot(Window, Context, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
             foreach (var sys in Context.GetSystemManager().GetSystems()) {
                 try {
                     sys.Execute(snapshot);

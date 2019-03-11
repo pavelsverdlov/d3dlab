@@ -74,6 +74,8 @@ namespace D3DLab.Std.Engine.Core {
             where TSys : IGraphicSystem  {
             return order.Get<TSys>(Tag);
         }
+
+        public bool IsDestroyed => !emanager.IsExisted(Tag);
     }
     public class OrderSystemContainer : Dictionary<Type, int> {
 

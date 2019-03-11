@@ -49,6 +49,28 @@ namespace D3DLab.Debugger.Windows {
         void Removed(VisualTreeItem item);
     }
 
+    public class GraphicEntityAdapter {
+        readonly GraphicEntity entity;
+        public ElementTag Tag => entity.Tag;
+
+        readonly IEnumerable<IGraphicComponent> coms;
+
+        public GraphicEntityAdapter(GraphicEntity entity) {
+            this.entity = entity;
+            coms = entity.GetComponents().ToList();
+        }
+
+        public IEnumerable<IGraphicComponent> GetComponents() {
+            return coms;
+        }
+
+        public void Remove() {
+            if (!entity.IsDestroyed) {
+                entity.Remove();
+            }
+        }
+    }
+
     public sealed class VisualTreeviewerViewModel : System.ComponentModel.INotifyPropertyChanged, IRenderUpdater, ITreeItemActions {
        
         public class OpenPropertiesEditorComponentItemCommand : Presentation.OpenPropertiesEditorCommand<IVisualComponentItem> {
@@ -119,7 +141,7 @@ namespace D3DLab.Debugger.Windows {
             //GameWindow.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
         }
 
-        public void Add(GraphicEntity entity) {
+        public void Add(GraphicEntityAdapter entity) {
             var found = items.SingleOrDefault(x => x.Name == entity.Tag);
             if (found == null) {
                 found = new VisualTreeItem(entity, this);
@@ -130,13 +152,14 @@ namespace D3DLab.Debugger.Windows {
                 hash.Add(found.Name, found);
             } else {
                 found.Clear();
-                foreach (var com in entity.GetComponents()) {
+                var coms = entity.GetComponents();
+                foreach (var com in coms) {
                     found.Add(new VisualComponentItem(com, this));//{ RenderModeSwither = _renderModeSwither }
                 }
             }
         }
 
-        public void Refresh(IEnumerable<GraphicEntity> entities) {
+        public void Refresh(IEnumerable<GraphicEntityAdapter> entities) {
             Title = $"Visual Tree [entities {entities.Count()}]";
             foreach (var en in entities) {
                 if (hash.ContainsKey(en.Tag)) {

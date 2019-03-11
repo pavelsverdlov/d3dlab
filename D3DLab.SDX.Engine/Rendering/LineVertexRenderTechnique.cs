@@ -46,7 +46,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         public LineVertexRenderTechnique()
             : base(new EntityHasSet(
                 typeof(D3DLineVertexRenderComponent),
-                typeof(D3DWorldTransformComponent))) {
+                typeof(TransformComponent))) {
             rasterizerStateDescription = new RasterizerStateDescription() {
                 CullMode = CullMode.None,
                 FillMode = FillMode.Solid,
@@ -65,6 +65,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                 var render = en.GetComponent<D3DLineVertexRenderComponent>();
                 var geo = en.GetComponent<IGeometryComponent>();
                 var components = en.GetComponents<ID3DRenderable>();
+                var transform = en.GetComponent<TransformComponent>();
 
                 foreach (var com in components) {
                     if (com.IsModified) {
@@ -80,6 +81,8 @@ namespace D3DLab.SDX.Engine.Rendering {
                     UpdateShaders(graphics, render, pass, layconst);
                     render.IsModified = false;
                 }
+
+                UpdateTransformWorld(graphics, render, transform);
 
                 SetShaders(context, render);
 

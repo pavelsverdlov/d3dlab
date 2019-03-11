@@ -93,7 +93,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                     foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
                         var renders = entity.GetComponents<D3DRenderComponent>();
                         if (renders.Any() && renders.All(x => x.CanRender)) {
-                            if (!entity.Has<IGeometryComponent>() || !entity.Has<D3DWorldTransformComponent>()) {
+                            if (!entity.Has<IGeometryComponent>() || !entity.Has<TransformComponent>()) {
                                 throw new Exception("There are not all necessary components in entity to render.");
                             }
                             registrator.Register(entity);

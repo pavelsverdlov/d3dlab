@@ -9,9 +9,9 @@ namespace D3DLab.Std.Engine.Core {
         IEnumerable<GraphicEntity> GetEntities();
         GraphicEntity GetEntity(ElementTag tag);
         IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate);
+        bool IsExisted(ElementTag tag);
 
-
-        void SetFilter(Func<GraphicEntity, bool> predicate);
+        void SetFilter(Func<ElementTag, bool> predicate);
         void Dispose();
 
         void RemoveEntity(ElementTag elementTag);

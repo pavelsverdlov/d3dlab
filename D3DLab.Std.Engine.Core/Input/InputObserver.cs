@@ -138,14 +138,35 @@ namespace D3DLab.Std.Engine.Core.Input {
         //}
         protected abstract InputState GetIdleState();
 
-        public bool OnMouseMove(InputStateData state) { return StateMachine.OnMouseMove(state); }
-        public bool OnMouseDown(InputStateData state) { return StateMachine.OnMouseDown(state); }
-        public bool OnMouseDoubleDown(InputStateData state) => StateMachine.OnMouseDoubleDown(state);
-        public bool OnMouseUp(InputStateData state) { return StateMachine.OnMouseUp(state); }
-        public bool OnMouseWheel(InputStateData ev) { return StateMachine.OnMouseWheel(ev); }
+        public bool OnMouseMove(InputStateData state) {
+            currentSnapshot.CurrentInputState = state.Clone();
+            return StateMachine.OnMouseMove(state);
+        }
+        public bool OnMouseDown(InputStateData state) {
+            currentSnapshot.CurrentInputState = state.Clone();
+            return StateMachine.OnMouseDown(state);
+        }
+        public bool OnMouseDoubleDown(InputStateData state) {
+            currentSnapshot.CurrentInputState = state.Clone();
+            return StateMachine.OnMouseDoubleDown(state);
+        }
+        public bool OnMouseUp(InputStateData state) {
+            currentSnapshot.CurrentInputState = state.Clone();
+            return StateMachine.OnMouseUp(state);
+        }
+        public bool OnMouseWheel(InputStateData state) {
+            currentSnapshot.CurrentInputState = state.Clone();
+            return StateMachine.OnMouseWheel(state);
+        }
 
-        public bool KeyDown(InputStateData ev) { return StateMachine.KeyDown(ev); }
-        public bool KeyUp(InputStateData ev) { return StateMachine.KeyUp(ev); }
+        public bool KeyDown(InputStateData state) {
+            currentSnapshot.CurrentInputState = state.Clone();
+            return StateMachine.KeyDown(state);
+        }
+        public bool KeyUp(InputStateData state) {
+            currentSnapshot.CurrentInputState = state.Clone();
+            return StateMachine.KeyUp(state);
+        }
 
         public void Dispose() {
             

@@ -388,6 +388,9 @@ namespace D3DLab.Std.Engine.Core.Systems {
             projection.Build();
             */
 
+            //Frequency = 8
+            //amplitude = 0.125
+
             var flat = BuildHeightMap(
                 new SimplexPerlin(), 
                 new Billow() {

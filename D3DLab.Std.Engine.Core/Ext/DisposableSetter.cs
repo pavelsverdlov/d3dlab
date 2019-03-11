@@ -20,6 +20,8 @@ namespace D3DLab.Std.Engine.Core.Ext {
     }
 
     public class DisposableSetter<T> : IDisposable where T : IDisposable {
+        public bool HasValue => disposable != null;
+
         T disposable;
         public void Dispose() {
             Disposer.DisposeAll(disposable);

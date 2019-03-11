@@ -6,7 +6,7 @@ using System.Text;
 namespace D3DLab.Std.Engine.Core.Components {
     public class TransformComponent : GraphicComponent {
         private Matrix4x4 matrixWorld;
-        public Matrix4x4 MatrixWorld {
+        public virtual Matrix4x4 MatrixWorld {
             get => matrixWorld;
             set {
                 matrixWorld = value;

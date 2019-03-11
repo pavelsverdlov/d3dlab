@@ -31,9 +31,15 @@ namespace D3DLab.Std.Engine.Core.Input {
 
     #region input data
 
+    public enum ButtonStates {
+        Undefined,
+        Released,
+        Pressed 
+    }
     public struct ButtonsState {
-        public Vector2 PointDown { get; set; }
-        public WindowPoint CursorPointDown { get; set; }
+        public ButtonStates Condition { get; set; }
+        public Vector2 PointV2 { get; set; }
+        public WindowPoint CursorPoint { get; set; }
     }
     public class InputStateData {
         public GeneralKeywords Keyword { get; set; }

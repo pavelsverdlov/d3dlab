@@ -91,6 +91,11 @@ namespace D3DLab.SDX.Engine.Rendering {
             context.PixelShader.Set(render.PixelShader.Get());
         }
         protected static void Render(GraphicsDevice graphics, DeviceContext context, D3DRenderComponent render, int vertexSize) {
+
+            if (render.TransformWorldBuffer.HasValue) {
+                context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, render.TransformWorldBuffer.Get());
+            }
+
             context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(render.VertexBuffer.Get(), vertexSize, 0));
             context.InputAssembler.SetIndexBuffer(render.IndexBuffer.Get(), SharpDX.DXGI.Format.R32_UInt, 0);
 
@@ -110,6 +115,21 @@ namespace D3DLab.SDX.Engine.Rendering {
                 resources[i] = loader.LoadShaderResource(file);
             }
             return resources;
+        }
+
+        protected void UpdateTransformWorld(GraphicsDevice graphics, D3DRenderComponent render, TransformComponent transform) {
+            if (transform.IsModified) {
+                var tr = new TransforStructBuffer(Matrix4x4.Transpose(transform.MatrixWorld));
+                if (render.TransformWorldBuffer.HasValue) {
+                    var buff = render.TransformWorldBuffer.Get();
+                    graphics.UpdateDynamicBuffer(ref tr, buff);                   
+                } else {
+                    var buff = graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
+                    render.TransformWorldBuffer.Set(buff);
+                }
+
+                transform.IsModified = false;
+            }
         }
     }
 }

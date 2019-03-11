@@ -77,6 +77,12 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             b = temp;
         }
 
+        public Ray Transformed(Matrix4x4 m) {
+            var or = Vector3.Transform(Origin,m);
+            var dir = Vector3.TransformNormal(Direction, m);
+            return new Ray(or, dir);
+        }
+
     }
 
     public enum BoundingContainmentType {
@@ -162,6 +168,10 @@ namespace D3DLab.Std.Engine.Core.Utilities {
         }
         public float GetDiagonal() {
             return GetDimensions().Length();
+        }
+
+        public BoundingBox Transform(Matrix4x4 mat) {
+            return Transform(this, mat);
         }
 
         public static unsafe BoundingBox Transform(BoundingBox box, Matrix4x4 mat) {

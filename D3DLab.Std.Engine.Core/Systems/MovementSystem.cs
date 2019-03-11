@@ -5,6 +5,7 @@ using System.Numerics;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Input.Commands;
 using D3DLab.Std.Engine.Core.Utilities;
 using g3;
 
@@ -13,12 +14,47 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
     }
     public class CapturedToManipulateComponent : GraphicComponent {
-        public Vector3 CapturePoint { get; set; }
+        public Vector3 CapturePointWorld { get; set; }
     }
+
+    public class TemporaryManipulateTransformKepperComponent : TransformComponent {
+        readonly TransformComponent original;
+
+        private Matrix4x4 temporary;
+        public override Matrix4x4 MatrixWorld {
+            get => temporary;
+            set {
+                temporary = value;
+                IsModified = true;
+            }
+        }
+
+        public TemporaryManipulateTransformKepperComponent(TransformComponent original) {
+            this.original = original;
+            temporary = original.MatrixWorld;
+        }
+
+        public TransformComponent Apply() {
+            original.MatrixWorld *= temporary;
+            return original;
+        }
+    }
+
+
     public class MovementSystem : BaseEntitySystem, IGraphicSystem {
 
         public void Execute(SceneSnapshot snapshot) {
             var emanager = snapshot.ContextState.GetEntityManager();
+
+            //foreach (var ev in snapshot.Snapshot.Events) {
+            //    switch (ev) {
+            //        case UnTargetUnderMouseCameraCommand ut:
+            //            untarget = true;
+            //            snapshot.Snapshot.RemoveEvent(ev);
+            //            break;
+            //    }
+            //}
+
             foreach (var entity in emanager.GetEntities()) {
                 foreach (var com in entity.GetComponents()) {
                     switch (com) {
@@ -26,10 +62,60 @@ namespace D3DLab.Std.Engine.Core.Systems {
                             move.Execute(new Handlers(entity, snapshot));
                             break;
 
-                        case CapturedToManipulateComponent manipulate:
+                        case CapturedToManipulateComponent capture:
+                            var istate = snapshot.Snapshot.CurrentInputState;
+                            var isManiputating = entity.GetComponents<TemporaryManipulateTransformKepperComponent>();
+                            var left = istate.ButtonsStates[Input.GeneralMouseButtons.Left];
+
+                            System.Diagnostics.Trace.WriteLine($"{left.Condition}");
+
+                            if (left.Condition == Input.ButtonStates.Released) {
+                                entity.RemoveComponent(capture);
+                                //apply transformation
+                                var origin = isManiputating.Single().Apply();
+                                entity.RemoveComponents<TemporaryManipulateTransformKepperComponent>();
+                                entity.AddComponent(origin);
+                                continue;
+                            }
+
+                            if (!isManiputating.Any()) {//start manipulate
+                                var orig = entity.GetComponent<TransformComponent>();
+                                var temp = new TemporaryManipulateTransformKepperComponent(orig);
+                                entity.RemoveComponent(orig);
+                                entity.AddComponent(temp);
+                                isManiputating = new[] { temp };
+                            }
+
+                            var transform = isManiputating.Single();
                             var movable = entity.GetComponent<ManipulatableComponent>();
-                            // move
-                            //movable.Move();
+
+                            var cstate = snapshot.Camera;
+
+                            var begin = left.PointV2;
+                            var end = istate.CurrentPosition;
+                            var delta = (begin - end).Length();
+                            var captutedPointW = capture.CapturePointWorld;
+
+                            var cross = Vector3.Cross(cstate.UpDirection, cstate.LookDirection);
+                            // var plane = new Plane(cstate.LookDirection, -Vector3.Dot(cstate.LookDirection, capture.CapturePoint));
+
+                            var rayW = snapshot.Viewport.UnProject(end, snapshot.Camera, snapshot.Window);
+
+                            var vectorToMovePoint = rayW.Origin - captutedPointW;
+
+                            var scalarProjectonOnPlaneNormal = Vector3.Dot(-cstate.LookDirection, vectorToMovePoint);
+
+                            var vProjectionOnPlaneNormal = captutedPointW - cstate.LookDirection * scalarProjectonOnPlaneNormal;
+
+                            var direction = vectorToMovePoint - vProjectionOnPlaneNormal;
+                            // direction.Normalize();
+
+                            transform.MatrixWorld = Matrix4x4.CreateTranslation(Vector3.UnitZ * direction.Length());
+
+                            //System.Diagnostics.Trace.WriteLine($"Translation {direction} delta {delta}");
+
+                            snapshot.Notifier.NotifyChange(transform);
+
                             break;
                     }
                 }

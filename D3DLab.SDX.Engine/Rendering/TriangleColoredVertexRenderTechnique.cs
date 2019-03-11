@@ -47,7 +47,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         public TriangleColoredVertexRenderTechnique()
             : base(new EntityHasSet(
                 typeof(D3DTriangleColoredVertexRenderComponent),
-                typeof(D3DWorldTransformComponent))) {
+                typeof(TransformComponent))) {
             rasterizerStateDescription = new RasterizerStateDescription() {
                 CullMode = CullMode.Front,
                 FillMode = FillMode.Solid,
@@ -66,7 +66,8 @@ namespace D3DLab.SDX.Engine.Rendering {
                 var render = en.GetComponent<D3DTriangleColoredVertexRenderComponent>();
                 var geo = en.GetComponent<IGeometryComponent>();
                 var components = en.GetComponents<ID3DRenderable>();
-                var color = en.GetComponents<ColorComponent>(); 
+                var color = en.GetComponents<ColorComponent>();
+                var transform = en.GetComponent<TransformComponent>();
 
                 foreach (var com in components) {
                     if (com.IsModified) {
@@ -82,6 +83,8 @@ namespace D3DLab.SDX.Engine.Rendering {
                     UpdateShaders(graphics, render, pass, layconst);
                     render.IsModified = false;
                 }
+
+                UpdateTransformWorld(graphics, render, transform);
 
                 SetShaders(context, render);
 

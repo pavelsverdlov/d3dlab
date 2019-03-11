@@ -20,7 +20,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
     public class RayCollidedWithEntityComponent : GraphicComponent {
         public ElementTag With { get; set; }
-        public Vector3 IntersectionPosition { get; set; }
+        public Vector3 IntersectionPositionWorld { get; set; }
     }
 
     public class CollidingSystem : BaseEntitySystem, IGraphicSystem {
@@ -32,16 +32,16 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 switch (ev) {
                     case CaptureTargetUnderMouseCameraCommand capture:
                         if (colliding.TryToColliding(capture.ScreenPosition, out var collidedWith)) {
-                            var entity = emanager.GetEntity(collidedWith.EntityTag);
+                            var entity = emanager.GetEntity(collidedWith.With);
                             var has = entity.GetComponents<ManipulatableComponent>();
-                            if (has.Any()) {
+                            if (has.Any() && !entity.Has<CapturedToManipulateComponent>()) {
                                 entity.AddComponent(new CapturedToManipulateComponent() {
-                                    CapturePoint = collidedWith.IntersectionPosition,
+                                    CapturePointWorld = collidedWith.IntersectionPositionWorld,
                                 });
                                 snapshot.Snapshot.RemoveEvent(ev);
                             }
                         }
-                        break;
+                        break;                   
                 }
             }
 
@@ -75,8 +75,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
                 var minDistance = double.MaxValue;
 
-                IntrRay3Triangle3 local = null;
-                var tag = ElementTag.Empty;
+                Vector3 intersecWorld = Vector3.Zero;
                 //find object
                 var res = snapshot.Octree.GetColliding(ray, tag => {
                     var entity = snapshot.ContextState.GetEntityManager().GetEntity(tag);
@@ -91,27 +90,38 @@ namespace D3DLab.Std.Engine.Core.Systems {
                         return false;
                     }
 
-                    int hit_tid = geo.Tree.FindNearestHitTriangle(ray.g3Rayf);
+                    var hasTransform = entity.GetComponents<TransformComponent>();
+                    var toLocal = Matrix4x4.Identity;
+                    var toWorld = Matrix4x4.Identity;
+                    var rayLocal = ray;
+                    if (hasTransform.Any()) {
+                        toWorld = hasTransform.Single().MatrixWorld;
+                        toLocal = toWorld.Inverted();
+                        rayLocal = rayLocal.Transformed(toLocal);//to local
+                    }
+
+                    int hit_tid = geo.Tree.FindNearestHitTriangle(rayLocal.g3Rayf);
                     if (hit_tid == DMesh3.InvalidID) {
                         return false;
                     }
-                    var intr = MeshQueries.TriangleIntersection(geo.DMesh, hit_tid, ray.g3Rayf);
-                    double hit_dist = ray.g3Rayd.Origin.Distance(ray.g3Rayd.PointAt(intr.RayParameter));
+                    var intr = MeshQueries.TriangleIntersection(geo.DMesh, hit_tid, rayLocal.g3Rayf);
+                    double hit_dist = rayLocal.g3Rayd.Origin.Distance(rayLocal.g3Rayd.PointAt(intr.RayParameter));
 
                     if (minDistance > hit_dist) {
                         minDistance = hit_dist;
-                        local = intr;
-                        tag = entity.Tag;
+                        intersecWorld = intr.Triangle.V1.ToVector3();
+                        //to world
+                        intersecWorld = intersecWorld.TransformedCoordinate(toWorld);
                         return true;
                     }
                     return false;
                 });
-                if (!res.Any() || local.IsNull()) {
+                if (!res.Any() || intersecWorld.IsZero()) {
                     return false;
                 }
 
-                collided.IntersectionPosition = local.Triangle.V1.ToVector3();
-                collided.With = tag;
+                collided.IntersectionPositionWorld = intersecWorld;
+                collided.With = res.First().Item;
 
                 return true;
             }

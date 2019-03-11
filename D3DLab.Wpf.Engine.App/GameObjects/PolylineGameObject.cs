@@ -7,10 +7,10 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Wpf.Engine.App.GameObjects {
-    public class PolylineGameObject {
+    public class PolylineGameObject : GameObject {
         public ElementTag Tag { get; }
 
-        public PolylineGameObject(ElementTag tag1) {
+        public PolylineGameObject(ElementTag tag1):base("poly") {
             this.Tag = tag1;
         }
 
@@ -29,11 +29,23 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                .CreateEntity(tag)
                .AddComponent(geo)
                .AddComponent(SDX.Engine.Components.D3DLineVertexRenderComponent.AsLineList())
-               .AddComponent(new D3DWorldTransformComponent())
+               .AddComponent(new TransformComponent())
                //.AddComponent(new PositionColorsComponent { Colors = color })
                .Tag;
 
             return new PolylineGameObject(tag1);
+        }
+
+        public override void Cleanup(IEntityManager manager) {
+            manager.RemoveEntity(Tag);
+        }
+
+        public override void Hide(IEntityManager manager) {
+         
+        }
+
+        public override void Show(IEntityManager manager) {
+         
         }
     }
 }

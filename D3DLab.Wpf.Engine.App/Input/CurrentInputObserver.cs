@@ -10,7 +10,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
         Rotate = 1,
         Pan = 2,
         Zoom = 3,
-       // Target = 4,
+        Target = 4,
         //UnTarget = 5,
         KeywordDown = 6,
         ChangeFocus = 7,
@@ -30,10 +30,12 @@ namespace D3DLab.Wpf.Engine.App.Input {
             void Idle();
             void KeywordMove(InputStateData state);
             void FocusToObject(InputStateData state);
+            
         }
 
         public interface ITargetingInputHandler : InputObserver.IHandler {
-            bool Target(InputStateData state);
+            void TargetCapture(InputStateData state);
+            void TargetMove(InputStateData state);
             void UnTarget(InputStateData state);
         }
 
@@ -65,7 +67,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
 
                     //manipulation
                     case GeneralMouseButtons.Left:
-                       // SwitchTo((int)AllInputStates.Target, state);
+                        SwitchTo((int)AllInputStates.Target, state);
                         break;
                 }
                 return base.OnMouseDown(state);
@@ -223,13 +225,14 @@ namespace D3DLab.Wpf.Engine.App.Input {
 
         #endregion
 
+
         protected sealed class InputTargetState : CurrentStateMachine {
             public InputTargetState(StateProcessor processor) : base(processor) {
 
             }
 
             public override void EnterState(InputStateData state) {
-                Processor.InvokeHandler<ITargetingInputHandler>(x => x.Target(state));
+                Processor.InvokeHandler<ITargetingInputHandler>(x => x.TargetCapture(state));
             }
 
             public override bool OnMouseDown(InputStateData state) {
@@ -248,7 +251,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
                 return base.OnMouseUp(state);
             }
             public override bool OnMouseMove(InputStateData state) {
-
+                Processor.InvokeHandler<ITargetingInputHandler>(x => x.TargetMove(state));
                 return true;
             }
         }
@@ -260,7 +263,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             states.Add((int)AllInputStates.Rotate, s => new InputRotateState(s));
             states.Add((int)AllInputStates.Zoom, s => new InputZoomState(s));
             states.Add((int)AllInputStates.Pan, s => new InputPanState(s));
-           // states.Add((int)AllInputStates.Target, s => new InputTargetState(s));
+            states.Add((int)AllInputStates.Target, s => new InputTargetState(s));
             states.Add((int)AllInputStates.KeywordDown, s => new KeywordMovingState(s));
             states.Add((int)AllInputStates.ChangeFocus, s => new FocusToObjectState(s));
 
@@ -307,12 +310,14 @@ namespace D3DLab.Wpf.Engine.App.Input {
         }
 
 
-        public bool Target(InputStateData state) {
-            //currentSnapshot.AddEvent(new InputEventState { Type = AllInputStates.Target, Data = state });
-            return false;
+        public void TargetCapture(InputStateData state) {
+            currentSnapshot.AddEvent(new CaptureTargetUnderMouseCameraCommand(state.Clone()));
+        }
+        public void TargetMove(InputStateData state) {
+
         }
         public void UnTarget(InputStateData state) {
-            //currentSnapshot.AddEvent(new InputEventState { Type = AllInputStates.UnTarget, Data = state });
+            //currentSnapshot.AddEvent(new CaptureTargetUnderMouseCameraCommand(state.Clone()));
         }
     }
 }

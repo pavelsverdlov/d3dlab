@@ -6,7 +6,7 @@ using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Ext {
     public static class Vector2Ex {
-        public static Vector2 Normalize(this Vector2 v) {
+        public static Vector2 Normalized(this Vector2 v) {
             return Vector2.Normalize(v);
         }
         public static float AngleRad(this Vector2 u, Vector2 v) {
@@ -46,9 +46,16 @@ namespace D3DLab.Std.Engine.Core.Ext {
                 (float)Math.Round(v.Y, round), 
                 (float)Math.Round(v.Z, round));
         }
+        public static bool IsZero(ref this Vector3 v) {
+            return Vector3.Zero == v;
+        }
+        
 
-        public static Vector3 TransformNormal(this Vector3 vector, Matrix4x4 matrix) {
+        public static Vector3 TransformedNormal(this Vector3 vector, Matrix4x4 matrix) {
             return Vector3.TransformNormal(vector, matrix);
+        }
+        public static Vector3 TransformedCoordinate(this Vector3 vector, Matrix4x4 matrix) {
+            return Vector3.Transform(vector, matrix);
         }
 
 
@@ -178,6 +185,5 @@ namespace D3DLab.Std.Engine.Core.Ext {
             plane.Normal.Z *= magnitude;
             plane.D *= magnitude;
         }
-    }
-
+    }    
 }

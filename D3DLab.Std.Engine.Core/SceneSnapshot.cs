@@ -12,6 +12,7 @@ namespace D3DLab.Std.Engine.Core {
     public class SceneSnapshot {
         public IViewport Viewport { get; }
         public IContextState ContextState { get; }
+        public IManagerChangeNotify Notifier { get; }
         public IAppWindow Window { get; }
 
         public InputSnapshot Snapshot { get; }
@@ -22,12 +23,14 @@ namespace D3DLab.Std.Engine.Core {
         public CameraState Camera { get; private set; }
         public LightState[] Lights { get; private set; }
 
-        public VisualOctree<ElementTag> Octree { get; }
+        public IOctree Octree { get; }
 
-        public SceneSnapshot(IAppWindow win, IContextState state, IViewport viewport, 
-            VisualOctree<ElementTag> octree, InputSnapshot isnapshot, TimeSpan time) {
+        public SceneSnapshot(IAppWindow win, IContextState state, IManagerChangeNotify notifier,
+            IViewport viewport,
+            IOctree octree, InputSnapshot isnapshot, TimeSpan time) {
             Viewport = viewport;
             ContextState = state;
+            Notifier = notifier;
             Snapshot = isnapshot;
             FrameRateTime = time;
             Window = win;
@@ -114,7 +117,7 @@ namespace D3DLab.Std.Engine.Core {
             var viewMatrix = camera.ViewMatrix;
             Vector3 v = new Vector3();
 
-            var matrix = viewMatrix.PsudoInvert();
+            var matrix = viewMatrix.PsudoInverted();
             //float w = win.Width;
             //float h = win.Height;
 

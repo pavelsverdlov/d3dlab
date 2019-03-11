@@ -132,11 +132,11 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     case KeywordMovingComponent.MovingDirection.TurnLeft:
                         var axis = camera.UpDirection;
                         camera.LookDirection = camera.LookDirection
-                            .TransformNormal(Matrix4x4.CreateFromAxisAngle(axis, rotateCorrection.ToRad()));
+                            .TransformedNormal(Matrix4x4.CreateFromAxisAngle(axis, rotateCorrection.ToRad()));
                         break;
                     case KeywordMovingComponent.MovingDirection.TurnRight:
                         camera.LookDirection = camera.LookDirection
-                            .TransformNormal(Matrix4x4.CreateFromAxisAngle(-camera.UpDirection, rotateCorrection.ToRad()));
+                            .TransformedNormal(Matrix4x4.CreateFromAxisAngle(-camera.UpDirection, rotateCorrection.ToRad()));
                         break;
                 }
                 camera.Position += move;
@@ -317,7 +317,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                                     break;
                                 case RayCollidedWithEntityComponent c:
                                     //the case when camera is moved to position on some object mesh
-                                    MoveToPosition(cameraCom, c.IntersectionPosition);
+                                    MoveToPosition(cameraCom, c.IntersectionPositionWorld);
                                     entity.RemoveComponent(c);
                                     break;
                                 //case MoveCameraToTargetComponent mvtt:

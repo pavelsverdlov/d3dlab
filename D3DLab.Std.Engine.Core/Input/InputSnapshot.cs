@@ -6,6 +6,7 @@ using System.Threading;
 
 namespace D3DLab.Std.Engine.Core.Input {
     public class InputSnapshot {
+        public InputStateData CurrentInputState { get; set; }
         readonly ReaderWriterLockSlim loker;
         //private readonly object _loker;
         private Dictionary<Type, IInputCommand> cache;
@@ -48,7 +49,9 @@ namespace D3DLab.Std.Engine.Core.Input {
 
         public InputSnapshot CloneAndClear() {
             Dictionary<Type, IInputCommand> temp;
+            InputStateData state;
             using (new WriteLockSlim(loker)) {
+                state = CurrentInputState?.Clone();
                 temp = cache;
                 cache = new Dictionary<Type, IInputCommand>();
             }
@@ -57,6 +60,7 @@ namespace D3DLab.Std.Engine.Core.Input {
                 cloned.cache.Add(cmd.Key, cmd.Value);
             }
             //Console.WriteLine($"CloneAndClear {cloned.cache.Count}");
+            cloned.CurrentInputState = state;
             return cloned;
         }
 

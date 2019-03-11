@@ -8,6 +8,10 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
 
     public class CameraIdleCommand : IInputCommand {
+        public InputStateData InputState { get; }
+        public CameraIdleCommand() {
+            //InputState = state;
+        }
         public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
@@ -23,12 +27,17 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
     #region common
 
     public class ForceRenderCommand : IInputCommand {
+        public InputStateData InputState { get; }
         public bool Execute(GraphicEntity entity) {
             return true;
         }
     }
 
     public class ToCenterWorldCommand : IInputCommand {
+        public InputStateData InputState { get; }
+        public ToCenterWorldCommand() {
+            //InputState = state;
+        }
         public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<GeneralCameraComponent>();
             if (!find.Any()) {
@@ -48,10 +57,10 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
     #region keywords
 
     public class KeywordsMovingCommand : IInputCommand {
-        readonly InputStateData state;
-
+        public InputStateData InputState { get; }
+        
         public KeywordsMovingCommand(InputStateData state) {
-            this.state = state;
+            this.InputState = state;
         }
         public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<GeneralCameraComponent>();
@@ -62,7 +71,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
             var type = KeywordMovingComponent.MovingDirection.Undefined;
 
-            switch (state.Keyword) {
+            switch (InputState.Keyword) {
                 case GeneralKeywords.W:
                     type = KeywordMovingComponent.MovingDirection.MoveForward;
                     break;
@@ -81,7 +90,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
                 .GetOrCreateComponent(new KeywordMovingComponent())
                 .Do(x => {
                     x.Direction = type;
-                    x.IsKeywordDown = state.IsKeywordDown;
+                    x.IsKeywordDown = InputState.IsKeywordDown;
                 });
 
             return true;
@@ -94,10 +103,10 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
 
     public class CameraZoomCommand : IInputCommand {
         const float scrollSpeed = 0.5f;
-        readonly InputStateData state;
+        public InputStateData InputState { get; }
 
         public CameraZoomCommand(InputStateData state) {
-            this.state = state;
+            this.InputState = state;
         }
 
         public bool Execute(GraphicEntity entity) {
@@ -106,9 +115,9 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
                 return false;
             }
             var ccom = find.First();
-            var delta = state.Delta;
+            var delta = InputState.Delta;
 
-            var p2 = state.CurrentPosition;
+            var p2 = InputState.CurrentPosition;
             var data = new MovementData { End = p2 };
 
             entity
@@ -123,10 +132,10 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
     }
 
     public class CameraRotateCommand : IInputCommand {
-        readonly InputStateData state;
+        public InputStateData InputState { get; }
 
         public CameraRotateCommand(InputStateData state) {
-            this.state = state;
+            this.InputState = state;
         }
 
         public bool Execute(GraphicEntity entity) {
@@ -135,8 +144,8 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
                 return false;
             }
 
-            var p11 = state.ButtonsStates[GeneralMouseButtons.Right].PointDown;
-            var p2 = state.CurrentPosition;
+            var p11 = InputState.ButtonsStates[GeneralMouseButtons.Right].PointV2;
+            var p2 = InputState.CurrentPosition;
             var data = new MovementData { Begin = p11, End = p2 };
 
             var ccom = find.First();
@@ -152,7 +161,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
         public FocusToObjectCommand(InputStateData state) : base(state) { }
         protected override bool Executing(GraphicEntity entity, GeneralCameraComponent comp) {
             var mcomp = new Systems.CollidingWithScreenRayComponent();
-            mcomp.ScreenPosition = state.CurrentPosition;
+            mcomp.ScreenPosition = InputState.CurrentPosition;
             entity.AddComponent(mcomp);
 
             return true;
@@ -164,8 +173,8 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
     public class CameraPanCommand : CameraCommand {
         public CameraPanCommand(InputStateData state) : base(state) { }
         protected override bool Executing(GeneralCameraComponent comp) {
-            var p1 = state.PrevPosition;
-            var p2 = state.CurrentPosition;
+            var p1 = InputState.PrevPosition;
+            var p2 = InputState.CurrentPosition;
             var move = new Vector2(p2.X - p1.X, p2.Y - p1.Y);
 
            // comp.Pan(move);
@@ -175,10 +184,10 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
     }
 
     public abstract class CameraCommand : IInputCommand {
-        protected readonly InputStateData state;
+        public InputStateData InputState { get; protected set; }
 
         public CameraCommand(InputStateData state) {
-            this.state = state;
+            this.InputState = state;
         }
         public bool Execute(GraphicEntity entity) {
             var find = entity.GetComponents<GeneralCameraComponent>();

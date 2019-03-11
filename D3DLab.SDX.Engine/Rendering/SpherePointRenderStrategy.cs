@@ -46,7 +46,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         public SpherePointRenderStrategy() 
             : base(new EntityHasSet(
                 typeof(D3DSpherePointRenderComponent),
-                typeof(D3DWorldTransformComponent))) {
+                typeof(TransformComponent))) {
             rasterizerStateDescription = new RasterizerStateDescription() {
                 CullMode = CullMode.None,
                 FillMode = FillMode.Solid,
@@ -66,6 +66,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                 var render = en.GetComponent<D3DSpherePointRenderComponent>();
                 var geo = en.GetComponent<IGeometryComponent>();
                 var components = en.GetComponents<ID3DRenderable>();
+                var transform = en.GetComponent<TransformComponent>();
 
                 foreach (var com in components) {
                     if (com.IsModified) {
@@ -82,6 +83,8 @@ namespace D3DLab.SDX.Engine.Rendering {
                     render.PrimitiveTopology = PrimitiveTopology.PointList;;
                     render.IsModified = false;
                 }
+
+                UpdateTransformWorld(graphics, render, transform);
 
                 SetShaders(context, render);
 

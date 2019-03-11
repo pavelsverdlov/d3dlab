@@ -213,5 +213,50 @@ namespace D3DLab.Std.Engine.Core.Utilities {
                 TextureCoordinates = texture.ToList(),
             };
         }
+
+        public static IEnumerable<Vector3> BuildBox(BoundingBox box) {
+            var pos = new List<Vector3>();
+            var corners = box.GetCorners();
+
+            pos.Add(corners.FarBottomLeft);
+            pos.Add(corners.FarBottomRight);
+
+            pos.Add(corners.FarBottomRight);
+            pos.Add(corners.FarTopRight);
+
+            pos.Add(corners.FarTopRight);
+            pos.Add(corners.FarTopLeft);
+
+            pos.Add(corners.FarTopLeft);
+            pos.Add(corners.FarBottomLeft);
+            
+
+            pos.Add(corners.NearBottomLeft);
+            pos.Add(corners.NearBottomRight);
+
+            pos.Add(corners.NearBottomRight);
+            pos.Add(corners.NearTopRight);
+
+            pos.Add(corners.NearTopRight);
+            pos.Add(corners.NearTopLeft);
+
+            pos.Add(corners.NearTopLeft);
+            pos.Add(corners.NearBottomLeft);
+
+
+            pos.Add(corners.NearBottomLeft);
+            pos.Add(corners.FarBottomLeft);
+
+            pos.Add(corners.NearBottomRight);
+            pos.Add(corners.FarBottomRight);
+
+            pos.Add(corners.NearTopRight);
+            pos.Add(corners.FarTopRight);
+
+            pos.Add(corners.NearTopLeft);
+            pos.Add(corners.FarTopLeft);
+
+            return pos;
+        }
     }
 }
