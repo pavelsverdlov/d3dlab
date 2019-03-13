@@ -71,6 +71,13 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
             return true;
         }
+
+        public Vector3 IntersecWithPlane(Vector3 position, Vector3 normal) {
+            var dn = Vector3.Dot(normal, this.Direction);
+            var u = Vector3.Dot(normal, position - this.Origin) / dn;
+            return this.Origin + u * this.Direction;
+        }
+
         void Swap(ref float a, ref float b) {
             var temp = a;
             a = b;

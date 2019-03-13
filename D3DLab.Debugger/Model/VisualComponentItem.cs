@@ -26,10 +26,10 @@ namespace D3DLab.Debugger.Model {
 
         readonly Dictionary<ElementTag, IVisualComponentItem> hash;
 
-        readonly GraphicEntityAdapter entity;
+        readonly GraphicEntityDecorator entity;
         readonly ITreeItemActions actions;
 
-        public VisualTreeItem(GraphicEntityAdapter entity, ITreeItemActions actions) {
+        public VisualTreeItem(GraphicEntityDecorator entity, ITreeItemActions actions) {
             this.entity = entity;
             this.actions = actions;
             Components = new ObservableCollection<IVisualComponentItem>();

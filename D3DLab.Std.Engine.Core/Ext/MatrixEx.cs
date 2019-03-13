@@ -35,7 +35,7 @@ namespace D3DLab.Std.Engine.Core.Ext {
         /// <param name="m"></param>
         /// <returns></returns>
         /// <remarks>
-        /// return Identity if Matrix4x4 can be inverted
+        /// return Identity if Matrix4x4 can't be inverted
         /// </remarks>
         public static Matrix4x4 Inverted(this Matrix4x4 m) {
             if(Matrix4x4.Invert(m, out var inverted)) {

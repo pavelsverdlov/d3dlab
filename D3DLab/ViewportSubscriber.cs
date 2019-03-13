@@ -15,9 +15,9 @@ namespace D3DLab {
         }
 
         public void Change(GraphicEntity entity) {
-            var en = new Debugger.Windows.GraphicEntityAdapter(entity);
+            var en = new Debugger.Windows.GraphicEntityDecorator(entity);
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                mv.VisualTreeviewer.Add(en);
+                mv.VisualTreeviewer.Change(en);
             }));
         }
 
@@ -29,7 +29,7 @@ namespace D3DLab {
 
         public void Render(IEnumerable<GraphicEntity> entities) {
             if (App.Current == null) { return; }
-            var en = entities.Select(x => new Debugger.Windows.GraphicEntityAdapter(x)).ToList();
+            var en = entities.Select(x => new Debugger.Windows.GraphicEntityDecorator(x)).ToList();
             App.Current.Dispatcher.BeginInvoke(new Action(() => {
                 mv.VisualTreeviewer.Refresh(en);
             }));

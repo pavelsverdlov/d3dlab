@@ -149,6 +149,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             state.CurrentPosition = e.GetPosition(control).ToNumericsV2();
             InvokeSubscribers((s, ev) => s.OnMouseMove(ev));
             state.PrevPosition = state.CurrentPosition;
+            //System.Diagnostics.Trace.WriteLine($"OnMouseMove {state.CurrentPosition}");
         }
 
         protected static GeneralMouseButtons GetMouseButton(System.Windows.Input.MouseButton state) {

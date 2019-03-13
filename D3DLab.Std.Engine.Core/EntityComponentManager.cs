@@ -35,6 +35,8 @@ namespace D3DLab.Std.Engine.Core {
                     owner.entities.Remove(entity.Tag);
                     owner.components.Remove(entity.Tag);
                     entityHas.Remove(entity.Tag);
+
+                    notify.NotifyChange(entity);
                 }
             }, null);
         }

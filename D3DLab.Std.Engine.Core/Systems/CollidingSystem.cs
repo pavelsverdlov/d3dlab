@@ -70,14 +70,14 @@ namespace D3DLab.Std.Engine.Core.Systems {
             }
 
             public bool TryToColliding(Vector2 pos, out RayCollidedWithEntityComponent collided) {
-                var ray = snapshot.Viewport.UnProject(pos, snapshot.Camera, snapshot.Window);
+                var rayWorld = snapshot.Viewport.UnProject(pos, snapshot.Camera, snapshot.Window);
                 collided = new RayCollidedWithEntityComponent();
 
                 var minDistance = double.MaxValue;
 
                 Vector3 intersecWorld = Vector3.Zero;
                 //find object
-                var res = snapshot.Octree.GetColliding(ray, tag => {
+                var res = snapshot.Octree.GetColliding(rayWorld, tag => {
                     var entity = snapshot.ContextState.GetEntityManager().GetEntity(tag);
 
                     var renderable = entity.GetComponents<IRenderableComponent>().Any(x => x.CanRender);
@@ -93,7 +93,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     var hasTransform = entity.GetComponents<TransformComponent>();
                     var toLocal = Matrix4x4.Identity;
                     var toWorld = Matrix4x4.Identity;
-                    var rayLocal = ray;
+                    var rayLocal = rayWorld;
                     if (hasTransform.Any()) {
                         toWorld = hasTransform.Single().MatrixWorld;
                         toLocal = toWorld.Inverted();

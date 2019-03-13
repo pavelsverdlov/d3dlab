@@ -10,7 +10,7 @@ namespace D3DLab.Std.Engine.Core {
             this.tag = tag;
         }
 
-        public bool IsEmpty => Empty.tag == tag || Empty.tag == null;
+        public bool IsEmpty => Empty.tag == tag || tag == null;
 
         public override bool Equals(object obj) {
             return obj is ElementTag && Equals((ElementTag)obj);

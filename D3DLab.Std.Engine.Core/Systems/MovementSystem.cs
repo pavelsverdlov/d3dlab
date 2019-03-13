@@ -35,7 +35,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
         }
 
         public TransformComponent Apply() {
-            original.MatrixWorld *= temporary;
+            //original.MatrixWorld *= temporary;
             return original;
         }
     }
@@ -66,15 +66,14 @@ namespace D3DLab.Std.Engine.Core.Systems {
                             var istate = snapshot.Snapshot.CurrentInputState;
                             var isManiputating = entity.GetComponents<TemporaryManipulateTransformKepperComponent>();
                             var left = istate.ButtonsStates[Input.GeneralMouseButtons.Left];
-
-                            System.Diagnostics.Trace.WriteLine($"{left.Condition}");
-
+                            
                             if (left.Condition == Input.ButtonStates.Released) {
                                 entity.RemoveComponent(capture);
                                 //apply transformation
                                 var origin = isManiputating.Single().Apply();
                                 entity.RemoveComponents<TemporaryManipulateTransformKepperComponent>();
                                 entity.AddComponent(origin);
+                                origin.IsModified = true;
                                 continue;
                             }
 
@@ -96,23 +95,17 @@ namespace D3DLab.Std.Engine.Core.Systems {
                             var delta = (begin - end).Length();
                             var captutedPointW = capture.CapturePointWorld;
 
-                            var cross = Vector3.Cross(cstate.UpDirection, cstate.LookDirection);
-                            // var plane = new Plane(cstate.LookDirection, -Vector3.Dot(cstate.LookDirection, capture.CapturePoint));
-
                             var rayW = snapshot.Viewport.UnProject(end, snapshot.Camera, snapshot.Window);
-
                             var vectorToMovePoint = rayW.Origin - captutedPointW;
+                            
+                            var endPoint = rayW.IntersecWithPlane(captutedPointW, -cstate.LookDirection);
 
-                            var scalarProjectonOnPlaneNormal = Vector3.Dot(-cstate.LookDirection, vectorToMovePoint);
+                            var moveVector = endPoint - captutedPointW;
+                           // moveVector.Normalize();
 
-                            var vProjectionOnPlaneNormal = captutedPointW - cstate.LookDirection * scalarProjectonOnPlaneNormal;
+                            transform.MatrixWorld = Matrix4x4.CreateTranslation(moveVector);
 
-                            var direction = vectorToMovePoint - vProjectionOnPlaneNormal;
-                            // direction.Normalize();
-
-                            transform.MatrixWorld = Matrix4x4.CreateTranslation(Vector3.UnitZ * direction.Length());
-
-                            //System.Diagnostics.Trace.WriteLine($"Translation {direction} delta {delta}");
+                            //System.Diagnostics.Trace.WriteLine($" {captutedPointW} | {endPoint} | {moveVector}");
 
                             snapshot.Notifier.NotifyChange(transform);
 

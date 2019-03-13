@@ -49,15 +49,17 @@ namespace D3DLab.Debugger.Windows {
         void Removed(VisualTreeItem item);
     }
 
-    public class GraphicEntityAdapter {
+    public class GraphicEntityDecorator {
         readonly GraphicEntity entity;
         public ElementTag Tag => entity.Tag;
+        public bool IsDestroyed => entity.IsDestroyed;
 
         readonly IEnumerable<IGraphicComponent> coms;
 
-        public GraphicEntityAdapter(GraphicEntity entity) {
+        public GraphicEntityDecorator(GraphicEntity entity) {
             this.entity = entity;
             coms = entity.GetComponents().ToList();
+            
         }
 
         public IEnumerable<IGraphicComponent> GetComponents() {
@@ -141,7 +143,15 @@ namespace D3DLab.Debugger.Windows {
             //GameWindow.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
         }
 
-        public void Add(GraphicEntityAdapter entity) {
+        public void Change(GraphicEntityDecorator entity) {
+            if (entity.IsDestroyed) {
+                if (hash.ContainsKey(entity.Tag)) {
+                    items.Remove(hash[entity.Tag]);
+                    hash.Remove(entity.Tag);
+                }
+                return;
+            }
+
             var found = items.SingleOrDefault(x => x.Name == entity.Tag);
             if (found == null) {
                 found = new VisualTreeItem(entity, this);
@@ -159,7 +169,7 @@ namespace D3DLab.Debugger.Windows {
             }
         }
 
-        public void Refresh(IEnumerable<GraphicEntityAdapter> entities) {
+        public void Refresh(IEnumerable<GraphicEntityDecorator> entities) {
             Title = $"Visual Tree [entities {entities.Count()}]";
             foreach (var en in entities) {
                 if (hash.ContainsKey(en.Tag)) {
@@ -179,6 +189,8 @@ namespace D3DLab.Debugger.Windows {
                             item.Remove(com);
                         }
                     }
+                } else {
+
                 }
             }
             PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(ItemsCount)));
