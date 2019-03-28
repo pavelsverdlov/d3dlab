@@ -4,7 +4,7 @@ using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Systems {
     public sealed class InputSystem : BaseEntitySystem, IGraphicSystem {
-        public void Execute(SceneSnapshot snapshot) {
+        protected override void Executing(SceneSnapshot snapshot) {
             var s = snapshot.Snapshot;
 
             foreach (var en in snapshot.ContextState.GetEntityManager().GetEntities()) {

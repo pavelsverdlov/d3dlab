@@ -13,3 +13,7 @@ float3x3 fromAxisAngle3x3(float angle, float3 axis) {
 		t * x * z - s * y, t * y * z + s * x, t * z * z + c
 		);
 }
+
+float toNewRange(float oldVal, float oldMin, float oldMax, float newMim, float newMax) {
+	return (((oldVal - oldMin) * (newMax - newMim)) / (oldMax - oldMin)) + newMim;
+}

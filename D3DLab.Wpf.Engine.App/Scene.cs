@@ -99,7 +99,7 @@ namespace D3DLab.Wpf.Engine.App {
                 smanager.CreateSystem<MovementSystem>();
                 //smanager.CreateSystem<MovingOnHeightMapSystem>();
                 smanager.CreateSystem<AnimationSystem>();
-                smanager.CreateSystem<TerrainGeneratorSystem>();
+                smanager.CreateSystem<Systems.TerrainGeneratorSystem>();
                 smanager
                     .CreateSystem<RenderSystem>()
                     .Init(device)

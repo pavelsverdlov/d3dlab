@@ -23,9 +23,9 @@ namespace D3DLab.Debugger {
 
         public override void WriteLine(string message) {
             dispatcher.InvokeAsync(() => {
-                if (message == lastMessage) {
-                    return;
-                }
+                //if (message == lastMessage) {
+                //    return;
+                //}
                 var mess = $"[{DateTime.Now.TimeOfDay}] {message.Trim()}";
                 output.Insert(0, mess);
                 if (output.Count > maxlines) {

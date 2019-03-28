@@ -156,6 +156,8 @@
       <Word>do</Word>
       <Word>for</Word>
       <Word>while</Word>
+      <Word>const</Word>
+      <Word>static</Word>
     </Keywords>
 
     <Keywords color="GotoKeywords">

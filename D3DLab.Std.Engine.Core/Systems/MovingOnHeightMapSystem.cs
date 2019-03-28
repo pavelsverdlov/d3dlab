@@ -6,9 +6,9 @@ using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Systems {
     public class MovingOnHeightMapSystem : BaseEntitySystem, IGraphicSystem {
-             
 
-        public void Execute(SceneSnapshot snapshot) {
+
+        protected override void Executing(SceneSnapshot snapshot) {
             IEntityManager emanager = snapshot.ContextState.GetEntityManager();
 
             foreach (var entity in emanager.GetEntities()) {

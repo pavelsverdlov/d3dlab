@@ -286,7 +286,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
         //TODO: remake executer it looks bad :(
 
 
-        public void Execute(SceneSnapshot snapshot) {
+        protected override void Executing(SceneSnapshot snapshot) {
             var window = snapshot.Window;
             var emanager = snapshot.ContextState.GetEntityManager();
 

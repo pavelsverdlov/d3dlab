@@ -82,6 +82,10 @@
                             <Button Visibility="{Binding IsShaderEditable, Converter={StaticResource BooleanToVisibility}}" 
                                 Style="{StaticResource ButtonShaders}" Margin="5,0,0,0"
                                 CommandParameter="{Binding}" Command="{Binding DataContext.Controller.OpenShaderEditor, ElementName=data}"/>
+                            <TextBlock Margin="5,0,0,0">
+                                <Run Text="{Binding ExecutionTime.TotalMilliseconds, Mode=OneWay}" Foreground="{StaticResource TextColor}"/>
+                                <Run Text=" ms" Foreground="{StaticResource TextColor}"/>
+                            </TextBlock>
                         </StackPanel>
 
                     </DockPanel>

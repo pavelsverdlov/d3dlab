@@ -80,6 +80,12 @@
             </Expander>
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type local:ImageReadOnlyViewProperty}">
+            <Image Source="{Binding Image}" Margin="5" HorizontalAlignment="Right" >
+                
+            </Image>
+        </DataTemplate>
+
     </Window.Resources>
 
     <Window.DataContext>

@@ -58,11 +58,11 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                         
-                        <local:ShaderEditControl Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        <local:ShaderEditControl Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5"
                             BindableText="{Binding ShaderText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Background="#1E1E1E" Foreground="#DCDCDC" 
                             BorderBrush="{StaticResource BorderBrushColor}"
-                            BorderThickness="1,0,0,0" TextBlock.FontSize="12" 
+                            BorderThickness="0,0,0,0" TextBlock.FontSize="12" 
                             TextBlock.LineHeight="18" 
                             SyntaxHighlighting="HLSL" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
 

@@ -92,6 +92,10 @@ namespace D3DLab.SDX.Engine.Rendering {
                 context.VertexShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, game.Lights);
 
                 if (geo.IsModified || color.Any(x=>x.IsModified)) {
+
+
+                    //Tests.BoundingBoxTest(geo.Positions.ToArray());
+
                     var vertex = new Vertex[geo.Positions.Length];
                     if (color.Any()) {
                         var c = color.Single();

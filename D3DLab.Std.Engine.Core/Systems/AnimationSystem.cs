@@ -7,7 +7,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
         void Animate(GraphicEntity owner, TimeSpan frameRateTime);
     }
     public class AnimationSystem : BaseEntitySystem, IGraphicSystem {
-        public void Execute(SceneSnapshot snapshot) {
+        protected override void Executing(SceneSnapshot snapshot) {
             var emanager = snapshot.ContextState.GetEntityManager();
 
             foreach (var entity in emanager.GetEntities()) {

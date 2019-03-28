@@ -59,7 +59,8 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
             : base(new EntityHasSet(
                 typeof(D3DSkyPlaneRenderComponent),
                 typeof(SkyPlaneParallaxAnimationComponent),
-                typeof(D3DTexturedMaterialSamplerComponent))){
+                typeof(D3DTexturedMaterialSamplerComponent),
+                typeof(TransformComponent))){
 
             rasterizerStateDescription = new RasterizerStateDescription() {
                 IsAntialiasedLineEnabled = false,
@@ -98,6 +99,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 var geo = en.GetComponent<IGeometryComponent>();
                 var animation = en.GetComponent<SkyPlaneParallaxAnimationComponent>();
                 var material = en.GetComponent<D3DTexturedMaterialSamplerComponent>();
+                var transform = en.GetComponent<TransformComponent>();
 
                 var components = en.GetComponents<ID3DRenderable>();
 
@@ -118,7 +120,8 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                     render.IsModified = false;
                 }
 
-                //render
+                UpdateTransformWorld(graphics, render, transform);
+
                 SetShaders(context, render);
 
                 context.VertexShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);

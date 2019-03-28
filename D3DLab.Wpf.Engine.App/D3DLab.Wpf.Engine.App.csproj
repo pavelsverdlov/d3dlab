@@ -77,6 +77,12 @@
     <Reference Include="SharpDX.Mathematics, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.Mathematics.4.1.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
     </Reference>
+    <Reference Include="SharpNoise, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpNoise.0.11.0\lib\net45\SharpNoise.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpNoise.Utilities, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpNoise.Utilities.0.11.0\lib\net45\SharpNoise.Utilities.dll</HintPath>
+    </Reference>
     <Reference Include="SixLabors.Core, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SixLabors.Core.1.0.0-beta0005\lib\netstandard1.1\SixLabors.Core.dll</HintPath>
     </Reference>
@@ -241,6 +247,7 @@
     <Compile Include="GameObjects\TerrainGameObject.cs" />
     <Compile Include="GameObjects\SphereGameObject.cs" />
     <Compile Include="D3D\Techniques\SkyGradientColoringRenderTechnique.cs" />
+    <Compile Include="Systems\TerrainGeneratorSystem.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

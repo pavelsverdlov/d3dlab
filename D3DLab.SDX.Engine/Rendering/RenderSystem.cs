@@ -81,7 +81,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                 Unsafe.SizeOf<LightStructBuffer>() * dinamicLightbuff.Length);
         }
 
-        public void Execute(SceneSnapshot snapshot) {
+        protected override void Executing(SceneSnapshot snapshot) {
             var emanager = snapshot.ContextState.GetEntityManager();
             var ticks = (float)snapshot.FrameRateTime.TotalMilliseconds;
 

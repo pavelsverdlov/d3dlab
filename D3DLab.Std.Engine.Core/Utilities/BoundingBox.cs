@@ -232,6 +232,9 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             return new BoundingBox((min * scale) + offset, (max * scale) + offset);
         }
 
+
+
+
         public static unsafe BoundingBox CreateFromVertices(Vector3[] vertices) {
             return CreateFromVertices(vertices, Quaternion.Identity, Vector3.Zero, Vector3.One);
         }

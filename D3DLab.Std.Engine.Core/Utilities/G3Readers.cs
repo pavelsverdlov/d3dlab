@@ -18,7 +18,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
                 var result = reader.Read(text, ReadOptions.Defaults, builder);
             }
 
-
+            
             
             //var reader = new StandardMeshReader();
             //var res = reader.Read(file.FullName, ReadOptions.Defaults);

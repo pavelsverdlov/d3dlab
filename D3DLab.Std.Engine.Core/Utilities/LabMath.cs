@@ -6,12 +6,6 @@ namespace D3DLab.Std.Engine.Core.Utilities {
     using System.IO;
     using System.Numerics;
     using D3DLab.Std.Engine.Core.Common;
-    using LibNoise;
-    using LibNoise.Builder;
-    using LibNoise.Filter;
-    using LibNoise.Modifier;
-    using LibNoise.Primitive;
-    using LibNoise.Renderer;
 
     public interface ILabNoise {
         void Render();
@@ -22,10 +16,6 @@ namespace D3DLab.Std.Engine.Core.Utilities {
     public static class LabAlgos {
         static LabAlgos() {
 
-        }
-
-        public static ILabNoise GetNoiseAdapter(NoiseParams p) {
-            return new LibNoiseAdapter(p);
         }
     }
     /// <summary>
@@ -42,11 +32,11 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             Size = new Size(width, height),
             //Scale = new NoiseScale { scale = 1f, bias = -0.8f },
 
-            frequency = FilterModule.DEFAULT_FREQUENCY,
-            lacunarity = FilterModule.DEFAULT_LACUNARITY,
-            octaveCount = FilterModule.DEFAULT_OCTAVE_COUNT,
-            offset = FilterModule.DEFAULT_OFFSET,
-            gain = FilterModule.DEFAULT_GAIN,
+            //frequency = FilterModule.DEFAULT_FREQUENCY,
+            //lacunarity = FilterModule.DEFAULT_LACUNARITY,
+            //octaveCount = FilterModule.DEFAULT_OCTAVE_COUNT,
+            //offset = FilterModule.DEFAULT_OFFSET,
+            //gain = FilterModule.DEFAULT_GAIN,
 
             Gradient = gr
         };
@@ -97,7 +87,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
         Terrain
     }
 
-
+    /*
     public class LibNoiseAdapter : ILabNoise {
         readonly ImprovedPerlin improvedPerlin;
         readonly FilterModule fModule;
@@ -186,7 +176,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
         }
 
     }
-
+    */
 
     /*
      * TO TEST 

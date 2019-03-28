@@ -43,31 +43,8 @@ namespace D3DLab.SDX.Engine {
                     .GetEntityManager()
                     .GetEntity(camera.EntityTag)
                     .RemoveComponent(component);
-
-                //ChangeCameraDistance1(delta, zoomAround);
-
-                //System.Diagnostics.Trace.WriteLine($"W:{camera.Position}, D: {delta * sign}, Center:{zoomAround}");
-
-                //if (Ext.ChangeCameraDistance(camera, ref delta, Vector3.Zero)) {
-
-                //    System.Diagnostics.Trace.WriteLine($"W:{camera.Position}, D: {delta * sign}, Center:{zoomAround}");
-                //}
-
-                // ZoomByChangingFieldOfView1(delta);
-
-                //if (CameraMode == CameraMode.FixedPosition || changeFieldOfView) {
-                //    ZoomByChangingFieldOfView(delta);
-                //} else {
-                //    switch (CameraMode) {
-                //        case CameraMode.Inspect:
-                //            ChangeCameraDistance(ref delta, zoomAround);
-                //            break;
-                //        case CameraMode.WalkAround:
-                //            camera.Position -= camera.LookDirection * (float)delta;
-                //            break;
-                //    }
-                //}
             }
+
             void ChangeCameraDistance1(float delta, Vector3 zoomAround) {
                 // Handle the 'zoomAround' point
                 var target = camera.Position + camera.LookDirection;

@@ -11,13 +11,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace D3DLab.Debugger.Presentation.SystemList {
-    public class SystemItemViewModel {
+    public class SystemItemViewModel : NotifyProperty {
         readonly IGraphicSystem system;
 
         public string Header { get; }
         public bool IsShaderEditable { get; }
+
+        public TimeSpan ExecutionTime => system.ExecutionTime;
 
         public SystemItemViewModel(IGraphicSystem system) {
             this.system = system;
@@ -27,6 +30,10 @@ namespace D3DLab.Debugger.Presentation.SystemList {
 
         public IGraphicSystem GetOriginSystem() {
             return system;
+        }
+
+        public void RefreshExecutingTime() {
+            RisePropertyChanged(nameof(ExecutionTime));
         }
     }
 
@@ -42,6 +49,12 @@ namespace D3DLab.Debugger.Presentation.SystemList {
 
         internal void AddItem(SystemItemViewModel item) {
             items.Add(item);
+        }
+
+        internal void RefreshExecutingTime() {
+            foreach(var i in items) {
+                i.RefreshExecutingTime();
+            }
         }
     }
     public class SystemViewController {
@@ -89,12 +102,21 @@ namespace D3DLab.Debugger.Presentation.SystemList {
         public SystemViewController Controller { get; }
 
         readonly Dictionary<int, SystemItemViewModel> hash;
+        readonly DispatcherTimer timer;
 
         public SystemViewPresenter() {            
             State = new ViewState();
             Controller = new SystemViewController(this);
             State.Items.CurrentChanged += OnCurrentChanged;
             hash = new Dictionary<int, SystemItemViewModel>();
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += OnTimeRefresh;
+            timer.Start();
+        }
+
+        private void OnTimeRefresh(object sender, EventArgs e) {
+            State.RefreshExecutingTime();
         }
 
         private void OnCurrentChanged(object sender, EventArgs e) {

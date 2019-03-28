@@ -10,10 +10,15 @@ namespace D3DLab.SDX.Engine.Rendering {
         const string SemanticNormalName = "NORMAL";
         const string SemanticColorName = "COLOR";
         const string SemanticTexCoorName = "TEXCOORD";
+        const string SemanticTangentName = "TANGENT";
+        const string SemanticBinormalName = "BINORMAL";
+
         const InputClassification perverxdata = InputClassification.PerVertexData;
         const Format Vector3 = Format.R32G32B32_Float;
         const Format Vector4 = Format.R32G32B32A32_Float;
         const Format Vector2 = Format.R32G32_Float;
+
+        int textcoorCount = 0;
 
         readonly List<InputElement> elements;
         public VertexLayoutConstructor() {
@@ -49,8 +54,18 @@ namespace D3DLab.SDX.Engine.Rendering {
             return this;
         }
         public VertexLayoutConstructor AddTexCoorElementAsVector2() {
-            elements.Add(new InputElement(SemanticTexCoorName, 0, Vector2, GetOffset(), 0, perverxdata, 0));
+            elements.Add(new InputElement(SemanticTexCoorName, textcoorCount, Vector2, GetOffset(), 0, perverxdata, 0));
+            textcoorCount++;
             return this;
         }
+        public VertexLayoutConstructor AddTangentElementAsVector3() {
+            elements.Add(new InputElement(SemanticTangentName, 0, Vector3, GetOffset(), 0, perverxdata, 0));
+            return this;
+        }
+        public VertexLayoutConstructor AddBinormalElementAsVector3() {
+            elements.Add(new InputElement(SemanticBinormalName, 0, Vector3, GetOffset(), 0, perverxdata, 0));
+            return this;
+        }
+
     }
 }

@@ -43,9 +43,13 @@ namespace D3DLab.Std.Engine.Core.Components.Movements {
             handler.Execute(this);
         }
     }
-    public class MoveCameraToTargetComponent : GraphicComponent {
+    public class MoveCameraToTargetComponent : MovementComponent {
         public ElementTag Target { get; set; }
         public Vector3 TargetPosition { get; set; }
+
+        public override void Execute(IMovementComponentHandler handler) {
+            handler.Execute(this);
+        }
     }
 
 }

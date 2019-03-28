@@ -91,13 +91,11 @@ namespace D3DLab {
             }
 
             public void Execute(object parameter) {
-                //var bl = new EntityBuilder(main.context.GetEntityManager());
 
-                //var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
+              // var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
 
                 //main.plugins.Import();
 
-                //var tag = bl.Build(file, main.plugins.ParserPlugins.First());
              //   var path = @"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Models\skydome.txt";
 
                 //main.items.ForEach(i=> i.GameObj.Cleanup(main.context.GetEntityManager()));

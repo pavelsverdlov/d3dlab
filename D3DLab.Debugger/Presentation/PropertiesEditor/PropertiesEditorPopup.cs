@@ -11,6 +11,8 @@ using System.Numerics;
 using System.Reflection;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace D3DLab.Debugger.Presentation.PropertiesEditor {
     public class PropertiesEditorPopup {
@@ -161,6 +163,27 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
         }
     }
 
+    public class ImageReadOnlyViewProperty : ViewProperty {
+        public BitmapImage Image { get; private set; }
+        public ImageReadOnlyViewProperty(System.Drawing.Bitmap image)  {
+            Image = BitmapToImageSource(image);
+        }
+
+        static BitmapImage BitmapToImageSource(System.Drawing.Bitmap bitmap) {
+            using (var memory = new MemoryStream()) {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
+            }
+        }
+    }
+
     #endregion
 
     public abstract class ViewProperties {
@@ -227,7 +250,13 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
             pr.Value = fi.FullName;
             Value.Add(pr);
         }
-
+        public void AddImage(System.Drawing.Bitmap bmp) {
+            if(bmp == null) {
+                return;
+            }
+            var pr = new ImageReadOnlyViewProperty(bmp);
+            Value.Add(pr);
+        }
 
         public void Analyze(object com, HashSet<int> hashed) {
             Analyze(com, this, com.GetType(), hashed);
@@ -334,6 +363,12 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
                     property.AddPrimitive(name, value, x => { });
                     return;
                 }
+
+                if (type == typeof(System.Drawing.Bitmap)) {
+                    property.AddImage((System.Drawing.Bitmap)val);
+                    return;
+                }
+
                 var group = new GroupViewProperty();
                 group.Title = name;
 

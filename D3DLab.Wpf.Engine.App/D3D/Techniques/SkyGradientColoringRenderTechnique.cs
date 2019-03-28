@@ -46,7 +46,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
         }
 
         public SkyGradientColoringRenderTechnique()
-            : base(new EntityHasSet(typeof(D3DSkyRenderComponent))) {
+            : base(new EntityHasSet(typeof(D3DSkyRenderComponent), typeof(TransformComponent))) {
             rasterizerStateDescription = new RasterizerStateDescription() {
                 IsAntialiasedLineEnabled = false,
                 CullMode = CullMode.None,
@@ -74,6 +74,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 var render = en.GetComponent<D3DSkyRenderComponent>();
                 var gradient = en.GetComponent<GradientMaterialComponent>();
                 var geo = en.GetComponent<IGeometryComponent>();
+                var transform = en.GetComponent<TransformComponent>();
                 var components = en.GetComponents<ID3DRenderable>();
 
                 foreach (var com in components) {
@@ -92,6 +93,8 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
 
                     render.IsModified = false;
                 }
+
+                UpdateTransformWorld(graphics, render,transform);
 
                 SetShaders(context, render);
 

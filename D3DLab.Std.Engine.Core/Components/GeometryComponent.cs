@@ -26,14 +26,12 @@ namespace D3DLab.Std.Engine.Core.Components {
             return Task.Run(() => {
                 var norm = Normals.IsDefaultOrEmpty ? null : ConvertToVector3f(Normals);
                 DMesh = DMesh3Builder.Build(ConvertToVector3f(Positions), Indices, norm);
-
                 //var sm = new LaplacianMeshSmoother(DMesh);
                 //sm.Initialize();
                 //sm.SolveAndUpdateMesh();
 
                 //DMesh = sm.Mesh;
-
-                 Tree = new DMeshAABBTree3(DMesh);
+                Tree = new DMeshAABBTree3(DMesh);
                 Tree.Build();
                 IsBuilt = true;
                 return this;
@@ -115,7 +113,10 @@ namespace D3DLab.Std.Engine.Core.Components {
         }
         public ImmutableArray<Vector2> TextureCoordinates { get; set; }
         public ImmutableArray<int> Indices { get; set; }
-        
+
+        public List<Vector3> Tangents { get; set; }
+        public List<Vector3> Binormal { get; set; }
+
         [Obsolete("MOve to color component")]
         public Vector4 Color { get; set; }
 

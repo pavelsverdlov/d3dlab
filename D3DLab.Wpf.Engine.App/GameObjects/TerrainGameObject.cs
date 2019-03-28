@@ -128,10 +128,10 @@ namespace D3DLab.Wpf.Engine.App {
             var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/terrain/");
             var grass = Path.Combine(resources, "1.jpg");
             var slope = Path.Combine(resources, "slope.bmp");
-            var rock = Path.Combine(resources, "rock.bmp");
+            var rock = Path.Combine(resources, "rock01d.bmp");
             var seafloor = Path.Combine(resources, "seafloor.bmp");
             var sand = Path.Combine(resources, "dirt04.bmp");
-            var shore = Path.Combine(resources, "cm.bmp");
+            var shore = Path.Combine(resources, "shore.jpg");
             var dirt = Path.Combine(resources, "dirt.bmp");
             var snow = Path.Combine(resources, "snow01n.bmp");
 
@@ -143,13 +143,9 @@ namespace D3DLab.Wpf.Engine.App {
                     new D3DTerrainRenderComponent() {
                         CanRender = false
                     },
-                    new Std.Engine.Core.Systems.TerrainConfigurationComponent {
+                    new Systems.TerrainConfigurationComponent {
                         Width = 256,
-                        Height = 256,
-                        TextureRepeat = 8,
-
-                        ElevationPower = 2
-
+                        Height = 256, 
                     },
                     new D3DTexturedMaterialSamplerComponent(
                         new System.IO.FileInfo(seafloor),
@@ -158,9 +154,11 @@ namespace D3DLab.Wpf.Engine.App {
                         new System.IO.FileInfo(grass),
                         new System.IO.FileInfo(dirt),
                         new System.IO.FileInfo(rock),
+                        new System.IO.FileInfo(slope),
+
+                        new System.IO.FileInfo(Path.Combine(resources, "rock01n.bmp")),
                         new System.IO.FileInfo(snow),
-                        new System.IO.FileInfo(slope)
-                        
+                        new System.IO.FileInfo(Path.Combine(resources,"distance01n.bmp"))
                         ),
                     new TransformComponent(),
                 });

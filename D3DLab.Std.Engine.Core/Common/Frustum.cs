@@ -43,7 +43,7 @@ namespace D3DLab.Std.Engine.Core.Common {
             planes[5].Normalize();
         }
 
-        bool CheckRectangle(float xCenter, float yCenter, float zCenter, float xSize, float ySize, float zSize) {
+        public bool CheckRectangle(float xCenter, float yCenter, float zCenter, float xSize, float ySize, float zSize) {
             // Check if any of the 6 planes of the rectangle are inside the view frustum.
             for (var i = 0; i < 6; i++) {
                 if (Plane.DotCoordinate(planes[i], new Vector3(xCenter - xSize, yCenter - ySize, zCenter - zSize)) >= 0f)

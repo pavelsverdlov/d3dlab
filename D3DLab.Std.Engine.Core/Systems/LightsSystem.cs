@@ -21,7 +21,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
     }
 
     public class LightsSystem : BaseEntitySystem, IGraphicSystem {
-        public void Execute(SceneSnapshot snapshot) {
+        protected override void Executing(SceneSnapshot snapshot) {
             IEntityManager emanager = snapshot.ContextState.GetEntityManager();
             var camera = snapshot.Camera;
 

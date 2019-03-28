@@ -24,7 +24,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
     }
 
     public class CollidingSystem : BaseEntitySystem, IGraphicSystem {
-        public void Execute(SceneSnapshot snapshot) {
+        protected override void Executing(SceneSnapshot snapshot) {
             var colliding = new Colliding(snapshot);
             var emanager = snapshot.ContextState.GetEntityManager();
 

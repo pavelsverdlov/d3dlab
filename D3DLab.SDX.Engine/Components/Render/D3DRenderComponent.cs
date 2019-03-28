@@ -38,7 +38,6 @@ namespace D3DLab.SDX.Engine.Components {
         [IgnoreDebuging]
         public DisposableSetter<GeometryShader> GeometryShader { get; private set; }
 
-        public int VertexSize { get; set; }
 
         protected readonly DisposeWatcher disposer;
         public D3DRenderComponent() {
