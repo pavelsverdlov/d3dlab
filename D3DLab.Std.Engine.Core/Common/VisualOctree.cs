@@ -43,7 +43,15 @@ namespace D3DLab.Std.Engine.Core.Common {
                             .ContinueWith(x => {
                                 synchronizer.Add((_, cc) => {
                                     var g = (HittableGeometryComponent)cc;
-                                    _.Add(g.Box, g.EntityTag);
+
+                                    var tr = context
+                                        .GetComponentManager()
+                                        .GetComponents<TransformComponent>(cc.EntityTag);
+                                    var box = g.Box;
+                                    if (tr.Any()) {
+                                        box = box.Transform(tr.Single().MatrixWorld);
+                                    }
+                                    _.Add(box, g.EntityTag);
                                     _.isActualStateDrawed = false;
                                 }, x.Result);
                             });

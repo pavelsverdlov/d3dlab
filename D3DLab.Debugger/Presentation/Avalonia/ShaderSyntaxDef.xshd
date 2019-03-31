@@ -198,6 +198,7 @@
       <Word>float4</Word>
       <Word>float4x4</Word>
       <Word>float2x2</Word>
+      <Word>float3x3</Word>
     </Keywords>
 
     <Keywords color="ReferenceTypeKeywords">

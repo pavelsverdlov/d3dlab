@@ -16,6 +16,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
     using D3DLab.Std.Engine.Core.Components;
     using D3DLab.Std.Engine.Core.Ext;
     using D3DLab.Std.Engine.Core.Systems;
+    using D3DLab.Std.Engine.Core.Utilities;
     using D3DLab.Wpf.Engine.App.D3D.Components;
     using SharpNoise;
     using SharpNoise.Builders;
@@ -36,18 +37,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
                 if (conf.IsModified) {
                     entity.RemoveComponents<TerrainGeneratorComponent>();
                     conf.IsModified = false;
-                    var generator = new TerrainGeneratorComponent(conf.Width, conf.Height,
-                        new TerrainGeneratorComponent.TerrainParams {
-                            ElevationPower = conf.ElevationPower,
-                            Resolution = conf.Resolution,
-                            Correction = conf.Correction,
-                            Seed = conf.Seed,
-
-                            MountainFrequency = conf.MountainFrequency,
-                            MountainLacunarity = conf.MountainLacunarity,
-                            MountainOctaveCount = conf.MountainOctaveCount,
-
-                        });
+                    var generator = new TerrainGeneratorComponent(conf.Width, conf.Height, conf);
                     generator.StartGeneratingAsync();
                     entity.AddComponent(generator);
                     continue;
@@ -71,6 +61,10 @@ namespace D3DLab.Wpf.Engine.App.Systems {
                     entity.AddComponent(newgeo);
 
                     conf.Texture = generating.Texture;
+
+                    var box = BoundingBox.CreateFromVertices(newgeo.Positions.ToArray());
+
+                    entity.GetComponent<TransformComponent>().MatrixWorld = Matrix4x4.CreateTranslation(-box.GetCenter());
 
                     entity.GetComponent<IRenderableComponent>().CanRender = true;
 
@@ -280,23 +274,61 @@ namespace D3DLab.Wpf.Engine.App.Systems {
         public double ElevationPower { get; set; }
         public float Resolution { get; set; }
         public float Correction { get; set; }
-        public int Seed { get; set; }
-
-        public float MountainLacunarity { get; set; }
-        public float MountainFrequency { get; set; }
-        public int MountainOctaveCount { get; set; }
+        
+        public Perlin Noise { get; set; }
+        public Turbulence Turbulence { get; set; }
+        public Select Select { get; set; }
+        public RidgedMulti Mountain { get; set; }
+        public Billow Flat { get; set; }
+        public ScaleBias FlatScale { get; set; }
 
         public TerrainConfigurationComponent() {
             Width = Height = 256;
-            TextureRepeat = 8;// * 4
+            TextureRepeat = 8*2;// * 4
             IsModified = true;
-            Correction = 10;
-            TextureRepeat = 8;
+            Correction = 20;
             ElevationPower = 1;
 
-            MountainLacunarity = 2;
-            MountainFrequency = 1;
-            MountainOctaveCount = 6;
+            Mountain = new RidgedMulti() {
+                Seed = 0,
+                Frequency = 1,
+                Lacunarity = 2,
+                OctaveCount = 6
+            };
+
+            Flat = new Billow() {
+                Frequency = 2,
+                Seed = 0,
+                Lacunarity = 2,
+                OctaveCount = 3
+            };
+
+            FlatScale = new ScaleBias() {
+                //Scale = 0.125,
+                //Bias = -0.75,
+                Bias = 0.05,
+                Scale = 0.12,
+            };
+
+            Noise = new Perlin() {
+                Frequency = 0.5,
+                Persistence = 0.25,
+                Seed = 0,
+                OctaveCount = 6
+            };
+
+            Select = new Select() {
+                LowerBound = 0,
+                UpperBound = 1000,
+                EdgeFalloff = 0.125,
+            };
+
+            Turbulence = new Turbulence() {
+                Frequency = 1.6,
+                Power = 0.125,
+                Roughness = 2,
+            };
+
         }
 
     }
@@ -319,9 +351,9 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
         readonly int width;
         readonly int height;
-        readonly TerrainParams terrainParams;
+        readonly TerrainConfigurationComponent terrainParams;
 
-        public TerrainGeneratorComponent(int width, int height, TerrainParams terrainParams) {
+        public TerrainGeneratorComponent(int width, int height, TerrainConfigurationComponent terrainParams) {
             this.width = width;
             this.height = height;
             this.terrainParams = terrainParams;
@@ -425,7 +457,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
             var map = new NoiseMap();
             try {
                 var rectangle = new Rectangle(0, 0, width, height);
-                var tree = CreateNoiseTree(terrainParams.Seed);
+                var tree = CreateNoiseTree();
                 var builder = new PlaneNoiseMapBuilder() {
                     DestNoiseMap = map,
                 };
@@ -449,6 +481,8 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
             } catch (Exception ex) {
                 ex.ToString();
+            } finally {
+                ClearNoiseTree();
             }
 
             var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/terrain/");
@@ -474,54 +508,31 @@ namespace D3DLab.Wpf.Engine.App.Systems {
             //}
             IsGenerated = true;
         }
-        public Module CreateNoiseTree(int seed) {
-            var mountainTerrain = new RidgedMulti() {
-                Seed = seed,
+        Module CreateNoiseTree() {
+            var mountainTerrain = terrainParams.Mountain;
+            var baseFlatTerrain = terrainParams.Flat;
+            var flatTerrain = terrainParams.FlatScale;
 
-                Frequency = terrainParams.MountainFrequency,
-                Lacunarity = terrainParams.MountainLacunarity,
-                OctaveCount = terrainParams.MountainOctaveCount
-            };
+            flatTerrain.Source0 = baseFlatTerrain;
 
-            var baseFlatTerrain = new Billow() {
-                Frequency = 2,
+            var terrainType = terrainParams.Noise;
+            var terrainSelector = terrainParams.Select;
 
-                Seed = seed,
-                Lacunarity = 2,
-                OctaveCount = 3
-            };
+            terrainSelector.Source0 = flatTerrain;
+            terrainSelector.Source1 = mountainTerrain;
+            terrainSelector.Control = terrainType;
 
-            var flatTerrain = new ScaleBias() {
-                Source0 = baseFlatTerrain,
-                //Scale = 0.125,
-                //Bias = -0.75,
-                Bias = 0.05,
-                Scale = 0.12,
-            };
-
-            var terrainType = new Perlin() {
-                Frequency = 0.5,
-                Persistence = 0.25,
-                Seed = seed,
-                OctaveCount = 6
-            };
-
-            var terrainSelector = new Select() {
-                Source0 = flatTerrain,
-                Source1 = mountainTerrain,
-                Control = terrainType,
-                LowerBound = 0,
-                UpperBound = 1000,
-                EdgeFalloff = 0.125,
-            };
-
-            var finalTerrain = new Turbulence() {
-                Source0 = terrainSelector,
-                Frequency = 2,
-                Power = 0.125,
-            };
+            var finalTerrain = terrainParams.Turbulence;
+            finalTerrain.Source0 = terrainSelector;
 
             return finalTerrain;
+        }
+        void ClearNoiseTree() {
+            terrainParams.FlatScale.Source0 = null;
+            terrainParams.Select.Source0 = null;
+            terrainParams.Select.Source1 = null;
+            terrainParams.Select.Control = null;
+            terrainParams.Turbulence.Source0 = null;
         }
 
 

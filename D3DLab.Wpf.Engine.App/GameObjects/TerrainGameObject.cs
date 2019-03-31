@@ -128,9 +128,9 @@ namespace D3DLab.Wpf.Engine.App {
             var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/terrain/");
             var grass = Path.Combine(resources, "1.jpg");
             var slope = Path.Combine(resources, "slope.bmp");
-            var rock = Path.Combine(resources, "rock01d.bmp");
+            var rock = Path.Combine(resources, "rock-lambertian.jpg");
             var seafloor = Path.Combine(resources, "seafloor.bmp");
-            var sand = Path.Combine(resources, "dirt04.bmp");
+            var sand = Path.Combine(resources, "sand-lambertian.png");
             var shore = Path.Combine(resources, "shore.jpg");
             var dirt = Path.Combine(resources, "dirt.bmp");
             var snow = Path.Combine(resources, "snow01n.bmp");

@@ -28,7 +28,7 @@ VSOut main(float4 position : POSITION, float3 normal : NORMAL, float2 tex : TEXC
 	normal = mul(World, normal);
 	normal = normalize(normal);
 
-	output.color = color * computeLight(output.position.xyz, normal, -LookDirection.xyz, 1000);
+	output.color = color*computeLight(output.position.xyz, normal, -LookDirection.xyz, 1000);
 	output.normal = normal;
 	
 	output.tangent = mul(World, tangent);
@@ -46,7 +46,7 @@ VSOut main(float4 position : POSITION, float3 normal : NORMAL, float2 tex : TEXC
 
 #include "Math"
 #include "Game"
-//#include "Light"
+#include "Light"
 
 struct PSIn
 {
@@ -86,13 +86,78 @@ SamplerState SampleType;
 //static const float rock = 0.75;
 
 static const float seafloor = 0.05;
-static const float shore = 0.105;
+static const float shore = 0.2;
 static const float sand = 0.2;
-static const float grass = 0.35;
-static const float rock = 0.45;
+static const float grass = 0.3;
+static const float rock = 1;
 
 
-float4 normalMapping(float4 colorFirst, PSIn input) {//Texture2D normalMapBakinTexture
+float hash(float n) {
+	return frac(sin(n) * 43758.5453123);
+}
+
+/*
+ * Texture Rerepetition
+ * http://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
+ */
+float sum(float3 v) { return v.x + v.y + v.z; }
+float4 textuRerepetitionWithNoise(Texture2D texture2d, PSIn input)
+{
+	float2 x = input.tex;// float2();
+	float4 origColor = texture2d.Sample(SampleType, x);
+	// sample variation pattern
+	float2 c = input.normalMap;
+	float k = c.x; // cheap (cache friendly) lookup    
+
+	// compute index    
+	float index = k * 8.0;
+	float i = floor(index);
+	float f = frac(index);
+
+	// offsets for the different virtual patterns    
+	float2 offa = sin(float2(3.0, 7.0) * (i + 0.0)); // can replace with any other hash    
+	float2 offb = sin(float2(3.0, 7.0) * (i + 1.0)); // can replace with any other hash    
+
+	// compute derivatives for mip-mapping    
+	float2 dx = ddx(x), dy = ddy(x);
+
+	// sample the two closest virtual patterns    
+	float3 cola = texture2d.SampleGrad(SampleType, x + offa, dx, dy).xyz;
+	float3 colb = texture2d.SampleGrad(SampleType, x + offb, dx, dy).xyz;
+
+	// interpolate between the two virtual patterns
+	float3 color = lerp(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * sum(cola - colb)));
+	return float4(color, origColor.a);
+}
+/*
+ * End: Texture Rerepetition
+ */
+
+ /*
+  * Bump mapping 
+  */
+float4 normalMapping(float4 colorFirst, float4 normalMapColor, PSIn input) {
+	float3 bumpNormal;
+	float lightIntensity;
+
+	normalMapColor = (normalMapColor * 2.0f) - 1.0f;
+	float3x3 texSpace = float3x3(input.tangent, input.binormal, input.normal);
+	//bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+	bumpNormal = normalize(mul(normalMapColor, texSpace));// normalize(bumpNormal);
+
+	float intensity = 0.0;
+	for (int i = 0; i < 3; ++i) {
+		Light l = lights[i];
+		if (l.Type == 3) {
+			intensity += dot(l.Direction, bumpNormal);
+		}
+	}
+	//lightIntensity = saturate(dot(bumpNormal, -LookDirection.xyz));//float3(0, 1.2, 0.5)
+	float4 color = saturate(colorFirst * intensity);
+	//float intensity = computeLight(input.position.xyz, bumpNormal, -LookDirection.xyz, 1000);
+	return float4(color.xyz, colorFirst.a);
+}
+float4 normalMappingByDepth(float4 colorFirst, PSIn input) {//Texture2D normalMapBakinTexture
 	float4 bumpMap;
 	float3 bumpNormal;
 	float lightIntensity;
@@ -106,20 +171,12 @@ float4 normalMapping(float4 colorFirst, PSIn input) {//Texture2D normalMapBakinT
 		bumpMap = rockNormalMapTexture.Sample(SampleType, input.tex);
 	}
 
-	bumpMap = (bumpMap * 2.0f) - 1.0f;
-	bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
-	bumpNormal = normalize(bumpNormal);
-
-	/*float intensity = 0.0;
-	for (int i = 0; i < 3; ++i) {
-		Light l = lights[i];
-
-	}*/
-
-	lightIntensity = saturate(dot(bumpNormal, float3(0, 1.2, 0.5)));
-
-	return saturate(colorFirst * lightIntensity);
+	return normalMapping(colorFirst, bumpMap, input);
 }
+/*
+ * End: Bump mapping 
+ */
+
 
 
 float3 blend(float depth, float4 texture1, float a1, float4 texture2, float a2) {
@@ -130,8 +187,13 @@ float3 blend(float depth, float4 texture1, float a1, float4 texture2, float a2) 
 
 	return (texture1.rgb * b1 + texture2.rgb * b2) / (b1 + b2);
 }
+float4 interpolateColorsEdge(float elevation, float4 colorToMin, float4 colorToMax, float rangeMin, float rangeMax) {
+	float blendAmount = toNewRange(elevation, rangeMin, rangeMax, 0.0, 1.0);
 
-
+	return float4(blend(0.5, colorToMin, 1 - blendAmount, colorToMax, blendAmount), 1);
+	//the same result as blend
+	return lerp(colorToMin, colorToMax, blendAmount);
+}
 float4 blendColorsForSlope(float4 color1, float4 color2, float slope) {
 	float4 blendAmount;
 	float4 color;
@@ -151,30 +213,7 @@ float4 blendColorsForSlope(float4 color1, float4 color2, float slope) {
 	return color;
 }
 
-//float4 test(PSIn input) {
-//	float4 position = input.position;
-//	float3 blendWeights = abs(input.normal);
-//	// blendWeights = blendWeights - plateauSize;
-//	float transitionSpeed = 1;
-//	blendWeights = pow(max(blendWeights, 0), transitionSpeed);
-//	float2 coord1 = (position.yz + nLength) * texScale;
-//	float2 coord2 = (position.zx + nLength) * texScale;
-//	float2 coord3 = (position.xy + nLength) * texScale;
-//	float4 col1 = tex2D(texFromX, coord1);
-//	float4 col2 = tex2D(texFromY, coord2);
-//	float4 col3 = tex2D(texFromZ, coord3);
-//	float4 textColour = float4(col1.xyz * blendWeights.x +
-//		col2.xyz * blendWeights.y +
-//		col3.xyz * blendWeights.z, 1);
-//}
 
-float4 interpolateColorsEdge(float elevation, float4 colorToMin, float4 colorToMax, float rangeMin, float rangeMax) {
-	float blendAmount = toNewRange(elevation, rangeMin, rangeMax, 0.0, 1.0);
-
-	return float4(blend(0.5, colorToMin, 1 - blendAmount, colorToMax, blendAmount), 1);
-	//the same result as blend
-	return lerp(colorToMin, colorToMax, blendAmount);
-}
 
 
 float4 biome(float e, PSIn input, float slope) {
@@ -182,19 +221,26 @@ float4 biome(float e, PSIn input, float slope) {
 	float2 tex = input.tex;
 	float4 slopeColor = slopeTexture.Sample(SampleType, tex);
 
+	/*
 	if (e < seafloor) {
-		color = interpolateColorsEdge(e, seafloorTexture.Sample(SampleType, tex), shoreTexture.Sample(SampleType, tex), 0, seafloor);
-		color = blendColorsForSlope(color, slopeColor, slope);
-	}
-	else if (e < shore) {
-		color = interpolateColorsEdge(e, shoreTexture.Sample(SampleType, tex), grassTexture.Sample(SampleType, tex), seafloor, shore);
-		color = blendColorsForSlope(color, slopeColor, slope);
+		color = shoreTexture.Sample(SampleType, tex);
+		color = normalMapping(color, distanceNormalMapTexture.Sample(SampleType, input.normalMap), input);
+		//color = interpolateColorsEdge(e, color, shoreTexture.Sample(SampleType, tex), 0, seafloor);
+		//color = blendColorsForSlope(color, slopeColor, slope);
+	} else*/
+	if (e < shore) {
+		color = shoreTexture.Sample(SampleType, tex);
+		//color = normalMappingByDepth(color, input);
+		color = normalMapping(color, distanceNormalMapTexture.Sample(SampleType, input.normalMap), input);
+		color = interpolateColorsEdge(e, color, grassTexture.Sample(SampleType, tex), seafloor, shore);
+		//color = blendColorsForSlope(color, slopeColor, slope);
 	}
 	/*else if (e < sand) {
 		color = blendColorsForSlope(sandTexture.Sample(SampleType, tex), slopeTexture.Sample(SampleType, tex), slope);
 	}*/
 	else if (e < grass) {
-		color = interpolateColorsEdge(e, grassTexture.Sample(SampleType, tex), rockTexture.Sample(SampleType, tex), shore, grass);
+		color = textuRerepetitionWithNoise(grassTexture, input);
+		color = interpolateColorsEdge(e, color, rockTexture.Sample(SampleType, tex), shore, grass);
 		color = blendColorsForSlope(color, slopeColor, slope);
 	}
 	else if (e < rock) {
@@ -220,7 +266,7 @@ float4 main(PSIn input) : SV_TARGET{
 
 	float slope = 1.0f - normal.y;
 
-	return color * biome(orig.y / 50, input, slope);
+	return saturate(color * biome(orig.y / 50, input, slope));
 }
 
 //float4 calculateBumpColor(float4 color, PSIn input) {

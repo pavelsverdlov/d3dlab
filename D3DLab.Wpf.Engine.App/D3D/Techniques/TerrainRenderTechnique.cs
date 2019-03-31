@@ -120,6 +120,8 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 //context.PixelShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);
                 //context.PixelShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, game.Lights);
 
+                context.PixelShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, game.Game);
+                context.PixelShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, game.Lights);
                 context.PixelShader.SetShaderResources(0, render.TextureResources.Get());
                 context.PixelShader.SetSampler(0, render.SampleState.Get());
 

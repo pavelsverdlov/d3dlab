@@ -262,7 +262,10 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
             Analyze(com, this, com.GetType(), hashed);
         }
 
-        void Analyze(object com, GroupViewProperty property, Type type, HashSet<int> hashed) { 
+        void Analyze(object com, GroupViewProperty property, Type type, HashSet<int> hashed) {
+            if (com.IsNull()) {
+                return;
+            }
             foreach (var pr in type.GetProperties()) {
                 Analyze(com, property, pr, hashed);
             }
