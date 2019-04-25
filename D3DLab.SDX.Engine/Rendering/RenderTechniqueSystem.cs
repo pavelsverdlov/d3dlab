@@ -108,7 +108,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             context.OutputMerger.SetBlendState(render.BlendingState.Get(), blendFactor, -1);
         }
 
-        protected ShaderResourceView[] ConvertToResources(TexturedMaterialComponent material, TexturedLoader loader) {
+        protected ShaderResourceView[] ConvertToResources(TexturedMaterialComponent material, TextureLoader loader) {
             var resources = new ShaderResourceView[material.Images.Length];
             for (var i = 0; i < material.Images.Length; i++) {
                 var file = material.Images[i];

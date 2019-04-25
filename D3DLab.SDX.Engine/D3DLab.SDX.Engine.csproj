@@ -15,6 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Animation\Shaders\Animation.hlsl" />
+    <None Remove="Animation\Shaders\Common.hlsl" />
     <None Remove="Rendering\Shaders\Custom\colored_vertex.hlsl" />
     <None Remove="Rendering\Shaders\Custom\Lines.hlsl" />
     <None Remove="Rendering\Shaders\Custom\sphere_point.hlsl" />
@@ -25,6 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Animation\Shaders\Animation.hlsl" />
+    <EmbeddedResource Include="Animation\Shaders\Common.hlsl" />
     <EmbeddedResource Include="Rendering\Shaders\Custom\colored_vertex.hlsl" />
     <EmbeddedResource Include="Rendering\Shaders\Custom\sphere_point.hlsl" />
     <EmbeddedResource Include="Rendering\Shaders\Custom\Lines.hlsl" />

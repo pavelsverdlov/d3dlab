@@ -92,17 +92,19 @@ namespace D3DLab {
 
             public void Execute(object parameter) {
 
-              // var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
+                // var file = this.GetType().Assembly.GetManifestResourceStream("D3DLab.Resources.ducky.obj");
 
                 //main.plugins.Import();
 
-             //   var path = @"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Models\skydome.txt";
+                //   var path = @"D:\Storage_D\trash\3d\SharpDX-Rastertek-Tutorials-master\SharpDXWinForm\Externals\Models\skydome.txt";
 
                 //main.items.ForEach(i=> i.GameObj.Cleanup(main.context.GetEntityManager()));
                 //main.items.Clear();               
 
-                main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
-                main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
+                //main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
+                //main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
+
+                main.items.Add(new LoadedItem(main, AnimCMOObject.Create(main.context.GetEntityManager())));
             }
         }
         public class RenderModeSwitherCommand : Debugger.BaseWPFCommand<Debugger.Infrastructure.IVisualTreeEntityItem> {

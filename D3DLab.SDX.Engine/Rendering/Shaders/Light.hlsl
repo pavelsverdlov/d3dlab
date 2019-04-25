@@ -1,9 +1,9 @@
 struct Light {
     uint Type;
     float Intensity;
-    float3 Position;   
-    float3 Direction;
-    float4 Color;
+    float3 LightPosV3;
+    float3 LightDirV3;
+    float4 LightColorV4;
 };
 
 cbuffer Lights : register(b1) {
@@ -22,10 +22,10 @@ float computeLight(float3 position, float3 normal, float3 traceRay, float specul
 		} else {
 			float3 lightDir;
 			if (l.Type == 2) { //point
-				lightDir = l.Position - position;
+				lightDir = l.LightPosV3 - position;
 			}
 			else if (l.Type == 3) { //directional
-				lightDir = l.Direction;
+				lightDir = l.LightDirV3;
 			}
 			float dotval = dot(normal, lightDir);
 			if (dotval > 0) {//diffuse

@@ -17,6 +17,7 @@ using D3DLab.Std.Engine.Core.Utilities;
 using D3DLab.Wpf.Engine.App.GameObjects;
 using System.Linq;
 using System.Collections.Generic;
+using D3DLab.SDX.Engine.Animation;
 
 namespace D3DLab.Wpf.Engine.App {
     public class OctreeImp : EntityOctree {
@@ -100,6 +101,7 @@ namespace D3DLab.Wpf.Engine.App {
                 //smanager.CreateSystem<MovingOnHeightMapSystem>();
                 smanager.CreateSystem<AnimationSystem>();
                 smanager.CreateSystem<Systems.TerrainGeneratorSystem>();
+                /*
                 smanager
                     .CreateSystem<RenderSystem>()
                     .Init(device)
@@ -109,7 +111,10 @@ namespace D3DLab.Wpf.Engine.App {
                     .CreateNested<TriangleColoredVertexRenderTechnique>()
                     .CreateNested<LineVertexRenderTechnique>()
                     .CreateNested<SpherePointRenderStrategy>();
-
+                */
+                smanager
+                    .CreateSystem<AminRenderSystem>()
+                    .Init(device);
             }
             {
                var engine = EngineInfoBuilder.Build(em, Window);               

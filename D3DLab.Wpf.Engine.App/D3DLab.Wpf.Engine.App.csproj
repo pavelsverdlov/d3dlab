@@ -216,6 +216,7 @@
     <Compile Include="D3D\Techniques\SkyPlaneWithParallaxRenderTechnique.cs" />
     <Compile Include="D3D\Techniques\TerrainRenderTechnique.cs" />
     <Compile Include="EntityBuilders.cs" />
+    <Compile Include="GameObjects\AnimCMOObject.cs" />
     <Compile Include="GameObjects\CameraGameObject.cs" />
     <Compile Include="GameObjects\ArrowGameObject.cs" />
     <Compile Include="GameObjects\CoordinateSystemLinesGameObject.cs" />
@@ -287,6 +288,7 @@
     <EmbeddedResource Include="D3D\Shaders\terrain.hlsl" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Resources\animation\" />
     <Folder Include="Resources\sky\" />
     <Folder Include="Resources\terrain\" />
   </ItemGroup>

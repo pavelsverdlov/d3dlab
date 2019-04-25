@@ -1,16 +1,22 @@
 ﻿using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Ext;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace D3DLab.SDX.Engine {
-
+    public class GraphicsDeviceException : Exception {
+        GraphicsDeviceException(string mess):base(mess) {}
+        public static Exception ResourseSlotAlreadyUsed(int slot) { return new GraphicsDeviceException($"Resourse Slot '{slot}' is already used."); }
+        public static Exception ShaderAddedTwice() { return new GraphicsDeviceException($"Shader war added twise to DeviceContext."); }
+    }
     public class SynchronizedGraphics : ISynchronizationContext {
         struct Size {
             public float Width;
@@ -92,9 +98,33 @@ namespace D3DLab.SDX.Engine {
     }
 
     public class GraphicsDevice {
+        class ResourseRegistrHash {
+            readonly Dictionary<int, HashSet<int>> shaders;
+
+            public ResourseRegistrHash() {
+                shaders = new Dictionary<int, HashSet<int>>();
+            }
+
+            public void RegisterShader(int ptr) {
+                if (shaders.ContainsKey(ptr)) {
+                    throw GraphicsDeviceException.ShaderAddedTwice();
+                }
+                shaders.Add(ptr, new HashSet<int>());
+            }
+            public void RegisterResourseSlot(int ptr, int slot) {
+                if (shaders[ptr].Contains(slot)) {
+                    throw GraphicsDeviceException.ResourseSlotAlreadyUsed(slot);
+                }
+                shaders[ptr].Add(slot);
+            }
+            public void Clear() {
+                shaders.Clear();
+            }
+        }
+
         public readonly D3DShaderCompilator Compilator;
 
-        public TexturedLoader TexturedLoader { get; }
+        public TextureLoader TexturedLoader { get; }
         public SharpDX.Direct3D11.Device D3DDevice { get; private set; }
         public DeviceContext ImmediateContext { get; private set; }
         public string VideoCardDescription { get; }
@@ -104,14 +134,20 @@ namespace D3DLab.SDX.Engine {
 
         readonly SwapChain swapChain;
         readonly IntPtr handle;
+        
+        readonly ResourseRegistrHash resourseHash;
 
         public GraphicsDevice(IAppWindow window) {
+            resourseHash = new ResourseRegistrHash();
+
             this.handle = window.Handle;
 
             Compilator = new D3DShaderCompilator();
             Compilator.AddIncludeMapping("Game", "D3DLab.SDX.Engine.Rendering.Shaders.Game.hlsl");
             Compilator.AddIncludeMapping("Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl");
             Compilator.AddIncludeMapping("Math", "D3DLab.SDX.Engine.Rendering.Shaders.Math.hlsl");
+
+            Compilator.AddIncludeMapping("Common", "D3DLab.SDX.Engine.Animation.Shaders.Common.hlsl");
 
             var width = (int)window.Width;
             var height = (int)window.Height;
@@ -147,7 +183,7 @@ namespace D3DLab.SDX.Engine {
             //swapChain.SetSourceSize
             //DContext = new DeviceContext(D3DDevice);
 
-            TexturedLoader = new TexturedLoader(D3DDevice);
+            TexturedLoader = new TextureLoader(D3DDevice);
         }
 
         public void Dispose() {
@@ -223,6 +259,7 @@ namespace D3DLab.SDX.Engine {
         }
 
         internal GraphicsFrame FrameBegin() {
+            resourseHash.Clear();
             return new GraphicsFrame(this);
         }
 
@@ -239,7 +276,7 @@ namespace D3DLab.SDX.Engine {
             return global::SharpDX.Direct3D11.Device.GetSupportedFeatureLevel() == FeatureLevel.Level_11_0;
         }
 
-        public void Present() {
+        public void Present() {            
             swapChain.Present(1, PresentFlags.None);
             //swapChain.Present(1, PresentFlags.None, new PresentParameters());
         }
@@ -330,7 +367,7 @@ namespace D3DLab.SDX.Engine {
                 stream.WriteRange(newdata);
                 ImmediateContext.UnmapSubresource(buffer, slot);
             } finally {
-
+               
             }
         }
 
@@ -338,18 +375,38 @@ namespace D3DLab.SDX.Engine {
             ImmediateContext.MapSubresource(buffer, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None, out var mappedResource);
             using (mappedResource) {
                 mappedResource.Write(newdata);
-                ImmediateContext.UnmapSubresource(buffer, 0);
+                ImmediateContext.UnmapSubresource(buffer, 0);//TODO: remove slot value
             }
         }
 
+        public void UpdateArraySubresource<T>(T[] data, SharpDX.Direct3D11.Buffer buff) where T : struct {
+            ImmediateContext.UpdateSubresource(data, buff);
+        }
         public void UpdateSubresource<T>(ref T data, SharpDX.Direct3D11.Buffer buff, int subresource) where T : struct {
             ImmediateContext.UpdateSubresource(ref data, buff, subresource);
+        }
+        public void UpdateSubresource<T>(ref T data, SharpDX.Direct3D11.Buffer buff) where T : struct {
+            ImmediateContext.UpdateSubresource(ref data, buff);
+        }
+
+        public void RegisterConstantBuffer(CommonShaderStage stage, int slot, SharpDX.Direct3D11.Buffer buff) {
+            stage.SetConstantBuffer(slot, buff);
+            resourseHash.RegisterResourseSlot(stage.GetHashCode(), slot);
+        }
+
+        public void SetVertexShader(DisposableSetter<VertexShader> shader) {
+            ImmediateContext.VertexShader.Set(shader.Get());
+            resourseHash.RegisterShader(ImmediateContext.VertexShader.GetHashCode());
+        }
+        public void SetPixelShader(DisposableSetter<PixelShader> shader) {
+            ImmediateContext.PixelShader.Set(shader.Get());
+            resourseHash.RegisterShader(ImmediateContext.PixelShader.GetHashCode());
         }
 
         public SamplerState CreateSampler(SamplerStateDescription desc) {
             return new SamplerState(D3DDevice, desc);
         }
 
-
+        
     }
 }

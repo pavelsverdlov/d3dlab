@@ -59,8 +59,15 @@ namespace D3DLab.SDX.Engine.Rendering {
 
         SharpDX.Direct3D11.Buffer gameDataBuffer;
         SharpDX.Direct3D11.Buffer lightDataBuffer;
-        
+        CameraState prevCameraState;
+
         public RenderSystem() {
+            prevCameraState = new CameraState() {
+                ViewMatrix = Matrix4x4.Identity,
+                ProjectionMatrix = Matrix4x4.Identity,
+                LookDirection = -Vector3.UnitZ,
+                Position = Vector3.Zero
+            };
         }
 
         public RenderSystem Init(SynchronizedGraphics graphics) {
@@ -72,7 +79,7 @@ namespace D3DLab.SDX.Engine.Rendering {
 
         void UpdateBuffers(GraphicsDevice device) {
             //camera
-            var gamebuff = new GameStructBuffer(Matrix4x4.Identity, Matrix4x4.Identity, -Vector3.UnitZ);
+            var gamebuff = GameStructBuffer.FromCameraState(prevCameraState);
             gameDataBuffer = device.CreateBuffer(BindFlags.ConstantBuffer, ref gamebuff);
 
             //lights
@@ -100,9 +107,9 @@ namespace D3DLab.SDX.Engine.Rendering {
                         }
                     }
 
-                    var camera = snapshot.Camera;
+                    prevCameraState = snapshot.Camera;
                     var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();
-                    var gamebuff = new GameStructBuffer(Matrix4x4.Transpose(camera.ViewMatrix), Matrix4x4.Transpose(camera.ProjectionMatrix),camera.LookDirection);
+                    var gamebuff = GameStructBuffer.FromCameraState(prevCameraState);
 
                     frame.Graphics.UpdateSubresource(ref gamebuff, gameDataBuffer, GameStructBuffer.RegisterResourceSlot);
                     frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer, LightStructBuffer.RegisterResourceSlot);

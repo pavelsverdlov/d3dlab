@@ -3,6 +3,27 @@
         internal static SharpDX.Vector3 ToSDXVector3(this System.Numerics.Vector3 v) {
             return new SharpDX.Vector3(v.X, v.Y, v.Z);
         }
+
+        internal static SharpDX.Matrix ToSDXMatrix(this System.Numerics.Matrix4x4 m) {
+            return new SharpDX.Matrix(
+                m.M11,
+                m.M12,
+                m.M13,
+                m.M14,
+                m.M21,
+                m.M22,
+                m.M23,
+                m.M24,
+                m.M31,
+                m.M32,
+                m.M33,
+                m.M34,
+                m.M41,
+                m.M42,
+                m.M43,
+                m.M44);
+        }
+
     }
 
     public static class NumericsEx {
@@ -17,6 +38,28 @@
         internal static System.Numerics.Vector3 ToNVector3(this SharpDX.Vector3 v) {
             return new System.Numerics.Vector3(v.X, v.Y, v.Z);
         }
+
+        internal static System.Numerics.Matrix4x4 ToMatrix4x4(this SharpDX.Matrix m) {
+            return new System.Numerics.Matrix4x4(
+                m.M11,
+                m.M12,
+                m.M13,
+                m.M14,
+                m.M21,
+                m.M22,
+                m.M23,
+                m.M24,
+                m.M31,
+                m.M32,
+                m.M33,
+                m.M34,
+                m.M41,
+                m.M42,
+                m.M43,
+                m.M44);
+        }
+
+
 
         class Color {
             private static byte ToByte(float component) {

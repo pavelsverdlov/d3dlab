@@ -6,9 +6,9 @@ using System.IO;
 using System.Text;
 
 namespace D3DLab.SDX.Engine.D2 {
-    public class TexturedLoader {
+    public class TextureLoader {
         readonly Device device;
-        public TexturedLoader(Device device) {
+        public TextureLoader(Device device) {
             this.device = device;
         }
         public ShaderResourceView LoadShaderResource(FileInfo file) {
