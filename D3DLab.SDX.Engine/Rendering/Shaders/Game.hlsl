@@ -1,6 +1,6 @@
 cbuffer Game : register(b0) {
 	float4 LookDirection;
-	float3 CameraPosF3;
+	float4 CameraPosF4;
 	
 	float4x4 View;
 	float4x4 Projection;
@@ -10,6 +10,7 @@ cbuffer Game : register(b0) {
 
 cbuffer Transformation : register(b2) {
 	float4x4 World;
+	float4x4 WorldInverse;
 }
 
 

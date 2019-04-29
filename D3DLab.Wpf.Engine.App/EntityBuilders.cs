@@ -66,12 +66,14 @@ namespace D3DLab.Wpf.Engine.App {
             var geo = new SimpleGeometryComponent() {
                 Positions = pos.ToImmutableArray(),
                 Indices = indexes.ToImmutableArray(),
-                Colors = colors.ToImmutableArray()
+                Colors = colors.ToImmutableArray(),
+                Normals = pos.CalculateNormals(indexes).ToImmutableArray()
             };
             return manager
                 .CreateEntity(new ElementTag("Geometry" + Guid.NewGuid()))
                 .AddComponent(geo)
-                .AddComponent(new SDX.Engine.Components.D3DTriangleColoredVertexRenderComponent())
+                .AddComponent(new TransformComponent())
+                .AddComponent(GetObjGroupsRender())
                 .Tag;
         }
     }

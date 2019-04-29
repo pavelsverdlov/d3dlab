@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace D3DLab.SDX.Engine.Animation {
+    using System.Collections.Immutable;
     using System.IO;
     using D3DLab.SDX.Engine.Components;
     using D3DLab.SDX.Engine.D2;
@@ -23,7 +24,9 @@ namespace D3DLab.SDX.Engine.Animation {
     using SharpDX.D3DCompiler;
     using SharpDX.Direct3D11;
 
-    public class D3DAnimRenderComponent : GraphicComponent, IRenderableComponent {
+    public class D3DAnimRenderComponent : GraphicComponent, IRenderableComponent,
+        ID3DTransformWorldRenderComponent {
+
         readonly EnumerableDisposableSetter<List<Buffer>> vertexBuffers;
         readonly EnumerableDisposableSetter<List<Buffer>> indexBuffers;
         public EnumerableDisposableSetter<List<ShaderResourceView>> TextureViews { get; }
@@ -51,6 +54,9 @@ namespace D3DLab.SDX.Engine.Animation {
         [IgnoreDebuging]
         public DisposableSetter<BlendState> BlendingState { get; private set; }
 
+        [IgnoreDebuging]
+        public DisposableSetter<Buffer> TransformWorldBuffer { get; set; }
+
         public bool CanRender { get; set; }
 
         readonly DisposeWatcher disposer;
@@ -66,6 +72,7 @@ namespace D3DLab.SDX.Engine.Animation {
             PerArmatureBuffer = new DisposableSetter<Buffer>(disposer);
             SamplerState = new DisposableSetter<SamplerState>(disposer);
             DepthStencilState = new DisposableSetter<DepthStencilState>();
+            TransformWorldBuffer = new DisposableSetter<Buffer>();
 
             RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
                 FillMode = FillMode.Solid,
@@ -112,21 +119,13 @@ namespace D3DLab.SDX.Engine.Animation {
 
 
     //BaseEntitySystem, IGraphicSystem 
-    public class AminRenderSystem : BaseEntitySystem, IGraphicSystem {
+    public class AminRenderTechniqueSystem  : RenderTechniqueSystem, IRenderTechniqueSystem {
         const string path = @"D3DLab.SDX.Engine.Animation.Shaders.Animation.hlsl";
 
         static readonly D3DShaderTechniquePass pass;
         static readonly VertexLayoutConstructor layconst;
-        //        struct VertexShaderInput
-        //{
-        //	float4 Position : SV_Position;// Position - xyzw
-        //	float3 Normal : NORMAL;    // Normal - for lighting and mapping operations
-        //	float4 Color : COLOR0;     // Color - vertex color, used to generate a diffuse color
-        //	float2 TextureUV: TEXCOORD0; // UV - texture coordinate
-        //	uint4 SkinIndices : BLENDINDICES0; // blend indices
-        //	float4 SkinWeights : BLENDWEIGHT0; // blend weights
-        //};
-        static AminRenderSystem() {
+
+        static AminRenderTechniqueSystem () {
             layconst = new VertexLayoutConstructor()
                .AddSVPositionElementAsVector4()
                .AddNormalElementAsVector3()
@@ -134,34 +133,23 @@ namespace D3DLab.SDX.Engine.Animation {
                .AddTexCoorElementAsVector2()
                .AddBlendIndicesElementAsUInt4()
                .AddBlendWeightElementAsVector4();
-            /*
-            string textVS;
-            using (var srt = typeof(AminRenderSystem).Assembly.GetManifestResourceStream("D3DLab.SDX.Engine.Animation.Shaders.VS.hlsl")) {
-                var reader = new StreamReader(srt);
-                textVS = reader.ReadToEnd();
-            }
-            string textFS;
-            using (var srt = typeof(AminRenderSystem).Assembly.GetManifestResourceStream("D3DLab.SDX.Engine.Animation.Shaders.SimplePS.hlsl")) {
-                var reader = new StreamReader(srt);
-                textFS = reader.ReadToEnd();
-            }
 
-            pass = new D3DShaderTechniquePass(new IShaderInfo[] {
-                    new ShaderInMemoryInfo("ANIM_VS", textVS, null, ShaderStages.Vertex.ToString(), "VSMain"),
-                    new ShaderInMemoryInfo("ANIM_FS", textFS, null, ShaderStages.Fragment.ToString(), "PSMain"),
-                });*/
-
-            var d = new CombinedShadersLoader(typeof(AminRenderSystem));
-            pass = new D3DShaderTechniquePass(d.Load(path, "ANIM_VS"));
+            var d = new CombinedShadersLoader(typeof(AminRenderTechniqueSystem ));
+            pass = new D3DShaderTechniquePass(d.Load(path, "ANIM_"));
         }
-        RasterizerStateDescription rasterizerStateDescription;
-        DepthStencilStateDescription depthStencilStateDescription;
-        BlendStateDescription blendStateDescription;
-        public AminRenderSystem() {
-            //: base(new EntityHasSet(
-            //   typeof(D3DAnimRenderComponent),
-            //   typeof(AnimMeshComponent),
-            //   typeof(TransformComponent)))
+
+        //RasterizerStateDescription rasterizerStateDescription;
+        //DepthStencilStateDescription depthStencilStateDescription;
+        //BlendStateDescription blendStateDescription;
+
+        public AminRenderTechniqueSystem ()
+            : base(new EntityHasSet(
+               typeof(D3DAnimRenderComponent),
+               typeof(CMOAnimateMeshComponent),
+               typeof(MeshAnimationComponent),
+               typeof(TransformComponent),
+               typeof(D3DTexturedMaterialSamplerComponent))) {
+
             rasterizerStateDescription = new RasterizerStateDescription() {
                 FillMode = FillMode.Solid,
                 CullMode = CullMode.Back,
@@ -191,16 +179,8 @@ namespace D3DLab.SDX.Engine.Animation {
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;
         }
 
-        SynchronizedGraphics graphics;
-        public AminRenderSystem Init(SynchronizedGraphics graphics) {
-            this.graphics = graphics;
-            return this;
-        }
-
         public IRenderTechniquePass GetPass() => pass;
-
-        protected readonly LinkedList<GraphicEntity> entities;
-
+        
 
         static readonly ConstantBuffers.PerMaterial DefaultMaterial = new ConstantBuffers.PerMaterial {
             Ambient = new Vector4(0.2f),
@@ -215,121 +195,127 @@ namespace D3DLab.SDX.Engine.Animation {
 
         // A buffer that will be used to update the lights
         Buffer perFrameBuffer;
-        protected override void Executing(SceneSnapshot snapshot) {
-            var emanager = snapshot.ContextState.GetEntityManager();
-            var ticks = (float)snapshot.FrameRateTime.TotalMilliseconds;
-            try {
-                using (var frame = graphics.Device.FrameBegin()) {
-                    var camera = snapshot.Camera;
-                    var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();
-                    var gamebuff = GameStructBuffer.FromCameraState(camera);
+        //protected void Executing1(SceneSnapshot snapshot) {
+        //    var emanager = snapshot.ContextState.GetEntityManager();
+        //    var ticks = (float)snapshot.FrameRateTime.TotalMilliseconds;
+        //    try {
+        //        using (var frame = graphics.Device.FrameBegin()) {
+        //            var camera = snapshot.Camera;
+        //            var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();
+        //            var gamebuff = GameStructBuffer.FromCameraState(camera);
 
-                    foreach (var entity in emanager.GetEntities()) {
-                        var renders = entity.GetComponents<D3DAnimRenderComponent>();
-                        if (renders.Any() && renders.All(x => x.CanRender)) {
-                            Rendering(graphics.Device, entity, camera, null);
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                ex.ToString();
-            }
-        }
-        void Rendering(GraphicsDevice graphics, GraphicEntity en, CameraState camera, DefaultGameBuffers game) {
+        //            foreach (var entity in emanager.GetEntities()) {
+        //                var renders = entity.GetComponents<D3DAnimRenderComponent>();
+        //                if (renders.Any() && renders.All(x => x.CanRender)) {
+        //                   // Rendering(graphics.Device, entity, camera, new DefaultGameBuffers(null, null));
+        //                }
+        //            }
+        //        }
+        //    } catch (Exception ex) {
+        //        ex.ToString();
+        //    }
+        //}
+
+
+        //protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
+        //    throw new NotImplementedException();
+        //}
+        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 
-            //foreach (var en in entities) {
-            var mesh = en.GetComponent<CMOAnimateMeshComponent>();
-            var render = en.GetComponent<D3DAnimRenderComponent>();
-            var animator = en.GetComponent<MeshAnimationComponent>();
-            var transform = en.GetComponent<TransformComponent>();
-            var texture = en.GetComponent<D3DTexturedMaterialSamplerComponent>();
+            foreach (var en in entities) {
+                var mesh = en.GetComponent<CMOAnimateMeshComponent>();
+                var render = en.GetComponent<D3DAnimRenderComponent>();
+                var animator = en.GetComponent<MeshAnimationComponent>();
+                var transform = en.GetComponent<TransformComponent>();
+                var texture = en.GetComponent<D3DTexturedMaterialSamplerComponent>();
 
-            if (render.IsModified || mesh.IsModified) {
-                if (!pass.IsCompiled) {
-                    pass.Compile(graphics.Compilator);
+                if (render.IsModified || mesh.IsModified) {
+                    if (!pass.IsCompiled) {
+                        pass.Compile(graphics.Compilator);
+                    }
+
+                    UpdateRenderComponent(device, render, mesh);
+
+                    var vertexShaderByteCode = pass.VertexShader.ReadCompiledBytes();
+                    try {
+                        var inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
+                        render.Layout.Set(new InputLayout(device, inputSignature, layconst.ConstuctElements()));
+                        render.VertexShader.Set(new VertexShader(device, vertexShaderByteCode));
+                        render.PixelShader.Set(new PixelShader(device, pass.PixelShader.ReadCompiledBytes()));
+
+                        render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
+                        render.BlendingState.Set(new BlendState(graphics.D3DDevice, blendStateDescription));
+                        render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, depthStencilStateDescription));
+
+                        perFrameBuffer?.Dispose();
+                        // Create the per frame constant buffer
+                        // lighting / camera position
+                        perFrameBuffer = new Buffer(device, Unsafe.SizeOf<ConstantBuffers.PerFrame>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+                    } catch (Exception ex) {
+                        ex.ToString();
+                    }
+                    render.IsModified = false;
+                    mesh.IsModified = false;
                 }
 
-                UpdateRenderComponent(device, render, mesh);
-
-                var vertexShaderByteCode = pass.VertexShader.ReadCompiledBytes();
-                try {
-                    var inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
-                    render.Layout.Set(new InputLayout(device, inputSignature, layconst.ConstuctElements()));
-                    render.VertexShader.Set(new VertexShader(device, vertexShaderByteCode));
-                    render.PixelShader.Set(new PixelShader(device, pass.PixelShader.ReadCompiledBytes()));
-
-                    render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
-                    render.BlendingState.Set(new BlendState(graphics.D3DDevice, blendStateDescription));
-                    render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, depthStencilStateDescription));
-
-                    perFrameBuffer?.Dispose();
-                    // Create the per frame constant buffer
-                    // lighting / camera position
-                    perFrameBuffer = new Buffer(device, Unsafe.SizeOf<ConstantBuffers.PerFrame>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
-                } catch (Exception ex) {
-                    ex.ToString();
+                if (texture.IsModified) {
+                    // Create our sampler state
+                    render.SamplerState.Set(new SamplerState(device, texture.SampleDescription));
+                    texture.IsModified = false;
                 }
-                render.IsModified = false;
-                mesh.IsModified = false;
+
+                UpdateTransformWorld(graphics, render, transform);
+
+                //default buffers data
+                //var perFrame = new ConstantBuffers.PerFrame();
+                //perFrame.Light.Color = new Vector4(0.8f, 0.8f, 0.8f, 1.0f);
+                //perFrame.Light.Direction = camera.LookDirection;
+                //perFrame.CameraPosition = camera.Position;
+
+                //var viewProjection = Matrix4x4.Multiply(camera.ViewMatrix, camera.ProjectionMatrix);
+
+                //var perObject = new ConstantBuffers.PerObject();
+
+                //perObject.World = transform.MatrixWorld;// * worldMatrix;
+                //perObject.WorldInverseTranspose = Matrix4x4.Transpose(perObject.World.Inverted());
+                //perObject.WorldViewProjection = perObject.World * viewProjection;
+                //perObject.Transpose();
+                var mat = DefaultMaterial;
+
+                graphics.SetVertexShader(render.VertexShader);
+                graphics.SetPixelShader(render.PixelShader);
+
+                graphics.RegisterConstantBuffer(context.VertexShader, GameStructBuffer.RegisterResourceSlot, game.Game);
+                graphics.RegisterConstantBuffer(context.VertexShader, TransforStructBuffer.RegisterResourceSlot, render.TransformWorldBuffer);
+
+                // graphics.RegisterConstantBuffer(context.VertexShader, ConstantBuffers.PerObject.Slot, render.PerObjectBuffer.Get());
+                // graphics.RegisterConstantBuffer(context.VertexShader, ConstantBuffers.PerFrame.Slot, perFrameBuffer);
+                graphics.RegisterConstantBuffer(context.VertexShader, ConstantBuffers.PerMaterial.Slot, render.PerMaterialBuffer.Get());
+                graphics.RegisterConstantBuffer(context.VertexShader, MeshAnimationComponent.Slot, render.PerArmatureBuffer.Get());
+
+
+                graphics.RegisterConstantBuffer(context.PixelShader, GameStructBuffer.RegisterResourceSlot, game.Game);
+                graphics.RegisterConstantBuffer(context.PixelShader, LightStructBuffer.RegisterResourceSlot, game.Lights);
+
+                //graphics.RegisterConstantBuffer(context.PixelShader, ConstantBuffers.PerFrame.Slot, perFrameBuffer);
+                graphics.RegisterConstantBuffer(context.PixelShader, ConstantBuffers.PerMaterial.Slot, render.PerMaterialBuffer.Get());
+
+                //graphics.UpdateSubresource(ref perObject, render.PerObjectBuffer.Get());
+                //graphics.UpdateSubresource(ref perFrame, perFrameBuffer);
+                graphics.UpdateSubresource(ref mat, render.PerMaterialBuffer.Get());
+                graphics.UpdateArraySubresource(animator.Bones, render.PerArmatureBuffer.Get());
+
+                context.InputAssembler.InputLayout = render.Layout.Get();
+                graphics.UpdateRasterizerState(render.RasterizerState.GetDescription());
+
+                context.OutputMerger.SetDepthStencilState(render.DepthStencilState.Get());
+                //var blendFactor = new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0);
+                // context.OutputMerger.SetBlendState(render.BlendingState.Get(), blendFactor, -1);
+
+                RenderMaterial(context, render, mesh);
             }
-
-            if (texture.IsModified) {
-                // Create our sampler state
-                render.SamplerState.Set(new SamplerState(device, texture.SampleDescription));
-                texture.IsModified = false;
-            }
-
-            //default buffers data
-            var perFrame = new ConstantBuffers.PerFrame();
-            perFrame.Light.Color = new Vector4(0.8f, 0.8f, 0.8f, 1.0f);
-            perFrame.Light.Direction = camera.LookDirection;
-            perFrame.CameraPosition = camera.Position;
-
-            //context.VertexShader.Set(render.VertexShader.Get());
-            //context.PixelShader.Set(render.PixelShader.Get());
-
-            var viewProjection = Matrix4x4.Multiply(camera.ViewMatrix, camera.ProjectionMatrix);
-
-            var perObject = new ConstantBuffers.PerObject();
-
-            perObject.World = transform.MatrixWorld;// * worldMatrix;
-            perObject.WorldInverseTranspose = Matrix4x4.Transpose(perObject.World.Inverted());
-            perObject.WorldViewProjection = perObject.World * viewProjection;
-            perObject.Transpose();
-            var mat = DefaultMaterial;
-
-            graphics.SetVertexShader(render.VertexShader);
-            graphics.SetPixelShader(render.PixelShader);
-
-            //graphics.RegisterConstantBuffer(context.VertexShader, GameStructBuffer.RegisterResourceSlot, game.Game);
-            
-            graphics.RegisterConstantBuffer(context.VertexShader, ConstantBuffers.PerObject.Slot, render.PerObjectBuffer.Get());
-            graphics.RegisterConstantBuffer(context.VertexShader, ConstantBuffers.PerFrame.Slot, perFrameBuffer);
-            graphics.RegisterConstantBuffer(context.VertexShader, ConstantBuffers.PerMaterial.Slot, render.PerMaterialBuffer.Get());
-            graphics.RegisterConstantBuffer(context.VertexShader, MeshAnimationComponent.Slot, render.PerArmatureBuffer.Get());
-
-
-            //graphics.RegisterConstantBuffer(context.PixelShader, GameStructBuffer.RegisterResourceSlot, game.Game);
-            //graphics.RegisterConstantBuffer(context.PixelShader, LightStructBuffer.RegisterResourceSlot, game.Lights);
-
-            graphics.RegisterConstantBuffer(context.PixelShader, ConstantBuffers.PerFrame.Slot, perFrameBuffer);
-            graphics.RegisterConstantBuffer(context.PixelShader, ConstantBuffers.PerMaterial.Slot, render.PerMaterialBuffer.Get());
-
-            graphics.UpdateSubresource(ref perObject, render.PerObjectBuffer.Get());
-            graphics.UpdateSubresource(ref perFrame, perFrameBuffer);
-            graphics.UpdateSubresource(ref mat, render.PerMaterialBuffer.Get());
-            graphics.UpdateArraySubresource(animator.Bones, render.PerArmatureBuffer.Get());
-
-            context.InputAssembler.InputLayout = render.Layout.Get();
-            graphics.UpdateRasterizerState(render.RasterizerState.GetDescription());
-
-            context.OutputMerger.SetDepthStencilState(render.DepthStencilState.Get());
-            //var blendFactor = new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0);
-            // context.OutputMerger.SetBlendState(render.BlendingState.Get(), blendFactor, -1);
-
-            RenderMaterial(context, render, mesh);
         }
 
         void UpdateRenderComponent(Device device, D3DAnimRenderComponent render, CMOAnimateMeshComponent mesh) {
@@ -354,7 +340,7 @@ namespace D3DLab.SDX.Engine.Animation {
                         vertices[i] = new Vertex(vb[i].Position, vb[i].Normal, (Vector4)vb[i].Color, vb[i].UV, skin);
                     }
                     render
-                        .AddVertexBuffer(Buffer.Create(device, BindFlags.VertexBuffer, vertices.ToArray()))
+                        .AddVertexBuffer(Buffer.Create(device, BindFlags.VertexBuffer, vertices))
                         .DebugName = "VertexBuffer_" + indx.ToString();
                 }
 
@@ -424,7 +410,7 @@ namespace D3DLab.SDX.Engine.Animation {
                 }
                 // For each sub-mesh
                 RenderMeshes(context, render, subMeshesForMaterial);
-            }           
+            }
         }
 
         void RenderMeshes(DeviceContext context, D3DAnimRenderComponent render, List<CMOAnimateMeshComponent.SubMesh> meshes) {
@@ -450,6 +436,7 @@ namespace D3DLab.SDX.Engine.Animation {
             }
 
         }
+
 
     }
 }

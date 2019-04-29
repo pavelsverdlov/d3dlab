@@ -98,7 +98,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                 using (var frame = graphics.Device.FrameBegin()) {
 
                     foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
-                        var renders = entity.GetComponents<D3DRenderComponent>();
+                        var renders = entity.GetComponents<IRenderableComponent>();
                         if (renders.Any() && renders.All(x => x.CanRender)) {
                             if (!entity.Has<IGeometryComponent>() || !entity.Has<TransformComponent>()) {
                                 throw new Exception("There are not all necessary components in entity to render.");

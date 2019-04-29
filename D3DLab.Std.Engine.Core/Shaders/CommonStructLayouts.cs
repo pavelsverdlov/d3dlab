@@ -19,18 +19,18 @@ namespace D3DLab.Std.Engine.Core.Shaders {
         public const int RegisterResourceSlot = 0;
 
         public readonly Vector4 LookDirection;
-        public readonly Vector3 CameraLookDirection;
+        public readonly Vector4 CameraPosition;
 
         public readonly Matrix4x4 View;
         public readonly Matrix4x4 Projection;
 
       //  
 
-        public GameStructBuffer(Matrix4x4 view, Matrix4x4 proj, Vector3 lookDirection, Vector3 cameraLookDirection) {
+        public GameStructBuffer(Matrix4x4 view, Matrix4x4 proj, Vector3 lookDirection, Vector3 pos) {
             View = view;
             Projection = proj;
-            LookDirection = new Vector4(lookDirection,1);// Matrix4x4.Identity ;// lookDirection;
-            CameraLookDirection = cameraLookDirection;
+            LookDirection = new Vector4(lookDirection,0);// Matrix4x4.Identity ;// lookDirection;
+            CameraPosition = new Vector4(pos,1);
         }
     }
 
@@ -63,10 +63,18 @@ namespace D3DLab.Std.Engine.Core.Shaders {
 
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct TransforStructBuffer {
+        public static TransforStructBuffer ToTranspose(Matrix4x4 world) {
+            Matrix4x4.Invert(world, out var inverted);
+            return new TransforStructBuffer(Matrix4x4.Transpose(world), Matrix4x4.Transpose(inverted));
+        }
+
         public const int RegisterResourceSlot = 2;
         public readonly Matrix4x4 World;
-        public TransforStructBuffer(Matrix4x4 world) {
+        public readonly Matrix4x4 WorldInverse;
+
+        TransforStructBuffer(Matrix4x4 world, Matrix4x4 inverse) {
             World = world;
+            WorldInverse = inverse;
         }
     }
 

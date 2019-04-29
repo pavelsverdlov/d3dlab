@@ -62,7 +62,7 @@ namespace D3DLab.SDX.Engine.Animation {
         /// </summary>
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct PerMaterial {
-            public const int Slot = 2;
+            public const int Slot = 3;
             public Vector4 Ambient;
             public Vector4 Diffuse;
             public Vector4 Specular;

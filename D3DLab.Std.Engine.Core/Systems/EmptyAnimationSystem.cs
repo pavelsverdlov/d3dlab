@@ -6,7 +6,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
     public interface IAnimationComponent : IGraphicComponent {
         void Animate(GraphicEntity owner, TimeSpan frameRateTime);
     }
-    public class AnimationSystem : BaseEntitySystem, IGraphicSystem {
+    public class EmptyAnimationSystem : BaseEntitySystem, IGraphicSystem {
         protected override void Executing(SceneSnapshot snapshot) {
             var emanager = snapshot.ContextState.GetEntityManager();
 

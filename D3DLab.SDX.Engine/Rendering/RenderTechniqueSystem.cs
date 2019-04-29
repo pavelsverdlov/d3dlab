@@ -117,9 +117,10 @@ namespace D3DLab.SDX.Engine.Rendering {
             return resources;
         }
 
-        protected void UpdateTransformWorld(GraphicsDevice graphics, D3DRenderComponent render, TransformComponent transform) {
+        protected void UpdateTransformWorld(GraphicsDevice graphics, ID3DTransformWorldRenderComponent render, TransformComponent transform) {
             if (transform.IsModified) {
-                var tr = new TransforStructBuffer(Matrix4x4.Transpose(transform.MatrixWorld));
+                var tr =  TransforStructBuffer.ToTranspose(transform.MatrixWorld);
+
                 if (render.TransformWorldBuffer.HasValue) {
                     var buff = render.TransformWorldBuffer.Get();
                     graphics.UpdateDynamicBuffer(ref tr, buff);                   

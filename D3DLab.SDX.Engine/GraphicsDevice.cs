@@ -393,6 +393,9 @@ namespace D3DLab.SDX.Engine {
             stage.SetConstantBuffer(slot, buff);
             resourseHash.RegisterResourseSlot(stage.GetHashCode(), slot);
         }
+        public void RegisterConstantBuffer(CommonShaderStage stage, int slot, DisposableSetter<SharpDX.Direct3D11.Buffer> buff) {
+            RegisterConstantBuffer(stage, slot, buff.Get());
+        }
 
         public void SetVertexShader(DisposableSetter<VertexShader> shader) {
             ImmediateContext.VertexShader.Set(shader.Get());

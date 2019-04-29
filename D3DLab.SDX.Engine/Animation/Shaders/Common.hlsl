@@ -1,40 +1,40 @@
 
 // Constant buffer to be updated by application per object
-cbuffer PerObject : register(b0)
-{
-	// WorldViewProjection matrix
-	float4x4 WorldViewProjection;
-
-	// We need the world matrix so that we can
-	// calculate the lighting in world space
-	float4x4 World;
-
-	// Inverse transpose of world, used for
-	// bringing normals into world space, especially
-	// necessary where non-uniform scaling has been applied
-	float4x4 WorldInverseTranspose;
-};
+//cbuffer PerObject : register(b0)
+//{
+//	// WorldViewProjection matrix
+//	float4x4 WorldViewProjection;
+//
+//	// We need the world matrix so that we can
+//	// calculate the lighting in world space
+//	float4x4 World;
+//
+//	// Inverse transpose of world, used for
+//	// bringing normals into world space, especially
+//	// necessary where non-uniform scaling has been applied
+//	float4x4 WorldInverseTranspose;
+//};
 
 // A simple directional light (e.g. the sun)
-struct DirectionalLight
-{
-	float4 Color;
-	float3 Direction;
-};
+//struct DirectionalLight
+//{
+//	float4 Color;
+//	float3 Direction;
+//};
 
 // Constant buffer - updated once per frame
 // Note: HLSL data is packed in such a
 // way that it does not cross a 16-byte boundary
-cbuffer PerFrame: register (b1)
-{
-	DirectionalLight DLight;
-	float3 CameraPosition;
-};
+//cbuffer PerFrame: register (b1)
+//{
+//	DirectionalLight DLight;
+//	float3 CameraPosition;
+//};
 
 // Constant buffer to hold our material configuration
 // Note: HLSL data is packed in such a
 // way that it does not cross a 16-bytes boundary
-cbuffer PerMaterial : register (b2)
+cbuffer PerMaterial : register (b3)
 {
 	float4 MaterialAmbient;
 	float4 MaterialDiffuse;
@@ -47,7 +47,7 @@ cbuffer PerMaterial : register (b2)
 
 // Constant buffer to hold our skin matrices for each bone.
 // Note: 1024*64 = maximum bytes for a constant buffer in SM5
-cbuffer PerArmature : register(b3)
+cbuffer PerArmature : register(b4)
 {
 	float4x4 Bones[1024];
 };

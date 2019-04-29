@@ -12,8 +12,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace D3DLab.SDX.Engine.Components {
-
-    public abstract class D3DRenderComponent : GraphicComponent, IRenderableComponent {
+    public interface ID3DTransformWorldRenderComponent {
+        DisposableSetter<SharpDX.Direct3D11.Buffer> TransformWorldBuffer { get; }
+    }
+    public abstract class D3DRenderComponent : GraphicComponent, IRenderableComponent,
+        ID3DTransformWorldRenderComponent {
         public bool CanRender { get; set; }
 
         public D3DRasterizerState RasterizerState { get; set; }

@@ -99,9 +99,10 @@ namespace D3DLab.Wpf.Engine.App {
                 smanager.CreateSystem<CollidingSystem>();
                 smanager.CreateSystem<MovementSystem>();
                 //smanager.CreateSystem<MovingOnHeightMapSystem>();
-                smanager.CreateSystem<AnimationSystem>();
+                smanager.CreateSystem<EmptyAnimationSystem>();
+                smanager.CreateSystem<MeshAnimationSystem>();
                 smanager.CreateSystem<Systems.TerrainGeneratorSystem>();
-                /*
+                
                 smanager
                     .CreateSystem<RenderSystem>()
                     .Init(device)
@@ -110,11 +111,12 @@ namespace D3DLab.Wpf.Engine.App {
                     .CreateNested<TerrainRenderTechnique>()
                     .CreateNested<TriangleColoredVertexRenderTechnique>()
                     .CreateNested<LineVertexRenderTechnique>()
-                    .CreateNested<SpherePointRenderStrategy>();
-                */
-                smanager
-                    .CreateSystem<AminRenderSystem>()
-                    .Init(device);
+                    .CreateNested<SpherePointRenderStrategy>()
+                    .CreateNested<AminRenderTechniqueSystem >();
+                
+                //smanager
+                //    .CreateSystem<AminRenderSystem>()
+                //    .Init(device);
             }
             {
                var engine = EngineInfoBuilder.Build(em, Window);               

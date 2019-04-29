@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using D3DLab.SDX.Engine.Animation;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Animation.Formats;
+using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using SharpDX.Direct3D11;
 
@@ -18,7 +21,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
             Tag = tag;
         }
 
-        public static AnimCMOObject Create(IEntityManager manager) {
+        public static SingleGameObject Create(IEntityManager manager) {
 
             var tag = new ElementTag("Anim CMO file");
 
@@ -50,6 +53,8 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                     texture,
                     new TransformComponent()
                 });
+
+           // new SingleGameObject( EntityBuilders.BuildMeshElement(manager, pos, indx, V4Colors.Red),"test");
 
             return new AnimCMOObject(tag);
         }
