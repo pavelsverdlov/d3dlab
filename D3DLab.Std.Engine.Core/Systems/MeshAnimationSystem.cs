@@ -135,11 +135,15 @@ namespace D3DLab.Std.Engine.Core.Systems {
         }
 
         /// <summary>
-        /// Calculate mesh only once ... no worry about animation
+        /// Calculate mesh only once ... no worry about animation, no accurate bounding box
         /// </summary>
         /// <param name="bones"></param>
         /// <param name="mesh"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// https://gamedev.stackexchange.com/questions/46332/mesh-manipulation-on-gpu-vs-cpu
+        /// https://gamedev.stackexchange.com/questions/43986/calculate-an-aabb-for-bone-animated-model
+        /// </remarks>
         HittableGeometryComponent ConstructMesh(Matrix4x4[] bones, CMOAnimateMeshComponent mesh) {
             var pos = new List<Vector3>();
             var norms = new List<Vector3>();

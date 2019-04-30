@@ -144,8 +144,8 @@ namespace D3DLab.Wpf.Engine.App {
                         CanRender = false
                     },
                     new Systems.TerrainConfigurationComponent {
-                        Width = 256,
-                        Height = 256, 
+                        Width = 1025,
+                        Height = 1025, 
                     },
                     new D3DTexturedMaterialSamplerComponent(
                         new System.IO.FileInfo(seafloor),

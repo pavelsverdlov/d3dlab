@@ -22,7 +22,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         /// remove all entities from Technique
         /// </summary>
         void Cleanup();
-        void Render(GraphicsDevice Graphics, DefaultGameBuffers game);
+        void Render(GraphicsDevice Graphics, GameProperties game);
         void RegisterEntity(GraphicEntity entity);
         bool IsAplicable(GraphicEntity entity);
     }
@@ -42,7 +42,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             this.entityHasSet = entityHasSet;
         }
 
-        public void Render(GraphicsDevice graphics, DefaultGameBuffers game) {
+        public void Render(GraphicsDevice graphics, GameProperties game) {
             Rendering(graphics, game);
         }
         
@@ -51,7 +51,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         }
 
 
-        protected abstract void Rendering(GraphicsDevice graphics, DefaultGameBuffers game);
+        protected abstract void Rendering(GraphicsDevice graphics, GameProperties game);
         
         public void RegisterEntity(GraphicEntity entity) {
             entities.AddLast(entity);

@@ -1,12 +1,80 @@
 ﻿using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Common {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+    /// </remarks>
     public class Frustum {
+        public enum ContainmentType {
+            Disjoint,
+            Contains,
+            Intersects,
+        }
+        private struct SixPlane {
+            public Plane Left;
+            public Plane Right;
+            public Plane Bottom;
+            public Plane Top;
+            public Plane Near;
+            public Plane Far;
+        }
+
         readonly Plane[] planes = new Plane[6];
+        private SixPlane _planes;
+
+        public Frustum(Matrix4x4 projection, Matrix4x4 view) {
+            var m = view * projection;
+            _planes.Left = Plane.Normalize(
+                new Plane(
+                    m.M14 + m.M11,
+                    m.M24 + m.M21,
+                    m.M34 + m.M31,
+                    m.M44 + m.M41));
+
+            _planes.Right = Plane.Normalize(
+                new Plane(
+                    m.M14 - m.M11,
+                    m.M24 - m.M21,
+                    m.M34 - m.M31,
+                    m.M44 - m.M41));
+
+            _planes.Bottom = Plane.Normalize(
+                new Plane(
+                    m.M14 + m.M12,
+                    m.M24 + m.M22,
+                    m.M34 + m.M32,
+                    m.M44 + m.M42));
+
+            _planes.Top = Plane.Normalize(
+                new Plane(
+                    m.M14 - m.M12,
+                    m.M24 - m.M22,
+                    m.M34 - m.M32,
+                    m.M44 - m.M42));
+
+            _planes.Near = Plane.Normalize(
+                new Plane(
+                    m.M13,
+                    m.M23,
+                    m.M33,
+                    m.M43));
+
+            _planes.Far = Plane.Normalize(
+                new Plane(
+                    m.M14 - m.M13,
+                    m.M24 - m.M23,
+                    m.M34 - m.M33,
+                    m.M44 - m.M43));
+        }
 
         public Frustum(float screenDepth, Matrix4x4 projection, Matrix4x4 view) {
             // Calculate the minimum Z distance in the frustum.
@@ -68,6 +136,24 @@ namespace D3DLab.Std.Engine.Core.Common {
 
             return true;
         }
+        public bool Intersec(BoundingBox box) {
+
+            var corners = box.Corners();
+            // Check if any of the 6 planes of the rectangle are inside the view frustum.
+            for (var i = 0; i < 6; i++) {
+                if (Plane.DotCoordinate(planes[i], corners[0]) >= 0f) continue;                      
+                if (Plane.DotCoordinate(planes[i], corners[1]) >= 0f) continue;                      
+                if (Plane.DotCoordinate(planes[i], corners[2]) >= 0f) continue;                      
+                if (Plane.DotCoordinate(planes[i], corners[3]) >= 0f) continue;                      
+                if (Plane.DotCoordinate(planes[i], corners[4]) >= 0f) continue;                      
+                if (Plane.DotCoordinate(planes[i], corners[5]) >= 0f) continue;                      
+                if (Plane.DotCoordinate(planes[i], corners[6]) >= 0f) continue;                      
+                if (Plane.DotCoordinate(planes[i], corners[7]) >= 0f) continue;
+                return false;
+            }
+
+            return true;
+        }
         bool CheckSphere(Vector3 center, float radius) {
             // Check if the radius of the sphere is inside the view frustum.
             for (int i = 0; i < 6; i++) {
@@ -107,6 +193,50 @@ namespace D3DLab.Std.Engine.Core.Common {
                     return false;
 
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe ContainmentType Contains(ref BoundingBox box) {
+            Plane* planes = (Plane*)Unsafe.AsPointer(ref _planes);
+
+            ContainmentType result = ContainmentType.Contains;
+            for (int i = 0; i < 6; i++) {
+                Plane plane = planes[i];
+
+                // Approach: http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
+
+                Vector3 positive = new Vector3(box.Minimum.X, box.Minimum.Y, box.Minimum.Z);
+                Vector3 negative = new Vector3(box.Maximum.X, box.Maximum.Y, box.Maximum.Z);
+
+                if (plane.Normal.X >= 0) {
+                    positive.X = box.Maximum.X;
+                    negative.X = box.Minimum.X;
+                }
+                if (plane.Normal.Y >= 0) {
+                    positive.Y = box.Maximum.Y;
+                    negative.Y = box.Minimum.Y;
+                }
+                if (plane.Normal.Z >= 0) {
+                    positive.Z = box.Maximum.Z;
+                    negative.Z = box.Minimum.Z;
+                }
+
+                // If the positive vertex is outside (behind plane), the box is disjoint.
+                float positiveDistance = Plane.DotCoordinate(plane, positive);
+                if (Math.Round(positiveDistance, 3) < 0) {
+                    return ContainmentType.Disjoint;
+                }
+
+                // If the negative vertex is outside (behind plane), the box is intersecting.
+                // Because the above check failed, the positive vertex is in front of the plane,
+                // and the negative vertex is behind. Thus, the box is intersecting this plane.
+                float negativeDistance = Plane.DotCoordinate(plane, negative);
+                if (negativeDistance < 0) {
+                    result = ContainmentType.Intersects;
+                }
+            }
+
+            return result;
         }
     }
 }

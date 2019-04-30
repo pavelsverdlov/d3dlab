@@ -220,7 +220,7 @@ namespace D3DLab.SDX.Engine.Animation {
         //protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
         //    throw new NotImplementedException();
         //}
-        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
+        protected override void Rendering(GraphicsDevice graphics, GameProperties game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 

@@ -13,12 +13,15 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace D3DLab.SDX.Engine.Rendering {
-    public class DefaultGameBuffers {
+    public class GameProperties {
+        public readonly CameraState CameraState;
+
         public readonly SharpDX.Direct3D11.Buffer Game;
         public readonly SharpDX.Direct3D11.Buffer Lights;
-        public DefaultGameBuffers(SharpDX.Direct3D11.Buffer game, SharpDX.Direct3D11.Buffer light) {
+        public GameProperties(SharpDX.Direct3D11.Buffer game, SharpDX.Direct3D11.Buffer light, CameraState cameraState) {
             Game = game;
             Lights = light;
+            CameraState = cameraState;
         }
     }
 
@@ -115,7 +118,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                     frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer, LightStructBuffer.RegisterResourceSlot);
 
                     foreach (var str in registrator.Techniques) {
-                        str.Render(frame.Graphics, new DefaultGameBuffers(gameDataBuffer, lightDataBuffer));
+                        str.Render(frame.Graphics, new GameProperties(gameDataBuffer, lightDataBuffer, prevCameraState));
                     }
                 }
             } catch (SharpDX.CompilationException cex) {

@@ -1,4 +1,5 @@
-﻿using D3DLab.Std.Engine.Core.Ext;
+﻿using D3DLab.Std.Engine.Core.Common;
+using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
 using System.Numerics;
 
@@ -94,6 +95,12 @@ namespace D3DLab.Std.Engine.Core.Components {
             var ray1 = Point2DtoPoint3D(point2d);
 
             return ray;
+        }
+
+        public Frustum GetFrustum() {
+            return new Frustum(ProjectionMatrix, ViewMatrix) {
+
+            };
         }
     }
 

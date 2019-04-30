@@ -90,7 +90,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
 
         public IRenderTechniquePass GetPass() => pass;
 
-        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
+        protected override void Rendering(GraphicsDevice graphics, GameProperties game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 

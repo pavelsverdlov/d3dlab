@@ -86,7 +86,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     }
 
                     var geo = entity.GetComponent<HittableGeometryComponent>();
-                    if (geo.IsNull() || !geo.IsBuilt) {
+                    if (geo.IsNull() || !geo.Tree.IsBuilt) {
                         return false;
                     }
 
@@ -100,16 +100,19 @@ namespace D3DLab.Std.Engine.Core.Systems {
                         rayLocal = rayLocal.Transformed(toLocal);//to local
                     }
 
-                    int hit_tid = geo.Tree.FindNearestHitTriangle(rayLocal.g3Rayf);
-                    if (hit_tid == DMesh3.InvalidID) {
-                        return false;
-                    }
-                    var intr = MeshQueries.TriangleIntersection(geo.DMesh, hit_tid, rayLocal.g3Rayf);
-                    double hit_dist = rayLocal.g3Rayd.Origin.Distance(rayLocal.g3Rayd.PointAt(intr.RayParameter));
+                    var hitlocal = geo.Tree.HitLocalBy(rayLocal);
 
-                    if (minDistance > hit_dist) {
-                        minDistance = hit_dist;
-                        intersecWorld = intr.Triangle.V1.ToVector3();
+                    //int hit_tid = geo.Tree.FindNearestHitTriangle(rayLocal.g3Rayf);
+                    //if (hit_tid == DMesh3.InvalidID) {
+                    //    return false;
+                    //}
+                    //var intr = MeshQueries.TriangleIntersection(geo.DMesh, hit_tid, rayLocal.g3Rayf);
+                    //double hit_dist = rayLocal.g3Rayd.Origin.Distance(rayLocal.g3Rayd.PointAt(intr.RayParameter));
+
+                    if (minDistance > hitlocal.Distance) {
+                        minDistance = hitlocal.Distance;
+                        //intersecWorld = intr.Triangle.V1.ToVector3();
+                        intersecWorld = hitlocal.Point;
                         //to world
                         intersecWorld = intersecWorld.TransformedCoordinate(toWorld);
                         return true;

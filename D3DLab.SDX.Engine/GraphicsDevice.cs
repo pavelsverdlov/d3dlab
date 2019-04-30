@@ -263,7 +263,7 @@ namespace D3DLab.SDX.Engine {
             return new GraphicsFrame(this);
         }
 
-        internal void UpdateRasterizerState(RasterizerStateDescription descr) {
+        public void UpdateRasterizerState(RasterizerStateDescription descr) {
             ImmediateContext.Rasterizer.State = new RasterizerState(D3DDevice, descr);
         }
 
