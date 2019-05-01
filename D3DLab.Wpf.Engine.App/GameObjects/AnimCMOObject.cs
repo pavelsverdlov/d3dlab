@@ -47,6 +47,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                 MipLodBias = 0.0f
             });
 
+
             manager.CreateEntity(tag)
                 .AddComponents(new IGraphicComponent[] {
                     mesh,
