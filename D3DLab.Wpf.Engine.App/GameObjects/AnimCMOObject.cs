@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -25,8 +26,9 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
 
             var tag = new ElementTag("Anim CMO file");
 
-            var fileName = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab.Wpf.Engine.App\Resources\animation\Chick.cmo";
-            var meshes = CMOAnimationLoader.LoadFromFile(fileName);
+			var fileName = Path.Combine($"{Directory.GetCurrentDirectory()}", $"Resources", $"animation", $"Chick.cmo");
+			//var fileName = @"C:\Storage\projects\sv\3d\d3dlab\D3DLab.Wpf.Engine.App\Resources\animation\Chick.cmo";
+			var meshes = CMOAnimationLoader.LoadFromFile(fileName);
 
             var mesh = meshes.First();
 
