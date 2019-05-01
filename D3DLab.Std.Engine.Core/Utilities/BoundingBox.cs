@@ -90,6 +90,9 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             return new Ray(or, dir);
         }
 
+        public Ray Inverted() {
+            return new Ray(Origin, -Direction);
+        }
     }
 
     public enum BoundingContainmentType {

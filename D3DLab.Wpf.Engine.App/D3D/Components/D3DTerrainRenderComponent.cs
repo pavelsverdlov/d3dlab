@@ -137,16 +137,16 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
             return cell;
         }
 
-        public Matrix4x4 GetTransfromToMap(ref Ray ray, ref BoundingBox box) {
+        public Matrix4x4 GetTransfromToMap(ref Ray ray) {
             var m = Matrix4x4.Identity;
-            
-            for (int i = 0; i < Cells.Length; i++) { 
-                if (Cells[i].Tree.GetBounds().Contains(ref box) != BoundingContainmentType.Disjoint) {
 
-                    
-
-                    break;
-                }
+            var hit = Tree.HitLocalBy(ray);
+            if (hit.IsHitted) {
+                return Matrix4x4.CreateTranslation(hit.Point - ray.Origin);
+            }
+            hit = Tree.HitLocalBy(ray.Inverted());
+            if (hit.IsHitted) {
+                return Matrix4x4.CreateTranslation(hit.Point - ray.Origin);
             }
 
             return m;

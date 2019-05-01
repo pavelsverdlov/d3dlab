@@ -9,12 +9,16 @@ using System.Threading.Tasks;
 using D3DLab.SDX.Engine.Animation;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Animation.Formats;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using SharpDX.Direct3D11;
+using D3DLab.Std.Engine.Core.Systems;
+using D3DLab.Std.Engine.Core.Utilities;
 
 namespace D3DLab.Wpf.Engine.App.GameObjects {
+    
     public class AnimCMOObject : SingleGameObject {//SingleGameObject
         public ElementTag Tag { get; }
 
@@ -47,13 +51,15 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                 MipLodBias = 0.0f
             });
 
+            var rotateToY = Matrix4x4.CreateRotationX(-90f.ToRad());
+
             manager.CreateEntity(tag)
                 .AddComponents(new IGraphicComponent[] {
                     mesh,
                     render,
                     animesh,
                     texture,
-                    new TransformComponent()
+                    new TransformComponent(){ MatrixWorld = rotateToY }
                 });
 
            // new SingleGameObject( EntityBuilders.BuildMeshElement(manager, pos, indx, V4Colors.Red),"test");

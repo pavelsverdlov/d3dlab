@@ -108,9 +108,7 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         protected override BoundingBox CalcuateBox() {
             return Tree.IsBuilt ? Tree.GetBounds() : BoundingBox.Zero;
-        }
-
-        
+        }        
     }
     /*
     public class GeometryComponent : BaseGeometryComponent, IGeometryComponent {

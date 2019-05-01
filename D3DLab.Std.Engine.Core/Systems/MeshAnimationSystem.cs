@@ -10,8 +10,21 @@ using D3DLab.Std.Engine.Core.Animation;
 using D3DLab.Std.Engine.Core.Animation.Formats;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
+using D3DLab.Std.Engine.Core.Utilities;
 
 namespace D3DLab.Std.Engine.Core.Systems {
+    class AnimationHittableGeometryComponent : HittableGeometryComponent {
+    }
+
+    class AnimStickOnHeightMapComponent : GraphicComponent, IStickOnHeightMapComponent {
+        public Vector3 AxisUpLocal { get; set; }
+        public Vector3 AttachPointLocal { get; set; }
+
+        public AnimStickOnHeightMapComponent() {
+
+        }
+    }
+
     public class MeshAnimationSystem : BaseEntitySystem, IGraphicSystem {
         static int Size = Unsafe.SizeOf<Matrix4x4>() * MaxBones;
         public const int MaxBones = 1024;
@@ -35,8 +48,12 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     anim.Bones = CalculateBonesMatrix(mesh, currentAnimation);
                     anim.IsModified = true;
 
-                    if (!entity.Has<IGeometryComponent>()) {
+                    var hasGeo = entity.GetComponents<AnimationHittableGeometryComponent>();
+                    
+                    if (!hasGeo.Any()) {
                         entity.AddComponent(ConstructMesh(anim.Bones, mesh));
+                    } else if(hasGeo.First().Tree.IsBuilt && !entity.Has<AnimStickOnHeightMapComponent>()) {
+                        entity.AddComponent(CreateStickOnComponent(hasGeo.First()));
                     }
                 }
             }
@@ -144,7 +161,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
         /// https://gamedev.stackexchange.com/questions/46332/mesh-manipulation-on-gpu-vs-cpu
         /// https://gamedev.stackexchange.com/questions/43986/calculate-an-aabb-for-bone-animated-model
         /// </remarks>
-        HittableGeometryComponent ConstructMesh(Matrix4x4[] bones, CMOAnimateMeshComponent mesh) {
+        AnimationHittableGeometryComponent ConstructMesh(Matrix4x4[] bones, CMOAnimateMeshComponent mesh) {
             var pos = new List<Vector3>();
             var norms = new List<Vector3>();
             var indeces = new List<int>();
@@ -183,13 +200,27 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 offset += mesh.VertexBuffers[i].Length;
             }
 
-            var geo = new HittableGeometryComponent();
+            var geo = new AnimationHittableGeometryComponent();
             geo.Positions = pos.ToImmutableArray();
             geo.Indices = indeces.ToImmutableArray();
             geo.Normals = norms.ToImmutableArray();
             geo.IsModified = true;
 
             return geo;
+        }
+
+        AnimStickOnHeightMapComponent CreateStickOnComponent(AnimationHittableGeometryComponent geo) {
+            var box = geo.Box;
+
+            var com = new AnimStickOnHeightMapComponent();
+            com.AxisUpLocal = -Vector3.UnitZ;
+
+            var ray = new Ray(box.GetCenter(), com.AxisUpLocal);
+            geo.Box.Intersects(ref ray, out var dist);
+
+            com.AttachPointLocal = box.GetCenter() + com.AxisUpLocal * dist;
+
+            return com;
         }
     }
 }
