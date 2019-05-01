@@ -149,7 +149,7 @@ float4 normalMapping(float4 colorFirst, float4 normalMapColor, PSIn input) {
 	for (int i = 0; i < 3; ++i) {
 		Light l = lights[i];
 		if (l.Type == 3) {
-			intensity += dot(l.Direction, bumpNormal);
+			intensity += dot(l.LightDirF3, bumpNormal);
 		}
 	}
 	//lightIntensity = saturate(dot(bumpNormal, -LookDirection.xyz));//float3(0, 1.2, 0.5)

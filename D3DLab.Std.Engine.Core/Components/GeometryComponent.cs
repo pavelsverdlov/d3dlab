@@ -9,38 +9,57 @@ using System.Numerics;
 using System.Threading.Tasks;
 
 namespace D3DLab.Std.Engine.Core.Components {
-    public class HittableGeometryComponent : GeometryComponent, IGeometryComponent {
+    public struct HitResultLocal {
+        public Vector3 Point;
+        public float Distance;
+        public bool IsHitted;
+    }
+
+    public class GeometryTree {
         public bool IsBuilt { get; private set; }
 
-        #region geometry3Sharp 
-
-        internal DMeshAABBTree3 Tree { get; private set; }
-        internal DMesh3 DMesh { get; private set; }
-
-        public HittableGeometryComponent() {
-
-        }
-
-        internal Task<HittableGeometryComponent> BuildTreeAsync() {
-            if (!IsValid) { return Task<HittableGeometryComponent>.FromResult(this); }
+        DMeshAABBTree3 TreeLocal;
+        DMesh3 DMeshLocal;
+        
+        public Task BuildTreeAsync(IGeometryComponent geo) {
+            if (!geo.IsValid) { return Task.FromResult(0); }
             return Task.Run(() => {
-                var norm = Normals.IsDefaultOrEmpty ? null : ConvertToVector3f(Normals);
-                DMesh = DMesh3Builder.Build(ConvertToVector3f(Positions), Indices, norm);
+                var norm = geo.Normals.IsDefaultOrEmpty ? null : ConvertToVector3f(geo.Normals);
+                DMeshLocal = DMesh3Builder.Build(ConvertToVector3f(geo.Positions), geo.Indices, norm);
                 //var sm = new LaplacianMeshSmoother(DMesh);
                 //sm.Initialize();
                 //sm.SolveAndUpdateMesh();
 
                 //DMesh = sm.Mesh;
-                Tree = new DMeshAABBTree3(DMesh);
-                Tree.Build();
+                TreeLocal = new DMeshAABBTree3(DMeshLocal);
+                TreeLocal.Build();
+
+                box = new BoundingBox(DMeshLocal.GetBounds());
+
                 IsBuilt = true;
+
                 return this;
             });
         }
-        #endregion
+        public Task BuildTreeAsync(Vector3[] positions, Vector3[] normals, int[] indices) {
+            return Task.Run(() => {
+                var norm = ConvertToVector3f(normals);
+                DMeshLocal = DMesh3Builder.Build(ConvertToVector3f(positions), indices, norm);
 
-        protected override BoundingBox CalcuateBox() {
-            return IsBuilt ? BoundingBox.CreateFromComponent(this) : BoundingBox.Zero;
+                TreeLocal = new DMeshAABBTree3(DMeshLocal);
+                TreeLocal.Build();
+
+                box = new BoundingBox(DMeshLocal.GetBounds());
+
+                IsBuilt = true;
+
+                return this;
+            });
+        }
+
+        BoundingBox box = BoundingBox.Zero;
+        public BoundingBox GetBounds() {
+            return box;
         }
 
         static Vector3f[] ConvertToVector3f(ImmutableArray<Vector3> pos) {
@@ -50,7 +69,46 @@ namespace D3DLab.Std.Engine.Core.Components {
             }
             return v3f;
         }
+        static Vector3f[] ConvertToVector3f(Vector3[] pos) {
+            var v3f = new Vector3f[pos.Length];
+            for (var i = 0; i < v3f.Length; ++i) {
+                v3f[i] = pos[i].ToVector3f();
+            }
+            return v3f;
+        }
 
+        public HitResultLocal HitLocalBy(Ray rayLocal) {
+            var res = new HitResultLocal();
+            int hit_tid = TreeLocal.FindNearestHitTriangle(rayLocal.g3Rayf);
+            if (hit_tid == DMesh3.InvalidID) {
+                return res;
+            }
+
+            var intr = MeshQueries.TriangleIntersection(DMeshLocal, hit_tid, rayLocal.g3Rayf);
+            res.Distance = (float)rayLocal.g3Rayd.Origin.Distance(rayLocal.g3Rayd.PointAt(intr.RayParameter));
+            res.Point = intr.Triangle.V1.ToVector3();
+            res.IsHitted = true;
+
+            return res;
+        }
+    }
+
+    public class HittableGeometryComponent : GeometryComponent, IGeometryComponent {
+        
+        public GeometryTree Tree { get; }
+
+        public HittableGeometryComponent() {
+            Tree = new GeometryTree();
+        }
+
+        internal Task<HittableGeometryComponent> BuildTreeAsync() {
+            if (!IsValid) { return Task<HittableGeometryComponent>.FromResult(this); }
+            return Tree.BuildTreeAsync(this).ContinueWith(x => this);
+        }
+
+        protected override BoundingBox CalcuateBox() {
+            return Tree.IsBuilt ? Tree.GetBounds() : BoundingBox.Zero;
+        }        
     }
     /*
     public class GeometryComponent : BaseGeometryComponent, IGeometryComponent {

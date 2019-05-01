@@ -19,7 +19,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             Direction = dir;
             Direction.Normalize();
             g3Rayf = new Ray3f(or.ToVector3f(), dir.ToVector3f(), true);
-            g3Rayd = new Ray3d(g3Rayf.Origin, g3Rayf.Direction,true);
+            g3Rayd = new Ray3d(g3Rayf.Origin, g3Rayf.Direction, true);
         }
         public bool Intersects(ref BoundingBox box) {
             // http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
@@ -85,11 +85,14 @@ namespace D3DLab.Std.Engine.Core.Utilities {
         }
 
         public Ray Transformed(Matrix4x4 m) {
-            var or = Vector3.Transform(Origin,m);
+            var or = Vector3.Transform(Origin, m);
             var dir = Vector3.TransformNormal(Direction, m);
             return new Ray(or, dir);
         }
 
+        public Ray Inverted() {
+            return new Ray(Origin, -Direction);
+        }
     }
 
     public enum BoundingContainmentType {
@@ -106,9 +109,9 @@ namespace D3DLab.Std.Engine.Core.Utilities {
             //BoundsUtil.Bounds(,)
             return new BoundingBox(min, max, new AxisAlignedBox3f(min.ToVector3f(), max.ToVector3f()));
         }
-        public static BoundingBox CreateFromComponent(HittableGeometryComponent com) {
-            return new BoundingBox(com.DMesh.GetBounds());
-        }
+        //public static BoundingBox CreateFromComponent(HittableGeometryComponent com) {
+        //    return new BoundingBox(com.DMesh.GetBounds());
+        //}
         //TODO
         readonly AxisAlignedBox3f boxf;
         readonly AxisAlignedBox3d boxd;
@@ -116,32 +119,38 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
         public readonly Vector3 Minimum;
         public readonly Vector3 Maximum;
-        
+
+        Vector3[] corners;
 
         public BoundingBox(Vector3 min, Vector3 max) {
             Minimum = min;
             Maximum = max;
-            boxf = AxisAlignedBox3f.Empty; 
-            boxd = AxisAlignedBox3d.Empty;
+            boxf = new AxisAlignedBox3f(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
+            boxd = new AxisAlignedBox3d(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
+            corners = null;
         }
         BoundingBox(Vector3 min, Vector3 max, AxisAlignedBox3f box3F) {
             Minimum = min;
             Maximum = max;
             boxf = box3F;
             boxd = boxf;
+            corners = null;
         }
-        BoundingBox(AxisAlignedBox3d box3d) {
+        internal BoundingBox(AxisAlignedBox3d box3d) {
             Minimum = box3d.Min.ToVector3();
             Maximum = box3d.Max.ToVector3();
             boxf = new AxisAlignedBox3f(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
             boxd = box3d;
+            corners = null;
         }
 
         public BoundingBox Merge(BoundingBox box) {
             Statics.Collision.Merge(ref this, ref box, out var res);
             return res;
         }
-
+        public bool Contains(ref Vector3 p) {
+            return boxf.Contains(p.ToVector3f());
+        }
 
         public BoundingContainmentType Contains(ref BoundingBox other) {
             if (Maximum.X < other.Minimum.X || Minimum.X > other.Maximum.X
@@ -159,7 +168,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
         public bool Intersects(ref Ray ray, out float distance) {
             //var b1 = ray.Intersects(ref this);
-            var b =  Statics.Collision.Intersects(ref this, ref ray, out distance);
+            var b = Statics.Collision.Intersects(ref this, ref ray, out distance);
             return b;
         }
         public bool Intersects(ref BoundingBox bb) {
@@ -195,6 +204,24 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
             return new BoundingBox(min, max);
         }
+
+        public Vector3[] Corners() {
+            if (corners.IsNotNull()) {
+                return corners;
+            }
+            corners = new[] {
+                boxf.Corner(0).ToVector3(),
+                boxf.Corner(1).ToVector3(),
+                boxf.Corner(2).ToVector3(),
+                boxf.Corner(3).ToVector3(),
+                boxf.Corner(4).ToVector3(),
+                boxf.Corner(5).ToVector3(),
+                boxf.Corner(6).ToVector3(),
+                boxf.Corner(7).ToVector3()
+            };
+            return corners;
+        }
+
 
         public static unsafe BoundingBox CreateFromVertices(
             Vector3* vertices,

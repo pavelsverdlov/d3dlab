@@ -49,12 +49,12 @@ namespace D3DLab.Wpf.Engine.App.Systems {
                 if (generating.IsGenerated) {
                     entity.RemoveComponent(generating);
 
-                    var geo = entity.GetComponents<TerrainGeometryComponent>();
+                    var geo = entity.GetComponents<TerrainGeometryCellsComponent>();
                     if (geo.Any()) {
                         entity.RemoveComponent(geo.First());
                     }
 
-                    var newgeo = new TerrainGeometryComponent();
+                    var newgeo = new TerrainGeometryCellsComponent();
 
                     BuildGeometry(generating.HeightMap, conf, newgeo);
 
@@ -68,12 +68,14 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
                     entity.GetComponent<IRenderableComponent>().CanRender = true;
 
+                    BuildCellsAsync(newgeo, conf);
+
                     break;
                 }
             }
         }
 
-        static void BuildGeometry(Vector3[] HeightMap, TerrainConfigurationComponent config, TerrainGeometryComponent geometry) {
+        static void BuildGeometry(Vector3[] HeightMap, TerrainConfigurationComponent config, TerrainGeometryCellsComponent geometry) {
             var width = config.Width;
             var height = config.Height;
             var count = (width - 1) * (height - 1) * 6;
@@ -252,7 +254,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
             }
 
             geo.Tangents = new List<Vector3>();
-            geo.Binormal = new List<Vector3>();  
+            geo.Binormal = new List<Vector3>();
             for (int i = 0; i < positions.Length; i++) {
                 var n = normals[i];
                 var t = tan1[i];
@@ -262,6 +264,36 @@ namespace D3DLab.Wpf.Engine.App.Systems {
                 geo.Tangents.Add(t);
                 geo.Binormal.Add(b);
             }
+        }
+
+
+        Task BuildCellsAsync(TerrainGeometryCellsComponent geo, TerrainConfigurationComponent config) {
+
+            // Set the height and width of each terrain cell to a fixed 33x33 vertex array.
+            int cellHeight = 33;
+            int cellWidth = 33;
+
+            // Calculate the number of cells needed to store the terrain data.
+            int cellRowCount = (config.Width - 1) / (cellWidth - 1);
+            var m_CellCount = cellRowCount * cellRowCount;
+
+            // Create the terrain cell array.
+            var TerrainCells = new TerrainGeometryCellsComponent.TerrainCell[m_CellCount];
+            try {
+                // Loop through and initialize all the terrain cells.
+                for (int j = 0; j < cellRowCount; j++) {
+                    for (int i = 0; i < cellRowCount; i++) {
+                        int index = (cellRowCount * j) + i;
+                        TerrainCells[index] = geo.BuildCell(i, j, cellHeight, cellWidth, config.Width);
+                    }
+                }
+            }catch(Exception ex) {
+                ex.ToString();
+            }
+
+            geo.Cells = TerrainCells;
+
+            return Task.FromResult(0);
         }
     }
 
@@ -274,7 +306,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
         public double ElevationPower { get; set; }
         public float Resolution { get; set; }
         public float Correction { get; set; }
-        
+
         public Perlin Noise { get; set; }
         public Turbulence Turbulence { get; set; }
         public Select Select { get; set; }
@@ -284,7 +316,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
         public TerrainConfigurationComponent() {
             Width = Height = 256;
-            TextureRepeat = 8*2;// * 4
+            TextureRepeat = 8 * 2;// * 4
             IsModified = true;
             Correction = 20;
             ElevationPower = 1;

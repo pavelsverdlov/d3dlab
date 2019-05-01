@@ -58,7 +58,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;
         }
 
-        protected override void Rendering(GraphicsDevice graphics, DefaultGameBuffers game) {
+        protected override void Rendering(GraphicsDevice graphics, GameProperties game) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
 

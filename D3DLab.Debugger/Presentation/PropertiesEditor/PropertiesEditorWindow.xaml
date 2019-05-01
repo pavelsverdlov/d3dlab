@@ -81,7 +81,7 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type local:ImageReadOnlyViewProperty}">
-            <Image Source="{Binding Image}" Margin="5" HorizontalAlignment="Right" >
+            <Image Source="{Binding Image}" Margin="5" HorizontalAlignment="Right" Stretch="UniformToFill" Width="256" >
                 
             </Image>
         </DataTemplate>

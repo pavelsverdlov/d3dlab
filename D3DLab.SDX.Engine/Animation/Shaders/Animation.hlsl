@@ -58,6 +58,9 @@ SamplerState Sampler : register(s0);
 
 float4 main(PixelShaderInput pixel) : SV_Target
 {
+
+	return float4(0.8, 0.8, 0.8, 1.0) * computeLight(pixel.Position.xyz, pixel.WorldNormal, -LookDirection.xyz, 1000);
+
 	// Normalize our vectors as they are not 
 	// guaranteed to be unit vectors after interpolation
 	float3 normal = normalize(pixel.WorldNormal);
@@ -65,6 +68,8 @@ float4 main(PixelShaderInput pixel) : SV_Target
 
 	float3 ambient = MaterialAmbient.rgb;
 	float3 emissive = MaterialEmissive.rgb;
+
+	
 
 	float4 finalcolor;
 	float4 lc = float4(0.8, 0.8, 0.8, 1.0);//todo: remake from iutside color
