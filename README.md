@@ -4,7 +4,7 @@ One of the thousands attempts to implement own game engine with blackjack and et
 
 ## Solution structure:
 
-Engine.Core - .Net standart, no dependency from any graphics API such as DirectX etc
+Engine.Core - .NET Standard, no dependency from any graphics API such as DirectX etc
 
 SDX.Engine - wrapper over SharpDX, incapsulate SharpDX handling and simplify public ECS API based on Core.
 
