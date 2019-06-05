@@ -13,6 +13,9 @@ Debugger - NET Framework + WPF, Shader Editor based on AvalonEdit, specific OBJ 
 #### ECS Component properties editor
 ![Component properties editor](/readmi/com_pr_editor.PNG?raw=true "Properties editor")
 
+#### Shader editor
+![Shader editor](/readmi/shader_editor.PNG?raw=true "Properties editor")
+
 
 The rest of them is just a test projects.
 
