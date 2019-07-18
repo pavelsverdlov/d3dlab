@@ -1,5 +1,6 @@
 ﻿using D3DLab.Std.Engine.Core.Shaders;
 using System;
+using System.Threading;
 
 namespace D3DLab.Std.Engine.Core {
     public interface IGraphicComponent : IDisposable {
@@ -8,13 +9,26 @@ namespace D3DLab.Std.Engine.Core {
         bool IsModified { get; set; }
         bool IsValid { get; }
         bool IsDisposed { get; }
+    }
 
-        //TODO
-        //bool IsAttachedToEntity{get;}
+    public interface IFlyweightGraphicComponent : IDisposable {
+        ElementTag Tag { get; }
+        bool IsModified { get; set; }
+        bool IsDisposed { get; }
     }
 
     public abstract class GraphicComponent : IGraphicComponent {
-        public bool IsModified { get; set; }
+        int threadSafeBool = 0;
+        public bool IsModified {
+            get { return Interlocked.CompareExchange(ref threadSafeBool, 1, 1) == 1; }
+            set {
+                if (value) Interlocked.CompareExchange(ref threadSafeBool, 1, 0);
+                else Interlocked.CompareExchange(ref threadSafeBool, 0, 1);
+            }
+        }
+        //  public bool IsModified { get; set; }
+
+
         public bool IsDisposed { get; protected set; }
         public virtual bool IsValid => true;
         public ElementTag Tag { get; }

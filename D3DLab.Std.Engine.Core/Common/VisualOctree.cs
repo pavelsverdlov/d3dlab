@@ -47,11 +47,11 @@ namespace D3DLab.Std.Engine.Core.Common {
                                     var tr = context
                                         .GetComponentManager()
                                         .GetComponents<TransformComponent>(cc.EntityTag);
-                                    var box = g.Box;
+                                    var b = g.Box;
                                     if (tr.Any()) {
-                                        box = box.Transform(tr.Single().MatrixWorld);
+                                        b = b.Transform(tr.Single().MatrixWorld);
                                     }
-                                    _.Add(box, g.EntityTag);
+                                    _.Add(b, g.EntityTag);
                                     _.isActualStateDrawed = false;
                                 }, x.Result);
                             });

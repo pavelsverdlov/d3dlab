@@ -18,6 +18,7 @@ using D3DLab.Wpf.Engine.App.GameObjects;
 using System.Linq;
 using System.Collections.Generic;
 using D3DLab.SDX.Engine.Animation;
+using System.Threading;
 
 namespace D3DLab.Wpf.Engine.App {
     public class OctreeImp : EntityOctree {
@@ -43,6 +44,7 @@ namespace D3DLab.Wpf.Engine.App {
             var points = GeometryBuilder.BuildBox(box);
             var color = V4Colors.NextColor(random);
             if (tag.IsEmpty) {
+                Thread.Sleep(10);
                 tag = new ElementTag(DateTime.Now.Ticks.ToString());
             }
             debug.Add(PolylineGameObject.Create(emanager, new ElementTag("OctreeBox_" + tag.ToString()), points, points.Select(x => color).ToArray()));
@@ -93,16 +95,19 @@ namespace D3DLab.Wpf.Engine.App {
             {   //systems creating
                 var smanager = Context.GetSystemManager();
 
+                
                 smanager.CreateSystem<InputSystem>();
                 smanager.CreateSystem<D3DCameraSystem>();
                 smanager.CreateSystem<LightsSystem>();
                 smanager.CreateSystem<CollidingSystem>();
                 smanager.CreateSystem<MovementSystem>();
-                //smanager.CreateSystem<MovingOnHeightMapSystem>();
                 smanager.CreateSystem<EmptyAnimationSystem>();
                 smanager.CreateSystem<MeshAnimationSystem>();
+                smanager.CreateSystem<StickOnHeightMapSystem>();
+                smanager.CreateSystem<ObjectMovementSystem>();
                 smanager.CreateSystem<Systems.TerrainGeneratorSystem>();
-                
+                smanager.CreateSystem<Physics.Engine.PhysicalSystem>();
+
                 smanager
                     .CreateSystem<RenderSystem>()
                     .Init(device)

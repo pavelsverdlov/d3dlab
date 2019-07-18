@@ -52,7 +52,7 @@ namespace D3DLab.Std.Engine.Core {
         }
         public IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate) {
             var res = new List<GraphicEntity>();
-            foreach(var tag in entities) {
+            foreach (var tag in entities) {
                 var en = _CreateEntity(tag);
                 if (predicate(en)) {
                     res.Add(en);
@@ -80,8 +80,9 @@ namespace D3DLab.Std.Engine.Core {
         //TODO:
         readonly Dictionary<ElementTag, HashSet<Type>> entityHas = new Dictionary<ElementTag, HashSet<Type>>();
         readonly Dictionary<ElementTag, List<IGraphicComponent>> components = new Dictionary<ElementTag, List<IGraphicComponent>>();
+        readonly Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>> flyweightComponents = new Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>>();
         readonly EntityOrderContainer orderContainer;
-        
+
         public void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com) {
             comSynchronizer.AddRange((owner, inp) => {
                 owner._AddComponent(tagEntity, inp);
@@ -124,12 +125,10 @@ namespace D3DLab.Std.Engine.Core {
         public bool Has(ElementTag tag, params Type[] types) {
             return types.All(type => entityHas[tag].Contains(type));
         }
-
         public IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types) {
             //TODO: temporary decision
             return components[tag].Where(x => types.Any(t => t == x.GetType()));
         }
-
         public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {
             var any = GetComponents<T>(tagEntity);
             if (any.Any()) {
@@ -139,6 +138,36 @@ namespace D3DLab.Std.Engine.Core {
             return newone;
         }
 
+        public IFlyweightGraphicComponent AddComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
+            flyweightComSynchronizer.Add((owner, inp) => {
+                owner._AddComponent(tagEntity, inp);
+            }, com);
+            return com;
+        }
+        public void RemoveComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
+            flyweightComSynchronizer.Add((owner, inp) => {
+                owner._RemoveComponent(tagEntity, inp);
+            }, com);
+        }
+
+        void _AddComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
+            if (flyweightComponents.ContainsKey(com)) {
+                flyweightComponents[com].Add(tagEntity);
+            } else {
+                flyweightComponents.Add(com, new HashSet<ElementTag> { tagEntity });
+            }
+
+            entityHas[tagEntity].Add(com.GetType());
+            notify.NotifyChange(com);
+        }
+        void _RemoveComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
+            if (!flyweightComponents[com].Remove(tagEntity)) {
+                //no data to remove - dispose comp
+                com.Dispose();
+            }
+            entityHas[tagEntity].Remove(com.GetType());
+            notify.NotifyChange(com);
+        }
 
         void _AddComponent(ElementTag tagEntity, IGraphicComponent com) {
             com.EntityTag = tagEntity;
@@ -148,7 +177,7 @@ namespace D3DLab.Std.Engine.Core {
         }
         void _RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
             components[tagEntity].Remove(com);
-            entityHas[tagEntity].Add(com.GetType());
+            entityHas[tagEntity].Remove(com.GetType());
             com.Dispose();
             notify.NotifyChange(com);
         }
@@ -163,18 +192,21 @@ namespace D3DLab.Std.Engine.Core {
 
         SynchronizationContext<EntityComponentManager, GraphicEntity> entitySynchronizer;
         SynchronizationContext<EntityComponentManager, IGraphicComponent> comSynchronizer;
+        SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent> flyweightComSynchronizer;
 
         public EntityComponentManager(IManagerChangeNotify notify, EntityOrderContainer orderContainer) {
             this.orderContainer = orderContainer;
             this.notify = notify;
             entitySynchronizer = new SynchronizationContext<EntityComponentManager, GraphicEntity>(this);
             comSynchronizer = new SynchronizationContext<EntityComponentManager, IGraphicComponent>(this);
+            flyweightComSynchronizer = new SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent>(this);
         }
 
         public void Synchronize(int theadId) {
             frameChanges = false;
             entitySynchronizer.Synchronize(theadId);
             comSynchronizer.Synchronize(theadId);
+            flyweightComSynchronizer.Synchronize(theadId);
         }
 
         bool frameChanges;
@@ -185,6 +217,7 @@ namespace D3DLab.Std.Engine.Core {
             }
             entitySynchronizer.Synchronize(theadId);
             comSynchronizer.Synchronize(theadId);
+            flyweightComSynchronizer.Synchronize(theadId);
         }
 
         public void PushSynchronization() {

@@ -49,7 +49,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -220,6 +220,7 @@
     <Compile Include="GameObjects\CameraGameObject.cs" />
     <Compile Include="GameObjects\ArrowGameObject.cs" />
     <Compile Include="GameObjects\CoordinateSystemLinesGameObject.cs" />
+    <Compile Include="GameObjects\PhysicsObjectTest.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="Host\FormsHost.cs" />
     <Compile Include="Host\WinFormsD3DControl.cs">
@@ -270,6 +271,10 @@
     <ProjectReference Include="..\D3DLab.Fwk.ImageSharp\D3DLab.Fwk.ImageSharp.csproj">
       <Project>{a299f142-cc63-4664-8290-01ef69f85182}</Project>
       <Name>D3DLab.Fwk.ImageSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\D3DLab.Physics.Engine\D3DLab.Physics.Engine.csproj">
+      <Project>{c556aa5b-5bff-4239-98c2-fe2919e3d4e2}</Project>
+      <Name>D3DLab.Physics.Engine</Name>
     </ProjectReference>
     <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj">
       <Project>{f463ebd8-115c-405d-962d-50a212a3ac38}</Project>

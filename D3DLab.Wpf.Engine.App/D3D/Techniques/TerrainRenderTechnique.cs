@@ -182,6 +182,29 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
             
         }
 
+        class ArrayPoolAdapter<T> : IDisposable{
+            readonly ArrayPool<T> pool;
+            readonly int count;
+            T[] array;
+
+            public T[] Array {
+                get {
+                    if (array == null) {
+                        array = pool.Rent(count);
+                    }
+                    return array;
+                }
+            }
+
+            public ArrayPoolAdapter(int count) {
+                pool = ArrayPool<T>.Shared;
+                this.count = count;
+            }
+
+            public void Dispose() {
+                pool.Return(array);
+            }
+        }
 
         void UpdateCellBuffers(GraphicsDevice graphics, 
             TerrainGeometryCellsComponent geo, D3DTerrainRenderComponent render) {

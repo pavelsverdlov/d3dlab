@@ -137,16 +137,24 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
             return cell;
         }
 
-        public Matrix4x4 GetTransfromToMap(ref Ray ray) {
+        public Matrix4x4 GetTransfromToMap(ref Ray rayLocal) {
             var m = Matrix4x4.Identity;
 
-            var hit = Tree.HitLocalBy(ray);
-            if (hit.IsHitted) {
-                return Matrix4x4.CreateTranslation(hit.Point - ray.Origin);
+            if (!Tree.IsBuilt) {
+                return m;
             }
-            hit = Tree.HitLocalBy(ray.Inverted());
+
+            var moveto = rayLocal.Origin;
+
+            var hit = Tree.HitLocalBy(rayLocal);
             if (hit.IsHitted) {
-                return Matrix4x4.CreateTranslation(hit.Point - ray.Origin);
+                moveto.Y = hit.Point.Y;
+                return Matrix4x4.CreateTranslation(moveto - rayLocal.Origin);
+            }
+            hit = Tree.HitLocalBy(rayLocal.Inverted());
+            if (hit.IsHitted) {
+                moveto.Y = hit.Point.Y;
+                return Matrix4x4.CreateTranslation(moveto - rayLocal.Origin);
             }
 
             return m;

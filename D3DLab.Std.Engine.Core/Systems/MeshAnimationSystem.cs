@@ -16,18 +16,22 @@ namespace D3DLab.Std.Engine.Core.Systems {
     class AnimationHittableGeometryComponent : HittableGeometryComponent {
     }
 
-    class AnimStickOnHeightMapComponent : GraphicComponent, IStickOnHeightMapComponent {
+    class OrientationComponent : GraphicComponent, IStickOnHeightMapComponent {
         public Vector3 AxisUpLocal { get; set; }
         public Vector3 AttachPointLocal { get; set; }
-
-        public AnimStickOnHeightMapComponent() {
-
+        public Vector3 FrontDirectionLocal { get; set; }
+        public OrientationComponent() {
+            
         }
     }
 
     public class MeshAnimationSystem : BaseEntitySystem, IGraphicSystem {
         static int Size = Unsafe.SizeOf<Matrix4x4>() * MaxBones;
         public const int MaxBones = 1024;
+
+        public MeshAnimationSystem() {
+
+        }
 
         public double CurrentAnimationTime { get; private set; }
 
@@ -52,8 +56,12 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     
                     if (!hasGeo.Any()) {
                         entity.AddComponent(ConstructMesh(anim.Bones, mesh));
-                    } else if(hasGeo.First().Tree.IsBuilt && !entity.Has<AnimStickOnHeightMapComponent>()) {
-                        entity.AddComponent(CreateStickOnComponent(hasGeo.First()));
+                    } else if(hasGeo.First().Tree.IsBuilt && !entity.Has<OrientationComponent>()) {
+                        var c = new XZPlaneMovementComponent {
+                            
+                        };
+                        entity.AddComponents(CreateStickOnComponent(hasGeo.First()), c);
+
                     }
                 }
             }
@@ -209,16 +217,13 @@ namespace D3DLab.Std.Engine.Core.Systems {
             return geo;
         }
 
-        AnimStickOnHeightMapComponent CreateStickOnComponent(AnimationHittableGeometryComponent geo) {
+        OrientationComponent CreateStickOnComponent(AnimationHittableGeometryComponent geo) {
             var box = geo.Box;
+            var com = new OrientationComponent();
 
-            var com = new AnimStickOnHeightMapComponent();
-            com.AxisUpLocal = -Vector3.UnitZ;
-
-            var ray = new Ray(box.GetCenter(), com.AxisUpLocal);
-            geo.Box.Intersects(ref ray, out var dist);
-
-            com.AttachPointLocal = box.GetCenter() + com.AxisUpLocal * dist;
+            com.AxisUpLocal = -Vector3.UnitZ;//local axis of current anim mesh by default
+            com.AttachPointLocal = box.GetCenter() + com.AxisUpLocal * box.Size().Z/2;//the bottom point of Box for stick on terrain
+            com.FrontDirectionLocal = Vector3.UnitY;
 
             return com;
         }

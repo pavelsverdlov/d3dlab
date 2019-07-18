@@ -24,7 +24,20 @@ namespace D3DLab.SDX.Engine {
         public bool Intersects(ref Std.Engine.Core.Utilities.BoundingBox box, ref Std.Engine.Core.Utilities.Ray ray, out float distance) {
             var sbox = new BoundingBox(box.Minimum.ToSDXVector3(), box.Maximum.ToSDXVector3());
             var sray = new Ray(ray.Origin.ToSDXVector3(), ray.Direction.ToSDXVector3());
+
+            var b = Collision.RayIntersectsBox(ref sray, ref sbox, out SharpDX.Vector3 p); 
+
             return Collision.RayIntersectsBox(ref sray, ref sbox, out distance);
+        }
+
+        public bool Intersects(ref Std.Engine.Core.Utilities.BoundingBox box, ref Std.Engine.Core.Utilities.Ray ray, out System.Numerics.Vector3 point) {
+            var sbox = new BoundingBox(box.Minimum.ToSDXVector3(), box.Maximum.ToSDXVector3());
+            var sray = new Ray(ray.Origin.ToSDXVector3(), ray.Direction.ToSDXVector3());
+            var res = Collision.RayIntersectsBox(ref sray, ref sbox, out SharpDX.Vector3 p);
+
+            point = p.ToNVector3();
+
+            return res;
         }
 
         public void Merge(ref Std.Engine.Core.Utilities.BoundingBox value1, ref Std.Engine.Core.Utilities.BoundingBox value2, out Std.Engine.Core.Utilities.BoundingBox result) {

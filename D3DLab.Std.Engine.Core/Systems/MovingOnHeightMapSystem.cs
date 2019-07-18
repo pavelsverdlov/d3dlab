@@ -15,19 +15,20 @@ namespace D3DLab.Std.Engine.Core.Systems {
     public interface IHeightMapSourceComponent : IGraphicComponent {
         Matrix4x4 GetTransfromToMap(ref Ray ray);
     }
-    public class MovingOnHeightMapSystem : BaseEntitySystem, IGraphicSystem {
+
+    public class StickOnHeightMapSystem : BaseEntitySystem, IGraphicSystem {
 
         protected override void Executing(SceneSnapshot snapshot) {
             var emanager = snapshot.ContextState.GetEntityManager();
             var toProcess = new List<GraphicEntity>();
-            IHeightMapSourceComponent source = null;
+            GraphicEntity source = null;
             foreach (var entity in emanager.GetEntities()) {
                 if (entity.Has<IStickOnHeightMapComponent>()) {
                     toProcess.Add(entity);
                 }
                 var s = entity.GetComponents<IHeightMapSourceComponent>();
                 if (s.Any()) {
-                    source = s.First();
+                    source = entity;
                 }
             }
 
@@ -37,16 +38,25 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
             foreach(var en in toProcess) {
                 var com = en.GetComponent<IStickOnHeightMapComponent>();
-                var box = en.GetComponent<IGeometryComponent>().Box;
                 var tr = en.GetComponent<TransformComponent>();
 
                 var rayLocal = new Ray(com.AttachPointLocal, com.AxisUpLocal);
+                var rayEnWorld = rayLocal.Transformed(tr.MatrixWorld);
 
-                var rayW = rayLocal.Transformed(tr.MatrixWorld);
+                //
 
-                var matrix = source.GetTransfromToMap(ref rayW);
+                var sourceTr = source.GetComponent<TransformComponent>();
+                var map = source.GetComponent<IHeightMapSourceComponent>();
 
-                tr.MatrixWorld *= matrix;
+                var rayMapLocal = rayEnWorld.Transformed(sourceTr.MatrixWorld.Inverted());
+                var matrix = map.GetTransfromToMap(ref rayMapLocal);
+
+                if (!matrix.IsIdentity) {
+                    tr.MatrixWorld *= matrix;
+                    tr.IsModified = true;
+
+                    snapshot.Notifier.NotifyChange(tr);
+                }
             }
 
         }

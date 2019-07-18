@@ -79,15 +79,19 @@ namespace D3DLab.Std.Engine.Core.Components {
 
         public HitResultLocal HitLocalBy(Ray rayLocal) {
             var res = new HitResultLocal();
-            int hit_tid = TreeLocal.FindNearestHitTriangle(rayLocal.g3Rayf);
-            if (hit_tid == DMesh3.InvalidID) {
-                return res;
-            }
+            try {
+                int hit_tid = TreeLocal.FindNearestHitTriangle(rayLocal.g3Rayf);
+                if (hit_tid == DMesh3.InvalidID) {
+                    return res;
+                }
 
-            var intr = MeshQueries.TriangleIntersection(DMeshLocal, hit_tid, rayLocal.g3Rayf);
-            res.Distance = (float)rayLocal.g3Rayd.Origin.Distance(rayLocal.g3Rayd.PointAt(intr.RayParameter));
-            res.Point = intr.Triangle.V1.ToVector3();
-            res.IsHitted = true;
+                var intr = MeshQueries.TriangleIntersection(DMeshLocal, hit_tid, rayLocal.g3Rayf);
+                res.Distance = (float)rayLocal.g3Rayd.Origin.Distance(rayLocal.g3Rayd.PointAt(intr.RayParameter));
+                res.Point = intr.Triangle.V1.ToVector3();
+                res.IsHitted = true;
+            }catch(Exception ex) {
+                System.Diagnostics.Trace.WriteLine(ex.Message);
+            }
 
             return res;
         }

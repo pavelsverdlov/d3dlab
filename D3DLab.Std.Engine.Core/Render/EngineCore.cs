@@ -110,7 +110,7 @@ namespace D3DLab.Std.Engine.Core.Render {
             var id = Thread.CurrentThread.ManagedThreadId;
 
             Octree.Synchronize(id);
-            Octree.Draw(Context.GetEntityManager());
+            //Octree.Draw(Context.GetEntityManager());
             
             emanager.Synchronize(id);
 

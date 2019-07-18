@@ -51,5 +51,4 @@ namespace D3DLab.Std.Engine.Core.Components.Movements {
             handler.Execute(this);
         }
     }
-
 }

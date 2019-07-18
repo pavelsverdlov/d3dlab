@@ -2,6 +2,7 @@
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using System.Linq;
+using System.Numerics;
 
 namespace D3DLab.Wpf.Engine.App {
     public class SingleGameObject : GameObject {
@@ -26,9 +27,16 @@ namespace D3DLab.Wpf.Engine.App {
         public override void LookAtSelf(IEntityManager manager) {
             var entity = manager.GetEntity(Tag);
             var geos = entity.GetComponents<IGeometryComponent>();
+            var hasTransformation = entity.GetComponents<TransformComponent>();
             if (geos.Any()) {
                 var geo = geos.First();
-                var com = new MoveCameraToTargetComponent { Target = Tag, TargetPosition = geo.Box.GetCenter() };
+                var local = geo.Box.GetCenter();
+
+                if (hasTransformation.Any()) {
+                    local = Vector3.TransformNormal(local, hasTransformation.First().MatrixWorld);
+                }
+
+                var com = new MoveCameraToTargetComponent { Target = Tag, TargetPosition = local };
                 entity.AddComponent(com);
             }
         }
