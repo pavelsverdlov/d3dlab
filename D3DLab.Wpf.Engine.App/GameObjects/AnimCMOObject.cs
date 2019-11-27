@@ -64,12 +64,12 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                 });
 
            // new SingleGameObject( EntityBuilders.BuildMeshElement(manager, pos, indx, V4Colors.Red),"test");
-
+           
             return new AnimCMOObject(tag);
         }
 
         public override void Hide(IEntityManager manager) {
-
+           
         }
 
         public override void Show(IEntityManager manager) {

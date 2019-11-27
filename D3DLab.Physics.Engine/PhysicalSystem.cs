@@ -19,6 +19,9 @@ using System.Text;
 using System.Threading;
 
 namespace D3DLab.Physics.Engine {
+    
+    #region to test
+
     public class SimpleThreadDispatcher : IThreadDispatcher, IDisposable {
         int threadCount;
         public int ThreadCount => threadCount;
@@ -429,6 +432,7 @@ namespace D3DLab.Physics.Engine {
 
     }
 
+    #endregion
 
     /// <summary>
     /// 
@@ -440,6 +444,7 @@ namespace D3DLab.Physics.Engine {
 
         readonly Simulation simulation;
         readonly BufferPool BufferPool;
+        readonly IPhysicsShapeConstructor constructor;
 
         public PhysicalSystem() {
             BufferPool = new BufferPool();
@@ -453,6 +458,7 @@ namespace D3DLab.Physics.Engine {
                 new NarrowPhaseCallbacks(),
                 new PoseIntegratorCallbacks(new Vector3(0, -100, 0)));
 
+            constructor = new PhysicsShapeConstructor(simulation, BufferPool);
         }
 
         protected override void Executing(SceneSnapshot snapshot) {
@@ -470,11 +476,10 @@ namespace D3DLab.Physics.Engine {
                     if (has.Any()) {
                         var phy = has.Single();
                         if (!phy.IsConstructed) {
-                            phy.ConstructBody(simulation);
+                            phy.TryConstructBody(entity, constructor);
                         }
-
-                        if (phy.IsConstructed && phy is BepuDynamicPhysicalComponent tt) {
-                            comps.Add(tt.BodyIndex, entity);
+                        if (phy.IsConstructed) {
+                            comps.Add(phy.ShapeIndex, entity);
                         }
                     }
                 }
@@ -495,13 +500,13 @@ namespace D3DLab.Physics.Engine {
                             var m = Matrix4x4.CreateFromQuaternion(new System.Numerics.Quaternion(r.X, r.Y, r.Z, r.W));
 
                             var entity = comps[shapeIndex.Index];
-                            var tt = entity.GetComponent<BepuDynamicPhysicalComponent>();
+                            var com = entity.GetComponent<BepuDynamicAABBPhysicalComponent>();
 
                             if (!m.IsIdentity) {
-                                var toZero = Matrix4x4.CreateTranslation(Vector3.Zero - tt.box.GetCenter());
+                                var toZero = Matrix4x4.CreateTranslation(Vector3.Zero - com.AABBox.GetCenter());
                                 m = toZero * m * toZero.Inverted();
                             }
-                            var newm = m * Matrix4x4.CreateTranslation(pp - tt.box.GetCenter());
+                            var newm = m * Matrix4x4.CreateTranslation(pp - com.AABBox.GetCenter());
                             if (!newm.IsIdentity) {
                                 entity
                                     .GetComponent<TransformComponent>()
@@ -515,5 +520,121 @@ namespace D3DLab.Physics.Engine {
                 //Console.WriteLine(ex.Message);
             }
         }
+
+        class PhysicsShapeConstructor : IPhysicsShapeConstructor {
+            readonly Simulation simulation;
+            readonly BufferPool bufferPool;
+
+            public PhysicsShapeConstructor(Simulation simulation, BufferPool bufferPool) {
+                this.simulation = simulation;
+                this.bufferPool = bufferPool;
+            }
+
+            public bool TryConstructShape(GraphicEntity entity, BepuDynamicAABBPhysicalComponent physicalComponent) {
+                var hasGeo = entity.GetComponents<IGeometryComponent>();
+                if (!hasGeo.Any()) {
+                    return false;
+                }
+
+                var geo = hasGeo.First();
+
+                var box = geo.Box;
+                var size = box.Size();
+                var fbox = new Box(size.X, size.Y, size.Z);
+                fbox.ComputeInertia(1, out var sphereInertia);
+
+                var t = simulation.Shapes.Add(fbox);
+                physicalComponent.ShapeIndex = t.Index;
+
+                simulation.Bodies.Add(BodyDescription.CreateDynamic(
+                    box.GetCenter(),
+                    sphereInertia,
+                    new CollidableDescription(t, 0.1f),
+                    new BodyActivityDescription(0.01f)));
+
+                physicalComponent.AABBox = box;
+
+                physicalComponent.IsConstructed = true;
+
+                return true;
+            }
+
+            public bool TryConstructShape(GraphicEntity entity, BepuStaticAABBPhysicalComponent physicalComponent) {
+                var hasGeo = entity.GetComponents<IGeometryComponent>();
+                if (!hasGeo.Any()) {
+                    return false;
+                }
+                var geo = hasGeo.First();
+
+                if (physicalComponent.IsConstructed && geo.IsModified) {
+                    //update!!
+                }
+
+                var box = geo.Box;
+
+                var size = box.Size();
+                physicalComponent.ShapeIndex = simulation.Statics.Add(
+                    new StaticDescription(box.GetCenter(),
+                    new CollidableDescription(simulation.Shapes.Add(new Box(size.X, size.Y, size.Z)), 0.1f))
+                    );
+                physicalComponent.AABBox = box;
+
+                physicalComponent.IsConstructed = true;
+
+                return true;
+            }
+
+            public bool TryConstructShape(GraphicEntity entity, BepuStaticMeshPhysicalComponent physicalComponent) {
+                var hasGeo = entity.GetComponents<IGeometryComponent>();
+                if (!hasGeo.Any()) {
+                    //throw new PhysicsException("Can't construct shape, no GeometryComponent");
+                    return false;
+                }
+                var geo = hasGeo.First();
+
+                if(physicalComponent.IsConstructed && geo.IsModified) {
+                    //update!!
+                }
+
+                bufferPool.Take<Vector3>(geo.Positions.Length, out var vertices);
+                for (int i = 0; i < geo.Positions.Length; ++i) {
+                    vertices[i] = geo.Positions[i];
+                }
+                bufferPool.Take<Triangle>((int)geo.Indices.Length / 3, out var triangles);
+
+                
+                for (var i =0; i < triangles.Length; i += 3) {
+                    var ii = i * 3;
+                    ref var triangle0 = ref triangles[i];
+                    triangle0.A = vertices[geo.Indices[ii + 0]];
+                    triangle0.B = vertices[geo.Indices[ii + 1]];
+                    triangle0.C = vertices[geo.Indices[ii + 2]];
+                }
+                bufferPool.Return(ref vertices);
+
+                var mesh = new Mesh(triangles, new Vector3(1, 1, 1), bufferPool);
+
+                //var tindex = simulation.Shapes.Add(mesh);
+                //physicalComponent.ShapeIndex = tindex.Index;
+
+                //simulation.Statics.Add(
+                //    new StaticDescription(
+                //        Vector3.Zero,
+                //        BepuUtilities.Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), (float)Math.PI / 2f),
+                //        new CollidableDescription(tindex, 0.1f))
+                //    );
+
+                //physicalComponent.IsConstructed = true;
+
+                return true;
+            }
+        }
+    }
+
+    interface IPhysicsShapeConstructor {
+        bool TryConstructShape(GraphicEntity entity, BepuStaticAABBPhysicalComponent physicalComponent);
+        bool TryConstructShape(GraphicEntity entity, BepuDynamicAABBPhysicalComponent physicalComponent);
+        bool TryConstructShape(GraphicEntity entity, BepuStaticMeshPhysicalComponent physicalComponent);
+        
     }
 }

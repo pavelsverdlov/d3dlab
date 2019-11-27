@@ -90,12 +90,13 @@ namespace D3DLab.Wpf.Engine.App {
         }
 
         void Initializing(SynchronizedGraphics device) {
+
             var em = Context.GetEntityManager();
             var cameraTag = new ElementTag("CameraEntity");
             {   //systems creating
                 var smanager = Context.GetSystemManager();
 
-                
+
                 smanager.CreateSystem<InputSystem>();
                 smanager.CreateSystem<D3DCameraSystem>();
                 smanager.CreateSystem<LightsSystem>();
@@ -103,7 +104,7 @@ namespace D3DLab.Wpf.Engine.App {
                 smanager.CreateSystem<MovementSystem>();
                 smanager.CreateSystem<EmptyAnimationSystem>();
                 smanager.CreateSystem<MeshAnimationSystem>();
-                smanager.CreateSystem<StickOnHeightMapSystem>();
+              //  smanager.CreateSystem<StickOnHeightMapSystem>();
                 smanager.CreateSystem<ObjectMovementSystem>();
                 smanager.CreateSystem<Systems.TerrainGeneratorSystem>();
                 smanager.CreateSystem<Physics.Engine.PhysicalSystem>();
@@ -113,7 +114,7 @@ namespace D3DLab.Wpf.Engine.App {
                     .Init(device)
                     .CreateNested<SkyGradientColoringRenderTechnique>()
                     .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
-                    .CreateNested<TerrainRenderTechnique>()
+                    .CreateNested<TerrainRenderTechnique>()//
                     .CreateNested<TriangleColoredVertexRenderTechnique>()
                     .CreateNested<LineVertexRenderTechnique>()
                     .CreateNested<SpherePointRenderStrategy>()

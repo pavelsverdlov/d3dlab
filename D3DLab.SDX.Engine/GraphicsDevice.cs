@@ -1,6 +1,7 @@
 ﻿using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Ext;
 using SharpDX;
 using SharpDX.Direct3D;
@@ -13,7 +14,7 @@ using System.Diagnostics;
 
 namespace D3DLab.SDX.Engine {
     public class GraphicsDeviceException : Exception {
-        GraphicsDeviceException(string mess):base(mess) {}
+        GraphicsDeviceException(string mess) : base(mess) { }
         public static Exception ResourseSlotAlreadyUsed(int slot) { return new GraphicsDeviceException($"Resourse Slot '{slot}' is already used."); }
         public static Exception ShaderAddedTwice() { return new GraphicsDeviceException($"Shader war added twise to DeviceContext."); }
     }
@@ -134,7 +135,7 @@ namespace D3DLab.SDX.Engine {
 
         readonly SwapChain swapChain;
         readonly IntPtr handle;
-        
+
         readonly ResourseRegistrHash resourseHash;
 
         public GraphicsDevice(IAppWindow window) {
@@ -167,14 +168,21 @@ namespace D3DLab.SDX.Engine {
             var factory = new Factory1();
             var adapter = AdapterFactory.GetBestAdapter(factory);
 
-            VideoCardDescription = adapter.Description.Description.Trim('\0'); ;
+            VideoCardDescription = adapter.Description.Description.Trim('\0');
+
+
+            /*
+             * 
+             *  DeviceCreationFlags.Debug - not supported by default, need to install the optional feature Graphics Tools
+             * 
+             */
 
             // Create device and swap chain
-            SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, DeviceCreationFlags.Debug, swapChainDesc, out var d3dDevice, out var sch);
+            SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, DeviceCreationFlags.None, swapChainDesc, out var d3dDevice, out var sch);
 
             swapChain = sch.QueryInterface<SwapChain4>();
             D3DDevice = d3dDevice.QueryInterface<Device5>();
-            
+
             ImmediateContext = d3dDevice.ImmediateContext;
 
             CreateBuffers(width, height);
@@ -184,11 +192,12 @@ namespace D3DLab.SDX.Engine {
             //DContext = new DeviceContext(D3DDevice);
 
             TexturedLoader = new TextureLoader(D3DDevice);
+
         }
 
         public void Dispose() {
             renderTargetView.Dispose();
-            
+
             ImmediateContext.ClearState();
             ImmediateContext.Flush();
             ImmediateContext.Dispose();
@@ -276,7 +285,7 @@ namespace D3DLab.SDX.Engine {
             return global::SharpDX.Direct3D11.Device.GetSupportedFeatureLevel() == FeatureLevel.Level_11_0;
         }
 
-        public void Present() {            
+        public void Present() {
             swapChain.Present(1, PresentFlags.None);
             //swapChain.Present(1, PresentFlags.None, new PresentParameters());
         }
@@ -309,6 +318,7 @@ namespace D3DLab.SDX.Engine {
 
         public SharpDX.Direct3D11.Buffer CreateBuffer<T>(BindFlags flags, ref T range)
             where T : struct {
+            BufferStaticVerifications.CheckSizeInBytes<T>();
             return SharpDX.Direct3D11.Buffer.Create(D3DDevice, flags, ref range);
         }
         public SharpDX.Direct3D11.Buffer CreateBuffer<T>(BindFlags flags, T[] range)
@@ -321,12 +331,15 @@ namespace D3DLab.SDX.Engine {
         }
         public SharpDX.Direct3D11.Buffer CreateBuffer<T>(ref T data, BufferDescription desc)
          where T : struct {
+            BufferStaticVerifications.CheckSizeInBytes(desc.SizeInBytes);
             return SharpDX.Direct3D11.Buffer.Create(D3DDevice, ref data, desc);
         }
 
         public SharpDX.Direct3D11.Buffer CreateDynamicBuffer<T>(ref T range, int sizeInBytes)
         where T : struct {
-            var des = new BufferDescription() {
+            BufferStaticVerifications.CheckSizeInBytes(sizeInBytes);
+
+             var des = new BufferDescription() {
                 Usage = ResourceUsage.Dynamic,
                 SizeInBytes = sizeInBytes,
                 BindFlags = BindFlags.ConstantBuffer,
@@ -337,16 +350,16 @@ namespace D3DLab.SDX.Engine {
             return SharpDX.Direct3D11.Buffer.Create(D3DDevice, ref range, des);
         }
 
-            /// <summary>
-            /// For referrence types and any arrays
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="range"></param>
-            /// <param name="structureByteStride"></param>
-            /// <param name="sizeInBytes"></param>
-            /// <returns></returns>
-            public SharpDX.Direct3D11.Buffer CreateDynamicBuffer<T>(T[] range, int sizeInBytes)
-         where T : struct {
+        /// <summary>
+        /// For referrence types and any arrays
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
+        /// <param name="structureByteStride"></param>
+        /// <param name="sizeInBytes"></param>
+        /// <returns></returns>
+        public SharpDX.Direct3D11.Buffer CreateDynamicBuffer<T>(T[] range, int sizeInBytes)
+     where T : struct {
             return SharpDX.Direct3D11.Buffer.Create(D3DDevice, range, new BufferDescription {
                 BindFlags = BindFlags.ConstantBuffer,
                 CpuAccessFlags = CpuAccessFlags.Write,
@@ -367,7 +380,7 @@ namespace D3DLab.SDX.Engine {
                 stream.WriteRange(newdata);
                 ImmediateContext.UnmapSubresource(buffer, slot);
             } finally {
-               
+
             }
         }
 
@@ -410,6 +423,6 @@ namespace D3DLab.SDX.Engine {
             return new SamplerState(D3DDevice, desc);
         }
 
-        
+
     }
 }

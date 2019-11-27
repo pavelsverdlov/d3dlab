@@ -34,7 +34,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                     },
                     new D3DTriangleColoredVertexRenderComponent(),
                     new TransformComponent(){ MatrixWorld = Matrix4x4.Identity },
-                    PhysicalComponentFactory.Create(box),
+                    PhysicalComponentFactory.CreateAABB(),
               });
 
             return new PhysicsObjectTest(tag);
@@ -55,7 +55,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                     },
                     new D3DTriangleColoredVertexRenderComponent(),
                     new TransformComponent(){ MatrixWorld = Matrix4x4.Identity },
-                    PhysicalComponentFactory.CreateStatic(box),
+                    PhysicalComponentFactory.CreateStaticAABB(),
               });
 
             return new PhysicsObjectTest(tag);

@@ -1,24 +1,32 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
+using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Physics.Engine.Bepu {
-    class BepuStaticPhysicalComponent : PhysicalComponent {
-        public readonly Std.Engine.Core.Utilities.BoundingBox box;
+    class BepuStaticAABBPhysicalComponent : PhysicalComponent {
 
-        public BepuStaticPhysicalComponent(Std.Engine.Core.Utilities.BoundingBox box) {
-            this.box = box;
+        public BoundingBox AABBox;
+
+        public BepuStaticAABBPhysicalComponent() {
+            
         }
 
-        internal override void ConstructBody(Simulation simulation) {
-            var size = box.Size();
-            BodyIndex = simulation.Statics.Add(
-                new StaticDescription(box.GetCenter(),
-                new CollidableDescription(simulation.Shapes.Add(new Box(size.X, size.Y, size.Z)), 0.1f))
-                );
-            IsConstructed = true;
+        internal override bool TryConstructBody(GraphicEntity entity, IPhysicsShapeConstructor constructor) {
+            return constructor.TryConstructShape(entity, this);
+        }
+    }
+    class BepuStaticMeshPhysicalComponent : PhysicalComponent {
+
+        public BepuStaticMeshPhysicalComponent() {
+
+        }
+
+        internal override bool TryConstructBody(GraphicEntity entity, IPhysicsShapeConstructor constructor) {
+            return constructor.TryConstructShape(entity, this);
         }
     }
 }

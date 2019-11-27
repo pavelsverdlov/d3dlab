@@ -56,6 +56,9 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
                     var newgeo = new TerrainGeometryCellsComponent();
 
+                    newgeo.MaxHeight = generating.MaxHeight;
+                    newgeo.MinHeight = generating.MinHeight;
+
                     BuildGeometry(generating.HeightMap, conf, newgeo);
 
                     entity.AddComponent(newgeo);
@@ -163,6 +166,8 @@ namespace D3DLab.Wpf.Engine.App.Systems {
                     // Store the texture coordinate in the height map.
                     texture[(height * j) + i] = new Vector2(tuCoordinate, tvCoordinate);
                     texture2[(height * j) + i] = new Vector2(tu2Left, tv2Top);
+
+                   // texture[(height * j) + i] = new Vector2(i,j);
 
                     // Increment the tu texture coordinate by the increment value and increment the index by one.
                     tuCoordinate += tuIncrementValue;
@@ -360,7 +365,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
                 Power = 0.125,
                 Roughness = 2,
             };
-
+            
         }
 
     }
@@ -378,6 +383,8 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
         public bool IsGenerated { get; private set; }
         public Vector3[] HeightMap { get; private set; }
+        public float MaxHeight { get; private set; }
+        public float MinHeight { get; private set; }
         public System.Drawing.Bitmap Texture { get; private set; }
 
 
@@ -534,6 +541,10 @@ namespace D3DLab.Wpf.Engine.App.Systems {
                     Redistribution(ref e);
 
                     HeightMap[index] = new Vector3(x, e * terrainParams.Correction, y);
+
+                    MaxHeight = Math.Max(HeightMap[index].Y, MaxHeight);
+                    MinHeight = Math.Min(HeightMap[index].Y, MinHeight);
+
                     index--;
                 }
             }

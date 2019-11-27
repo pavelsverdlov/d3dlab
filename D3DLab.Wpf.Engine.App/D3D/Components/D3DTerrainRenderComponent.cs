@@ -82,8 +82,10 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
             }
         }
 
-
         public Vector2[] NormalMapTexCoordinates { get; set; }
+
+        public float MaxHeight { get; set; }
+        public float MinHeight { get; set; }
 
         public TerrainCell[] Cells;
 
@@ -182,4 +184,13 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
             base.Dispose();
         }
     }
+
+    class ClipmapsTerrainComponent : GraphicComponent {
+        public float ZScaleFactor;
+        public Vector4 ScaleFactor;
+        public Vector4 FineTextureBlockOrigin;
+        public Vector2 AlphaOffset;
+        public float OneOverWidth;
+    }
+
 }

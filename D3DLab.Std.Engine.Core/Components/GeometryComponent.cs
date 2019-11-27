@@ -152,7 +152,7 @@ namespace D3DLab.Std.Engine.Core.Components {
 
     public class SimpleGeometryComponent : GeometryComponent, IGeometryComponent {
         protected override BoundingBox CalcuateBox() {
-            return BoundingBox.Zero;
+            return BoundingBox.CreateFromVertices(Positions.ToArray());
         }
     }
 

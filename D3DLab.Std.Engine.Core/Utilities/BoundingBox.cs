@@ -124,7 +124,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
         public BoundingBox(Vector3 min, Vector3 max) {
             Minimum = min;
-            Maximum = max;
+            Maximum = max; 
             boxf = new AxisAlignedBox3f(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
             boxd = new AxisAlignedBox3d(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
             corners = null;

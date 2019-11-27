@@ -94,6 +94,9 @@ namespace D3DLab.SDX.Engine {
                        .RegisterOrder<RenderSystem>(cameraTag, 0)
                        .RegisterOrder<InputSystem>(cameraTag, 0);
             }*/
+
+          
+
         }
     }
 }

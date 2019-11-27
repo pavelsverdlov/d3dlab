@@ -21,11 +21,14 @@ using System.Threading;
 namespace D3DLab.Physics.Engine {
     
     public static class PhysicalComponentFactory {
-        public static PhysicalComponent Create(Std.Engine.Core.Utilities.BoundingBox box) {
-            return new BepuDynamicPhysicalComponent(box);
+        public static PhysicalComponent CreateAABB() {
+            return new BepuDynamicAABBPhysicalComponent();
         }
-        public static PhysicalComponent CreateStatic(Std.Engine.Core.Utilities.BoundingBox box) {
-            return new BepuStaticPhysicalComponent(box);
+        public static PhysicalComponent CreateStaticAABB() {
+            return new BepuStaticAABBPhysicalComponent();
+        }
+        public static PhysicalComponent CreateStaticMesh() {
+            return new BepuStaticMeshPhysicalComponent();
         }
     }
 }

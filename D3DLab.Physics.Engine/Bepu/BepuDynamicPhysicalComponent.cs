@@ -1,16 +1,17 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
+using D3DLab.Std.Engine.Core;
+using D3DLab.Std.Engine.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Physics.Engine.Bepu {
-    class BepuDynamicPhysicalComponent : PhysicalComponent {
+    class BepuDynamicAABBPhysicalComponent : PhysicalComponent {
 
-        public readonly Std.Engine.Core.Utilities.BoundingBox box;
+        public BoundingBox AABBox;
 
-        public BepuDynamicPhysicalComponent(Std.Engine.Core.Utilities.BoundingBox box) {
-            this.box = box;
+        public BepuDynamicAABBPhysicalComponent() {
         }
 
         public override void Dispose() {
@@ -18,22 +19,22 @@ namespace D3DLab.Physics.Engine.Bepu {
             base.Dispose();
         }
 
-        internal override void ConstructBody(Simulation simulation) {
+        internal override bool TryConstructBody(GraphicEntity entity, IPhysicsShapeConstructor constructor) {
+            return constructor.TryConstructShape(entity, this);
             //var sphere = new Sphere(box.Size().X);
-            var size = box.Size();
-            var fbox = new Box(size.X, size.Y, size.Z);
-            fbox.ComputeInertia(1, out var sphereInertia);
+            //var size = box.Size();
+            //var fbox = new Box(size.X, size.Y, size.Z);
+            //fbox.ComputeInertia(1, out var sphereInertia);
 
-            var t = simulation.Shapes.Add(fbox);
-            BodyIndex = t.Index;
+            //var t = simulation.Shapes.Add(fbox);
+            //ShapeIndex = t.Index;
 
-            simulation.Bodies.Add(BodyDescription.CreateDynamic(
-                box.GetCenter(),
-                sphereInertia,
-                new CollidableDescription(t, 0.1f),
-                new BodyActivityDescription(0.01f)));
+            //simulation.Bodies.Add(BodyDescription.CreateDynamic(
+            //    box.GetCenter(),
+            //    sphereInertia,
+            //    new CollidableDescription(t, 0.1f),
+            //    new BodyActivityDescription(0.01f)));
 
-            IsConstructed = true;
             //var position = new Vector3();
             //var orientation = BepuUtilities.Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), 0);
             //var pose = new RigidPose(position, orientation);

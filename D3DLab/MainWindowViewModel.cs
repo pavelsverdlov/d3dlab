@@ -104,13 +104,11 @@ namespace D3DLab {
                 //main.items.ForEach(i=> i.GameObj.Cleanup(main.context.GetEntityManager()));
                 //main.items.Clear();               
 
-                //main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
-                //main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
+                main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
+                main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
 
                 //var obj = AnimCMOObject.Create(main.context.GetEntityManager());
                 //main.items.Add(new LoadedItem(main, obj));
-
-
             }
         }
 
@@ -138,7 +136,7 @@ namespace D3DLab {
 
                 Task.Run(() => {
                     var count = 100;
-                    while (count-- > 0) {
+                    while (count --> 0) {
                         Thread.Sleep(TimeSpan.FromSeconds(0.5));
                         var max = RandomUtil.NextVector3(r, new Vector3(0, 0, 0), new Vector3(50, 0, 50));
                         PhysicsObjectTest.Create(main.context.GetEntityManager(),

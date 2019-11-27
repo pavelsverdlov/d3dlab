@@ -78,6 +78,11 @@ namespace D3DLab.Std.Engine.Core.Ext {
 
             return u;
         }
+        public static bool EqualsRound(this Vector3 a, Vector3 b, int round) {
+            return Math.Round(a.X, round) == Math.Round(b.X, round)
+                && Math.Round(a.Y, round) == Math.Round(b.Y, round)
+                && Math.Round(a.Z, round) == Math.Round(b.Z, round);
+        }
     }
 
     public static class Vector3CollectionEx {
