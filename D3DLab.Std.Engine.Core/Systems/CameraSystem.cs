@@ -1,4 +1,5 @@
-﻿using D3DLab.Std.Engine.Core.Components;
+﻿using D3DLab.ECS;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
 using System;
@@ -7,7 +8,8 @@ using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Systems {
 
-    public class CameraSystem : BaseEntitySystem, IGraphicSystem {
+    public class CameraSystem : BaseEntitySystem, IGraphicSystem, IGraphicSystemContextDependent {
+        public IContextState ContextState { get; set; }
 
         protected static class Ext {
             public static bool ChangeCameraDistance(GeneralCameraComponent camera,ref float delta, Vector3 zoomAround) {
@@ -286,9 +288,10 @@ namespace D3DLab.Std.Engine.Core.Systems {
         //TODO: remake executer it looks bad :(
 
 
-        protected override void Executing(SceneSnapshot snapshot) {
+        protected override void Executing(ISceneSnapshot ss) {
+            var snapshot = (SceneSnapshot)ss;
             var window = snapshot.Window;
-            var emanager = snapshot.ContextState.GetEntityManager();
+            var emanager = ContextState.GetEntityManager();
 
             try {
                 foreach (var entity in emanager.GetEntities()) {

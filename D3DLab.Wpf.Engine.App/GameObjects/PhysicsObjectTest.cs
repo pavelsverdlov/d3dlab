@@ -11,6 +11,8 @@ using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Utilities;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Physics.Engine;
+using D3DLab.ECS;
+using D3DLab.ECS.Components;
 
 namespace D3DLab.Wpf.Engine.App.GameObjects {
     public class PhysicsObjectTest : SingleGameObject {
@@ -33,7 +35,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                         Color = color
                     },
                     new D3DTriangleColoredVertexRenderComponent(),
-                    new TransformComponent(){ MatrixWorld = Matrix4x4.Identity },
+                    TransformComponent.Create(Matrix4x4.Identity),
                     PhysicalComponentFactory.CreateAABB(),
               });
 
@@ -54,7 +56,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                         Color = new Vector4(1, 0, 0, 1)
                     },
                     new D3DTriangleColoredVertexRenderComponent(),
-                    new TransformComponent(){ MatrixWorld = Matrix4x4.Identity },
+                    TransformComponent.Create(Matrix4x4.Identity),
                     PhysicalComponentFactory.CreateStaticAABB(),
               });
 

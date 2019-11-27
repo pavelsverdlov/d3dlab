@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using D3DLab.ECS.Components;
 using D3DLab.SDX.Engine;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Rendering;

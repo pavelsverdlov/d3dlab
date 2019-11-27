@@ -1,4 +1,6 @@
-﻿using D3DLab.Std.Engine.Core.Common;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Input;
+using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Input;
 using D3DLab.Std.Engine.Core.Utilities;
@@ -114,7 +116,7 @@ namespace D3DLab.Std.Engine.Core.Render {
             
             emanager.Synchronize(id);
 
-            var snapshot = new SceneSnapshot(Window, Context, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
+            var snapshot = new SceneSnapshot(Window, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
             foreach (var sys in Context.GetSystemManager().GetSystems()) {
                 try {
                     sys.Execute(snapshot);

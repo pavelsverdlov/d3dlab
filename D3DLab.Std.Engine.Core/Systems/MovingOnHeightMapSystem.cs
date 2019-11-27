@@ -1,4 +1,6 @@
-﻿using D3DLab.Std.Engine.Core.Components;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Components;
+using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
@@ -16,10 +18,12 @@ namespace D3DLab.Std.Engine.Core.Systems {
         Matrix4x4 GetTransfromToMap(ref Ray ray);
     }
 
-    public class StickOnHeightMapSystem : BaseEntitySystem, IGraphicSystem {
+    public class StickOnHeightMapSystem : BaseEntitySystem, IGraphicSystem, IGraphicSystemContextDependent {
+        public IContextState ContextState { get; set; }
 
-        protected override void Executing(SceneSnapshot snapshot) {
-            var emanager = snapshot.ContextState.GetEntityManager();
+        protected override void Executing(ISceneSnapshot ss) {
+            var snapshot = (SceneSnapshot)ss;
+            var emanager = ContextState.GetEntityManager();
             var toProcess = new List<GraphicEntity>();
             GraphicEntity source = null;
             foreach (var entity in emanager.GetEntities()) {
@@ -52,8 +56,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 var matrix = map.GetTransfromToMap(ref rayMapLocal);
 
                 if (!matrix.IsIdentity) {
-                    tr.MatrixWorld *= matrix;
-                    tr.IsModified = true;
+                    en.UpdateComponent(TransformComponent.Create(tr.MatrixWorld * matrix));
 
                     snapshot.Notifier.NotifyChange(tr);
                 }

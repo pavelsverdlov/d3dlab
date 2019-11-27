@@ -1,21 +1,11 @@
-﻿using D3DLab.Std.Engine.Core.Shaders;
+﻿using D3DLab.ECS;
+using D3DLab.Std.Engine.Core.Shaders;
 using System;
 using System.Threading;
 
-namespace D3DLab.Std.Engine.Core {
-    public interface IGraphicComponent : IDisposable {
-        ElementTag Tag { get; }
-        ElementTag EntityTag { get; set; }
-        bool IsModified { get; set; }
-        bool IsValid { get; }
-        bool IsDisposed { get; }
-    }
+namespace D3DLab.Std.Engine.Core {    
 
-    public interface IFlyweightGraphicComponent : IDisposable {
-        ElementTag Tag { get; }
-        bool IsModified { get; set; }
-        bool IsDisposed { get; }
-    }
+   
 
     public abstract class GraphicComponent : IGraphicComponent {
         int threadSafeBool = 0;

@@ -1,4 +1,5 @@
-﻿using D3DLab.Std.Engine.Core;
+﻿using D3DLab.ECS;
+using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
@@ -23,7 +24,10 @@ namespace D3DLab.SDX.Engine {
         }
 
         class D3DPerspMoveHandler : PerspectiveCameraMoveHandler {
-            public D3DPerspMoveHandler(PerspectiveCameraComponent camera, SceneSnapshot snapshot) : base(camera, snapshot) {
+             readonly IContextState context;
+
+            public D3DPerspMoveHandler(PerspectiveCameraComponent camera, SceneSnapshot snapshot, IContextState context) : base(camera, snapshot) {
+                this.context = context;
             }
 
             public override void Handle(CameraZoomingComponent component) {
@@ -39,7 +43,7 @@ namespace D3DLab.SDX.Engine {
 
                 camera.Position -= camera.LookDirection * (delta);
 
-                snapshot.ContextState
+                context
                     .GetEntityManager()
                     .GetEntity(camera.EntityTag)
                     .RemoveComponent(component);
@@ -110,7 +114,7 @@ namespace D3DLab.SDX.Engine {
             return new D3DOrthoMoveHandler(com, snapshot);
         }
         protected override ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, SceneSnapshot snapshot) {
-            return new D3DPerspMoveHandler(com, snapshot);
+            return new D3DPerspMoveHandler(com, snapshot, ContextState);
         }
     }
 }

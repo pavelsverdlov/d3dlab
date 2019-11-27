@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using D3DLab.ECS;
+using D3DLab.ECS.Components;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
 
@@ -14,10 +16,12 @@ namespace D3DLab.Std.Engine.Core.Systems {
         
     }
 
-    public class ObjectMovementSystem : BaseEntitySystem, IGraphicSystem {
+    public class ObjectMovementSystem : BaseEntitySystem, IGraphicSystem, IGraphicSystemContextDependent {
+        public IContextState ContextState { get; set; }
 
-        protected override void Executing(SceneSnapshot snapshot) {
-            var emanager = snapshot.ContextState.GetEntityManager();
+        protected override void Executing(ISceneSnapshot ss) {
+            var snapshot = (SceneSnapshot)ss;
+            var emanager = ContextState.GetEntityManager();
 
             var time = snapshot.FrameRateTime;
 
@@ -58,8 +62,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                     var s = com.SpeedValue * ((float)delta.TotalMilliseconds/ 1000.0f);
                     movement *= Matrix4x4.CreateTranslation(directionWorld * s);
 
-                    tr.MatrixWorld *= movement;
-                    tr.IsModified = true;
+                    entity.UpdateComponent(TransformComponent.Create(tr.MatrixWorld * movement));
 
                     snapshot.Notifier.NotifyChange(tr);
 

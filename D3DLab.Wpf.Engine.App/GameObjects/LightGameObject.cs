@@ -1,4 +1,6 @@
-﻿using D3DLab.Std.Engine.Core;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Components;
+using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Materials;
@@ -21,13 +23,8 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
             var tag = new ElementTag("DirectionLight_" + Interlocked.Increment(ref lights));
             manager.CreateEntity(tag)
                    .AddComponents(
-                       new LightComponent {
-                           Index = 2,
-                           Intensity = 0.2f,
-                           Direction = direction,
-                           Type = LightTypes.Directional
-                       },
-                       new ColorComponent { Color = new Vector4(1, 1, 1, 1) }
+                       LightComponent.CreateDirectional(0.2f, 2, direction),
+                       ColorComponent.Create(new Vector4(1, 1, 1, 1))
                    );
 
             return new LightGameObject(tag, "DirectionLight");
@@ -38,13 +35,8 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
 
             manager.CreateEntity(tag)
                  .AddComponents(
-                     new LightComponent {
-                         Index = 1,
-                         Intensity = 0.4f,
-                         Position = position,
-                         Type = LightTypes.Point
-                     },
-                     new ColorComponent { Color = new Vector4(1, 1, 1, 1) }
+                     LightComponent.CreatePoint(0.4f,1, position),
+                     ColorComponent.Create(new Vector4(1, 1, 1, 1))
                  );
 
             return new LightGameObject(tag, "PointLight");
@@ -55,13 +47,8 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
 
             manager.CreateEntity(tag)
                    .AddComponents(
-                           new LightComponent {
-                               Index = 0,
-                               Intensity = 0.4f,
-                               //Position = Vector3.Zero + Vector3.UnitZ * 1000,
-                               Type = LightTypes.Ambient
-                           },
-                           new ColorComponent { Color = V4Colors.White }
+                           LightComponent.CreateAmbient(0.4f,0),
+                           ColorComponent.Create(V4Colors.White)
                        );
 
             return new LightGameObject(tag, "AmbientLight");

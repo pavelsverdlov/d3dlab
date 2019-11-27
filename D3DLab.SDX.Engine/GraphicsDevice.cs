@@ -1,4 +1,6 @@
-﻿using D3DLab.SDX.Engine.D2;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Common;
+using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;

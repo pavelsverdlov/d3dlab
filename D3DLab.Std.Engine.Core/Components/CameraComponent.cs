@@ -1,54 +1,28 @@
-﻿using D3DLab.Std.Engine.Core.Common;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Camera;
+using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Utilities;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components {
-    public struct CameraState {
-        public static CameraState OrthographicState() {
-            return new CameraState {
-                type = CameraTypes.Orthographic
-            };
-        }
-        public static CameraState PerspectiveState() {
-            return new CameraState {
-                type = CameraTypes.Perspective
-            };
-        }
+    public static class CameraStateHelper {
 
-        enum CameraTypes {
-            Perspective,
-            Orthographic
-        }
-
-        public Vector3 UpDirection;
-        public Vector3 LookDirection;
-        public Vector3 Position;
-        public Vector3 Target;
-
-        public Matrix4x4 ProjectionMatrix;
-        public Matrix4x4 ViewMatrix;
-
-        public float NearPlaneDistance;
-        public float FarPlaneDistance;
-
-        CameraTypes type;
-
-        Ray Point2DtoPoint3D(Vector2 pointIn) {
+        public static Ray Point2DtoPoint3D(CameraState state, Vector2 pointIn) {
             var pointNear = new Vector3();
             var pointFar = new Vector3();
 
             var pointIn3D = new Vector3(pointIn.X, pointIn.Y, 0);
-            var view = ViewMatrix;
-            var proj = ProjectionMatrix;
+            var view = state.ViewMatrix;
+            var proj = state.ProjectionMatrix;
 
             Matrix4x4.Invert(view, out view);
             Matrix4x4.Invert(proj, out proj);
 
             var pointNormalized = Vector3.Transform(pointIn3D, proj);
-            pointNormalized.Z =NearPlaneDistance;
+            pointNormalized.Z = state.NearPlaneDistance;
             pointNear = Vector3.Transform(pointNormalized, view);
-            pointNormalized.Z = FarPlaneDistance;
+            pointNormalized.Z = state.FarPlaneDistance;
             pointFar = Vector3.Transform(pointNormalized, view);
 
             var r = new Ray(pointNear, (pointFar - pointNear).Normalized());
@@ -56,14 +30,14 @@ namespace D3DLab.Std.Engine.Core.Components {
             return r;
         }
 
-        public Ray GetRay(IAppWindow window, Vector2 point2d) {
+        public static Ray GetRay(CameraState state, IAppWindow window, Vector2 point2d) {
             var w = window.Width;
             var h = window.Height;
             var px = point2d.X;
             var py = point2d.Y;
             
-            var viewInverted = ViewMatrix.PsudoInverted();
-            var projMatrix = ProjectionMatrix;
+            var viewInverted = state.ViewMatrix.PsudoInverted();
+            var projMatrix = state.ProjectionMatrix;
             //Matrix4x4.Invert(projMatrix, out projMatrix);
 
             var v = new Vector3 {
@@ -75,30 +49,30 @@ namespace D3DLab.Std.Engine.Core.Components {
             var zf = Vector3.Transform(v, viewInverted);
 
             var zn = Vector3.Zero;
-            switch (type) {
-                case CameraTypes.Orthographic:
+            switch (state.Type) {
+                case CameraState.CameraTypes.Orthographic:
                     v.Z = 0;
                     zn = Vector3.Transform(v, viewInverted);
                     break;
-                case CameraTypes.Perspective:
+                case CameraState.CameraTypes.Perspective:
                     //v.Z = 0;
                     //zn = Vector3.Transform(v, matrix);
-                    zn = Position;
+                    zn = state.Position;
                     break;
 
             }
             var r = zf - zn;
             r.Normalize();
 
-            var ray = new Ray(zn + r * NearPlaneDistance, r);
+            var ray = new Ray(zn + r * state.NearPlaneDistance, r);
 
-            var ray1 = Point2DtoPoint3D(point2d);
+            var ray1 = Point2DtoPoint3D(state, point2d);
 
             return ray;
         }
 
-        public Frustum GetFrustum() {
-            return new Frustum(ProjectionMatrix, ViewMatrix) {
+        public static Frustum GetFrustum(CameraState state) {
+            return new Frustum(state.ProjectionMatrix, state.ViewMatrix) {
 
             };
         }

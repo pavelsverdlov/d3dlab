@@ -1,4 +1,5 @@
-﻿using D3DLab.SDX.Engine.Components;
+﻿using D3DLab.ECS.Components;
+using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Rendering;
 using D3DLab.SDX.Engine.Rendering.Strategies;
 using D3DLab.SDX.Engine.Shader;

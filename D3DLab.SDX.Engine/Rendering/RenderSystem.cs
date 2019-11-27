@@ -1,4 +1,7 @@
-﻿using D3DLab.SDX.Engine.Components;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Camera;
+using D3DLab.ECS.Components;
+using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Rendering.Strategies;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
@@ -25,7 +28,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         }
     }
 
-    public class RenderSystem : ContainerSystem<IRenderTechniqueSystem>, IGraphicSystem, IShadersContainer {
+    public class RenderSystem : ContainerSystem<IRenderTechniqueSystem>, IGraphicSystem, IShadersContainer, IGraphicSystemContextDependent {
         class RenderTechniqueRegistrator {
             public IEnumerable<IRenderTechniqueSystem> Techniques { get { return dic.Values; } }
             readonly Dictionary<Type, IRenderTechniqueSystem> dic;
@@ -91,8 +94,9 @@ namespace D3DLab.SDX.Engine.Rendering {
                 Unsafe.SizeOf<LightStructBuffer>() * dinamicLightbuff.Length);
         }
 
-        protected override void Executing(SceneSnapshot snapshot) {
-            var emanager = snapshot.ContextState.GetEntityManager();
+        protected override void Executing(ISceneSnapshot ss) {
+            var snapshot = (SceneSnapshot)ss;
+            var emanager = ContextState.GetEntityManager();
             var ticks = (float)snapshot.FrameRateTime.TotalMilliseconds;
 
             Synchronize();
@@ -111,7 +115,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                     }
 
                     prevCameraState = snapshot.Camera;
-                    var lights = snapshot.Lights.Select(x => x.GetStructLayoutResource()).ToArray();
+                    var lights = snapshot.Lights.Select(x => LightStructBuffer.From(x)).ToArray();
                     var gamebuff = GameStructBuffer.FromCameraState(prevCameraState);
 
                     frame.Graphics.UpdateSubresource(ref gamebuff, gameDataBuffer, GameStructBuffer.RegisterResourceSlot);
@@ -139,6 +143,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         #region IShaderEditingSystem
 
         public IRenderTechniquePass[] Pass { get; private set; }
+        public IContextState ContextState { get; set; }
 
         public IShaderCompilator GetCompilator() {
             return graphics.Device.Compilator;

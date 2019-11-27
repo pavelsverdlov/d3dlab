@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using D3DLab.ECS;
+using D3DLab.ECS.Camera;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Utilities;

@@ -17,6 +17,8 @@ using SharpDX.Direct3D11;
 using D3DLab.Std.Engine.Core.Systems;
 using D3DLab.Std.Engine.Core.Utilities;
 using D3DLab.Physics.Engine;
+using D3DLab.ECS;
+using D3DLab.ECS.Components;
 
 namespace D3DLab.Wpf.Engine.App.GameObjects {
     
@@ -60,7 +62,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                     render,
                     animesh,
                     texture,
-                    new TransformComponent(){ MatrixWorld = rotateToY },
+                    TransformComponent.Create(rotateToY),
                 });
 
            // new SingleGameObject( EntityBuilders.BuildMeshElement(manager, pos, indx, V4Colors.Red),"test");

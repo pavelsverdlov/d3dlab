@@ -274,6 +274,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj">
+      <Project>{7337eca9-2d02-4743-b2b9-74044d88f6c7}</Project>
+      <Name>D3DLab.ECS</Name>
+    </ProjectReference>
     <ProjectReference Include="..\D3DLab.Fwk.ImageSharp\D3DLab.Fwk.ImageSharp.csproj">
       <Project>{a299f142-cc63-4664-8290-01ef69f85182}</Project>
       <Name>D3DLab.Fwk.ImageSharp</Name>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using D3DLab.ECS;
 using D3DLab.SDX.Engine.Animation;
 using D3DLab.Std.Engine.Core.Animation;
 using D3DLab.Std.Engine.Core.Animation.Formats;
@@ -25,7 +26,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
         }
     }
 
-    public class MeshAnimationSystem : BaseEntitySystem, IGraphicSystem {
+    public class MeshAnimationSystem : BaseEntitySystem, IGraphicSystem, IGraphicSystemContextDependent {
         static int Size = Unsafe.SizeOf<Matrix4x4>() * MaxBones;
         public const int MaxBones = 1024;
 
@@ -34,9 +35,11 @@ namespace D3DLab.Std.Engine.Core.Systems {
         }
 
         public double CurrentAnimationTime { get; private set; }
+        public IContextState ContextState { get; set; }
 
-        protected override void Executing(SceneSnapshot snapshot) {
-            var emanager = snapshot.ContextState.GetEntityManager();
+        protected override void Executing(ISceneSnapshot ss) {
+            var snapshot = (SceneSnapshot)ss;
+            var emanager = ContextState.GetEntityManager();
 
             foreach (var entity in emanager.GetEntities()) {
 

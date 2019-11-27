@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
     <ProjectReference Include="..\Utilities\Veldrid.Utilities\Veldrid.Utilities.csproj" />
   </ItemGroup>
 

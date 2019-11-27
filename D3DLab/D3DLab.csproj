@@ -284,6 +284,10 @@
       <Project>{3fc522c3-3533-4a12-a751-d784cb93faf1}</Project>
       <Name>D3DLab.Debugger</Name>
     </ProjectReference>
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj">
+      <Project>{7337eca9-2d02-4743-b2b9-74044d88f6c7}</Project>
+      <Name>D3DLab.ECS</Name>
+    </ProjectReference>
     <ProjectReference Include="..\D3DLab.Plugin.Contracts\D3DLab.Plugin.Contracts.csproj">
       <Project>{06489d42-a11d-48fb-9b68-05e0b39ff82a}</Project>
       <Name>D3DLab.Plugin.Contracts</Name>

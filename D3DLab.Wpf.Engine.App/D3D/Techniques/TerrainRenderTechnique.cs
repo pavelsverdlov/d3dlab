@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using D3DLab.ECS.Components;
 using D3DLab.SDX.Engine;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.D2;
@@ -176,7 +177,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                     geo.MarkAsRendered();
                 }
 
-                TerrainRenderTechnique.RenderCells(graphics, game.CameraState.GetFrustum(), geo, render, transform);
+                TerrainRenderTechnique.RenderCells(graphics, CameraStateHelper.GetFrustum(game.CameraState), geo, render, transform);
 
             }          
 
@@ -360,7 +361,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                     geo.MarkAsRendered();
                 }
 
-                RenderCells(graphics, game.CameraState.GetFrustum(), geo, render, transform);
+                RenderCells(graphics, CameraStateHelper.GetFrustum(game.CameraState), geo, render, transform);
 
                 //Frustum frustum = null;
                 //for (var i = 0; i < render.CellCount; ++i) {

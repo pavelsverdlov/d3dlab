@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 namespace D3DLab.SDX.Engine.Animation {
     using System.Collections.Immutable;
     using System.IO;
+    using D3DLab.ECS.Components;
     using D3DLab.SDX.Engine.Components;
     using D3DLab.SDX.Engine.D2;
     using D3DLab.SDX.Engine.Rendering;

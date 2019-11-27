@@ -19,6 +19,9 @@ using System.Linq;
 using System.Collections.Generic;
 using D3DLab.SDX.Engine.Animation;
 using System.Threading;
+using D3DLab.ECS.Context;
+using D3DLab.ECS;
+using D3DLab.ECS.Systems;
 
 namespace D3DLab.Wpf.Engine.App {
     public class OctreeImp : EntityOctree {
@@ -99,7 +102,7 @@ namespace D3DLab.Wpf.Engine.App {
 
                 smanager.CreateSystem<InputSystem>();
                 smanager.CreateSystem<D3DCameraSystem>();
-                smanager.CreateSystem<LightsSystem>();
+                smanager.CreateSystem<DefaultLightsSystem>();
                 smanager.CreateSystem<CollidingSystem>();
                 smanager.CreateSystem<MovementSystem>();
                 smanager.CreateSystem<EmptyAnimationSystem>();

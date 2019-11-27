@@ -1,4 +1,6 @@
-﻿using D3DLab.SDX.Engine.Components;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Components;
+using D3DLab.SDX.Engine.Components;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
@@ -28,9 +30,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .CreateEntity(new ElementTag("GroupGeometry" + Guid.NewGuid()))
                 .AddComponent(group)
                 .AddComponent(new D3DTriangleColoredVertexRenderComponent())
-                .AddComponent(new TransformComponent() {
-                    MatrixWorld = Matrix4x4.CreateTranslation(Vector3.UnitY * 30)
-                })
+                .AddComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.UnitY * 30)))
                 .Tag;
         }
 

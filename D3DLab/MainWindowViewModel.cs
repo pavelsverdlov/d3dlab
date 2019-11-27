@@ -3,6 +3,8 @@ using D3DLab.Debugger.Modules.OBJFileFormat;
 using D3DLab.Debugger.Presentation.ScriptConsole;
 using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
+using D3DLab.ECS;
+using D3DLab.ECS.Context;
 using D3DLab.Parser;
 using D3DLab.Plugin.Contracts.Parsers;
 using D3DLab.Plugins;

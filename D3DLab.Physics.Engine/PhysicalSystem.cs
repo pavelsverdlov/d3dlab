@@ -4,6 +4,8 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BepuUtilities;
 using BepuUtilities.Memory;
+using D3DLab.ECS;
+using D3DLab.ECS.Components;
 using D3DLab.Physics.Engine.Bepu;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Components;
@@ -440,7 +442,7 @@ namespace D3DLab.Physics.Engine {
     /// <remarks>
     /// https://github.com/bepu/bepuphysics2
     /// </remarks>
-    public class PhysicalSystem : BaseEntitySystem , IGraphicSystem {
+    public class PhysicalSystem : BaseEntitySystem , IGraphicSystem, IGraphicSystemContextDependent {
 
         readonly Simulation simulation;
         readonly BufferPool BufferPool;
@@ -461,8 +463,11 @@ namespace D3DLab.Physics.Engine {
             constructor = new PhysicsShapeConstructor(simulation, BufferPool);
         }
 
-        protected override void Executing(SceneSnapshot snapshot) {
-            var emanager = snapshot.ContextState.GetEntityManager();
+        public IContextState ContextState { get; set; }
+
+        protected override void Executing(ISceneSnapshot ss) {
+            var snapshot = (SceneSnapshot)ss;
+            var emanager = ContextState.GetEntityManager();
 
             //Drop a ball on a big static box.
             //simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), new CollidableDescription(simulation.Shapes.Add(new Box(500, 1, 500)), 0.1f)));
@@ -508,9 +513,11 @@ namespace D3DLab.Physics.Engine {
                             }
                             var newm = m * Matrix4x4.CreateTranslation(pp - com.AABBox.GetCenter());
                             if (!newm.IsIdentity) {
-                                entity
-                                    .GetComponent<TransformComponent>()
-                                    .MatrixWorld = newm;
+                                //entity
+                                //    .GetComponent<TransformComponent>()
+                                //    .MatrixWorld = newm;
+
+                                entity.UpdateComponent(TransformComponent.Create(newm));
                             }
                         }
                     }

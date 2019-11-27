@@ -1,4 +1,5 @@
 ﻿using BepuPhysics;
+using D3DLab.ECS;
 using D3DLab.Std.Engine.Core;
 
 namespace D3DLab.Physics.Engine {

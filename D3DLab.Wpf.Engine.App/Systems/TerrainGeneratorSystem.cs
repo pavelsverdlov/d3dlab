@@ -11,6 +11,8 @@ namespace D3DLab.Wpf.Engine.App.Systems {
     using System.Linq;
     using System.Numerics;
     using System.Threading.Tasks;
+    using D3DLab.ECS;
+    using D3DLab.ECS.Components;
     using D3DLab.Std.Engine.Core;
     using D3DLab.Std.Engine.Core.Common;
     using D3DLab.Std.Engine.Core.Components;
@@ -25,9 +27,12 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
     public interface ITerrainComponent : IGraphicComponent { }
 
-    public class TerrainGeneratorSystem : BaseEntitySystem, IGraphicSystem {
-        protected override void Executing(SceneSnapshot snapshot) {
-            var emanager = snapshot.ContextState.GetEntityManager();
+    public class TerrainGeneratorSystem : BaseEntitySystem, IGraphicSystem, IGraphicSystemContextDependent {
+        public IContextState ContextState { get; set; }
+
+        protected override void Executing(ISceneSnapshot ss) {
+            var snapshot = (SceneSnapshot)ss;
+            var emanager = ContextState.GetEntityManager();
             foreach (var entity in emanager.GetEntities()) {
                 var coms = entity.GetComponents<ITerrainComponent>();
                 if (!coms.Any()) {
@@ -67,7 +72,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
                     var box = BoundingBox.CreateFromVertices(newgeo.Positions.ToArray());
 
-                    entity.GetComponent<TransformComponent>().MatrixWorld = Matrix4x4.CreateTranslation(-box.GetCenter());
+                    entity.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(-box.GetCenter())));
 
                     entity.GetComponent<IRenderableComponent>().CanRender = true;
 

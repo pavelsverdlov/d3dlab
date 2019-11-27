@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
     <ProjectReference Include="..\D3DLab.Std.Engine.Core\D3DLab.Std.Engine.Core.csproj" />
   </ItemGroup>
 

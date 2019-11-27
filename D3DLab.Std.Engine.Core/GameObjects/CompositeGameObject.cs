@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using D3DLab.ECS;
+using D3DLab.ECS.Components;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Utilities;

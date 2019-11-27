@@ -1,4 +1,6 @@
-﻿using D3DLab.Physics.Engine;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Components;
+using D3DLab.Physics.Engine;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Rendering.Strategies;
 using D3DLab.Std.Engine.Core;
@@ -59,7 +61,7 @@ namespace D3DLab.Wpf.Engine.App {
                 .AddComponents(new IGraphicComponent[] {
                     new D3DSkyRenderComponent() { },
                     geo,
-                    new TransformComponent(),
+                    TransformComponent.Identity(),
                     new GradientMaterialComponent(),
                     new FollowUpCameraPositionComponent()
                 });
@@ -77,7 +79,7 @@ namespace D3DLab.Wpf.Engine.App {
                         Indices = planemesh.Indices.ToImmutableArray(),
                         TextureCoordinates = planemesh.TextureCoordinates.ToImmutableArray(),
                     },
-                    new TransformComponent(),
+                   TransformComponent.Identity(),
                     new FollowUpCameraPositionComponent(),
                     new SkyPlaneParallaxAnimationComponent()
                 });
