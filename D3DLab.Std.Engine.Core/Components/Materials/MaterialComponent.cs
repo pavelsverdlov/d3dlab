@@ -1,12 +1,11 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Components;
 using System.IO;
 using System.Numerics;
 
 namespace D3DLab.Std.Engine.Core.Components.Materials {
        
-    public abstract class MaterialComponent : GraphicComponent {
-
-    }
+  
 
     public class GradientMaterialComponent : MaterialComponent {
         public Vector4 Apex { get; set; }
@@ -34,16 +33,5 @@ namespace D3DLab.Std.Engine.Core.Components.Materials {
 
     }
 
-    public class TexturedMaterialComponent : MaterialComponent {
-        /// <summary>
-        /// Order is important! the same order will be setted in shader recources
-        /// </summary>
-        public FileInfo[] Images { get; }
-
-        public TexturedMaterialComponent(params FileInfo[] image) {
-            Images = image;
-        }
-
-
-    }
+   
 }

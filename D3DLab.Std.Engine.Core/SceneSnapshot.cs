@@ -1,5 +1,6 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Camera;
+using D3DLab.ECS.Ext;
 using D3DLab.ECS.Input;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
@@ -23,7 +24,7 @@ namespace D3DLab.Std.Engine.Core {
         public IManagerChangeNotify Notifier { get; }
         public IAppWindow Window { get; }
 
-        public InputSnapshot Snapshot { get; }
+        public InputSnapshot InputSnapshot { get; }
         public TimeSpan FrameRateTime { get; }
 
         public ElementTag CurrentCameraTag { get; private set; }
@@ -38,7 +39,7 @@ namespace D3DLab.Std.Engine.Core {
             IOctree octree, InputSnapshot isnapshot, TimeSpan time) {
             Viewport = viewport;
             Notifier = notifier;
-            Snapshot = isnapshot;
+            InputSnapshot = isnapshot;
             FrameRateTime = time;
             Window = win;
             Lights = new LightState[LightStructBuffer.MaxCount];

@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using D3DLab.ECS;
 using D3DLab.ECS.Components;
+using D3DLab.ECS.Ext;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
@@ -240,7 +241,7 @@ namespace D3DLab.Debugger.Modules.OBJFileFormat {
         void ChangeColor(ObjGroupViewItem item, Vector4 color) {
             entityManager
                 .GetEntity(item.Entity)
-                .UpdateComponent(ColorComponent.Create(color));
+                .UpdateComponent(ColorComponent.CreateDiffuse(color));
         }
 
         ObjGroupViewItem GetCurrentItem() {

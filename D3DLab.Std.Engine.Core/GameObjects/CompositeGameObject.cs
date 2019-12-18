@@ -9,7 +9,7 @@ using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Utilities;
 
 namespace D3DLab.Std.Engine.Core.GameObjects {
-    public class CompositeGameObject : GameObject {
+    public class CompositeGameObject : GeometryGameObject {
         public List<ElementTag> Tags { get; }
 
         public CompositeGameObject(IEnumerable<ElementTag> tags) : this(tags, "Group") {

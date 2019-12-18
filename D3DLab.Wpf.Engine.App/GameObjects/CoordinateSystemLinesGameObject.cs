@@ -8,7 +8,7 @@ using D3DLab.Wpf.Engine.App.GameObjects;
 using System.Numerics;
 
 namespace D3DLab.Wpf.Engine.App {
-    public class CoordinateSystemLinesGameObject : GameObject {
+    public class CoordinateSystemLinesGameObject : Std.Engine.Core.GeometryGameObject {
         public ElementTag Lines { get; private set; }
         public ElementTag[] Arrows { get; private set; }
 

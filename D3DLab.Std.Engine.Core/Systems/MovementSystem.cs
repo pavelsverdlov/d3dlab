@@ -96,7 +96,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                             break;
 
                         case CapturedToManipulateComponent capture:
-                            var istate = snapshot.Snapshot.CurrentInputState;
+                            var istate = snapshot.InputSnapshot.CurrentInputState;
                             var isManiputating = entity.GetComponents<TemporaryManipulateTransformKepperComponent>();
                             var left = istate.ButtonsStates[GeneralMouseButtons.Left];
                             

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Wpf.Engine.App {
-    public class SingleGameObject : GameObject {
+    public class SingleGameObject : Std.Engine.Core.GeometryGameObject {
         public ElementTag Tag { get; }
 
         public SingleGameObject(ElementTag tag, string desc) : base(desc) {

@@ -7,6 +7,14 @@ namespace D3DLab.ECS {
 
         GraphicEntity CreateEntity(ElementTag tag);
         IEnumerable<GraphicEntity> GetEntities();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns>
+        /// If etity by TAG was not found, returns empty GraphicEntity without components.
+        /// 
+        /// </returns>
         GraphicEntity GetEntity(ElementTag tag);
         IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate);
         bool IsExisted(ElementTag tag);

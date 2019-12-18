@@ -5,6 +5,7 @@ using D3DLab.Debugger.Presentation.SystemList;
 using D3DLab.Debugger.Windows;
 using D3DLab.ECS;
 using D3DLab.ECS.Context;
+using D3DLab.ECS.Ext;
 using D3DLab.Parser;
 using D3DLab.Plugin.Contracts.Parsers;
 using D3DLab.Plugins;
@@ -109,8 +110,8 @@ namespace D3DLab {
                 main.items.Add(new LoadedItem(main, SkyGameObject.Create(main.context.GetEntityManager())));
                 main.items.Add(new LoadedItem(main, TerrainGameObject.Create(main.context.GetEntityManager())));
 
-                //var obj = AnimCMOObject.Create(main.context.GetEntityManager());
-                //main.items.Add(new LoadedItem(main, obj));
+                var obj = AnimCMOObject.Create(main.context.GetEntityManager());
+                main.items.Add(new LoadedItem(main, obj));
             }
         }
 
@@ -128,19 +129,11 @@ namespace D3DLab {
             public bool CanExecute(object parameter) => true;
 
             public void Execute(object parameter) {
-                if (stat.IsNull()) {
-                    stat = new LoadedItem(main, PhysicsObjectTest.CreateStatic(main.context.GetEntityManager(),
-                        new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 1, 50))));
-                    main.items.Add(stat);
-                    PhysicsObjectTest.CreateStatic(main.context.GetEntityManager(),
-                        new BoundingBox(new Vector3(-150, -20, -150), new Vector3(150, -18, 150)));
-                }
-
                 Task.Run(() => {
-                    var count = 100;
-                    while (count --> 0) {
+                    var count = 1;// 00;
+                    while (count --> 0) {//64, 4, 32
                         Thread.Sleep(TimeSpan.FromSeconds(0.5));
-                        var max = RandomUtil.NextVector3(r, new Vector3(0, 0, 0), new Vector3(50, 0, 50));
+                        var max = RandomUtil.NextVector3(r, new Vector3(0, 0, 0), new Vector3(10, 0, 10));
                         PhysicsObjectTest.Create(main.context.GetEntityManager(),
                                                 new BoundingBox(
                                                     new Vector3(max.X - 10, 90, max.Y - 10),
@@ -148,6 +141,14 @@ namespace D3DLab {
                                                 V4Colors.NextColor(r));
                     }
                 });
+                //if (stat.IsNull()) {
+                //    stat = new LoadedItem(main, PhysicsObjectTest.CreateStatic(main.context.GetEntityManager(),
+                //        new BoundingBox(new Vector3(-50, -50, -50), new Vector3(50, 50, 50))));
+                //    main.items.Add(stat);
+
+                //    PhysicsObjectTest.CreateStaticAABB(main.context.GetEntityManager(),
+                //        new BoundingBox(new Vector3(-150, -30, -150), new Vector3(150, -15, 150)));
+                //}
             }
         }
 
@@ -177,10 +178,10 @@ namespace D3DLab {
 
             public LoadedItem() { }
 
-            public GameObject GameObj { get; protected set; }
+            public Std.Engine.Core.GeometryGameObject GameObj { get; protected set; }
             protected readonly MainWindowViewModel main;
 
-            public LoadedItem(MainWindowViewModel main, GameObject gobj) {
+            public LoadedItem(MainWindowViewModel main, Std.Engine.Core.GeometryGameObject gobj) {
                 this.main = main;
                 this.GameObj = gobj;
                 VisiblityChanged = new Command(this);

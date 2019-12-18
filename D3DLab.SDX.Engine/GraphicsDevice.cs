@@ -2,10 +2,6 @@
 using D3DLab.ECS.Common;
 using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
-using D3DLab.Std.Engine.Core;
-using D3DLab.Std.Engine.Core.Common;
-using D3DLab.Std.Engine.Core.Ext;
-using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -13,6 +9,7 @@ using SharpDX.Mathematics.Interop;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace D3DLab.SDX.Engine {
     public class GraphicsDeviceException : Exception {
@@ -20,40 +17,8 @@ namespace D3DLab.SDX.Engine {
         public static Exception ResourseSlotAlreadyUsed(int slot) { return new GraphicsDeviceException($"Resourse Slot '{slot}' is already used."); }
         public static Exception ShaderAddedTwice() { return new GraphicsDeviceException($"Shader war added twise to DeviceContext."); }
     }
-    public class SynchronizedGraphics : ISynchronizationContext {
-        struct Size {
-            public float Width;
-            public float Height;
-        }
-        internal event Action<GraphicsDevice> Changed;
-        internal GraphicsDevice Device;
-        readonly IAppWindow window;
-        readonly SynchronizationContext<SynchronizedGraphics, Size> synchronizer;
 
-        public SynchronizedGraphics(IAppWindow window) {
-            Device = new GraphicsDevice(window);
-            window.Resized += OnResized;
-            this.window = window;
-            synchronizer = new SynchronizationContext<SynchronizedGraphics, Size>(this);
-        }
-
-        private void OnResized() {
-            synchronizer.Add((_this, size) => {
-                _this.Device.Resize(size.Width, size.Height);
-                Changed(_this.Device);
-            }, new Size { Height = window.Height, Width = window.Width });
-        }
-
-        internal void Dispose() {
-            Device.Dispose();
-        }
-
-        public void Synchronize(int theadId) {
-            synchronizer.Synchronize(theadId);
-        }
-    }
-
-    public sealed class AdapterFactory {
+    sealed class AdapterFactory {
         public static event Func<Adapter[], int, Adapter> SelectAdapter;
 
         public static Adapter GetBestAdapter(global::SharpDX.DXGI.Factory f) {
@@ -80,7 +45,7 @@ namespace D3DLab.SDX.Engine {
         }
     }
 
-    internal class GraphicsFrame : IDisposable {
+    public class GraphicsFrame : IDisposable {
         public readonly GraphicsDevice Graphics;
         readonly Stopwatch sw;
         TimeSpan spendTime;
@@ -145,12 +110,7 @@ namespace D3DLab.SDX.Engine {
 
             this.handle = window.Handle;
 
-            Compilator = new D3DShaderCompilator();
-            Compilator.AddIncludeMapping("Game", "D3DLab.SDX.Engine.Rendering.Shaders.Game.hlsl");
-            Compilator.AddIncludeMapping("Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl");
-            Compilator.AddIncludeMapping("Math", "D3DLab.SDX.Engine.Rendering.Shaders.Math.hlsl");
-
-            Compilator.AddIncludeMapping("Common", "D3DLab.SDX.Engine.Animation.Shaders.Common.hlsl");
+            Compilator = new D3DShaderCompilator();           
 
             var width = (int)window.Width;
             var height = (int)window.Height;
@@ -269,7 +229,7 @@ namespace D3DLab.SDX.Engine {
             //Device.ImmediateContext.OutputMerger.SetBlendState(blend, blendFactor, -1);
         }
 
-        internal GraphicsFrame FrameBegin() {
+        public GraphicsFrame FrameBegin() {
             resourseHash.Clear();
             return new GraphicsFrame(this);
         }
@@ -290,6 +250,17 @@ namespace D3DLab.SDX.Engine {
         public void Present() {
             swapChain.Present(1, PresentFlags.None);
             //swapChain.Present(1, PresentFlags.None, new PresentParameters());
+        }
+
+        public System.Drawing.Bitmap CopyBackBufferTexture() {
+            using (var stream = new MemoryStream()) {
+                using (var tex = swapChain.GetBackBuffer<Texture2D>(0)) {
+                    Copy(tex, stream, D3DDevice);
+                    stream.Position = 0;
+                    var bmp = new System.Drawing.Bitmap(stream);
+                    return bmp;
+                }                
+            }
         }
 
         void Resize(uint width, uint height) {
@@ -316,6 +287,61 @@ namespace D3DLab.SDX.Engine {
             //}
         }
 
+        static void Copy(Texture2D texture, Stream stream, SharpDX.Direct3D11.Device device) {
+            var desc = new Texture2DDescription {
+                Width = (int)texture.Description.Width,
+                Height = (int)texture.Description.Height,
+                MipLevels = 1,
+                ArraySize = 1,
+                Format = texture.Description.Format,
+                Usage = ResourceUsage.Staging,
+                SampleDescription = new SampleDescription(1, 0),
+                BindFlags = BindFlags.None,
+                CpuAccessFlags = CpuAccessFlags.Read,
+                OptionFlags = ResourceOptionFlags.None
+            };
+
+            using (var factory = new SharpDX.WIC.ImagingFactory()) {
+                using (var textureCopy = new Texture2D(device, desc)) {
+                    device.ImmediateContext.CopyResource(texture, textureCopy);
+
+                    var dataBox = device.ImmediateContext.MapSubresource(
+                        textureCopy,
+                        0,
+                        0,
+                        MapMode.Read,
+                        global::SharpDX.Direct3D11.MapFlags.None,
+                        out SharpDX.DataStream dataStream);
+                    using (dataStream) {
+                        var t = dataStream.ReadByte(); //ReadFloat();
+
+                        var dataRectangle = new SharpDX.DataRectangle {
+                            DataPointer = dataStream.DataPointer,
+                            Pitch = dataBox.RowPitch
+                        };
+
+                        using (var bitmap = new SharpDX.WIC.Bitmap(factory, textureCopy.Description.Width, textureCopy.Description.Height,
+                            SharpDX.WIC.PixelFormat.Format32bppRGBA, dataRectangle, 0)) {
+
+                            stream.Position = 0;
+                            using (var bitmapEncoder = new SharpDX.WIC.PngBitmapEncoder(factory, stream)) {
+                                using (var bitmapFrameEncode = new SharpDX.WIC.BitmapFrameEncode(bitmapEncoder)) {
+                                    bitmapFrameEncode.Initialize();
+                                    bitmapFrameEncode.SetSize(bitmap.Size.Width, bitmap.Size.Height);
+                                    var pixelFormat = SharpDX.WIC.PixelFormat.FormatDontCare;
+                                    bitmapFrameEncode.SetPixelFormat(ref pixelFormat);
+                                    bitmapFrameEncode.WriteSource(bitmap);
+                                    bitmapFrameEncode.Commit();
+                                    bitmapEncoder.Commit();
+                                }
+                            }
+
+                        }
+                        device.ImmediateContext.UnmapSubresource(textureCopy, 0);
+                    }
+                }
+            }
+        }
 
 
         public SharpDX.Direct3D11.Buffer CreateBuffer<T>(BindFlags flags, ref T range)

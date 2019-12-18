@@ -29,7 +29,7 @@ namespace D3DLab.ECS {
         IManagerChangeNotify Notifier { get; }
         IAppWindow Window { get; }
 
-        InputSnapshot Snapshot { get; }
+        InputSnapshot InputSnapshot { get; }
         TimeSpan FrameRateTime { get; }
 
         ElementTag CurrentCameraTag { get; }

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Numerics;
 using System.Threading.Tasks;
+using D3DLab.ECS;
+using D3DLab.ECS.Common;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
@@ -160,6 +162,10 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
             }
 
             return m;
+        }
+
+        protected override BoundingBox CalcuateBox() {
+            return base.CalcuateBox();
         }
     }
 

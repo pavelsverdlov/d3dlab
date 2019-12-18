@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using D3DLab.ECS;
+using D3DLab.ECS.Ext;
 using D3DLab.SDX.Engine.Animation;
 using D3DLab.Std.Engine.Core.Animation;
 using D3DLab.Std.Engine.Core.Animation.Formats;

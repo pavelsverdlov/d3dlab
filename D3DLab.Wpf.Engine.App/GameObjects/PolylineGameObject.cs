@@ -9,7 +9,7 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Wpf.Engine.App.GameObjects {
-    public class PolylineGameObject : GameObject {
+    public class PolylineGameObject : Std.Engine.Core.GeometryGameObject {
         public ElementTag Tag { get; }
 
         public PolylineGameObject(ElementTag tag1):base("poly") {

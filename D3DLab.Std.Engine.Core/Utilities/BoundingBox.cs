@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using D3DLab.ECS.Ext;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
 using g3;
@@ -205,6 +206,8 @@ namespace D3DLab.Std.Engine.Core.Utilities {
                 min = Vector3.Min(min, Vector3.Transform(cornersPtr[i], mat));
                 max = Vector3.Max(max, Vector3.Transform(cornersPtr[i], mat));
             }
+
+        //    box.boxf.Translate(new Vector3f(mat.Translation.X, mat.Translation.Y, mat.Translation.Z));
 
             return new BoundingBox(min, max);
         }

@@ -13,7 +13,7 @@ using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Physics.Engine;
 using D3DLab.ECS;
 using D3DLab.ECS.Components;
-
+using D3DLab.ECS.Ext;
 namespace D3DLab.Wpf.Engine.App.GameObjects {
     public class PhysicsObjectTest : SingleGameObject {
         public PhysicsObjectTest(ElementTag tag) : base(tag, "PhysicsObjectTest") {
@@ -23,6 +23,8 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
             var tag = new ElementTag("Physics Object" + Guid.NewGuid());
 
             //var box = new BoundingBox(new Vector3(-5,10,-5), new Vector3(5,20,5));
+
+            box = box.Transform(Matrix4x4.CreateTranslation(new Vector3(64, 100, 32) - box.GetCenter()));
 
             var geobox = GeometryBuilder.BuildGeoBox(box);
 
@@ -37,6 +39,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                     new D3DTriangleColoredVertexRenderComponent(),
                     TransformComponent.Create(Matrix4x4.Identity),
                     PhysicalComponentFactory.CreateAABB(),
+                   // PhysicalComponentFactory.CreateMesh(),
               });
 
             return new PhysicsObjectTest(tag);
@@ -56,7 +59,28 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
                         Color = new Vector4(1, 0, 0, 1)
                     },
                     new D3DTriangleColoredVertexRenderComponent(),
-                    TransformComponent.Create(Matrix4x4.Identity),
+                    TransformComponent.Identity(),
+                    //PhysicalComponentFactory.CreateStaticAABB(),
+                    PhysicalComponentFactory.CreateStaticMesh(),
+              });
+
+            return new PhysicsObjectTest(tag);
+        }
+        public static SingleGameObject CreateStaticAABB(IEntityManager manager, BoundingBox box) {
+            var tag = new ElementTag("Physics Static " + Guid.NewGuid());
+
+            var geobox = GeometryBuilder.BuildGeoBox(box);
+
+            manager.CreateEntity(tag)
+              .AddComponents(new IGraphicComponent[] {
+                    new SimpleGeometryComponent{
+                        Positions = geobox.Positions.ToImmutableArray(),
+                        Indices = geobox.Indices.ToImmutableArray(),
+                        Normals = geobox.Positions.CalculateNormals(geobox.Indices).ToImmutableArray(),
+                        Color = new Vector4(1, 0, 0, 1)
+                    },
+                    new D3DTriangleColoredVertexRenderComponent(),
+                    TransformComponent.Identity(),
                     PhysicalComponentFactory.CreateStaticAABB(),
               });
 

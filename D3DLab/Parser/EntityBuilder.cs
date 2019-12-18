@@ -76,7 +76,7 @@ namespace D3DLab.Parser {
                 //    material.Colors[i] = V4Colors.Red;
                 //}
 
-                cc.Add(ColorComponent.Create(V4Colors.Red));
+                cc.Add(ColorComponent.CreateDiffuse(V4Colors.Red));
                 cc.Add(new ManipulatableComponent());
 
                 entity.AddComponents(cc);

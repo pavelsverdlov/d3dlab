@@ -1,4 +1,5 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Ext;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
@@ -257,6 +258,7 @@ namespace D3DLab.Std.Engine.Core.Utilities {
                 dic[corners.FarBottomLeft], dic[corners.FarTopRight], dic[corners.FarBottomRight],
                 dic[corners.FarBottomLeft], dic[corners.FarTopLeft], dic[corners.FarTopRight],
             });
+
 
             return new AbstractGeometry3D() {
                 Positions = dic.Keys.ToList(),

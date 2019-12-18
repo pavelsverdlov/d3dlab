@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using D3DLab.ECS;
 using D3DLab.ECS.Components;
+using D3DLab.ECS.Ext;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Input.Commands;
@@ -34,7 +35,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
             var colliding = new Colliding(snapshot, ContextState);
             var emanager = ContextState.GetEntityManager();
 
-            foreach (var ev in snapshot.Snapshot.Events) {
+            foreach (var ev in snapshot.InputSnapshot.Events) {
                 switch (ev) {
                     case CaptureTargetUnderMouseCameraCommand capture:
                         if (colliding.TryToColliding(capture.ScreenPosition, out var collidedWith)) {
@@ -44,7 +45,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
                                 entity.AddComponent(new CapturedToManipulateComponent() {
                                     CapturePointWorld = collidedWith.IntersectionPositionWorld,
                                 });
-                                snapshot.Snapshot.RemoveEvent(ev);
+                                snapshot.InputSnapshot.RemoveEvent(ev);
                             }
                         }
                         break;                   

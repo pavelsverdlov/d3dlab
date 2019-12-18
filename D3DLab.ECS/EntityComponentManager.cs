@@ -47,7 +47,8 @@ namespace D3DLab.ECS {
         }
         public GraphicEntity GetEntity(ElementTag tag) {
             if (!entities.Contains(tag)) {
-                throw new Exception($"There is no {tag} ");
+                return GraphicEntity.Empty();
+                //throw new Exception($"There is no {tag} ");
             }
             return new GraphicEntity(tag, this, this, orderContainer);
         }
@@ -142,12 +143,11 @@ namespace D3DLab.ECS {
         public void UpdateComponents<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
             comSynchronizer.Add((owner, inp) => {
                 var any = GetComponents<T>(tagEntity);
-                if (!any.Any()) {
-                    throw new Exception("Can't update not existed component, Add it before updating.");
+                if (any.Any()) {
+                    var old = any.Single();
+                    var removed = components[tagEntity].Remove(old.Tag);
+                    old.Dispose();
                 }
-                var old = any.Single();
-                components[tagEntity].Remove(old.Tag);
-                old.Dispose();
 
                 com.EntityTag = tagEntity;
                 components[tagEntity].Add(com.Tag, com);
@@ -194,8 +194,8 @@ namespace D3DLab.ECS {
             notify.NotifyChange(com);
         }
         void _RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
-            components[tagEntity].Remove(com.Tag);
-            entityHas[tagEntity].Remove(com.GetType());
+            var removed = components[tagEntity].Remove(com.Tag);
+            removed = entityHas[tagEntity].Remove(com.GetType());
             com.Dispose();
             notify.NotifyChange(com);
         }

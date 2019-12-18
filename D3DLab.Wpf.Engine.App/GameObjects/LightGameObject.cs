@@ -1,11 +1,13 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
+using D3DLab.ECS.Ext;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Materials;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
+using System;
 using System.Numerics;
 using System.Threading;
 
@@ -14,7 +16,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
         static float lightpower = 1;
         static int lights = 0;
 
-        GameObject debugVisualObject;
+        Std.Engine.Core.GeometryGameObject debugVisualObject;
         CoordinateSystemLinesGameObject coordinateSystemObject;
 
         public LightGameObject(ElementTag tag, string desc) : base(tag, desc) { }
@@ -24,7 +26,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
             manager.CreateEntity(tag)
                    .AddComponents(
                        LightComponent.CreateDirectional(0.2f, 2, direction),
-                       ColorComponent.Create(new Vector4(1, 1, 1, 1))
+                       ColorComponent.CreateDiffuse(new Vector4(1, 1, 1, 1))
                    );
 
             return new LightGameObject(tag, "DirectionLight");
@@ -36,7 +38,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
             manager.CreateEntity(tag)
                  .AddComponents(
                      LightComponent.CreatePoint(0.4f,1, position),
-                     ColorComponent.Create(new Vector4(1, 1, 1, 1))
+                     ColorComponent.CreateDiffuse(new Vector4(1, 1, 1, 1))
                  );
 
             return new LightGameObject(tag, "PointLight");
@@ -48,7 +50,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
             manager.CreateEntity(tag)
                    .AddComponents(
                            LightComponent.CreateAmbient(0.4f,0),
-                           ColorComponent.Create(V4Colors.White)
+                           ColorComponent.CreateDiffuse(V4Colors.White)
                        );
 
             return new LightGameObject(tag, "AmbientLight");
@@ -94,6 +96,10 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
             var com = new MoveCameraToTargetComponent { Target = Tag, TargetPosition = l.Position };
 
             manager.GetEntity(Tag).AddComponent(com);
+        }
+
+        public static Std.Engine.Core.GeometryGameObject CreateDirectionLight(IEntityManager manager, object p) {
+            throw new NotImplementedException();
         }
     }
 }

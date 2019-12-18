@@ -1,10 +1,53 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Components;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace D3DLab.ECS {
 
     public sealed class GraphicEntity  {
+
+        struct EmptyManager : IComponentManager, IEntityManager {
+            public bool HasChanges => false;
+            public IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com) => EmptyGraphicComponent.Create();
+            public void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com) { }
+            public GraphicEntity CreateEntity(ElementTag tag) => GraphicEntity.Empty();
+            public void Dispose() {            }
+            public void FrameSynchronize(int theadId) {            }
+            public IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity) => Enumerable.Empty<IGraphicComponent>();
+            public IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types) => Enumerable.Empty<IGraphicComponent>();
+            public IEnumerable<GraphicEntity> GetEntities() => Enumerable.Empty<GraphicEntity>();
+            public GraphicEntity GetEntity(ElementTag tag) => GraphicEntity.Empty();
+            public IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate) => Enumerable.Empty<GraphicEntity>();
+            public IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent => Enumerable.Empty<T>();
+            public bool Has<T>(ElementTag tag) where T : IGraphicComponent => false;
+            public bool Has(ElementTag tag, params Type[] types) => false;
+            public bool IsExisted(ElementTag tag) => false;
+            public void PushSynchronization() {}
+            public void RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {            }
+            public void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {            }
+            public void RemoveEntity(ElementTag elementTag) {           }
+            public void SetFilter(Func<ElementTag, bool> predicate) {           }
+            public void Synchronize(int theadId) { }
+            public void UpdateComponents<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {}
+
+
+            //TODO refactor! should not be methods with no results
+            public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
+                throw new Exception("Empty graphic Entity does not have any components.");
+            }
+            public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {
+                throw new Exception("Empty graphic Entity does not have any components.");
+            }
+        }
+
+
+        public static GraphicEntity Empty() {
+            return new GraphicEntity(ElementTag.Empty, new EmptyManager(), new EmptyManager(), new EntityOrderContainer());
+        }
+
+
         public ElementTag Tag { get; }
         readonly IComponentManager manager;
         readonly IEntityManager emanager;
@@ -81,6 +124,10 @@ namespace D3DLab.ECS {
         }
 
         public bool IsDestroyed => !emanager.IsExisted(Tag);
+
+        public override string ToString() {
+            return $"Entity[{Tag}]";
+        }
     }
     public class OrderSystemContainer : Dictionary<Type, int> {
 

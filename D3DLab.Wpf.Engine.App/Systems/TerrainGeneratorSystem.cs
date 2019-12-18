@@ -13,6 +13,7 @@ namespace D3DLab.Wpf.Engine.App.Systems {
     using System.Threading.Tasks;
     using D3DLab.ECS;
     using D3DLab.ECS.Components;
+    using D3DLab.ECS.Ext;
     using D3DLab.Std.Engine.Core;
     using D3DLab.Std.Engine.Core.Common;
     using D3DLab.Std.Engine.Core.Components;

@@ -122,7 +122,7 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Drawing.Common.4.6.0\lib\net461\System.Drawing.Common.dll</HintPath>
+      <HintPath>..\packages\System.Drawing.Common.4.7.0\lib\net461\System.Drawing.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.Globalization.Calendars, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Globalization.Calendars.4.3.0\lib\net46\System.Globalization.Calendars.dll</HintPath>
@@ -168,8 +168,8 @@
       <HintPath>..\packages\System.Reflection.4.3.0\lib\net462\System.Reflection.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.6.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.InteropServices, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.4.3.0\lib\net462\System.Runtime.InteropServices.dll</HintPath>
@@ -217,10 +217,25 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="D3D\Animation\AminRenderSystem.cs" />
+    <Compile Include="D3D\Animation\ConstantBuffers.cs" />
+    <Compile Include="D3D\BaseRenderTechniqueSystem.cs" />
     <Compile Include="D3D\Components\D3DTerrainRenderComponent.cs" />
+    <Compile Include="D3D\Components\Render\D3DLineVertexRenderComponent.cs" />
+    <Compile Include="D3D\Components\Render\D3DSphereRenderComponent.cs" />
+    <Compile Include="D3D\Components\Render\D3DTriangleColoredVertexesRenderComponent.cs" />
     <Compile Include="D3D\Components\SkyComponents.cs" />
+    <Compile Include="D3D\D3DCameraSystem.cs" />
+    <Compile Include="D3D\D3DViewport.cs" />
+    <Compile Include="D3D\Game.cs" />
+    <Compile Include="D3D\Line\LineVertexRenderTechnique.cs" />
+    <Compile Include="D3D\RenderSystem.cs" />
+    <Compile Include="D3D\SDXCollision.cs" />
+    <Compile Include="D3D\SpherePoint\SpherePointRenderStrategy.cs" />
+    <Compile Include="D3D\StategyStaticShaders.cs" />
     <Compile Include="D3D\Techniques\SkyPlaneWithParallaxRenderTechnique.cs" />
     <Compile Include="D3D\Techniques\TerrainRenderTechnique.cs" />
+    <Compile Include="D3D\TriangleColored\TriangleColoredVertexRenderTechnique.cs" />
     <Compile Include="EntityBuilders.cs" />
     <Compile Include="GameObjects\AnimCMOObject.cs" />
     <Compile Include="GameObjects\CameraGameObject.cs" />
@@ -413,6 +428,21 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="D3D\Shaders\terrain_clipmaps.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D3D\Animation\Shaders\Animation.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D3D\Animation\Shaders\Common.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D3D\Line\Lines.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D3D\SpherePoint\sphere_point.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D3D\TriangleColored\colored_vertex.hlsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />

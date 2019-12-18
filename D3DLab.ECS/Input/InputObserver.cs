@@ -41,9 +41,13 @@ namespace D3DLab.ECS.Input {
             public abstract void InvokeHandler<T>(Action<T> action) where T : IHandler;
 
             public override void SwitchTo(int stateTo, InputStateData state) {
-                current?.LeaveState(state);
-                current = states[stateTo](this);
-                current.EnterState(state);
+                if (states.ContainsKey(stateTo)) {
+                    current?.LeaveState(state);
+                    current = states[stateTo](this);
+                    current.EnterState(state);
+                } else {
+                   Debug.WriteLine($"No handled state {stateTo}");
+                }     
             }
             public override bool OnMouseMove(InputStateData state) { return current.OnMouseMove(state); }
             public override bool OnMouseDown(InputStateData state) { return current.OnMouseDown(state); }

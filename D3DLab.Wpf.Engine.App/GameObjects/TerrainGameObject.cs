@@ -195,7 +195,7 @@ namespace D3DLab.Wpf.Engine.App {
                         new System.IO.FileInfo(snow),
                         new System.IO.FileInfo(Path.Combine(resources,"distance01n.bmp"))
                         ),
-                    new TransformComponent(),
+                    TransformComponent.Identity(),
                     PhysicalComponentFactory.CreateStaticMesh()
                 });
 

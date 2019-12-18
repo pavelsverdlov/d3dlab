@@ -1,4 +1,6 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Components;
+using D3DLab.ECS.Ext;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
@@ -12,6 +14,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
         public IContextState ContextState { get; set; }
 
         protected static class Ext {
+            [Obsolete("Duplicate of GeneralCameraComponent.TryChangeCameraDistance")]
             public static bool ChangeCameraDistance(GeneralCameraComponent camera,ref float delta, Vector3 zoomAround) {
                 // Handle the 'zoomAround' point
                 var target = camera.Position + camera.LookDirection;

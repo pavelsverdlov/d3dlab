@@ -1,5 +1,6 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
+using D3DLab.ECS.Ext;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Components.Movements;
 using D3DLab.Std.Engine.Core.Ext;
