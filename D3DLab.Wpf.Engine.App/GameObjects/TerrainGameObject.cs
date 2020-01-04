@@ -32,7 +32,8 @@ namespace D3DLab.Wpf.Engine.App {
         */
 
         public static SkyGameObject Create(IEntityManager manager) {
-            var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/sky/");
+            var resources = Path.Combine(@"Resources\sky\");
+            //../../../../D3DLab.Wpf.Engine.App/Resources/sky/
             var tag = new ElementTag("SkyDome");
             var plane = new ElementTag("SkyPlane");
 
@@ -160,7 +161,8 @@ namespace D3DLab.Wpf.Engine.App {
         public static TerrainGameObject Create(IEntityManager manager) {
             var tag = new ElementTag("Terrain");
 
-            var resources = Path.Combine("../../../../D3DLab.Wpf.Engine.App/Resources/terrain/");
+            var resources = Path.Combine(@"Resources\terrain\");
+            //"../../../../D3DLab.Wpf.Engine.App/Resources/terrain/"
             var grass = Path.Combine(resources, "1.jpg");
             var slope = Path.Combine(resources, "slope.bmp");
             var rock = Path.Combine(resources, "rock-lambertian.jpg");

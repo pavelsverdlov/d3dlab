@@ -23,14 +23,14 @@ namespace D3DLab.Viewer {
 
         protected override void ConfigureServices(IDependencyRegistrator registrator) {
             registrator
-                .AddApplication(this)
+                .RegisterApplication(this)
                 .RegisterView<MainWindow, MainWindowViewModel>()
-                .AddMvvm()
+                .RegisterMvvm()
                 ;
         }
 
         protected override void AppStartup(StartupEventArgs e, IDependencyResolver resolver) {
-            resolver.GetView<MainWindow, MainWindowViewModel>().Show();
+            resolver.ResolveView<MainWindow, MainWindowViewModel>().Show();
         }
 
         

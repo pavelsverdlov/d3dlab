@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Physics.Engine.Bepu {
-    class BepuStaticAABBPhysicalComponent : PhysicalComponent {
+    class StaticAABBPhysicalComponent : PhysicalComponent {
 
         public BoundingBox AABBox;
 
-        public BepuStaticAABBPhysicalComponent() {
+        public StaticAABBPhysicalComponent() {
             
         }
 
@@ -20,9 +20,9 @@ namespace D3DLab.Physics.Engine.Bepu {
             return constructor.TryConstructShape(entity, this);
         }
     }
-    class BepuStaticMeshPhysicalComponent : PhysicalComponent {
+    class StaticMeshPhysicalComponent : PhysicalComponent {
 
-        public BepuStaticMeshPhysicalComponent() {
+        public StaticMeshPhysicalComponent() {
 
         }
 
@@ -30,4 +30,6 @@ namespace D3DLab.Physics.Engine.Bepu {
             return constructor.TryConstructShape(entity, this);
         }
     }
+
+    
 }

@@ -8,11 +8,14 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Physics.Engine.Bepu {
-    class BepuDynamicAABBPhysicalComponent : PhysicalComponent {
+    interface IBepuDynamicPhysicalComponent : IGraphicComponent {
+        BoundingBox AABBox { get; }
+    }
+    class DynamicAABBPhysicalComponent : PhysicalComponent , IBepuDynamicPhysicalComponent {
 
-        public BoundingBox AABBox;
+        public BoundingBox AABBox { get; set; }
 
-        public BepuDynamicAABBPhysicalComponent() {
+        public DynamicAABBPhysicalComponent() {
         }
 
         public override void Dispose() {
@@ -47,6 +50,17 @@ namespace D3DLab.Physics.Engine.Bepu {
 
             //Data.Body = simulation.Bodies.Add(BodyDescription.CreateDynamic(pose, bodyInertia, new CollidableDescription(bodyShape, 0.1f), new BodyActivityDescription(0.01f)));
 
+        }
+    }
+
+    class DynamicMeshPhysicalComponent : PhysicalComponent, IBepuDynamicPhysicalComponent {
+        public BoundingBox AABBox { get; set; }
+        public DynamicMeshPhysicalComponent() {
+
+        }
+
+        internal override bool TryConstructBody(GraphicEntity entity, IPhysicsShapeConstructor constructor) {
+            return constructor.TryConstructShape(entity, this);
         }
     }
 }
