@@ -150,9 +150,9 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
         protected class PerspectiveCameraMoveHandler : ICameraMovementComponentHandler {
             protected readonly PerspectiveCameraComponent camera;
-            protected readonly SceneSnapshot snapshot;
+            protected readonly ISceneSnapshot snapshot;
 
-            public PerspectiveCameraMoveHandler(PerspectiveCameraComponent camera, SceneSnapshot snapshot) {
+            public PerspectiveCameraMoveHandler(PerspectiveCameraComponent camera, ISceneSnapshot snapshot) {
                 this.camera = camera;
                 this.snapshot = snapshot;
             }
@@ -256,9 +256,9 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
         protected class OrthographicCameraMoveHandler : ICameraMovementComponentHandler {
             protected readonly OrthographicCameraComponent camera;
-            protected readonly SceneSnapshot snapshot;
+            protected readonly ISceneSnapshot snapshot;
 
-            public OrthographicCameraMoveHandler(OrthographicCameraComponent camera, SceneSnapshot snapshot) {
+            public OrthographicCameraMoveHandler(OrthographicCameraComponent camera, ISceneSnapshot snapshot) {
                 this.camera = camera;
                 this.snapshot = snapshot;
             }
@@ -281,10 +281,10 @@ namespace D3DLab.Std.Engine.Core.Systems {
             }
         }
 
-        protected virtual ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
+        protected virtual ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, ISceneSnapshot snapshot) {
             return new OrthographicCameraMoveHandler(com, snapshot);
         }
-        protected virtual ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, SceneSnapshot snapshot) {
+        protected virtual ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, ISceneSnapshot snapshot) {
             return new PerspectiveCameraMoveHandler(com, snapshot);
         }
 
@@ -292,7 +292,7 @@ namespace D3DLab.Std.Engine.Core.Systems {
 
 
         protected override void Executing(ISceneSnapshot ss) {
-            var snapshot = (SceneSnapshot)ss;
+            var snapshot = ss;
             var window = snapshot.Window;
             var emanager = ContextState.GetEntityManager();
 

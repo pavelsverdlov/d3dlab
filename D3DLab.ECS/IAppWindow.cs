@@ -19,4 +19,11 @@ namespace D3DLab.ECS {
 
         void SetTitleText(string txt);
     }
+
+    public interface IWpfSurface {
+
+    }
+    public interface IWFSurface {
+
+    }
 }

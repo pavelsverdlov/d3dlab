@@ -12,6 +12,9 @@ namespace D3DLab.SDX.Engine {
             var v3 = vectors.Select(x=>x.ToSDXVector3()).ToArray();
 
             var box1 = ToBoundingBoxNumericsVector(v3);
+
+          //  DXImageSource
+
         }
 
 

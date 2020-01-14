@@ -61,6 +61,19 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
         public D3DSkyPlaneRenderComponent() {
             SampleState = new DisposableSetter<SamplerState>();
             TextureResources = new EnumerableDisposableSetter<ShaderResourceView[]>();
+            var rasterizerStateDescription = new RasterizerStateDescription() {
+                IsAntialiasedLineEnabled = false,
+                CullMode = CullMode.None, //Back
+                DepthBias = 0,
+                DepthBiasClamp = .0f,
+                IsDepthClipEnabled = true,
+                FillMode = FillMode.Solid,
+                IsFrontCounterClockwise = false,
+                IsMultisampleEnabled = false,
+                IsScissorEnabled = false,
+                SlopeScaledDepthBias = .0f
+            };
+            RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
         }
 
         public override void Dispose() {
@@ -75,6 +88,21 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
     public class D3DSkyRenderComponent : D3DRenderComponent {
         public SharpDX.Direct3D11.Buffer GradientBuffer { get; set; }
 
+        public D3DSkyRenderComponent() {
+            var rasterizerStateDescription = new RasterizerStateDescription() {
+                IsAntialiasedLineEnabled = false,
+                CullMode = CullMode.None,
+                DepthBias = 0,
+                DepthBiasClamp = .0f,
+                IsDepthClipEnabled = true,
+                FillMode = FillMode.Solid,
+                IsFrontCounterClockwise = false,
+                IsMultisampleEnabled = false,
+                IsScissorEnabled = false,
+                SlopeScaledDepthBias = .0f
+            };
+            RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
+        }
 
         public override void Dispose() {
             base.Dispose();

@@ -133,22 +133,23 @@ namespace D3DLab {
                     var count = 1;// 00;
                     while (count --> 0) {//64, 4, 32
                         Thread.Sleep(TimeSpan.FromSeconds(0.5));
-                        var max = RandomUtil.NextVector3(r, new Vector3(0, 0, 0), new Vector3(10, 0, 10));
+                        var max = RandomUtil.NextVector3(r, new Vector3(0, 0, 0), new Vector3(5, 0, 5));
                         PhysicsObjectTest.Create(main.context.GetEntityManager(),
                                                 new BoundingBox(
-                                                    new Vector3(max.X - 10, 90, max.Y - 10),
-                                                    new Vector3(max.X, 100, max.Z)),
+                                                    new Vector3(0, 0, 0),new Vector3(2, 2, 2)
+                                                    
+                                                    ),
                                                 V4Colors.NextColor(r));
                     }
                 });
-                //if (stat.IsNull()) {
-                //    stat = new LoadedItem(main, PhysicsObjectTest.CreateStatic(main.context.GetEntityManager(),
-                //        new BoundingBox(new Vector3(-50, -50, -50), new Vector3(50, 50, 50))));
-                //    main.items.Add(stat);
+                if (stat.IsNull()) {
+                    //stat = new LoadedItem(main, PhysicsObjectTest.CreateStatic(main.context.GetEntityManager(),
+                    //    new BoundingBox(new Vector3(-50, -50, -50), new Vector3(50, 50, 50))));
+                    //main.items.Add(stat);
 
-                //    PhysicsObjectTest.CreateStaticAABB(main.context.GetEntityManager(),
-                //        new BoundingBox(new Vector3(-150, -30, -150), new Vector3(150, -15, 150)));
-                //}
+                    //PhysicsObjectTest.CreateStaticAABB(main.context.GetEntityManager(),
+                    //    new BoundingBox(new Vector3(-150, -30, -150), new Vector3(150, -15, 150)));
+                }
             }
         }
 

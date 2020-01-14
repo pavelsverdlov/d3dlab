@@ -59,18 +59,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 typeof(D3DTexturedMaterialSamplerComponent),
                 typeof(TransformComponent))){
 
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                IsAntialiasedLineEnabled = false,
-                CullMode = CullMode.None, //Back
-                DepthBias = 0,
-                DepthBiasClamp = .0f,
-                IsDepthClipEnabled = true,
-                FillMode = FillMode.Solid,
-                IsFrontCounterClockwise = false,
-                IsMultisampleEnabled = false,
-                IsScissorEnabled = false,
-                SlopeScaledDepthBias = .0f
-            };
+           
             // Enable additive blending so the clouds blend with the sky dome color.
             blendStateDescription = new BlendStateDescription();
             blendStateDescription.RenderTarget[0].IsBlendEnabled = true;

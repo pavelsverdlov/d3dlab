@@ -48,12 +48,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             : base(new EntityHasSet(
                 typeof(D3DTriangleColoredVertexRenderComponent),
                 typeof(TransformComponent))) {
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                CullMode = CullMode.Front,
-                FillMode = FillMode.Solid,
-                IsMultisampleEnabled = false,
-                IsAntialiasedLineEnabled = false
-            };
+            
             depthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled;
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;
         }

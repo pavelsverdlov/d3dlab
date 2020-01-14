@@ -48,18 +48,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
 
         public SkyGradientColoringRenderTechnique()
             : base(new EntityHasSet(typeof(D3DSkyRenderComponent), typeof(TransformComponent))) {
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                IsAntialiasedLineEnabled = false,
-                CullMode = CullMode.None,
-                DepthBias = 0,
-                DepthBiasClamp = .0f,
-                IsDepthClipEnabled = true,
-                FillMode = FillMode.Solid,
-                IsFrontCounterClockwise = false,
-                IsMultisampleEnabled = false,
-                IsScissorEnabled = false,
-                SlopeScaledDepthBias = .0f
-            };
+          
             // disable depth because SKY dom is close to camera and with correct depth overlap all objects
             depthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthDisabled;
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;

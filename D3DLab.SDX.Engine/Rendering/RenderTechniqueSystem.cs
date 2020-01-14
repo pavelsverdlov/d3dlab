@@ -29,7 +29,7 @@ namespace D3DLab.SDX.Engine.Rendering {
 
     public abstract class D3DAbstractRenderTechnique<TProperties> where TProperties : IRenderProperties {
         protected readonly LinkedList<GraphicEntity> entities;
-        protected RasterizerStateDescription rasterizerStateDescription;
+        //protected RasterizerStateDescription rasterizerStateDescription;
         protected BlendStateDescription blendStateDescription;
         protected DepthStencilStateDescription depthStencilStateDescription;
 
@@ -78,7 +78,7 @@ namespace D3DLab.SDX.Engine.Rendering {
                 render.PixelShader.Set(new PixelShader(device, pass.PixelShader.ReadCompiledBytes()));
             }
 
-            render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
+            //render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
             render.SetStates(
                 new BlendState(graphics.D3DDevice, blendStateDescription),
                 new DepthStencilState(graphics.D3DDevice, depthStencilStateDescription));

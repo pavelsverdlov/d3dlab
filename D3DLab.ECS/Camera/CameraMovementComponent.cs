@@ -16,7 +16,7 @@ namespace D3DLab.ECS.Camera {
             Undefined,
             Zoom,
             Rotate,
-
+            Pan
         }
 
         public static CameraMovementComponent CreateZoom(CameraState state, MovementData movementData, int delta, float speedValue = 1) {
@@ -26,6 +26,17 @@ namespace D3DLab.ECS.Camera {
                 MovementData = movementData,
                 Delta = delta,
                 MovementType = MovementTypes.Zoom,
+                IsValid = true,
+                SpeedValue = speedValue
+            };
+        }
+
+        public static CameraMovementComponent CreatePan(CameraState state, MovementData movementData, float speedValue = 1) {
+            return new CameraMovementComponent {
+                Tag = new ElementTag(Guid.NewGuid().ToString()),
+                State = state,
+                MovementData = movementData,
+                MovementType = MovementTypes.Pan,
                 IsValid = true,
                 SpeedValue = speedValue
             };

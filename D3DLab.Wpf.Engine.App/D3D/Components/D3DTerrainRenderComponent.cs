@@ -184,6 +184,13 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
             IndexBuffers = new EnumerableDisposableSetter<SharpDX.Direct3D11.Buffer[]>(disposer);
             SampleState = new DisposableSetter<SamplerState>(disposer);
             TextureResources = new EnumerableDisposableSetter<ShaderResourceView[]>(disposer);
+            var rasterizerStateDescription = new RasterizerStateDescription() {
+                CullMode = CullMode.Front,
+                FillMode = FillMode.Solid,
+                IsMultisampleEnabled = false,
+                IsAntialiasedLineEnabled = false
+            };
+            RasterizerState = new SDX.Engine.Rendering.D3DRasterizerState(rasterizerStateDescription);
         }
 
         public override void Dispose() {

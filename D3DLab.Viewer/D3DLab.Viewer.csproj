@@ -4,15 +4,22 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Syncfusion.Shared.WPF" Version="17.4.0.40" />
     <PackageReference Include="Syncfusion.Themes.Office2013DarkGray.WPF" Version="17.4.0.40" />
     <PackageReference Include="Syncfusion.Tools.WPF" Version="17.4.0.40" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Presentation\TDI\SceneUCTab - Copy.xaml.cs" />
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -32,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
+    <ProjectReference Include="..\D3DLab.Wpf.Render\D3DLab.Wpf.Render.csproj" />
     <ProjectReference Include="..\WPFLab\WPFLab.csproj" />
   </ItemGroup>
 

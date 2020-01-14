@@ -71,9 +71,9 @@ namespace D3DLab.Wpf.Engine.App.Systems {
 
                     conf.Texture = generating.Texture;
 
-                    var box = BoundingBox.CreateFromVertices(newgeo.Positions.ToArray());
+               //     var box = BoundingBox.CreateFromVertices(newgeo.Positions.ToArray());
 
-                    entity.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(-box.GetCenter())));
+                //    entity.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(-box.GetCenter())));
 
                     entity.GetComponent<IRenderableComponent>().CanRender = true;
 

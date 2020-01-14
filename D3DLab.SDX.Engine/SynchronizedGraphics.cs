@@ -1,9 +1,36 @@
 ﻿using D3DLab.ECS;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace D3DLab.SDX.Engine {
+    public interface ISDXSurface : IAppWindow {
+        void Present(IGraphicsDevice device);
+    }
+
+    public class GraphicsFrame : IDisposable {
+        public readonly GraphicsDevice Graphics;
+        readonly ISDXSurface surface;
+        readonly Stopwatch sw;
+        TimeSpan spendTime;
+
+        public GraphicsFrame(GraphicsDevice device, ISDXSurface surface) {
+            this.Graphics = device;
+            this.surface = surface;
+            sw = new Stopwatch();
+            sw.Start();
+            device.Refresh();
+        }
+
+
+        public void Dispose() {
+            Graphics.Present();
+            surface.Present(Graphics);
+            sw.Stop();
+            spendTime = sw.Elapsed;
+        }
+    }
     public class SynchronizedGraphics : ISynchronizationContext {
         struct Size {
             public float Width;
@@ -11,15 +38,15 @@ namespace D3DLab.SDX.Engine {
         }
         internal event Action<GraphicsDevice> Changed;
         public readonly GraphicsDevice Device;
-        readonly IAppWindow window;
+        readonly ISDXSurface surface;
         readonly SynchronizationContext<SynchronizedGraphics, Size> synchronizer;
 
         public bool IsChanged => synchronizer.IsChanged;
 
-        public SynchronizedGraphics(IAppWindow window) {
-            Device = new GraphicsDevice(window);
-            window.Resized += OnResized;
-            this.window = window;
+        public SynchronizedGraphics(ISDXSurface surface) {
+            Device = new GraphicsDevice(surface.Handle, surface.Width, surface.Height);
+            surface.Resized += OnResized;
+            this.surface = surface;
             synchronizer = new SynchronizationContext<SynchronizedGraphics, Size>(this); 
         }
 
@@ -27,7 +54,7 @@ namespace D3DLab.SDX.Engine {
             synchronizer.Add((_this, size) => {
                 _this.Device.Resize(size.Width, size.Height);
                 Changed(_this.Device);
-            }, new Size { Height = window.Height, Width = window.Width });
+            }, new Size { Height = surface.Height, Width = surface.Width });
         }
 
         public void Dispose() {
@@ -36,6 +63,10 @@ namespace D3DLab.SDX.Engine {
 
         public void Synchronize(int theadId) {
             synchronizer.Synchronize(theadId);
+        }
+
+        public GraphicsFrame FrameBegin() {
+            return new GraphicsFrame(this.Device, surface);
         }
 
         public void GetBackBufferBitmapInvokeAsync(Action<System.Drawing.Bitmap> callback) {

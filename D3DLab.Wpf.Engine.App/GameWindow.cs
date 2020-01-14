@@ -63,5 +63,9 @@ namespace D3DLab.Wpf.Engine.App {
                     Application.Current.Return(x => x.MainWindow).Do(x => x.Title = txt);
                 });
         }
+
+        public void Present(IntPtr backBuffer) {
+
+        }
     }
 }

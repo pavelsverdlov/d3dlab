@@ -22,6 +22,9 @@ namespace D3DLab.SDX.Engine {
 
     }
     public static class D3DDepthStencilStateDescriptions {
+
+        public static DepthStencilStateDescription Default => DepthStencilStateDescription.Default();
+
         // Now create a second depth stencil state which turns off the Z buffer for 2D rendering.
         // The difference is that DepthEnable is set to false.
         // All other parameters are the same as the other depth stencil state.

@@ -67,12 +67,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                typeof(ClipmapsTerrainComponent),
                typeof(D3DTexturedMaterialSamplerComponent))
                  ) {
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                CullMode = CullMode.Front,
-                FillMode = FillMode.Solid,
-                IsMultisampleEnabled = false,
-                IsAntialiasedLineEnabled = false
-            };
+          
             depthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled;
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;
         }
@@ -256,12 +251,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Techniques {
                 typeof(D3DTerrainRenderComponent),
                 typeof(D3DTexturedMaterialSamplerComponent))
                   ) {
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                CullMode = CullMode.Front,
-                FillMode = FillMode.Solid,
-                IsMultisampleEnabled = false,
-                IsAntialiasedLineEnabled = false
-            };
+          
             // disable depth because SKY dom is close to camera and with correct depth overlap all objects
             depthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled;
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;

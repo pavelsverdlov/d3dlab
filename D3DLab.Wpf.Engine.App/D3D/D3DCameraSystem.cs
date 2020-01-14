@@ -113,11 +113,11 @@ namespace D3DLab.Wpf.Engine.App.D3D {
             }
         }
 
-        protected override ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
-            return new D3DOrthoMoveHandler(com, snapshot);
-        }
-        protected override ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, SceneSnapshot snapshot) {
-            return new D3DPerspMoveHandler(com, snapshot, ContextState);
-        }
+        //protected override ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
+        //    return new D3DOrthoMoveHandler(com, snapshot);
+        //}
+        //protected override ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, SceneSnapshot snapshot) {
+        //    return new D3DPerspMoveHandler(com, snapshot, ContextState);
+        //}
     }
 }

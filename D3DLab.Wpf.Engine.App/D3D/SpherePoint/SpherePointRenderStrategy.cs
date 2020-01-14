@@ -46,12 +46,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             : base(new EntityHasSet(
                 typeof(D3DSpherePointRenderComponent),
                 typeof(TransformComponent))) {
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                CullMode = CullMode.None,
-                FillMode = FillMode.Solid,
-                IsMultisampleEnabled = false,
-                IsAntialiasedLineEnabled = false
-            };
+           
             depthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled;
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;
         }

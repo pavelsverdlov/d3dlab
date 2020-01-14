@@ -33,7 +33,7 @@ namespace D3DLab.ECS.Render {
         }
 
         protected abstract void Initializing();
-        protected abstract ISceneSnapshot CreateSceneSnapshot(TimeSpan frameRateTime);
+        protected abstract ISceneSnapshot CreateSceneSnapshot(InputSnapshot isnap, TimeSpan frameRateTime);
 
         public void Run(IEntityRenderNotify notify) {
             this.notify = notify;
@@ -41,7 +41,7 @@ namespace D3DLab.ECS.Render {
             loopTask = Task.Factory.StartNew((Action)Loop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        protected virtual void OnSynchronizing() {}
+        protected virtual bool Synchronize() => false;
 
         void Loop() {
             System.Threading.Thread.CurrentThread.Name = "Game Loop";
@@ -67,12 +67,12 @@ namespace D3DLab.ECS.Render {
                 speed.Restart();
 
                 imanager.Synchronize(Thread.CurrentThread.ManagedThreadId);
-                OnSynchronizing();
+                var changed = Synchronize();
 
-                var eman = Context.GetEntityManager();
+                var emanager = Context.GetEntityManager();
 
-                Rendering(eman, imanager, millisec);
-
+                Rendering(emanager, imanager, millisec, changed);
+                
                 millisec = speed.ElapsedMilliseconds;
 
                 if (millisec < oneFrameMilliseconds) {
@@ -82,24 +82,30 @@ namespace D3DLab.ECS.Render {
 
                 millisec = speed.ElapsedMilliseconds;
 
-                eman.GetEntity(engineInfoTag)
+                emanager.GetEntity(engineInfoTag)
                     .UpdateComponent(PerfomanceComponent.Create(millisec, (int)(total / millisec)));
                 //Debug.WriteLine($"FPS {(int)(total / speed.ElapsedMilliseconds)} / {speed.ElapsedMilliseconds} ms");
 
-                notify.NotifyRender(eman.GetEntities().ToArray());
+                notify.NotifyRender(emanager.GetEntities().ToArray());
             }
 
             Window.InputManager.Dispose();
             Context.Dispose();
         }
 
-        void Rendering(IEntityManager emanager, IInputManager imanager, double millisec) {
-            //var ishapshot = imanager.GetInputSnapshot();
+        void Rendering(IEntityManager emanager, IInputManager imanager, double millisec, bool changed) {
             var id = Thread.CurrentThread.ManagedThreadId;
-            
+
+            changed = changed || emanager.HasChanges;
             emanager.Synchronize(id);
 
-            var snapshot = CreateSceneSnapshot(TimeSpan.FromMilliseconds(millisec));// new SceneSnapshot(Window, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
+            var isnap = Window.InputManager.GetInputSnapshot();
+
+            if (!isnap.Events.Any() && !changed) {//no input no rendering 
+                return;
+            }
+
+            var snapshot = CreateSceneSnapshot(isnap, TimeSpan.FromMilliseconds(millisec));// new SceneSnapshot(Window, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
             foreach (var sys in Context.GetSystemManager().GetSystems()) {
                 try {
                     sys.Execute(snapshot);

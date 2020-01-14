@@ -16,6 +16,12 @@ namespace D3DLab.SDX.Engine.Components {
 
         public D3DLineVertexRenderComponent() : base() {
             PrimitiveTopology = PrimitiveTopology.LineStrip;
+            RasterizerState = new Rendering.D3DRasterizerState(new SharpDX.Direct3D11.RasterizerStateDescription() {
+                CullMode = SharpDX.Direct3D11.CullMode.None,
+                FillMode = SharpDX.Direct3D11.FillMode.Solid,
+                IsMultisampleEnabled = false,
+                IsAntialiasedLineEnabled = true
+            });
         }
     }
 

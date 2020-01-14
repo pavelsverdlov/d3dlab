@@ -60,7 +60,7 @@ namespace D3DLab.Wpf.Engine.App.D3D {
             Synchronize();
             var registrator = new RenderTechniqueRegistrator<CustomRenderProperties>(nested);
             try {
-                using (var frame = graphics.Device.FrameBegin()) {
+                using (var frame = graphics.FrameBegin()) {
 
                     foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
                         var renders = entity.GetComponents<IRenderableComponent>();

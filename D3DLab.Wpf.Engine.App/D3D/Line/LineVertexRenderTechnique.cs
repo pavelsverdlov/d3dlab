@@ -50,12 +50,12 @@ namespace D3DLab.SDX.Engine.Rendering {
             : base(new EntityHasSet(
                 typeof(D3DLineVertexRenderComponent),
                 typeof(TransformComponent))) {
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                CullMode = CullMode.None,
-                FillMode = FillMode.Solid,
-                IsMultisampleEnabled = false,
-                IsAntialiasedLineEnabled = true
-            };
+            //rasterizerStateDescription = new RasterizerStateDescription() {
+            //    CullMode = CullMode.None,
+            //    FillMode = FillMode.Solid,
+            //    IsMultisampleEnabled = false,
+            //    IsAntialiasedLineEnabled = true
+            //};
             depthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled;
             blendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled;
         }

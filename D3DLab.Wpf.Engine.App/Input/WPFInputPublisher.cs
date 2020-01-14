@@ -28,7 +28,7 @@ namespace D3DLab.Wpf.Engine.App.Input {
             this.control.MouseWheel += OnMouseWheel;
             //this.control.MouseDoubleClick += OnMouseDoubleClick;
             this.control.MouseLeave += OnMouseLeave;
-
+            
             //    this.control.Leave += OnLeave;
             this.control.GotFocus += control_GotFocus;
             this.control.LostFocus += control_LostFocus;

@@ -155,10 +155,10 @@ namespace D3DLab.SDX.Engine.Animation {
                typeof(TransformComponent),
                typeof(D3DTexturedMaterialSamplerComponent))) {
 
-            rasterizerStateDescription = new RasterizerStateDescription() {
-                FillMode = FillMode.Solid,
-                CullMode = CullMode.Back,
-            };
+            //rasterizerStateDescription = new RasterizerStateDescription() {
+            //    FillMode = FillMode.Solid,
+            //    CullMode = CullMode.Back,
+            //};
             depthStencilStateDescription = new DepthStencilStateDescription() {
                 IsDepthEnabled = true, // enable depth?
                 DepthComparison = Comparison.Less,
@@ -250,7 +250,7 @@ namespace D3DLab.SDX.Engine.Animation {
                         render.VertexShader.Set(new VertexShader(device, vertexShaderByteCode));
                         render.PixelShader.Set(new PixelShader(device, pass.PixelShader.ReadCompiledBytes()));
 
-                        render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
+                        //render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
                         render.BlendingState.Set(new BlendState(graphics.D3DDevice, blendStateDescription));
                         render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, depthStencilStateDescription));
 

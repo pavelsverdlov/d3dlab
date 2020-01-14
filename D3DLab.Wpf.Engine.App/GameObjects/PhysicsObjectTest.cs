@@ -24,7 +24,7 @@ namespace D3DLab.Wpf.Engine.App.GameObjects {
 
             //var box = new BoundingBox(new Vector3(-5,10,-5), new Vector3(5,20,5));
 
-            box = box.Transform(Matrix4x4.CreateTranslation(new Vector3(64, 100, 32) - box.GetCenter()));
+            box = box.Transform(Matrix4x4.CreateTranslation(new Vector3(127.5f, 50, 127.5f) - box.GetCenter()));
 
             var geobox = GeometryBuilder.BuildGeoBox(box);
 

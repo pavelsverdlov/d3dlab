@@ -45,27 +45,152 @@ namespace D3DLab.SDX.Engine {
         }
     }
 
-    public class GraphicsFrame : IDisposable {
-        public readonly GraphicsDevice Graphics;
-        readonly Stopwatch sw;
-        TimeSpan spendTime;
 
-        public GraphicsFrame(GraphicsDevice graphics) {
-            this.Graphics = graphics;
-            sw = new Stopwatch();
-            sw.Start();
-            graphics.Refresh();
-        }
+   
 
-
-        public void Dispose() {
-            Graphics.Present();
-            sw.Stop();
-            spendTime = sw.Elapsed;
-        }
+    public interface IGraphicsDevice {
+        Texture2D GetBackBuffer();
     }
 
-    public class GraphicsDevice {
+    public class GraphicsDevice : IGraphicsDevice {
+        const Format BackBufferTextureFormat = Format.R8G8B8A8_UNorm;
+
+        abstract class DirectX11 {
+            public SharpDX.Direct3D11.Device D3DDevice;
+            public DeviceContext ImmediateContext;
+            public RenderTargetView RenderTarget;
+
+            public virtual void Dispose() {
+                RenderTarget.Dispose();
+
+                ImmediateContext.ClearState();
+                ImmediateContext.Flush();
+                ImmediateContext.Dispose();
+
+                D3DDevice.Dispose();
+            }
+            public abstract Texture2D GetBackBuffer();
+            public abstract void Present();
+            public abstract void Resize(int width, int height);
+        }
+        class RenderToTexture : DirectX11 {
+            Texture2D targetTexture;
+            public RenderToTexture(Adapter adapter, int width, int height) {
+                D3DDevice = new SharpDX.Direct3D11.Device(adapter, DeviceCreationFlags.None);
+                ImmediateContext = D3DDevice.ImmediateContext;
+
+                Resize(width, height);
+            }
+            public override Texture2D GetBackBuffer() => targetTexture;
+            public override void Dispose() {
+                base.Dispose();
+                targetTexture.Dispose();
+            }
+
+            public override void Present() {
+                
+            }
+
+            public override void Resize(int width, int height) {
+                targetTexture = new Texture2D(D3DDevice, new Texture2DDescription() {
+                    Format = Format.B8G8R8A8_UNorm,//BackBufferTextureFormat,
+                    Width = width,
+                    Height = height,
+                    ArraySize = 1,
+                    BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    MipLevels = 1,
+                    OptionFlags = ResourceOptionFlags.Shared, //ResourceOptionFlags.None
+                    SampleDescription = new SampleDescription(1, 0),
+                    Usage = ResourceUsage.Default,
+                });
+
+                RenderTarget = new RenderTargetView(D3DDevice, targetTexture);
+            }
+        }
+        class RenderWithSwapChain : DirectX11 {
+            readonly SwapChain4 swapChain;
+            public RenderWithSwapChain(Adapter adapter, IntPtr handle, int width,int height) {
+
+                var backBufferDesc = new ModeDescription(width, height, new Rational(60, 1), BackBufferTextureFormat);
+
+                // Descriptor for the swap chain
+                var swapChainDesc = new SwapChainDescription() {
+                    ModeDescription = backBufferDesc,
+                    SampleDescription = new SampleDescription(1, 0),
+                    BufferCount = 2,
+                    IsWindowed = true,
+                    OutputHandle = handle,
+                    Usage = Usage.RenderTargetOutput,
+                };
+                // Create device and swap chain
+                SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, DeviceCreationFlags.None, swapChainDesc, out var d3dDevice, out var sch);
+
+                swapChain = sch.QueryInterface<SwapChain4>();
+                D3DDevice = d3dDevice.QueryInterface<Device5>();
+
+                ImmediateContext = d3dDevice.ImmediateContext;
+            }
+
+            public override Texture2D GetBackBuffer() => swapChain.GetBackBuffer<Texture2D>(0);
+
+            public override void Dispose() {
+                base.Dispose();
+                swapChain.Dispose();
+            }
+
+            public override void Present() {
+                swapChain.Present(1, PresentFlags.None);
+                //TODO: use second one
+                //swapChain.Present(1, PresentFlags.None, new PresentParameters());
+                //using (var tex = swapChain.GetBackBuffer<Texture2D>(0)) {
+
+                //_renderTarget = new D3D9.Texture(d3DDevice, target.Description.Width, target.Description.Height, 1,
+                //   D3D9.Usage.RenderTarget, format, D3D9.Pool.Default, ref handle);
+
+                //var w = (ISDXWindow)window;
+                //var tex = swapChain.GetBackBuffer<Texture2D>(0);
+                //w.Present(tex.NativePointer);
+
+
+                //w.SetRenderTarget(swapChain.GetBackBuffer<Texture2D>(0));
+
+                //}
+            }
+
+            public override void Resize(int width, int height) {
+                swapChain.ResizeBuffers(2, width, height, Format.R8G8B8A8_UNorm, SwapChainFlags.None);
+
+                using (var backBuffer = swapChain.GetBackBuffer<Texture2D>(0)) {
+                    RenderTarget = new RenderTargetView(D3DDevice, backBuffer);
+                }
+            }
+            void Resize(uint width, uint height) {
+                float _pixelScale = 1;
+                uint actualWidth = (uint)(width * _pixelScale);
+                uint actualHeight = (uint)(height * _pixelScale);
+                swapChain.ResizeBuffers(2, (int)actualWidth, (int)actualHeight, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
+
+                // Get the backbuffer from the swapchain
+                //using (Texture2D backBufferTexture = swapChain.GetBackBuffer<Texture2D>(0)) {
+                //    if (_depthFormat != null) {
+                //        TextureDescription depthDesc = new TextureDescription(
+                //            actualWidth, actualHeight, 1, 1, 1,
+                //            _depthFormat.Value,
+                //            TextureUsage.DepthStencil,
+                //            TextureType.Texture2D);
+                //        _depthTexture = new D3D11Texture(_device, ref depthDesc);
+                //    }
+
+                //    D3D11Texture backBufferVdTexture = new D3D11Texture(backBufferTexture);
+                //    FramebufferDescription desc = new FramebufferDescription(_depthTexture, backBufferVdTexture);
+                //    _framebuffer = new D3D11Framebuffer(_device, ref desc);
+                //    _framebuffer.Swapchain = this;
+                //}
+            }
+        }
+
+
         class ResourseRegistrHash {
             readonly Dictionary<int, HashSet<int>> shaders;
 
@@ -92,101 +217,64 @@ namespace D3DLab.SDX.Engine {
 
         public readonly D3DShaderCompilator Compilator;
 
+        public SharpDX.Direct3D11.Device D3DDevice => directX.D3DDevice;
         public TextureLoader TexturedLoader { get; }
-        public SharpDX.Direct3D11.Device D3DDevice { get; private set; }
-        public DeviceContext ImmediateContext { get; private set; }
+        public DeviceContext ImmediateContext => directX.ImmediateContext;
         public string VideoCardDescription { get; }
 
-        RenderTargetView renderTargetView;
         DepthStencilView depthStencilView;
 
-        readonly SwapChain swapChain;
-        readonly IntPtr handle;
-
         readonly ResourseRegistrHash resourseHash;
+        readonly DirectX11 directX;
 
-        public GraphicsDevice(IAppWindow window) {
+        public GraphicsDevice(IntPtr handle, float w, float h) {
             resourseHash = new ResourseRegistrHash();
-
-            this.handle = window.Handle;
-
             Compilator = new D3DShaderCompilator();           
 
-            var width = (int)window.Width;
-            var height = (int)window.Height;
-
-            var backBufferDesc = new ModeDescription(width, height, new Rational(60, 1), Format.R8G8B8A8_UNorm);
-
-            // Descriptor for the swap chain
-            var swapChainDesc = new SwapChainDescription() {
-                ModeDescription = backBufferDesc,
-                SampleDescription = new SampleDescription(1, 0),
-                Usage = Usage.RenderTargetOutput,
-                BufferCount = 2,
-                OutputHandle = handle,
-                IsWindowed = true
-            };
+            var width = (int)w;
+            var height = (int)h;
 
             var factory = new Factory1();
             var adapter = AdapterFactory.GetBestAdapter(factory);
-
+            
             VideoCardDescription = adapter.Description.Description.Trim('\0');
-
-
             /*
              * 
              *  DeviceCreationFlags.Debug - not supported by default, need to install the optional feature Graphics Tools
              * 
              */
 
-            // Create device and swap chain
-            SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, DeviceCreationFlags.None, swapChainDesc, out var d3dDevice, out var sch);
+            directX = handle == IntPtr.Zero ? 
+                (DirectX11)new RenderToTexture(adapter, width, height) :
+                new RenderWithSwapChain(adapter,handle,width, height );
 
-            swapChain = sch.QueryInterface<SwapChain4>();
-            D3DDevice = d3dDevice.QueryInterface<Device5>();
-
-            ImmediateContext = d3dDevice.ImmediateContext;
-
+            directX.Resize(width, height);
             CreateBuffers(width, height);
-
             //TODO: Динамический оверлей. Direct3D 11.2 https://habr.com/company/microsoft/blog/199380/
             //swapChain.SetSourceSize
             //DContext = new DeviceContext(D3DDevice);
 
-            TexturedLoader = new TextureLoader(D3DDevice);
-
+            TexturedLoader = new TextureLoader(directX.D3DDevice);
         }
 
         public void Dispose() {
-            renderTargetView.Dispose();
-
-            ImmediateContext.ClearState();
-            ImmediateContext.Flush();
-            ImmediateContext.Dispose();
-
-            D3DDevice.Dispose();
-            swapChain.Dispose();
+            directX.Dispose();
         }
 
         public void Resize(float w, float h) {
             var width = (int)w;
             var height = (int)h;
 
-            renderTargetView.Dispose();
+            directX.RenderTarget.Dispose();
             depthStencilView.Dispose();
 
-            swapChain.ResizeBuffers(2, width, height, Format.R8G8B8A8_UNorm, SwapChainFlags.None);
-
+            directX.Resize(width, height);
             CreateBuffers(width, height);
         }
 
         void CreateBuffers(int width, int height) {
-            using (Texture2D backBuffer = swapChain.GetBackBuffer<Texture2D>(0)) {
-                renderTargetView = new RenderTargetView(D3DDevice, backBuffer);
-            }
-
             var zBufferTextureDescription = new Texture2DDescription {
-                Format = Format.D16_UNorm,
+                Format = Format.D32_Float_S8X24_UInt,
                 ArraySize = 1,
                 MipLevels = 1,
                 Width = width,
@@ -198,15 +286,15 @@ namespace D3DLab.SDX.Engine {
                 OptionFlags = ResourceOptionFlags.None
             };
 
-            using (var zBufferTexture = new Texture2D(D3DDevice, zBufferTextureDescription)) {
-                depthStencilView = new DepthStencilView(D3DDevice, zBufferTexture);
+            using (var zBufferTexture = new Texture2D(directX.D3DDevice, zBufferTextureDescription)) {
+                depthStencilView = new DepthStencilView(directX.D3DDevice, zBufferTexture);
             }
 
-            var depthEnabledStencilState = new DepthStencilState(D3DDevice, D3DDepthStencilStateDescriptions.DepthEnabled);
+            var depthEnabledStencilState = new DepthStencilState(directX.D3DDevice, D3DDepthStencilStateDescriptions.DepthEnabled);
 
             var viewport = new SharpDX.Viewport(0, 0, width, height);
             ImmediateContext.Rasterizer.SetViewport(viewport);
-            ImmediateContext.OutputMerger.SetTargets(depthStencilView, renderTargetView);
+            ImmediateContext.OutputMerger.SetTargets(depthStencilView, directX.RenderTarget);
 
             //no zbuffer and DepthStencil
             //ImmediateContext.OutputMerger.SetRenderTargets(renderTargetView);
@@ -228,19 +316,14 @@ namespace D3DLab.SDX.Engine {
             //var blendFactor = new Color4(0, 0, 0, 0);
             //Device.ImmediateContext.OutputMerger.SetBlendState(blend, blendFactor, -1);
         }
-
-        public GraphicsFrame FrameBegin() {
-            resourseHash.Clear();
-            return new GraphicsFrame(this);
-        }
-
+        
         public void UpdateRasterizerState(RasterizerStateDescription descr) {
-            ImmediateContext.Rasterizer.State = new RasterizerState(D3DDevice, descr);
+            ImmediateContext.Rasterizer.State = new RasterizerState(directX.D3DDevice, descr);
         }
 
         public void Refresh() {
             ImmediateContext.ClearDepthStencilView(depthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
-            ImmediateContext.ClearRenderTargetView(renderTargetView, new RawColor4(0, 0, 0, 0));
+            ImmediateContext.ClearRenderTargetView(directX.RenderTarget, new RawColor4(0, 0, 0, 0));
         }
 
         public static bool IsDirectX11Supported() {
@@ -248,44 +331,25 @@ namespace D3DLab.SDX.Engine {
         }
 
         public void Present() {
-            swapChain.Present(1, PresentFlags.None);
-            //swapChain.Present(1, PresentFlags.None, new PresentParameters());
+            directX.Present();            
+            resourseHash.Clear();
+           // CopyBackBufferTexture().Save(@"D:\Zirkonzahn\MB_Database\back.png");
         }
+
+        public Texture2D GetBackBuffer() => directX.GetBackBuffer();
 
         public System.Drawing.Bitmap CopyBackBufferTexture() {
             using (var stream = new MemoryStream()) {
-                using (var tex = swapChain.GetBackBuffer<Texture2D>(0)) {
-                    Copy(tex, stream, D3DDevice);
+                //using (var tex = directX.GetBackBuffer()) { //for swapchain
+                var tex = directX.GetBackBuffer();
+                    Copy(tex, stream, directX.D3DDevice);
                     stream.Position = 0;
                     var bmp = new System.Drawing.Bitmap(stream);
-                    return bmp;
-                }                
+                    return bmp;  
             }
         }
 
-        void Resize(uint width, uint height) {
-            float _pixelScale = 1;
-            uint actualWidth = (uint)(width * _pixelScale);
-            uint actualHeight = (uint)(height * _pixelScale);
-            swapChain.ResizeBuffers(2, (int)actualWidth, (int)actualHeight, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
-
-            // Get the backbuffer from the swapchain
-            //using (Texture2D backBufferTexture = swapChain.GetBackBuffer<Texture2D>(0)) {
-            //    if (_depthFormat != null) {
-            //        TextureDescription depthDesc = new TextureDescription(
-            //            actualWidth, actualHeight, 1, 1, 1,
-            //            _depthFormat.Value,
-            //            TextureUsage.DepthStencil,
-            //            TextureType.Texture2D);
-            //        _depthTexture = new D3D11Texture(_device, ref depthDesc);
-            //    }
-
-            //    D3D11Texture backBufferVdTexture = new D3D11Texture(backBufferTexture);
-            //    FramebufferDescription desc = new FramebufferDescription(_depthTexture, backBufferVdTexture);
-            //    _framebuffer = new D3D11Framebuffer(_device, ref desc);
-            //    _framebuffer.Swapchain = this;
-            //}
-        }
+       
 
         static void Copy(Texture2D texture, Stream stream, SharpDX.Direct3D11.Device device) {
             var desc = new Texture2DDescription {

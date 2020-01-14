@@ -34,6 +34,7 @@ namespace D3DLab.SDX.Engine.Components {
             });
             PrimitiveTopology = PrimitiveTopology.TriangleList;
             // LayoutConstructor = StategyStaticShaders.ColoredVertexes.GetLayoutConstructor();
+
         }
 
     }

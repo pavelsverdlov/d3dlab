@@ -113,9 +113,8 @@ namespace D3DLab.ECS.Components {
             var p1 = new Vector2(move.X * PanK, move.Y * PanK);
 
             var left = Vector3.Cross(UpDirection, LookDirection);
-            left.Normalized();
 
-            var panVector = left * p1.X + UpDirection * p1.Y;
+            var panVector = left.Normalized() * p1.X + UpDirection * p1.Y;
             Position += panVector;
         }
 
