@@ -121,6 +121,10 @@ namespace D3DLab.ECS {
             }
             return components[tagEntity].Values.ToArray();
         }
+        public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent {
+            return components.Values.SelectMany(x=>x.Values).OfType<T>().ToArray();
+        }
+
         public bool Has<T>(ElementTag tag) where T : IGraphicComponent {
             return components[tag].Any(x => x.Value is T);
         }

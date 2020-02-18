@@ -1,9 +1,10 @@
-﻿using D3DLab.SDX.Engine.Components;
+﻿using D3DLab.SDX.Engine;
+using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Rendering;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 
-namespace D3DLab.Render.TriangleColored {
+namespace D3DLab.Toolkit.D3D.TriangleColored {
     public class D3DTriangleColoredVertexRenderComponent : D3DRenderComponent {
 
         public static D3DTriangleColoredVertexRenderComponent AsStrip() {
@@ -21,7 +22,7 @@ namespace D3DLab.Render.TriangleColored {
 
         }
         public D3DTriangleColoredVertexRenderComponent(CullMode cull) : base() {
-            RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
+            RasterizerStateDescription = new D3DRasterizerState(new RasterizerStateDescription2() {
                 CullMode = cull,
                 FillMode = FillMode.Solid,
                 IsMultisampleEnabled = false,
@@ -34,7 +35,9 @@ namespace D3DLab.Render.TriangleColored {
                 SlopeScaledDepthBias = .0f
             });
             PrimitiveTopology = PrimitiveTopology.TriangleList;
+
             // LayoutConstructor = StategyStaticShaders.ColoredVertexes.GetLayoutConstructor();
+            
 
         }
 

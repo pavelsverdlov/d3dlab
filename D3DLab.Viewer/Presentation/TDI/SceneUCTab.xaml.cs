@@ -4,7 +4,6 @@ using D3DLab.ECS.Ext;
 using D3DLab.ECS.Systems;
 using D3DLab.Render;
 using D3DLab.Render.GameObjects;
-using D3DLab.Render.TriangleColored;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Components;
 using D3DLab.Std.Engine.Core.Utilities;

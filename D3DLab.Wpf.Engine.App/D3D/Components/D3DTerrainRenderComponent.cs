@@ -190,7 +190,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
                 IsMultisampleEnabled = false,
                 IsAntialiasedLineEnabled = false
             };
-            RasterizerState = new SDX.Engine.Rendering.D3DRasterizerState(rasterizerStateDescription);
+            RasterizerStateDescription = new SDX.Engine.Rendering.D3DRasterizerState(rasterizerStateDescription);
         }
 
         public override void Dispose() {

@@ -1,6 +1,7 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Ext;
 using D3DLab.ECS.Input;
+using D3DLab.SDX.Engine;
 using D3DLab.Std.Engine.Core;
 using D3DLab.Std.Engine.Core.Ext;
 using D3DLab.Std.Engine.Core.Input;
@@ -11,7 +12,7 @@ using System.Threading;
 using System.Windows;
 
 namespace D3DLab.Wpf.Engine.App {
-    public sealed class GameWindow : IAppWindow {
+    public sealed class GameWindow : ISDXSurface {
         private WinFormsD3DControl win;
 
         public GameWindow(WinFormsD3DControl win, CurrentInputObserver input) {
@@ -64,7 +65,11 @@ namespace D3DLab.Wpf.Engine.App {
                 });
         }
 
-        public void Present(IntPtr backBuffer) {
+        public void StartFrame(IGraphicsDevice device) {
+
+        }
+
+        public void EndFrame(IGraphicsDevice device) {
 
         }
     }

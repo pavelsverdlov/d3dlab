@@ -8,6 +8,7 @@ using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
+using System;
 using System.Collections.Generic;
 
 namespace D3DLab.SDX.Engine.Rendering {
@@ -30,7 +31,9 @@ namespace D3DLab.SDX.Engine.Rendering {
     public abstract class D3DAbstractRenderTechnique<TProperties> where TProperties : IRenderProperties {
         protected readonly LinkedList<GraphicEntity> entities;
         //protected RasterizerStateDescription rasterizerStateDescription;
+        [Obsolete("Move to specific technique/components")]
         protected BlendStateDescription blendStateDescription;
+        [Obsolete("Move to specific technique/components")]
         protected DepthStencilStateDescription depthStencilStateDescription;
 
         readonly EntityHasSet entityHasSet;
@@ -79,9 +82,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             }
 
             //render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
-            render.SetStates(
-                new BlendState(graphics.D3DDevice, blendStateDescription),
-                new DepthStencilState(graphics.D3DDevice, depthStencilStateDescription));
+            //render.SetStates(render.BlendingState.Get(), render.DepthStencilState.Get());
         }
 
         protected static void SetShaders(DeviceContext context, D3DRenderComponent render) {

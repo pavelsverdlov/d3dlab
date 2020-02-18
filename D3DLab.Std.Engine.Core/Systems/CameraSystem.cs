@@ -162,7 +162,9 @@ namespace D3DLab.Std.Engine.Core.Systems {
                 rotate.Execute(component);
             }
 
-            public virtual void Handle(CameraZoomingComponent component) { }
+            public virtual void Handle(CameraZoomingComponent component) { 
+            
+            }
             
             public void Handle(KeywordMovingComponent movment) {
                 var handler = new KeywordMovingHandler();

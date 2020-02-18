@@ -9,8 +9,11 @@ namespace WPFLab {
         T Resolve<T>() where T : class;
     }
     public interface IDependencyRegistrator {
+        IDependencyRegistrator Register<T, TIm>() where T : class where TIm : class, T;
         IDependencyRegistrator Register<T>() where T : class;
         IDependencyRegistrator Register<T>(Func<IServiceProvider, T> implementationFactory) where T : class;
+        IDependencyRegistrator RegisterAsSingleton<T, TIm>() where T : class where TIm : class, T;
+        IDependencyRegistrator RegisterAsSingleton<T>() where T : class;
     }
 
     class IoCService : IDependencyRegistrator, IDependencyResolver {
@@ -48,7 +51,20 @@ namespace WPFLab {
             IsBuilt = false;
             return this;
         }
-
+        public IDependencyRegistrator Register<T, TIm>()
+            where T : class 
+            where TIm : class, T {
+            if (IsBuilt) throw new Exception("Can't register new instance, service provider is already built.");
+            service.AddScoped<T, TIm>();
+            IsBuilt = false;
+            return this;
+        }
+        public IDependencyRegistrator RegisterAsSingleton<T,TIm>() where T : class where TIm : class, T {
+            if (IsBuilt) throw new Exception("Can't register new instance, service provider is already built.");
+            service.AddSingleton<T, TIm>();
+            IsBuilt = false;
+            return this;
+        }
         public IDependencyRegistrator RegisterAsSingleton<T>() where T : class {
             if (IsBuilt) throw new Exception("Can't register new instance, service provider is already built.");
             service.AddSingleton<T>();

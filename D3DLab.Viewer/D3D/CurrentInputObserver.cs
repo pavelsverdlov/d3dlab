@@ -281,11 +281,11 @@ namespace D3DLab.Viewer.D3D {
         }
 
 
-        readonly FrameworkElement control;
+        //readonly FrameworkElement control;
 
-        public CurrentInputObserver(FrameworkElement control, IInputPublisher publisher) : base(publisher) {
+        public CurrentInputObserver(IInputPublisher publisher) : base(publisher) {
             this.currentSnapshot = new InputSnapshot();
-            this.control = control;
+           // this.control = control;
         }
         public void Zoom(InputStateData state) {
             currentSnapshot.AddEvent(new CameraZoomCommand(state.Clone()));

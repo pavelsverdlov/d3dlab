@@ -109,8 +109,14 @@ namespace D3DLab.SDX.Engine.Shader {
          *          
          */
 
-        readonly ShaderFlags sFlags = ShaderFlags.None;
+        readonly ShaderFlags sFlags =
+            ShaderFlags.None
+#if DEBUG
+            | ShaderFlags.Debug
+#endif
+            ;
         readonly EffectFlags eFlags = EffectFlags.None;
+
 
         public string Preprocess(string shadertext, Include include) {
             return ShaderBytecode.Preprocess(shadertext, new ShaderMacro[0], include); 

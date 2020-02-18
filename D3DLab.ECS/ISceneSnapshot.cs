@@ -36,7 +36,7 @@ namespace D3DLab.ECS {
 
         CameraState Camera { get;  }
         LightState[] Lights { get; }
-
+        
 
         void UpdateCamera(ElementTag tag, CameraState state);
         void UpdateLight(int index, LightState state);

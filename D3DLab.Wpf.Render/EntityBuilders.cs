@@ -11,15 +11,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
-using D3DLab.Render.TriangleColored;
+using D3DLab.Toolkit.D3D.TriangleColored;
 
 namespace D3DLab.Render{
     public static class EntityBuilders {
-        public static ElementTag BuildMeshElement(this IEntityManager manager, List<Vector3> pos, List<int> indexes, Vector4 color) {
+        public static GraphicEntity BuildMeshElement(this IEntityManager manager, List<Vector3> pos, List<int> indexes, Vector4 color) {
             return Build(manager, pos, indexes, pos.Select(x => color).ToList());
         }
 
-        public static ElementTag BuildGroupMeshElement(this IEntityManager manager, IEnumerable<AbstractGeometry3D> objs) {
+        public static GraphicEntity BuildGroupMeshElement(this IEntityManager manager, IEnumerable<AbstractGeometry3D> objs) {
             var group = new Std.Engine.Core.Components.CompositeGeometryComponent();
             objs.ForEach(x => group.Add(new SimpleGeometryComponent {
                 Positions = x.Positions.ToImmutableArray(),
@@ -33,7 +33,7 @@ namespace D3DLab.Render{
                 .AddComponent(group)
                 .AddComponent(new D3DTriangleColoredVertexRenderComponent())
                 .AddComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.UnitY * 30)))
-                .Tag;
+                ;
         }
 
         //public static ElementTag BuildLineEntity(this IEntityManager manager, Vector3[] points) {
@@ -64,7 +64,7 @@ namespace D3DLab.Render{
 
         #endregion
 
-        public static ElementTag Build(IEntityManager manager, List<Vector3> pos, List<int> indexes, List<Vector4> colors) {
+        public static GraphicEntity Build(IEntityManager manager, List<Vector3> pos, List<int> indexes, List<Vector4> colors) {
             var geo = new SimpleGeometryComponent() {
                 Positions = pos.ToImmutableArray(),
                 Indices = indexes.ToImmutableArray(),
@@ -75,8 +75,8 @@ namespace D3DLab.Render{
                 .CreateEntity(new ElementTag("Geometry" + Guid.NewGuid()))
                 .AddComponent(geo)
                 .AddComponent(TransformComponent.Identity())
-                .AddComponent(GetObjGroupsRender())
-                .Tag;
+                .AddComponent(new D3DTriangleColoredVertexRenderComponent(SharpDX.Direct3D11.CullMode.Front))//D3DTriangleColoredVertexRenderComponent.AsTriangleListCullNone()
+                ;
         }
     }
 }

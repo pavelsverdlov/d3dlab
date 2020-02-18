@@ -64,10 +64,10 @@ namespace D3DLab.SDX.Engine.Animation {
 
         public bool CanRender { get; set; }
 
-        readonly DisposeWatcher disposer;
+        readonly DisposeObserver disposer;
 
         public D3DAnimRenderComponent() {
-            disposer = new DisposeWatcher();
+            disposer = new DisposeObserver();
             vertexBuffers = new EnumerableDisposableSetter<List<Buffer>>(disposer);
             indexBuffers = new EnumerableDisposableSetter<List<Buffer>>(disposer);
             TextureViews = new EnumerableDisposableSetter<List<ShaderResourceView>>(disposer);
@@ -76,19 +76,19 @@ namespace D3DLab.SDX.Engine.Animation {
             PerMaterialBuffer = new DisposableSetter<Buffer>(disposer);
             PerArmatureBuffer = new DisposableSetter<Buffer>(disposer);
             SamplerState = new DisposableSetter<SamplerState>(disposer);
-            DepthStencilState = new DisposableSetter<DepthStencilState>();
-            TransformWorldBuffer = new DisposableSetter<Buffer>();
+            DepthStencilState = new DisposableSetter<DepthStencilState>(disposer);
+            TransformWorldBuffer = new DisposableSetter<Buffer>(disposer);
 
-            RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
+            RasterizerState = new D3DRasterizerState(new RasterizerStateDescription2() {
                 FillMode = FillMode.Solid,
                 CullMode = CullMode.Back,
             });
 
             VertexShader = new DisposableSetter<VertexShader>(disposer);
             PixelShader = new DisposableSetter<PixelShader>(disposer);
-            Layout = new DisposableSetter<InputLayout>();
+            Layout = new DisposableSetter<InputLayout>(disposer);
             PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            BlendingState = new DisposableSetter<BlendState>();
+            BlendingState = new DisposableSetter<BlendState>(disposer);
 
             CanRender = true;
             IsModified = true;

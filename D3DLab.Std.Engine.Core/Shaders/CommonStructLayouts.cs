@@ -3,13 +3,14 @@ using D3DLab.ECS.Camera;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace D3DLab.Std.Engine.Core.Shaders {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct GameStructBuffer {
-
+        public static readonly int Size = Unsafe.SizeOf<GameStructBuffer>();
         public static GameStructBuffer FromCameraState(CameraState state) {
             return new GameStructBuffer(
                       Matrix4x4.Transpose(state.ViewMatrix),

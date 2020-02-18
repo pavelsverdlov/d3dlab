@@ -33,11 +33,19 @@ namespace D3DLab.SDX.Engine.Rendering {
             }
         }
 
-        RasterizerStateDescription state;
-        public D3DRasterizerState(RasterizerStateDescription state) {
+        public ConservativeRasterizationMode ConservativeRasterizationMode {
+            get => state.ConservativeRasterizationMode;
+            set {
+                state.ConservativeRasterizationMode = value;
+            }
+        }
+
+
+        RasterizerStateDescription2 state;
+        public D3DRasterizerState(RasterizerStateDescription2 state) {
             this.state = state;
         }
-        public RasterizerStateDescription GetDescription() {
+        public RasterizerStateDescription2 GetDescription() {
             //state.DepthBias = -10;
             //state.DepthBiasClamp = -1000;
             //state.SlopeScaledDepthBias = -1;

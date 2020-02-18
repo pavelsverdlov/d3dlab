@@ -75,6 +75,13 @@ namespace D3DLab.SDX.Engine.Rendering {
                         pass.Compile(graphics.Compilator);
                     }
 
+                    if (!render.DepthStencilState.HasValue) {
+                        render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, depthStencilStateDescription));
+                    }
+                    if (!render.BlendingState.HasValue) {
+                        render.BlendingState.Set(new BlendState(graphics.D3DDevice, blendStateDescription));
+                    }
+
                     UpdateShaders(graphics, render, pass, layconst);
                     render.IsModified = false;
                 }

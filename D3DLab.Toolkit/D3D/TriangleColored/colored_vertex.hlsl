@@ -1,7 +1,6 @@
 ﻿@vertex@
 
 #include "Game"
-#include "Light"
 
 struct VSOut
 {
@@ -18,12 +17,15 @@ VSOut main(float4 position : POSITION, float3 normal : NORMAL, float4 color : CO
 	output.normal = mul(normal, World);
 	output.normal = normalize(output.normal);
 
-	output.color = color * computeLight(output.position.xyz, output.normal, -LookDirection.xyz, 1000);
+    output.color = color;
 
 	return output;
 }
 
 @fragment@
+
+#include "Game"
+#include "Light"
 
 struct PSIn
 {
@@ -32,5 +34,6 @@ struct PSIn
 	float4 color : COLOR;
 };
 float4 main(PSIn input) : SV_TARGET{
+    input.color = input.color * computeLight(input.position.xyz, input.normal, -LookDirection.xyz, 1000);
 	return input.color;
 }

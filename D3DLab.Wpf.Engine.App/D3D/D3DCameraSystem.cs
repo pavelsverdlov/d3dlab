@@ -29,7 +29,7 @@ namespace D3DLab.Wpf.Engine.App.D3D {
         class D3DPerspMoveHandler : PerspectiveCameraMoveHandler {
              readonly IContextState context;
 
-            public D3DPerspMoveHandler(PerspectiveCameraComponent camera, SceneSnapshot snapshot, IContextState context) : base(camera, snapshot) {
+            public D3DPerspMoveHandler(PerspectiveCameraComponent camera, ISceneSnapshot snapshot, IContextState context) : base(camera, snapshot) {
                 this.context = context;
             }
 
@@ -39,7 +39,7 @@ namespace D3DLab.Wpf.Engine.App.D3D {
                 float delta = component.Delta;
                 var screen = component.MovementData.End;
 
-                var zoomAround = snapshot.Viewport.ScreenToV3(screen, camera.GetState(), snapshot.Window);
+                //var zoomAround = snapshot.Viewport.ScreenToV3(screen, camera.GetState(), snapshot.Window);
 
                 var sign = Math.Sign(delta);
                 delta = delta * 0.01f; //);
@@ -94,7 +94,7 @@ namespace D3DLab.Wpf.Engine.App.D3D {
             }
         }
         class D3DOrthoMoveHandler : OrthographicCameraMoveHandler {
-            public D3DOrthoMoveHandler(OrthographicCameraComponent camera, SceneSnapshot snapshot) : base(camera, snapshot) { }
+            public D3DOrthoMoveHandler(OrthographicCameraComponent camera, ISceneSnapshot snapshot) : base(camera, snapshot) { }
 
             public override void Handle(CameraZoomingComponent component) {
                 var winW = snapshot.Window.Width;
@@ -113,11 +113,11 @@ namespace D3DLab.Wpf.Engine.App.D3D {
             }
         }
 
-        //protected override ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, SceneSnapshot snapshot) {
-        //    return new D3DOrthoMoveHandler(com, snapshot);
-        //}
-        //protected override ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, SceneSnapshot snapshot) {
-        //    return new D3DPerspMoveHandler(com, snapshot, ContextState);
-        //}
+        protected override ICameraMovementComponentHandler CreateHandlerOrthographicHandler(OrthographicCameraComponent com, ISceneSnapshot snapshot) {
+            return new D3DOrthoMoveHandler(com, snapshot);
+        }
+        protected override ICameraMovementComponentHandler CreateHandlerPerspectiveHandler(PerspectiveCameraComponent com, ISceneSnapshot snapshot) {
+            return new D3DPerspMoveHandler(com, snapshot, ContextState);
+        }
     }
 }

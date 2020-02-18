@@ -4,10 +4,10 @@ using D3DLab.ECS.Ext;
 using D3DLab.ECS.Systems;
 using D3DLab.Render;
 using D3DLab.Render.GameObjects;
-using D3DLab.Render.TriangleColored;
 using D3DLab.Std.Engine.Core.Common;
 using D3DLab.Std.Engine.Core.Utilities;
 using D3DLab.Viewer.D3D;
+using Syncfusion.Windows.Tools.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,16 +32,12 @@ namespace D3DLab.Viewer.Presentation {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
-          
-            // var panel = new Windows.UI.Xaml.Controls.SwapChainPanel();
 
-            //WindowsXamlHost
-            //   var nativePanel = ComObject.As<SharpDX.DXGI.ISwapChainPanelNative>(panel);
+        //    _DockingManager.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<DockItem>();
 
-            //nativePanel.NativePointer
 
-            //var h = Application.Current.MainWindow
-
+            //_DockingManager.Children.Add(new UserControl());
+           // new DockItem() { }
         }
 
       

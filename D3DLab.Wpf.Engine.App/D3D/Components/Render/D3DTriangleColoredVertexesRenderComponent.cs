@@ -20,7 +20,7 @@ namespace D3DLab.SDX.Engine.Components {
 
         }
         public D3DTriangleColoredVertexRenderComponent(CullMode cull) : base() {
-            RasterizerState = new D3DRasterizerState(new RasterizerStateDescription() {
+            RasterizerStateDescription = new D3DRasterizerState(new RasterizerStateDescription() {
                 CullMode = cull,
                 FillMode = FillMode.Solid,
                 IsMultisampleEnabled = false,

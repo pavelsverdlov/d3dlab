@@ -31,6 +31,7 @@ namespace D3DLab.ECS {
             public void SetFilter(Func<ElementTag, bool> predicate) {           }
             public void Synchronize(int theadId) { }
             public void UpdateComponents<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {}
+            public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent => Enumerable.Empty<T>();
 
 
             //TODO refactor! should not be methods with no results
@@ -42,7 +43,11 @@ namespace D3DLab.ECS {
             }
         }
 
-
+        /// <summary>
+        /// Should be lazy implementation in this case
+        /// need to add some operation to sync to wait entity creation to invoke chained operations
+        /// </summary>
+        /// <returns></returns>
         public static GraphicEntity Empty() {
             return new GraphicEntity(ElementTag.Empty, new EmptyManager(), new EmptyManager(), new EntityOrderContainer());
         }

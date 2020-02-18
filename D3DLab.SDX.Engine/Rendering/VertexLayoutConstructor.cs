@@ -27,9 +27,21 @@ namespace D3DLab.SDX.Engine.Rendering {
         int textcoorCount = 0;
 
         readonly List<InputElement> elements;
+
+        /// <summary>
+        /// Size of marshaling structure for shader
+        /// </summary>
+        public int VertexSize { get; }
+
+        [Obsolete("Use constuctor with (int vertexSize)")]
         public VertexLayoutConstructor() {
             elements = new List<InputElement>();
         }
+        public VertexLayoutConstructor(int vertexSize) {
+            elements = new List<InputElement>();
+            VertexSize = vertexSize;
+        }
+        
 
         int GetOffset() {
             return elements.Count == 0 ? 0 : InputElement.AppendAligned;

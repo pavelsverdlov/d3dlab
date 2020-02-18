@@ -2,11 +2,13 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace D3DLab.SDX.Engine {
     public interface ISDXSurface : IAppWindow {
-        void Present(IGraphicsDevice device);
+        void StartFrame(IGraphicsDevice device);
+        void EndFrame(IGraphicsDevice device);
     }
 
     public class GraphicsFrame : IDisposable {
@@ -21,15 +23,17 @@ namespace D3DLab.SDX.Engine {
             sw = new Stopwatch();
             sw.Start();
             device.Refresh();
+            surface.StartFrame(Graphics);
         }
 
 
         public void Dispose() {
             Graphics.Present();
-            surface.Present(Graphics);
+            surface.EndFrame(Graphics);
             sw.Stop();
             spendTime = sw.Elapsed;
         }
+        
     }
     public class SynchronizedGraphics : ISynchronizationContext {
         struct Size {

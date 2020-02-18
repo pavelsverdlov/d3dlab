@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -12,9 +13,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Syncfusion.Shared.WPF" Version="17.4.0.40" />
-    <PackageReference Include="Syncfusion.Themes.Office2013DarkGray.WPF" Version="17.4.0.40" />
-    <PackageReference Include="Syncfusion.Tools.WPF" Version="17.4.0.40" />
+    <None Remove="Resources\ShaderSyntaxDef.xshd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ShaderSyntaxDef.xshd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
+    <PackageReference Include="Syncfusion.PropertyGrid.WPF" Version="17.4.0.46" />
+    <PackageReference Include="Syncfusion.SfInput.WPF" Version="17.4.0.47" />
+    <PackageReference Include="Syncfusion.Shared.WPF" Version="17.4.0.46" />
+    <PackageReference Include="Syncfusion.Themes.Office2013DarkGray.WPF" Version="17.4.0.46" />
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="17.4.0.46" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
@@ -35,14 +48,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
+    <ProjectReference Include="..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
+    <ProjectReference Include="..\D3DLab.Wpf.Render\D3DLab.Wpf.Render.csproj" />
+    <ProjectReference Include="..\WPFLab\WPFLab.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
-    <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
-    <ProjectReference Include="..\D3DLab.Wpf.Render\D3DLab.Wpf.Render.csproj" />
-    <ProjectReference Include="..\WPFLab\WPFLab.csproj" />
+    <Page Update="Presentation\MainWindow_TEST.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

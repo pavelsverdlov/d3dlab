@@ -19,6 +19,23 @@ namespace D3DLab.SDX.Engine {
                 return blendStateDesc;
             }
         }
+        public static BlendStateDescription BlendStateEnabled {
+            get {
+                var blendStateDesc = new BlendStateDescription();
+
+                blendStateDesc.RenderTarget[0].IsBlendEnabled = true;
+                blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;//SourceAlpha
+                blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+
+                blendStateDesc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+                blendStateDesc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+                blendStateDesc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
+                blendStateDesc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+                blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+
+                return blendStateDesc;
+            }
+        }
 
     }
     public static class D3DDepthStencilStateDescriptions {

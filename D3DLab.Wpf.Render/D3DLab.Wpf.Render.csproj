@@ -14,11 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="TriangleColored\colored_vertex.hlsl" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="TriangleColored\colored_vertex.hlsl" />
+    <Compile Remove="NewD3DImage.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +26,7 @@
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
     <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
     <ProjectReference Include="..\D3DLab.Std.Engine.Core\D3DLab.Std.Engine.Core.csproj" />
+    <ProjectReference Include="..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
   </ItemGroup>
 
 </Project>

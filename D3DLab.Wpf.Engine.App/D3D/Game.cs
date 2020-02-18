@@ -19,7 +19,7 @@ namespace D3DLab.SDX.Engine {
         public readonly SynchronizedGraphics Graphics;
         public event Action<SynchronizedGraphics> Initialize;
 
-        public D3DEngine(IAppWindow window, IContextState context, EngineNotificator notificator) :
+        public D3DEngine(ISDXSurface window, IContextState context, EngineNotificator notificator) :
             base(window, context, new D3DViewport(), notificator) {
             Statics.Collision = new SDXCollision();
 

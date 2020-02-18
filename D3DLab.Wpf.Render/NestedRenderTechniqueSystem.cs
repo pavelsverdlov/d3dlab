@@ -29,7 +29,7 @@ namespace D3DLab.Render {
 
             context.InputAssembler.InputLayout = render.Layout.Get();
             context.InputAssembler.PrimitiveTopology = render.PrimitiveTopology;
-            graphics.UpdateRasterizerState(render.RasterizerState.GetDescription());
+            graphics.UpdateRasterizerState(render.RasterizerStateDescription.GetDescription());
 
             context.OutputMerger.SetDepthStencilState(render.DepthStencilState.Get(), 0);
             var blendFactor = new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0);
@@ -42,7 +42,7 @@ namespace D3DLab.Render {
 
                 if (render.TransformWorldBuffer.HasValue) {
                     var buff = render.TransformWorldBuffer.Get();
-                    graphics.UpdateDynamicBuffer(ref tr, buff);
+                    graphics.UpdateDynamicBuffer(ref tr, buff, TransforStructBuffer.RegisterResourceSlot);
                 } else {
                     var buff = graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
                     render.TransformWorldBuffer.Set(buff);

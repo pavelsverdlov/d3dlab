@@ -59,8 +59,8 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
         internal DisposableSetter<SamplerState> SampleState { get; set; }
 
         public D3DSkyPlaneRenderComponent() {
-            SampleState = new DisposableSetter<SamplerState>();
-            TextureResources = new EnumerableDisposableSetter<ShaderResourceView[]>();
+            SampleState = new DisposableSetter<SamplerState>(disposer);
+            TextureResources = new EnumerableDisposableSetter<ShaderResourceView[]>(disposer);
             var rasterizerStateDescription = new RasterizerStateDescription() {
                 IsAntialiasedLineEnabled = false,
                 CullMode = CullMode.None, //Back
@@ -73,12 +73,12 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = .0f
             };
-            RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
+            RasterizerStateDescription = new D3DRasterizerState(rasterizerStateDescription);
         }
 
         public override void Dispose() {
             base.Dispose();
-            Disposer.DisposeAll(ParallaxAnimation, SampleState, TextureResources);
+            Disposer.DisposeAll(ParallaxAnimation);
         }
     }
 
@@ -101,7 +101,7 @@ namespace D3DLab.Wpf.Engine.App.D3D.Components {
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = .0f
             };
-            RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
+            RasterizerStateDescription = new D3DRasterizerState(rasterizerStateDescription);
         }
 
         public override void Dispose() {

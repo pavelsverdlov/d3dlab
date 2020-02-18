@@ -4,6 +4,7 @@ using System.Text;
 
 namespace D3DLab.ECS.Common { 
 
+    [Obsolete("extra abstraction, remove")]
     public static class Disposer {
         public static void DisposeAll(params IDisposable[] source) {
             DisposeAll((IEnumerable<IDisposable>)source);

@@ -21,7 +21,7 @@ namespace D3DLab.Render.GameObjects {
             var tag = new ElementTag("DirectionLight_" + Interlocked.Increment(ref lights));
             manager.CreateEntity(tag)
                    .AddComponents(
-                       LightComponent.CreateDirectional(0.2f, 2, direction),
+                       LightComponent.CreateDirectional(0.3f, 2, direction),
                        ColorComponent.CreateDiffuse(new Vector4(1, 1, 1, 1))
                    );
 
@@ -45,7 +45,7 @@ namespace D3DLab.Render.GameObjects {
 
             manager.CreateEntity(tag)
                    .AddComponents(
-                           LightComponent.CreateAmbient(0.4f,0),
+                           LightComponent.CreateAmbient(0.7f,0),
                            ColorComponent.CreateDiffuse(V4Colors.White)
                        );
 

@@ -28,7 +28,7 @@ namespace D3DLab.Wpf.Engine.App.D3D {
 
             context.InputAssembler.InputLayout = render.Layout.Get();
             context.InputAssembler.PrimitiveTopology = render.PrimitiveTopology;
-            graphics.UpdateRasterizerState(render.RasterizerState.GetDescription());
+            graphics.UpdateRasterizerState(render.RasterizerStateDescription.GetDescription());
 
             context.OutputMerger.SetDepthStencilState(render.DepthStencilState.Get(), 0);
             var blendFactor = new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0);

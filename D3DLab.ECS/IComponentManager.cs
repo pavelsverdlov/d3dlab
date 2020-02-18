@@ -14,6 +14,7 @@ namespace D3DLab.ECS {
         IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent;
         IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity);
         T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent;
+        IEnumerable<T> GetComponents<T>() where T : IGraphicComponent;
 
         bool Has<T>(ElementTag tag) where T : IGraphicComponent;
         bool Has(ElementTag tag, params Type[] types);

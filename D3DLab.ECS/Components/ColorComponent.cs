@@ -62,5 +62,10 @@ namespace D3DLab.ECS.Components {
         public Vector4 GetVertexColor(int vertexInd) {
             throw new System.NotImplementedException();
         }
+
+        public ColorComponent ApplyOpacity(float op) {
+            this.Color = new Vector4(Color.X, Color.Y, Color.Z, op);
+            return this;
+        }
     }
 }

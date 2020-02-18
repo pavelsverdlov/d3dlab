@@ -23,10 +23,10 @@ namespace D3DLab.Viewer.Presentation.TDI {
         class TestScene : D3DScene {
             WPFInputPublisher publisher;
             CurrentInputObserver input;
-            readonly DX11ImageSource host;
+            readonly System.Windows.Controls.Image host;
             private readonly FrameworkElement overlay;
 
-            public TestScene(DX11ImageSource host, FrameworkElement over, ContextStateProcessor context) : base(context) {
+            public TestScene(System.Windows.Controls.Image host, FrameworkElement over, ContextStateProcessor context) : base(context) {
 
                 // host.Unloaded += OnUnloaded;
                 this.host = host;
@@ -39,7 +39,7 @@ namespace D3DLab.Viewer.Presentation.TDI {
 
             public void Init() {
                 publisher = new WPFInputPublisher(overlay);
-                input = new CurrentInputObserver(overlay, publisher);
+                input = new CurrentInputObserver(publisher);
                 Window = new WpfD3DImageSurface(host, overlay, input);
                 engine = new RenderEngine(Window, Context, notify);
                 engine.Run(notify);
@@ -65,6 +65,9 @@ namespace D3DLab.Viewer.Presentation.TDI {
 
             this.Loaded += OnLoaded;
             Unloaded += OnUnloaded;
+
+            //var wic = new WicBitmapSource(@"C:\Storage\5lzrcejm7cert584fgerxwtj54o.jpeg");
+            //image.Source = wic;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
@@ -76,11 +79,11 @@ namespace D3DLab.Viewer.Presentation.TDI {
             context.AddState(0, x => new GenneralContextState(x, notificator));
             context.SwitchTo(0);
 
-            scene = new TestScene(d3dimage, this, context);
+            scene = new TestScene(image, this, context);
             scene.Init();
         }
         private void OnUnloaded(object sender, RoutedEventArgs e) {
-            scene.Dispose();
+            //scene.Dispose();
         }
 
     }

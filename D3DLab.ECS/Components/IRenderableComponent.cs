@@ -7,5 +7,7 @@ namespace D3DLab.ECS.Components {
     public interface IRenderableComponent : IGraphicComponent {
         [Obsolete("Flag is not good decision, component should be removed that case")]
         bool CanRender { get; set; }
+
+        void ClearBuffers();
     }
 }

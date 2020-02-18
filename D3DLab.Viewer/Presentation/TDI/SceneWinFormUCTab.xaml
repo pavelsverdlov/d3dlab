@@ -7,13 +7,6 @@
              xmlns:render="clr-namespace:D3DLab.Render;assembly=D3DLab.Wpf.Render"
              xmlns:controls="clr-namespace:D3DLab.Wpf.Render.Overlay;assembly=D3DLab.Wpf.Render"
              mc:Ignorable="d" >
-    <Grid>
-        
-        <render:FormsHost x:Name="host"/>
 
-        <controls:OverlayPanel>
-            <Grid Background="#01ffffff" x:Name="overlay" />
-        </controls:OverlayPanel>
-        
-    </Grid>
+    <render:FormsHost x:Name="host"/>
 </UserControl>

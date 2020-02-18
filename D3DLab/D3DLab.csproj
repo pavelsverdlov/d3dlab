@@ -292,6 +292,10 @@
       <Project>{06489d42-a11d-48fb-9b68-05e0b39ff82a}</Project>
       <Name>D3DLab.Plugin.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj">
+      <Project>{c45eb523-11dc-4661-a3f8-25018bba0f39}</Project>
+      <Name>D3DLab.SDX.Engine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\D3DLab.Std.Engine.Core\D3DLab.Std.Engine.Core.csproj">
       <Project>{ad2b47e7-4b24-4643-83a8-46e14afa2bc5}</Project>
       <Name>D3DLab.Std.Engine.Core</Name>

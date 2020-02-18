@@ -18,7 +18,9 @@ namespace D3DLab.Viewer.D3D {
     using D3DLab.ECS.Systems;
     using D3DLab.Std.Engine.Core.Common;
     using D3DLab.ECS.Ext;
-    using D3DLab.Render.TriangleColored;
+    using D3DLab.ECS.Components;
+    using D3DLab.Toolkit.D3D.TriangleColored;
+    using D3DLab.Toolkit.D3D.OrderIndependentTransparency;
 
     public sealed class GenneralContextState : BaseContextState {
         public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor, new ManagerContainer(notificator, processor)) {
@@ -51,8 +53,8 @@ namespace D3DLab.Viewer.D3D {
         }
 
         protected void InitScene() {
-            var em = Context.GetEntityManager();
-            var cameraTag = new ElementTag("CameraEntity");
+           
+           
             {   //systems creating
                 var smanager = Context.GetSystemManager();
 
@@ -71,10 +73,14 @@ namespace D3DLab.Viewer.D3D {
                 smanager
                     .CreateSystem<RenderSystem>()
                     .Init(engine.Graphics)
-                    // .CreateNested<SkyGradientColoringRenderTechnique>()
-                    //  .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
-                    //   .CreateNested<TerrainRenderTechnique>()//
-                    .CreateNested<TriangleColoredVertexRenderTechnique>()
+                     // .CreateNested<SkyGradientColoringRenderTechnique>()
+                     //  .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
+                     //   .CreateNested<TerrainRenderTechnique>()//
+                    
+                    //.CreateNested<Toolkit.D3D.CameraViews.CameraViewsRenderTechnique<CustomRenderProperties>>()
+                  //  .CreateNested<OITTriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
+                    .CreateNested<TriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
+                    
                     //.CreateNested<LineVertexRenderTechnique>()
                     //.CreateNested<SpherePointRenderStrategy>()
                     //.CreateNested<AminRenderTechniqueSystem>()
@@ -87,19 +93,11 @@ namespace D3DLab.Viewer.D3D {
             {
                 //var engine = EngineInfoBuilder.Build(em, Window);
             }
-            {//entities ordering 
-                Context.EntityOrder
-                       .RegisterOrder<RenderSystem>(cameraTag, 0)
-                       .RegisterOrder<DefaultInputSystem>(cameraTag, 0);
-            }
 
-            CameraGameObject.Create(Context);
-            LightGameObject.CreateAmbientLight(em);
-            LightGameObject.CreatePointLight(em, Vector3.Zero + Vector3.UnitZ * 1000);
-            LightGameObject.CreateDirectionLight(em, new Vector3(1, 4, 4).Normalized());
+           
 
-            var geo = GeometryBuilder.BuildGeoBox(new BoundingBox(new Vector3(-10, -10, -10), new Vector3(10, 10, 10)));
-            EntityBuilders.BuildMeshElement(em, geo.Positions, geo.Indices, V4Colors.Red);
+            // Toolkit.D3D.CameraViews.CameraViewsObject.Create(em);
+
         }
 
 

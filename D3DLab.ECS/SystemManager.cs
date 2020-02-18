@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace D3DLab.ECS {
     public sealed class SystemManager : ISystemManager {
@@ -21,6 +22,10 @@ namespace D3DLab.ECS {
         }
         public IEnumerable<IGraphicSystem> GetSystems() {
             return systems;
+        }
+
+        public IEnumerable<T> GetSystems<T>() where T : IGraphicSystem {
+            return systems.OfType<T>();
         }
 
         public void Dispose() {

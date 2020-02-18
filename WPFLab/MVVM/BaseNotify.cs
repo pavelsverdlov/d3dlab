@@ -17,7 +17,7 @@ namespace WPFLab.MVVM {
             IsBusy = true;
         }
 
-        protected void Refresh() {
+        protected void RefreshProperties() {
             CommandManager.InvalidateRequerySuggested();
             SetPropertyChanged();
         }

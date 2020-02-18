@@ -15,5 +15,9 @@ namespace D3DLab.Std.Engine.Core.Common {
         public static Vector4 NextColor(this Random random) {
             return new Vector4(random.NextFloat(0.0f, 1.0f), random.NextFloat(0.0f, 1.0f), random.NextFloat(0.0f, 1.0f), 1.0f);
         }
+
+        public static Vector4 UpdateAlfa(this Vector4 color, float alfa) {
+            return new Vector4(color.X, color.Y, color.Z, alfa);
+        }
     }
 }

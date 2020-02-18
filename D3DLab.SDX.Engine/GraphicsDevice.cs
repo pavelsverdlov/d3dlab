@@ -10,12 +10,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace D3DLab.SDX.Engine {
     public class GraphicsDeviceException : Exception {
         GraphicsDeviceException(string mess) : base(mess) { }
         public static Exception ResourseSlotAlreadyUsed(int slot) { return new GraphicsDeviceException($"Resourse Slot '{slot}' is already used."); }
         public static Exception ShaderAddedTwice() { return new GraphicsDeviceException($"Shader war added twise to DeviceContext."); }
+
+        public static Exception NotDynamicBuffer =>
+            new GraphicsDeviceException($"Can't be updated. Buffer must be CpuAccessFlags.Write & ResourceUsage.Dynamic.");
     }
 
     sealed class AdapterFactory {
@@ -46,26 +51,30 @@ namespace D3DLab.SDX.Engine {
     }
 
 
-   
+
 
     public interface IGraphicsDevice {
         Texture2D GetBackBuffer();
+        MemoryStream CopyBackBufferMemoryStream();
+        SharpDX.Direct3D11.Device5 D3DDevice { get; }
     }
 
     public class GraphicsDevice : IGraphicsDevice {
         const Format BackBufferTextureFormat = Format.R8G8B8A8_UNorm;
 
         abstract class DirectX11 {
-            public SharpDX.Direct3D11.Device D3DDevice;
-            public DeviceContext ImmediateContext;
+            public SharpDX.Direct3D11.Device5 D3DDevice;
+            public DeviceContext ImmediateContext;//readonly
             public RenderTargetView RenderTarget;
 
             public virtual void Dispose() {
                 RenderTarget.Dispose();
 
-                ImmediateContext.ClearState();
-                ImmediateContext.Flush();
-                ImmediateContext.Dispose();
+                if (!ImmediateContext.IsDisposed) {
+                    ImmediateContext.ClearState();
+                    ImmediateContext.Flush();
+                    ImmediateContext.Dispose();
+                }
 
                 D3DDevice.Dispose();
             }
@@ -76,10 +85,11 @@ namespace D3DLab.SDX.Engine {
         class RenderToTexture : DirectX11 {
             Texture2D targetTexture;
             public RenderToTexture(Adapter adapter, int width, int height) {
-                D3DDevice = new SharpDX.Direct3D11.Device(adapter, DeviceCreationFlags.None);
+                var d = new SharpDX.Direct3D11.Device(adapter, DeviceCreationFlags.BgraSupport);
+                D3DDevice = d.QueryInterface<Device5>();
                 ImmediateContext = D3DDevice.ImmediateContext;
 
-                Resize(width, height);
+                //Resize(width, height);
             }
             public override Texture2D GetBackBuffer() => targetTexture;
             public override void Dispose() {
@@ -88,13 +98,13 @@ namespace D3DLab.SDX.Engine {
             }
 
             public override void Present() {
-                
+
             }
 
             public override void Resize(int width, int height) {
                 targetTexture = new Texture2D(D3DDevice, new Texture2DDescription() {
-                    Format = Format.B8G8R8A8_UNorm,//BackBufferTextureFormat,
-                    Width = width,
+                    Format = Format.B8G8R8A8_UNorm,//Format.B8G8R8A8_UNorm,//
+                    Width = width,//Bgra32
                     Height = height,
                     ArraySize = 1,
                     BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
@@ -110,7 +120,7 @@ namespace D3DLab.SDX.Engine {
         }
         class RenderWithSwapChain : DirectX11 {
             readonly SwapChain4 swapChain;
-            public RenderWithSwapChain(Adapter adapter, IntPtr handle, int width,int height) {
+            public RenderWithSwapChain(Adapter adapter, IntPtr handle, int width, int height) {
 
                 var backBufferDesc = new ModeDescription(width, height, new Rational(60, 1), BackBufferTextureFormat);
 
@@ -124,12 +134,31 @@ namespace D3DLab.SDX.Engine {
                     Usage = Usage.RenderTargetOutput,
                 };
                 // Create device and swap chain
-                SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, DeviceCreationFlags.None, swapChainDesc, out var d3dDevice, out var sch);
+                var flags = DeviceCreationFlags.None;
+#if DEBUG
+                flags |= DeviceCreationFlags.Debug;
+#endif
+                if (SharpDX.Direct3D11.Device.IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1)) { //update win->dxdiag
+                    //flags |= DeviceCreationFlags.Debuggable;
+                }
+                if (SharpDX.Direct3D11.Device.IsSupportedFeatureLevel(adapter, FeatureLevel.Level_12_0)) {
+
+                }
+
+                //var result = SharpDX.Direct3D11.Device.CreateDevice(adapter, DriverType.Unknown, IntPtr.Zero, DeviceCreationFlags.None,
+                //                          new[] { FeatureLevel.Level_11_1 }, 1, D3D11.SdkVersion, device, out outputLevel,
+                //                          out var context);
+
+
+                SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, flags, swapChainDesc, out var d3dDevice, out var sch);
 
                 swapChain = sch.QueryInterface<SwapChain4>();
                 D3DDevice = d3dDevice.QueryInterface<Device5>();
 
                 ImmediateContext = d3dDevice.ImmediateContext;
+
+                // Enable object tracking
+                //SharpDX.Configuration.EnableObjectTracking = true;
             }
 
             public override Texture2D GetBackBuffer() => swapChain.GetBackBuffer<Texture2D>(0);
@@ -137,25 +166,21 @@ namespace D3DLab.SDX.Engine {
             public override void Dispose() {
                 base.Dispose();
                 swapChain.Dispose();
+                ImmediateContext.Dispose();
             }
 
             public override void Present() {
-                swapChain.Present(1, PresentFlags.None);
-                //TODO: use second one
-                //swapChain.Present(1, PresentFlags.None, new PresentParameters());
-                //using (var tex = swapChain.GetBackBuffer<Texture2D>(0)) {
+                //swapChain.Present(1, PresentFlags.None);//TODO: use second one
+                swapChain.Present(1, PresentFlags.None, new PresentParameters());
 
-                //_renderTarget = new D3D9.Texture(d3DDevice, target.Description.Width, target.Description.Height, 1,
-                //   D3D9.Usage.RenderTarget, format, D3D9.Pool.Default, ref handle);
+                try {//only for Window 10
+                     //    WaitForSingleObjectEx(swapChain.FrameLatencyWaitableObject.ToInt32(), 1000, true);
+                } catch {
 
-                //var w = (ISDXWindow)window;
-                //var tex = swapChain.GetBackBuffer<Texture2D>(0);
-                //w.Present(tex.NativePointer);
+                }
 
-
-                //w.SetRenderTarget(swapChain.GetBackBuffer<Texture2D>(0));
-
-                //}
+                // Output the current active Direct3D objects
+                //System.Diagnostics.Debug.Write(SharpDX.Diagnostics.ObjectTracker.ReportActiveObjects());
             }
 
             public override void Resize(int width, int height) {
@@ -188,6 +213,9 @@ namespace D3DLab.SDX.Engine {
                 //    _framebuffer.Swapchain = this;
                 //}
             }
+
+            [DllImport("kernel32.dll", SetLastError = true)]
+            static extern int WaitForSingleObjectEx(int hHandle, int dwMilliseconds, bool bAlertable);
         }
 
 
@@ -217,10 +245,11 @@ namespace D3DLab.SDX.Engine {
 
         public readonly D3DShaderCompilator Compilator;
 
-        public SharpDX.Direct3D11.Device D3DDevice => directX.D3DDevice;
+        public SharpDX.Direct3D11.Device5 D3DDevice => directX.D3DDevice;
         public TextureLoader TexturedLoader { get; }
         public DeviceContext ImmediateContext => directX.ImmediateContext;
         public string VideoCardDescription { get; }
+        public System.Drawing.Size Size { get; private set; }
 
         DepthStencilView depthStencilView;
 
@@ -229,14 +258,14 @@ namespace D3DLab.SDX.Engine {
 
         public GraphicsDevice(IntPtr handle, float w, float h) {
             resourseHash = new ResourseRegistrHash();
-            Compilator = new D3DShaderCompilator();           
+            Compilator = new D3DShaderCompilator();
 
             var width = (int)w;
             var height = (int)h;
 
             var factory = new Factory1();
             var adapter = AdapterFactory.GetBestAdapter(factory);
-            
+
             VideoCardDescription = adapter.Description.Description.Trim('\0');
             /*
              * 
@@ -244,9 +273,11 @@ namespace D3DLab.SDX.Engine {
              * 
              */
 
-            directX = handle == IntPtr.Zero ? 
+
+
+            directX = handle == IntPtr.Zero ?
                 (DirectX11)new RenderToTexture(adapter, width, height) :
-                new RenderWithSwapChain(adapter,handle,width, height );
+                new RenderWithSwapChain(adapter, handle, width, height);
 
             directX.Resize(width, height);
             CreateBuffers(width, height);
@@ -262,8 +293,8 @@ namespace D3DLab.SDX.Engine {
         }
 
         public void Resize(float w, float h) {
-            var width = (int)w;
-            var height = (int)h;
+            var width = (int)Math.Ceiling(w);
+            var height = (int)Math.Ceiling(h);
 
             directX.RenderTarget.Dispose();
             depthStencilView.Dispose();
@@ -273,8 +304,9 @@ namespace D3DLab.SDX.Engine {
         }
 
         void CreateBuffers(int width, int height) {
+            Size = new System.Drawing.Size(width, height);
             var zBufferTextureDescription = new Texture2DDescription {
-                Format = Format.D32_Float_S8X24_UInt,
+                Format = Format.D32_Float_S8X24_UInt,//D24_UNorm_S8_UInt
                 ArraySize = 1,
                 MipLevels = 1,
                 Width = width,
@@ -292,7 +324,7 @@ namespace D3DLab.SDX.Engine {
 
             var depthEnabledStencilState = new DepthStencilState(directX.D3DDevice, D3DDepthStencilStateDescriptions.DepthEnabled);
 
-            var viewport = new SharpDX.Viewport(0, 0, width, height);
+            var viewport = new SharpDX.Viewport(0, 0, width, height, 0f, 1.0f);
             ImmediateContext.Rasterizer.SetViewport(viewport);
             ImmediateContext.OutputMerger.SetTargets(depthStencilView, directX.RenderTarget);
 
@@ -316,9 +348,10 @@ namespace D3DLab.SDX.Engine {
             //var blendFactor = new Color4(0, 0, 0, 0);
             //Device.ImmediateContext.OutputMerger.SetBlendState(blend, blendFactor, -1);
         }
-        
-        public void UpdateRasterizerState(RasterizerStateDescription descr) {
-            ImmediateContext.Rasterizer.State = new RasterizerState(directX.D3DDevice, descr);
+
+        [Obsolete("Store RasterizerState in render component")]
+        public void UpdateRasterizerState(RasterizerStateDescription2 descr) {
+            ImmediateContext.Rasterizer.State = new RasterizerState2(directX.D3DDevice, descr);
         }
 
         public void Refresh() {
@@ -331,9 +364,9 @@ namespace D3DLab.SDX.Engine {
         }
 
         public void Present() {
-            directX.Present();            
+            directX.Present();
             resourseHash.Clear();
-           // CopyBackBufferTexture().Save(@"D:\Zirkonzahn\MB_Database\back.png");
+            // CopyBackBufferTexture().Save(@"D:\Zirkonzahn\MB_Database\back.png");
         }
 
         public Texture2D GetBackBuffer() => directX.GetBackBuffer();
@@ -342,14 +375,52 @@ namespace D3DLab.SDX.Engine {
             using (var stream = new MemoryStream()) {
                 //using (var tex = directX.GetBackBuffer()) { //for swapchain
                 var tex = directX.GetBackBuffer();
-                    Copy(tex, stream, directX.D3DDevice);
-                    stream.Position = 0;
-                    var bmp = new System.Drawing.Bitmap(stream);
-                    return bmp;  
+                Copy(tex, stream, directX.D3DDevice);
+                stream.Position = 0;
+                var bmp = new System.Drawing.Bitmap(stream);
+                return bmp;
+            }
+        }
+        public MemoryStream CopyBackBufferMemoryStream() {
+            using (var stream = new MemoryStream()) {
+                //using (var tex = directX.GetBackBuffer()) { //for swapchain
+                var tex = directX.GetBackBuffer();
+                Copy(tex, stream, directX.D3DDevice);
+                stream.Position = 0;
+                return stream;
             }
         }
 
-       
+        //TODO: check this way to getting back texture
+        //public BitmapSource ToBitmap() {
+        //    if (_d3D11Image == null)
+        //        return null;
+
+        //    // Copy back buffer to WriteableBitmap.
+        //    int width = _d3D11Image.PixelWidth;
+        //    int height = _d3D11Image.PixelHeight;
+        //    var format = EnableAlpha ? PixelFormats.Bgra32 : PixelFormats.Bgr32;
+        //    var writeableBitmap = new WriteableBitmap(width, height, 96, 96, format, null);
+        //    writeableBitmap.Lock();
+        //    try {
+        //        uint[] data = new uint[width * height];
+        //        _d3D11Image.TryGetData(data);
+
+        //        // Get a pointer to the back buffer.
+        //        unsafe {
+        //            uint* pBackbuffer = (uint*)writeableBitmap.BackBuffer;
+        //            for (int i = 0; i < data.Length; i++)
+        //                pBackbuffer[i] = data[i];
+        //        }
+
+        //        writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
+        //    } finally {
+        //        writeableBitmap.Unlock();
+        //    }
+
+        //    return writeableBitmap;
+        //}
+
 
         static void Copy(Texture2D texture, Stream stream, SharpDX.Direct3D11.Device device) {
             var desc = new Texture2DDescription {
@@ -364,6 +435,8 @@ namespace D3DLab.SDX.Engine {
                 CpuAccessFlags = CpuAccessFlags.Read,
                 OptionFlags = ResourceOptionFlags.None
             };
+
+
 
             using (var factory = new SharpDX.WIC.ImagingFactory()) {
                 using (var textureCopy = new Texture2D(device, desc)) {
@@ -383,7 +456,7 @@ namespace D3DLab.SDX.Engine {
                             DataPointer = dataStream.DataPointer,
                             Pitch = dataBox.RowPitch
                         };
-
+                        //https://github.com/sharpdx/Toolkit/blob/master/Source/Toolkit/SharpDX.Toolkit.Graphics/WICHelper.cs
                         using (var bitmap = new SharpDX.WIC.Bitmap(factory, textureCopy.Description.Width, textureCopy.Description.Height,
                             SharpDX.WIC.PixelFormat.Format32bppRGBA, dataRectangle, 0)) {
 
@@ -408,6 +481,24 @@ namespace D3DLab.SDX.Engine {
         }
 
 
+        public SharpDX.Direct3D11.Buffer CreateUnorderedRWStructuredBuffer<T>(ref T[] range) where T : struct {
+            BufferStaticVerifications.CheckSizeInBytes<T>();
+
+            var desc = new BufferDescription() {
+                SizeInBytes = Unsafe.SizeOf<T>(),
+                CpuAccessFlags = GetCpuAccessFlagsFromUsage(ResourceUsage.Default),
+                Usage = ResourceUsage.Default,
+            };
+
+            desc.OptionFlags |= ResourceOptionFlags.BufferStructured;
+            desc.BindFlags = BindFlags.UnorderedAccess | BindFlags.ShaderResource;
+
+            // We keep the element size in the structure byte stride, even if it is not a structured buffer
+            desc.StructureByteStride = desc.SizeInBytes / range.Length;
+
+
+            return SharpDX.Direct3D11.Buffer.Create(D3DDevice, range, desc);
+        }
         public SharpDX.Direct3D11.Buffer CreateBuffer<T>(BindFlags flags, ref T range)
             where T : struct {
             BufferStaticVerifications.CheckSizeInBytes<T>();
@@ -431,13 +522,13 @@ namespace D3DLab.SDX.Engine {
         where T : struct {
             BufferStaticVerifications.CheckSizeInBytes(sizeInBytes);
 
-             var des = new BufferDescription() {
+            var des = new BufferDescription() {
                 Usage = ResourceUsage.Dynamic,
                 SizeInBytes = sizeInBytes,
                 BindFlags = BindFlags.ConstantBuffer,
                 CpuAccessFlags = CpuAccessFlags.Write,
                 OptionFlags = ResourceOptionFlags.None,
-                StructureByteStride = 0
+                //    StructureByteStride = 0, 
             };
             return SharpDX.Direct3D11.Buffer.Create(D3DDevice, ref range, des);
         }
@@ -468,7 +559,10 @@ namespace D3DLab.SDX.Engine {
         public void UpdateDynamicBuffer<T>(T[] newdata, SharpDX.Direct3D11.Buffer buffer, int slot) where T : struct {
             SharpDX.DataStream stream = null;
             try {
-                SharpDX.DataBox src = ImmediateContext.MapSubresource(buffer, slot, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None, out stream);
+                SharpDX.DataBox src = ImmediateContext.MapSubresource(buffer, slot, MapMode.WriteDiscard,
+                    SharpDX.Direct3D11.MapFlags.None, out stream);
+
+                // src.DataPointer
                 stream.WriteRange(newdata);
                 ImmediateContext.UnmapSubresource(buffer, slot);
             } finally {
@@ -476,12 +570,30 @@ namespace D3DLab.SDX.Engine {
             }
         }
 
-        public void UpdateDynamicBuffer<T>(ref T newdata, SharpDX.Direct3D11.Buffer buffer) where T : struct {
-            ImmediateContext.MapSubresource(buffer, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None, out var mappedResource);
-            using (mappedResource) {
-                mappedResource.Write(newdata);
-                ImmediateContext.UnmapSubresource(buffer, 0);//TODO: remove slot value
+        public void UpdateDynamicBuffer<T>(ref T newdata, SharpDX.Direct3D11.Buffer buffer, int slot) where T : struct {
+            var desc = buffer.Description;
+            if (desc.CpuAccessFlags != CpuAccessFlags.Write && desc.Usage != ResourceUsage.Dynamic) {
+                throw GraphicsDeviceException.NotDynamicBuffer;
             }
+            try {
+                //  Disable GPU access to the vertex buffer data.
+                ImmediateContext.MapSubresource(buffer, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None,
+                    out var mappedResource);
+                mappedResource.Write(newdata);
+            } finally {
+                //  Reenable GPU access to the vertex buffer data.
+                ImmediateContext.UnmapSubresource(buffer, slot);
+            }
+
+
+            //try {
+            //    var box = ImmediateContext.MapSubresource(buffer, slot, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None);
+            //    SharpDX.Utilities.WriteAndPosition(box.DataPointer, ref newdata);
+            //} catch (Exception ex) {
+            //    ex.ToString();
+            //} finally {
+            //    ImmediateContext.UnmapSubresource(buffer, slot);
+            //}
         }
 
         public void UpdateArraySubresource<T>(T[] data, SharpDX.Direct3D11.Buffer buff) where T : struct {
@@ -515,6 +627,40 @@ namespace D3DLab.SDX.Engine {
             return new SamplerState(D3DDevice, desc);
         }
 
+        #region RenderTargets
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="renderTargetView"></param>
+        /// <param name="startSlot"></param>
+        /// <param name="unorderedAccessViews"></param>
+        /// <unmanaged>void ID3D11DeviceContext::OMSetRenderTargetsAndUnorderedAccessViews([In] unsigned int NumRTVs,[In, Buffer, Optional] const ID3D11RenderTargetView** ppRenderTargetViews,[In, Optional] ID3D11DepthStencilView* pDepthStencilView,[In] unsigned int UAVStartSlot,[In] unsigned int NumUAVs,[In, Buffer, Optional] const ID3D11UnorderedAccessView** ppUnorderedAccessViews,[In, Buffer, Optional] const unsigned int* pUAVInitialCounts)</unmanaged>	
+        /// <unmanaged-short>ID3D11DeviceContext::OMSetRenderTargetsAndUnorderedAccessViews</unmanaged-short>	
+        //public void SetRenderTargetsAndUnorderedAccessViews(RenderTargetView renderTargetView, DepthStencilView depthStencil, int startSlot, int count, UnorderedAccessView[] unorderedAccessViews) {
+        //   // ImmediateContext.OutputMerger.SetTargets(renderTargetView, startSlot, unorderedAccessViews);
+        //    ImmediateContext.OutputMerger.SetTargets(depthStencil, renderTargetView, startSlot, unorderedAccessViews, count);
+        //}
+
+        #endregion
+
+
+        static CpuAccessFlags GetCpuAccessFlagsFromUsage(ResourceUsage usage) {
+            switch (usage) {
+                case ResourceUsage.Dynamic:
+                    return CpuAccessFlags.Write;
+                case ResourceUsage.Staging:
+                    return CpuAccessFlags.Read | CpuAccessFlags.Write;
+            }
+            return CpuAccessFlags.None;
+        }
 
     }
+    /*
+    
+    D3D11_MAP_WRITE_NO_OVERWRITE if you plan on writing to the buffer more than once per frame
+    MapMode.WriteNoOverwrite
+
+
+     */
 }

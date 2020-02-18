@@ -11,12 +11,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace D3DLab.Viewer.Presentation.TDI {
+namespace D3DLab.Viewer.Presentation.TDI.Editer {
     /// <summary>
-    /// Interaction logic for SystemsTab.xaml
+    /// Interaction logic for SgaredEditerUCTab.xaml
     /// </summary>
-    public partial class SystemsUCTab : UserControl {
-        public SystemsUCTab() {
+    public partial class ShaderEditerUCTab : UserControl {
+        public ShaderEditerUCTab() {
             InitializeComponent();
         }
     }

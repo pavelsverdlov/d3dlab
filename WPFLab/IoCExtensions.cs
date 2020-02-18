@@ -4,12 +4,10 @@ using WPFLab.MVVM;
 
 namespace WPFLab {
     public static class IoCExtensions {
-        public static IDependencyRegistrator RegisterView<TView,TViewModel>(this IDependencyRegistrator service) 
-            where TView : FrameworkElement
-            where TViewModel : class, INotifyPropertyChanged {
+        public static IDependencyRegistrator RegisterView<TView>(this IDependencyRegistrator service) 
+            where TView : FrameworkElement {
           
             service.Register<TView>();
-            service.Register<TViewModel>();
 
             return service;
         }
