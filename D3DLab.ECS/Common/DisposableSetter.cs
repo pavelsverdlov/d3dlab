@@ -36,6 +36,10 @@ namespace D3DLab.ECS.Common {
             }
             disposed = true;
         }
+        /// <summary>
+        /// Dispose only observe items, not disposing itself.
+        /// Can be stil used after invoked
+        /// </summary>
         public void DisposeObservables() {
             if (disposed) {
                 throw new Exception("Observer was disposed.");

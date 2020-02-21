@@ -17,10 +17,10 @@ namespace D3DLab.Std.Engine.Core.Utilities {
 
         public Ray(Vector3 or, Vector3 dir) {
             Origin = or;
-            Direction = dir;
+            Direction = dir; 
             Direction.Normalize();
             g3Rayf = new Ray3f(or.ToVector3f(), dir.ToVector3f(), true);
-            g3Rayd = new Ray3d(g3Rayf.Origin, g3Rayf.Direction, true);
+            g3Rayd = new Ray3d(g3Rayf.Origin, g3Rayf.Direction, true); 
         }
         public bool Intersects(ref BoundingBox box) {
             // http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection

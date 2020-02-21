@@ -49,8 +49,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />
+    <ProjectReference Include="..\D3DLab.Plugin.Contracts\D3DLab.Plugin.Contracts.csproj" />
     <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
     <ProjectReference Include="..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
+    <ProjectReference Include="..\D3DLab.Utility\D3DLab.Utility.csproj" />
     <ProjectReference Include="..\D3DLab.Wpf.Render\D3DLab.Wpf.Render.csproj" />
     <ProjectReference Include="..\WPFLab\WPFLab.csproj" />
   </ItemGroup>

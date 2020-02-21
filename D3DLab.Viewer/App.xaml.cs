@@ -32,8 +32,7 @@ namespace D3DLab.Viewer {
                 .RegisterApplication(this)
 
                 .RegisterAsSingleton<IMessenger, Messenger>()
-                //.Register<IDockingManager, DockingManagerTest>()
-                //.RegisterView<MainWindow_TEST, MainWindowViewModel>()
+                //.RegisterView<MainWindow_TEST>()
 
 
                 .Register<IDockingManager, TabDockingManager>()
@@ -51,7 +50,7 @@ namespace D3DLab.Viewer {
         }
 
         protected override void AppStartup(StartupEventArgs e, IDependencyResolver resolver) {
-            resolver.ResolveView<MainWindow, MainWindowViewModel>().Show();
+             resolver.ResolveView<MainWindow, MainWindowViewModel>().Show();
             //resolver.ResolveView<MainWindow_TEST, MainWindowViewModel>().Show();
         }
 

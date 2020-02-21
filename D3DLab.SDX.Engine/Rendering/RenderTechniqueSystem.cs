@@ -17,7 +17,7 @@ namespace D3DLab.SDX.Engine.Rendering {
     }
 
     public interface IRenderTechnique<TProperties> where TProperties : IRenderProperties {
-        IRenderTechniquePass GetPass();
+        IEnumerable<IRenderTechniquePass> GetPass();
         /// <summary>
         /// remove all entities from Technique
         /// </summary>
@@ -25,6 +25,11 @@ namespace D3DLab.SDX.Engine.Rendering {
         void Render(GraphicsDevice Graphics, TProperties game);
         void RegisterEntity(GraphicEntity entity);
         bool IsAplicable(GraphicEntity entity);
+        /// <summary>
+        /// Cleanup render cache, such as pass/shader/buffers/BlendState/render targets etc.
+        /// should be invoked each time when render surface/device is recreared
+        /// </summary>
+        void CleanupRenderCache();
     }
     
 
@@ -63,34 +68,6 @@ namespace D3DLab.SDX.Engine.Rendering {
             entities.Clear();
         }
 
-        protected void UpdateShaders(GraphicsDevice graphics, D3DRenderComponent render,
-             D3DShaderTechniquePass pass, VertexLayoutConstructor layconst) {
-            var device = graphics.D3DDevice;
-
-            var vertexShaderByteCode = pass.VertexShader.ReadCompiledBytes();
-
-            var inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
-            render.Layout.Set(new InputLayout(device, inputSignature, layconst.ConstuctElements()));
-
-            render.VertexShader.Set(new VertexShader(device, vertexShaderByteCode));
-
-            if (pass.GeometryShader != null) {
-                render.GeometryShader.Set(new GeometryShader(device, pass.GeometryShader.ReadCompiledBytes()));
-            }
-            if (pass.PixelShader != null) {
-                render.PixelShader.Set(new PixelShader(device, pass.PixelShader.ReadCompiledBytes()));
-            }
-
-            //render.RasterizerState = new D3DRasterizerState(rasterizerStateDescription);
-            //render.SetStates(render.BlendingState.Get(), render.DepthStencilState.Get());
-        }
-
-        protected static void SetShaders(DeviceContext context, D3DRenderComponent render) {
-            context.VertexShader.Set(render.VertexShader.Get());
-            context.GeometryShader.Set(render.GeometryShader.Get());
-            context.PixelShader.Set(render.PixelShader.Get());
-        }
-        
 
         protected ShaderResourceView[] ConvertToResources(TexturedMaterialComponent material, TextureLoader loader) {
             var resources = new ShaderResourceView[material.Images.Length];
@@ -100,6 +77,11 @@ namespace D3DLab.SDX.Engine.Rendering {
             }
             return resources;
         }
-       
+
+        public virtual void CleanupRenderCache() {
+
+        }
+
+
     }
 }

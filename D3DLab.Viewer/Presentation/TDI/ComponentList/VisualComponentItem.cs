@@ -10,16 +10,18 @@ using WPFLab.MVVM;
 namespace D3DLab.Viewer.Presentation.TDI.ComponentList {    
     public class OpenPropertiesTabCommand : BaseWPFCommand<MouseButtonEventArgs> {
         readonly IVisualComponentItem item;
-        readonly IDockingManager manager;
+        readonly IDockingManager docker;
+        readonly IRenderUpdater updater;
 
-        public OpenPropertiesTabCommand(IVisualComponentItem item, IDockingManager manager) {
+        public OpenPropertiesTabCommand(IVisualComponentItem item, IDockingManager docker, IRenderUpdater updater) {
             this.item = item;
-            this.manager = manager;
+            this.docker = docker;
+            this.updater = updater;
         }
 
         public override void Execute(MouseButtonEventArgs args) {
             if (args.ClickCount > 1) {
-                manager.OpenPropertiesTab(new EditingPropertiesComponentItem(item));
+                docker.OpenPropertiesTab(new EditingPropertiesComponentItem(item), updater);
             }
         }        
     }
@@ -28,13 +30,13 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
         public ICommand OpenPropertiesTab { get; }
 
         readonly IGraphicComponent com;
-        readonly IDockingManager updater;
+        readonly IDockingManager docker;
 
-        public VisualComponentItem(IGraphicComponent com, IDockingManager updater) {
+        public VisualComponentItem(IGraphicComponent com, IDockingManager docker,IRenderUpdater updater) {
             this.com = com;
-            this.updater = updater;
+            this.docker = docker;
 
-            OpenPropertiesTab = new OpenPropertiesTabCommand(this, updater);
+            OpenPropertiesTab = new OpenPropertiesTabCommand(this, docker, updater);
         }
 
         public string Name { get { return com.GetType().Name; } }

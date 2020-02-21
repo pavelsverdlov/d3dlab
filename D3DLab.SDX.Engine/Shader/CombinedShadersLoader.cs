@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using D3DLab.ECS.Common;
 using D3DLab.ECS.Shaders;
 
 namespace D3DLab.SDX.Engine.Shader {
     public class CombinedShadersLoader {
         const string entry = "main";
-        readonly Type type;
+        readonly ManifestResourceLoader mloader;
 
-        public CombinedShadersLoader()  {
-            type = this.GetType();
+        public CombinedShadersLoader() {
+            mloader = new ManifestResourceLoader(this.GetType());
         }
-        public CombinedShadersLoader(Type assembly) {
-            type = assembly;
+        public CombinedShadersLoader(ManifestResourceLoader mloader) {
+            this.mloader = mloader;
         }
 
         public IShaderInfo[] Load(string resource, string keyname) {
-            string text;
-            using (var srt = type.Assembly.GetManifestResourceStream(resource)) {
-                var reader = new StreamReader(srt);
-                text = reader.ReadToEnd();
-            }
+            var text = mloader.GetResourceTextByName(resource);
 
             var res = new List<IShaderInfo>();
             var parts = text.Split(new[] { '@' }, StringSplitOptions.RemoveEmptyEntries);

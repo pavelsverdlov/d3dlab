@@ -5,14 +5,16 @@ using WPFLab;
 
 namespace D3DLab.Viewer.Debugger {
     public abstract class OpenPropertiesEditorCommand<T> : BaseWPFCommand<T> {
-        readonly IDockingManager manager;
+        readonly IDockingManager docker;
+        readonly IRenderUpdater updater;
 
-        public OpenPropertiesEditorCommand(IDockingManager manager) {
-            this.manager = manager;
+        public OpenPropertiesEditorCommand(IDockingManager docker, IRenderUpdater updater) {
+            this.docker = docker;
+            this.updater = updater;
         }
 
         public override void Execute(T parameter) {
-            manager.OpenPropertiesTab(Convert(parameter));
+            docker.OpenPropertiesTab(Convert(parameter), updater);
         }
 
         protected abstract IEditingProperties Convert(T item);

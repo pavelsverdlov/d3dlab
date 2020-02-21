@@ -56,6 +56,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
 
         readonly Dictionary<ElementTag, IVisualTreeEntityItem> hash;
         readonly IDockingManager dockingManager;
+        IRenderUpdater updater;
 
         public ComponetsViewModel(IDockingManager dockingManager) {
             items = new ObservableCollection<IVisualTreeEntityItem>();
@@ -67,6 +68,10 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
             //OpenPropertiesEditor = new OpenPropertiesEditorCommand();
 
             dockingManager.OpenComponetsTab(this);
+        }
+
+        public void SetCurrentRenderUpdater(IRenderUpdater updater) {
+            this.updater = updater;
         }
 
         public void Update() {
@@ -86,7 +91,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
             if (found == null) {
                 found = new VisualTreeItem(entity, this);
                 foreach (var com in entity.GetComponents()) {
-                    found.Add(new VisualComponentItem(com, dockingManager));
+                    found.Add(new VisualComponentItem(com, dockingManager, updater));
                 }
                 items.Add(found);
                 hash.Add(found.Name, found);
@@ -94,7 +99,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
                 found.Clear();
                 var coms = entity.GetComponents();
                 foreach (var com in coms) {
-                    found.Add(new VisualComponentItem(com, dockingManager));//{ RenderModeSwither = _renderModeSwither }
+                    found.Add(new VisualComponentItem(com, dockingManager, updater));//{ RenderModeSwither = _renderModeSwither }
                 }
             }
         }
@@ -109,7 +114,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
                     foreach (var com in coms) {
                         if (com == null) { continue; }
                         if (!item.TryRefresh(com)) {
-                            item.Add(new VisualComponentItem(com, dockingManager));
+                            item.Add(new VisualComponentItem(com, dockingManager, updater));
                         }
                         existed.Add(com.Tag);
                     }

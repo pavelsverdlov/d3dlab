@@ -35,35 +35,6 @@ namespace D3DLab.Render {
     }
 
     public class RenderEngine : DefaultEngine {
-        //class IncludeResourse : IIncludeResourse {
-        //    readonly string path;
-        //    public string Key { get; }
-
-        //    public IncludeResourse(string key, string path) {
-        //        Key = key;
-        //        this.path = path;
-        //    }
-
-        //    public Stream GetResourceStream() {
-        //        return this.GetType().Assembly.GetManifestResourceStream(path);
-        //    }
-        //}
-        class IncludeResourse : IIncludeResourse {
-            readonly Assembly assembly;
-            readonly string path;
-            public string Key { get; }
-
-            public IncludeResourse(Assembly assembly, string key, string path) {
-                this.assembly = assembly;
-                Key = key;
-                this.path = path;
-            }
-
-            public Stream GetResourceStream() {
-                return assembly.GetManifestResourceStream(path);
-            }
-        }
-
         /// <summary>
         /// DO NOT COPY OR PASS THIS OBJECT
         /// </summary>
@@ -76,13 +47,15 @@ namespace D3DLab.Render {
 
             //includes.Add("Common", new IncludeResourse("Common", "Zirkonzahn.Visualization.D3D.ComonShaders.Common.hlsl"));
 
-            var sdx = typeof(GraphicsDevice).Assembly;
+            var sdx = typeof(D3DLab.Toolkit._CommonShaders.GameStructBuffer);
             //var app = typeof(Scene).Assembly;
 
-            includes.Add("Game", new IncludeResourse(sdx, "Game", "D3DLab.SDX.Engine.Rendering.Shaders.Game.hlsl"));
-            includes.Add("Light", new IncludeResourse(sdx, "Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl"));
-            includes.Add("Math", new IncludeResourse(sdx, "Math", "D3DLab.SDX.Engine.Rendering.Shaders.Math.hlsl"));
-           // includes.Add("Common", new IncludeResourse(app, "Common", "D3DLab.Wpf.Engine.App.D3D.Animation.Shaders.Common.hlsl"));
+            //includes.Add("Game", new IncludeResourse(sdx, "Game", "D3DLab.SDX.Engine.Rendering.Shaders.Game.hlsl"));
+            //includes.Add("Light", new IncludeResourse(sdx, "Light", "D3DLab.SDX.Engine.Rendering.Shaders.Light.hlsl"));
+            //includes.Add("Math", new IncludeResourse(sdx, "Math", "D3DLab.SDX.Engine.Rendering.Shaders.Math.hlsl"));
+
+            includes.Add("Common", new IncludeManifestResourse("Common", "D3DLab.Toolkit._CommonShaders.Common.hlsl", new ECS.Common.ManifestResourceLoader(sdx)));
+            // includes.Add("Common", new IncludeResourse(app, "Common", "D3DLab.Wpf.Engine.App.D3D.Animation.Shaders.Common.hlsl"));
 
             Graphics.Device.Compilator.AddInclude(new D3DLab.SDX.Engine.Shader.D3DIncludeAdapter(includes));
         }

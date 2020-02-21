@@ -1,28 +1,9 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Context;
-using D3DLab.ECS.Ext;
-using D3DLab.ECS.Systems;
-using D3DLab.Render;
-using D3DLab.Render.GameObjects;
-using D3DLab.Std.Engine.Core.Common;
-using D3DLab.Std.Engine.Core.Components;
-using D3DLab.Std.Engine.Core.Utilities;
 using D3DLab.Viewer.D3D;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms.Integration;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace D3DLab.Viewer.Presentation.TDI {
     class UC  : System.Windows.Forms.UserControl { }

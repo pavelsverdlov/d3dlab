@@ -23,7 +23,7 @@ namespace D3DLab.SDX.Engine {
             get {
                 var blendStateDesc = new BlendStateDescription();
 
-                blendStateDesc.RenderTarget[0].IsBlendEnabled = true;
+                blendStateDesc.RenderTarget[0].IsBlendEnabled = true; // enable transparency
                 blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;//SourceAlpha
                 blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
 

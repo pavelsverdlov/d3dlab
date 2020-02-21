@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -9,19 +9,35 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="D3D\CameraViews\camera_views.hlsl" />
-    <None Remove="D3D\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
-    <None Remove="D3D\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
-    <None Remove="D3D\TriangleColored\colored_vertex.hlsl" />
-    <None Remove="D3D\TriangleColored\gs_flat_shading.hlsl" />
+    <Compile Remove="D3D\**" />
+    <EmbeddedResource Remove="D3D\**" />
+    <None Remove="D3D\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="D3D\CameraViews\camera_views.hlsl" />
-    <EmbeddedResource Include="D3D\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
-    <EmbeddedResource Include="D3D\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
-    <EmbeddedResource Include="D3D\TriangleColored\colored_vertex.hlsl" />
-    <EmbeddedResource Include="D3D\TriangleColored\gs_flat_shading.hlsl" />
+    <None Remove="Techniques\CameraViews\camera_views.hlsl" />
+    <None Remove="Techniques\ManipulationTool\manipulate_tool.hlsl" />
+    <None Remove="Techniques\OrderIndependentTransparency\OIT.hlsl" />
+    <None Remove="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
+    <None Remove="Techniques\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
+    <None Remove="Techniques\TriangleColored\colored_vertex.hlsl" />
+    <None Remove="Techniques\TriangleColored\gs_flat_shading.hlsl" />
+    <None Remove="Techniques\TriangleColored\wireframe.hlsl" />
+    <None Remove="Techniques\TriangleTextured\textured_vertex.hlsl" />
+    <None Remove="_CommonShaders\Common.hlsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Techniques\CameraViews\camera_views.hlsl" />
+    <EmbeddedResource Include="Techniques\ManipulationTool\manipulate_tool.hlsl" />
+    <EmbeddedResource Include="Techniques\OrderIndependentTransparency\OIT.hlsl" />
+    <EmbeddedResource Include="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
+    <EmbeddedResource Include="Techniques\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
+    <EmbeddedResource Include="Techniques\TriangleColored\colored_vertex.hlsl" />
+    <EmbeddedResource Include="Techniques\TriangleColored\gs_flat_shading.hlsl" />
+    <EmbeddedResource Include="Techniques\TriangleColored\wireframe.hlsl" />
+    <EmbeddedResource Include="Techniques\TriangleTextured\textured_vertex.hlsl" />
+    <EmbeddedResource Include="_CommonShaders\Common.hlsl" />
   </ItemGroup>
 
   <ItemGroup>

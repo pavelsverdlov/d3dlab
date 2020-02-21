@@ -72,7 +72,7 @@ namespace D3DLab.ECS.Render {
                 var emanager = Context.GetEntityManager();
 
                 Rendering(emanager, imanager, millisec, changed);
-
+                
                 millisec = speed.ElapsedMilliseconds;
 
                 if (millisec < oneFrameMilliseconds) {

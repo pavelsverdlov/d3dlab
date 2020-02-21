@@ -13,7 +13,7 @@ namespace D3DLab.Viewer.Debugger {
         void OpenSystemsTab(BaseNotify mv);
         void OpenSceneTab(BaseNotify mv);
         void OpenComponetsTab(BaseNotify mv);
-        void OpenPropertiesTab(IEditingProperties properties);
+        void OpenPropertiesTab(IEditingProperties properties, IRenderUpdater updater);
         void OpenShaderEditerTab(IShadersContainer mv, IRenderUpdater updater);
     }
 }

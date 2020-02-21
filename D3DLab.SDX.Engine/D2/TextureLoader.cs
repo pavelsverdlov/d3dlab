@@ -64,9 +64,18 @@ namespace D3DLab.SDX.Engine.D2 {
             return res;
         }
 
-        Texture2D LoadFromFile(Device device, ImagingFactory factory, string fileName) {
-            using (var bs = LoadBitmap(factory, fileName)) {
-                return CreateTexture2DFromBitmap(device, bs);
+        Texture2D LoadFromFile(Device device, ImagingFactory factory, string filePath) {
+            using (var fs = File.OpenRead(filePath)) {
+                using (var ms = new MemoryStream()) {
+                    fs.CopyTo(ms);
+                    ms.Position = 0;
+
+                    var bitmapDecoder = new BitmapDecoder(factory, ms, DecodeOptions.CacheOnLoad);
+                    var bs = new FormatConverter(factory);
+                    bs.Initialize(bitmapDecoder.GetFrame(0), PixelFormat.Format32bppPRGBA, BitmapDitherType.None, null, 0.0, BitmapPaletteType.Custom);
+
+                    return CreateTexture2DFromBitmap(device, bs);
+                }
             }
         }
 

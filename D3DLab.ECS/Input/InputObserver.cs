@@ -75,7 +75,7 @@ namespace D3DLab.ECS.Input {
             public virtual void EnterState(InputStateData inputStateDate) {
 
             }
-            public void LeaveState(InputStateData inputStateDate) {
+            public virtual void LeaveState(InputStateData inputStateDate) {
 
             }
 

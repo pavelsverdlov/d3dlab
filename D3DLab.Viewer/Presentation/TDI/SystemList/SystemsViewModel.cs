@@ -48,8 +48,14 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
                 Update(ref openShaderEditor, value);
             }
         }
+        private ICommand openPropertiesEditor;
+        public ICommand OpenPropertiesEditor { 
+            get => openPropertiesEditor;
+            private set {
+                Update(ref openPropertiesEditor, value);
+            }
+        }
 
-        public ICommand OpenPropertiesEditor { get; }
         public class OpenShaderEditorSystemItemCommand : OpenShaderEditorCommand<SystemItemViewModel> {
             public OpenShaderEditorSystemItemCommand(IDockingManager docking, IRenderUpdater updater) : base(docking, updater) { }
             protected override IShadersContainer Convert(SystemItemViewModel i) {
@@ -72,7 +78,7 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
                 }
             }
 
-            public OpenPropertiesEditorSystemItemCommand(IDockingManager updater) : base(updater) { }
+            public OpenPropertiesEditorSystemItemCommand(IDockingManager docker, IRenderUpdater updater) : base(docker, updater) { }
 
             protected override IEditingProperties Convert(SystemItemViewModel item) {
                 return new EditingPropertiesComponentItem(item);
@@ -87,13 +93,12 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
         readonly DispatcherTimer timer;
         readonly IDockingManager dockingManager;
         IRenderUpdater updater;
+        
 
         public SystemsViewModel(IDockingManager dockingManager) {
             this.dockingManager = dockingManager;
             items = new ObservableCollection<SystemItemViewModel>();
             Items = CollectionViewSource.GetDefaultView(items);
-
-            OpenPropertiesEditor = new OpenPropertiesEditorSystemItemCommand(dockingManager);
 
             Items.CurrentChanged += OnCurrentChanged;
             timer = new DispatcherTimer();
@@ -108,6 +113,7 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
             this.updater = updater;
 
             OpenShaderEditor = new OpenShaderEditorSystemItemCommand(dockingManager, updater);
+            OpenPropertiesEditor = new OpenPropertiesEditorSystemItemCommand(dockingManager, updater);
         }
 
         private void OnTimeRefresh(object sender, EventArgs e) {

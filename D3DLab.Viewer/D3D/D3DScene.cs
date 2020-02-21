@@ -12,15 +12,14 @@ namespace D3DLab.Viewer.D3D {
     using System.Threading.Tasks;
     using System.Threading;
     using D3DLab.SDX.Engine;
-    using D3DLab.Render.GameObjects;
     using D3DLab.Std.Engine.Core.Utilities;
     using System.Numerics;
     using D3DLab.ECS.Systems;
     using D3DLab.Std.Engine.Core.Common;
     using D3DLab.ECS.Ext;
     using D3DLab.ECS.Components;
-    using D3DLab.Toolkit.D3D.TriangleColored;
-    using D3DLab.Toolkit.D3D.OrderIndependentTransparency;
+    using D3DLab.Toolkit.Techniques.TriangleColored;
+    using D3DLab.Toolkit.Techniques.OrderIndependentTransparency;
 
     public sealed class GenneralContextState : BaseContextState {
         public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor, new ManagerContainer(notificator, processor)) {

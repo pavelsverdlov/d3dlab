@@ -35,6 +35,9 @@ namespace D3DLab.SDX.Engine.Rendering {
             }
             return tech;
         }
+        /// <summary>
+        /// Cleanup cache of entities, invoke at the end of frame rander
+        /// </summary>
         public void Cleanup() {
             foreach (var s in Techniques) {
                 s.Cleanup();
@@ -45,7 +48,9 @@ namespace D3DLab.SDX.Engine.Rendering {
     public abstract class D3DRenderSystem<TProperties> : ContainerSystem<IRenderTechnique<TProperties>>, 
         IGraphicSystem, IShadersContainer, IGraphicSystemContextDependent where TProperties : IRenderProperties{
         
+
         protected SynchronizedGraphics graphics;
+
         
         public D3DRenderSystem<TProperties> Init(SynchronizedGraphics graphics) {
             this.graphics = graphics;
@@ -54,7 +59,7 @@ namespace D3DLab.SDX.Engine.Rendering {
             UpdateBuffers(graphics.Device);
 
             foreach(var nest in nested) {
-                nest.GetPass().ClearCache();
+                nest.CleanupRenderCache();
             }
 
             return this;
@@ -70,7 +75,6 @@ namespace D3DLab.SDX.Engine.Rendering {
 
         public IShaderCompilator GetCompilator() {
             return graphics.Device.Compilator;
-            //throw new NotImplementedException();
         }
 
         #endregion

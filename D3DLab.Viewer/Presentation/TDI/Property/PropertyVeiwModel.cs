@@ -15,13 +15,27 @@ namespace D3DLab.Viewer.Presentation.TDI.Property {
 
 
         readonly IEditingProperties properties;
-        public PropertyVeiwModel(IEditingProperties properties) {
+        readonly IRenderUpdater updater;
+
+        public PropertyVeiwModel(IEditingProperties properties, IRenderUpdater updater) {
             this.properties = properties;
+            this.updater = updater;
             ValueChanged = new WpfActionCommand<ValueChangedEventArgs>(OnValueChanged);
         }
 
         void OnValueChanged(ValueChangedEventArgs obj) {
-        
+            if (obj.Property.IsReadOnly) {
+                return;
+            }
+
+            var property = obj.Property.PropertyInformation;
+            var selected = obj.Property.SelectedObject;
+
+            if (obj.NewValue != obj.OldValue) {
+                property.SetValue(selected, obj.NewValue);
+                properties.MarkAsModified();
+                updater.Update();
+            }
         }
     }
 }

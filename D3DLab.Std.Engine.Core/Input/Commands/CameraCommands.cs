@@ -106,7 +106,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
     #region mouse events 
 
     public class CameraZoomCommand : IInputCommand {
-        const float scrollSpeed = 0.5f;
+        const float scrollSpeed = 2.5f;
         public InputStateData InputState { get; }
 
         public CameraZoomCommand(InputStateData state) {
@@ -119,7 +119,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
                 return false;
             }
             var ccom = find.First();
-            var delta = InputState.Delta;
+            var delta = InputState.Delta * scrollSpeed;
 
             var p2 = InputState.CurrentPosition;
             var data = new MovementData { End = p2 };
@@ -128,7 +128,7 @@ namespace D3DLab.Std.Engine.Core.Input.Commands {
                 .GetOrCreateComponent(new CameraZoomingComponent { State = ccom.GetState() })
                 .Do(x => {
                     x.MovementData = data;
-                    x.Delta = delta;
+                    x.Delta = (int)delta;
                 });
 
             return true;

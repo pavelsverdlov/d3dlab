@@ -13,13 +13,11 @@
         xmlns:interop="clr-namespace:System.Windows.Interop;assembly=PresentationCore"
         xmlns:render="clr-namespace:D3DLab.Render;assembly=D3DLab.Wpf.Render"
         xmlns:con="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        mc:Ignorable="d"
+        mc:Ignorable="d"  AllowDrop="True"
         Title="MainWindow" Height="450" Width="1000" Background="White">
 
     <Window.Resources>
         <con:BooleanToVisibilityConverter x:Key="BoolToVis"/>
-
-
     </Window.Resources>
 
     <Grid>
@@ -156,7 +154,7 @@
 
         <!---->
         <syncfusion:DockingManager x:Name="_DockingManager" ItemsSource="{Binding Docking.Tabs}"
-            Grid.Row="1" Grid.ColumnSpan="3" 
+            Grid.Row="1" Grid.ColumnSpan="3"
             syncfusionskin:SfSkinManager.VisualStyle="Blend"                       
                                   
                                    
