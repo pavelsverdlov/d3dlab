@@ -6,11 +6,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Data;
+using System.Windows.Input;
 using WPFLab;
 using WPFLab.MVVM;
 
 namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
-    public class ComponetsViewModel : BaseNotify, IRenderUpdater, ITreeItemActions {
+    class ComponetsViewModel : BaseNotify, IRenderUpdater, ITreeItemActions, IPropertyTabManager {
         string consoleText;
 
         public string ConsoleText {
@@ -52,13 +53,11 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
             }
         }
 
-        public IAppWindow GameWindow { get; set; }
-
         readonly Dictionary<ElementTag, IVisualTreeEntityItem> hash;
-        readonly IDockingManager dockingManager;
+        readonly IDockingTabManager dockingManager;
         IRenderUpdater updater;
 
-        public ComponetsViewModel(IDockingManager dockingManager) {
+        public ComponetsViewModel(IDockingTabManager dockingManager) {
             items = new ObservableCollection<IVisualTreeEntityItem>();
             Items = CollectionViewSource.GetDefaultView(items);
             hash = new Dictionary<ElementTag, IVisualTreeEntityItem>();
@@ -66,7 +65,6 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
             //SelectedComponent = Items.First().Properties.First();
             //OpenShaderEditor = new OpenPropertiesEditorCommand();
             //OpenPropertiesEditor = new OpenPropertiesEditorCommand();
-
             dockingManager.OpenComponetsTab(this);
         }
 
@@ -91,7 +89,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
             if (found == null) {
                 found = new VisualTreeItem(entity, this);
                 foreach (var com in entity.GetComponents()) {
-                    found.Add(new VisualComponentItem(com, dockingManager, updater));
+                    found.Add(new VisualComponentItem(com, this));
                 }
                 items.Add(found);
                 hash.Add(found.Name, found);
@@ -99,7 +97,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
                 found.Clear();
                 var coms = entity.GetComponents();
                 foreach (var com in coms) {
-                    found.Add(new VisualComponentItem(com, dockingManager, updater));//{ RenderModeSwither = _renderModeSwither }
+                    found.Add(new VisualComponentItem(com, this));//{ RenderModeSwither = _renderModeSwither }
                 }
             }
         }
@@ -114,7 +112,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
                     foreach (var com in coms) {
                         if (com == null) { continue; }
                         if (!item.TryRefresh(com)) {
-                            item.Add(new VisualComponentItem(com, dockingManager, updater));
+                            item.Add(new VisualComponentItem(com, this));
                         }
                         existed.Add(com.Tag);
                     }
@@ -155,5 +153,10 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
         }
 
         #endregion
+
+        void IPropertyTabManager.Open(IVisualComponentItem item) {
+            var i = new EditingPropertiesComponentItem(item);
+            dockingManager.OpenPropertiesTab(i, updater);
+        }
     }
 }

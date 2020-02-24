@@ -10,7 +10,7 @@ namespace D3DLab.ECS.Systems {
     public class DefaultLightsSystem : BaseEntitySystem, IGraphicSystem, IGraphicSystemContextDependent {
         public IContextState ContextState { get; set; }
 
-        protected override void Executing(ISceneSnapshot snapshot) {
+        protected sealed override void Executing(ISceneSnapshot snapshot) {
             var emanager = ContextState.GetEntityManager();
             var camera = snapshot.Camera;
 
@@ -21,6 +21,8 @@ namespace D3DLab.ECS.Systems {
                     }
                     var light = entity.GetComponent<LightComponent>();
                     var color = entity.GetComponent<ColorComponent>();
+
+                    OnExecuting(entity, light, color, snapshot);
 
                     snapshot.UpdateLight(light.Index, new LightState {
                         Intensity = light.Intensity,
@@ -35,6 +37,10 @@ namespace D3DLab.ECS.Systems {
                 ex.ToString();
                 throw ex;
             }
+        }
+
+        protected virtual void OnExecuting(GraphicEntity entity, LightComponent light, ColorComponent color, ISceneSnapshot snapshot) {
+
         }
     }
 }

@@ -19,7 +19,7 @@ using WPFLab.MVVM;
 
 namespace D3DLab.Viewer.Presentation.TDI.Scene {
 
-    public class SceneViewModel : BaseNotify {
+    class SceneViewModel : BaseNotify {
 
         public WFScene Scene { get; private set; }
         public IContextState Context => context;
@@ -28,10 +28,10 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
 
         ContextStateProcessor context;
         EngineNotificator notificator;
-        readonly IDockingManager dockingManager;
+        readonly IDockingTabManager dockingManager;
         FormsHost host;
 
-        public SceneViewModel(IDockingManager dockingManager) {
+        public SceneViewModel(IDockingTabManager dockingManager) {
             this.dockingManager = dockingManager;
             GameObject = new ObservableCollection<SingleGameObject>();
             dockingManager.OpenSceneTab(this);

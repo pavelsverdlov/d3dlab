@@ -1,4 +1,5 @@
 ﻿using D3DLab.ECS.Shaders;
+using D3DLab.Viewer.Debugger;
 using Syncfusion.Windows.Tools.Controls;
 using System;
 using System.Collections.Generic;
@@ -7,12 +8,7 @@ using System.Text;
 using WPFLab.MVVM;
 
 namespace D3DLab.Viewer.Debugger {
-    public interface IDockingManager {
-        ObservableCollection<DockItem> Tabs { get; }
-
-        void OpenSystemsTab(BaseNotify mv);
-        void OpenSceneTab(BaseNotify mv);
-        void OpenComponetsTab(BaseNotify mv);
+    public interface IDebugingTabDockingManager {
         void OpenPropertiesTab(IEditingProperties properties, IRenderUpdater updater);
         void OpenShaderEditerTab(IShadersContainer mv, IRenderUpdater updater);
     }

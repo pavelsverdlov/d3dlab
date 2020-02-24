@@ -14,7 +14,7 @@ using WPFLab.Messaging;
 using WPFLab.MVVM;
 
 namespace D3DLab.Viewer.Presentation.TDI.SystemList {
-    public class SystemItemViewModel : BaseNotify {
+    class SystemItemViewModel : BaseNotify {
         readonly IGraphicSystem system;
 
         public string Header { get; }
@@ -37,7 +37,7 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
         }
     }
 
-    public class SystemsViewModel : BaseNotify {
+    class SystemsViewModel : BaseNotify {
 
         #region commands
 
@@ -56,8 +56,8 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
             }
         }
 
-        public class OpenShaderEditorSystemItemCommand : OpenShaderEditorCommand<SystemItemViewModel> {
-            public OpenShaderEditorSystemItemCommand(IDockingManager docking, IRenderUpdater updater) : base(docking, updater) { }
+        class OpenShaderEditorSystemItemCommand : OpenShaderEditorCommand<SystemItemViewModel> {
+            public OpenShaderEditorSystemItemCommand(IDebugingTabDockingManager docking, IRenderUpdater updater) : base(docking, updater) { }
             protected override IShadersContainer Convert(SystemItemViewModel i) {
                 return (IShadersContainer)i.GetOriginSystem();
             }
@@ -74,11 +74,15 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
                 }
 
                 public void MarkAsModified() {
-                    throw new NotImplementedException();
+                    
+                }
+
+                public void Refresh() {
+
                 }
             }
 
-            public OpenPropertiesEditorSystemItemCommand(IDockingManager docker, IRenderUpdater updater) : base(docker, updater) { }
+            public OpenPropertiesEditorSystemItemCommand(IDebugingTabDockingManager docker, IRenderUpdater updater) : base(docker, updater) { }
 
             protected override IEditingProperties Convert(SystemItemViewModel item) {
                 return new EditingPropertiesComponentItem(item);
@@ -91,11 +95,11 @@ namespace D3DLab.Viewer.Presentation.TDI.SystemList {
         public ICollectionView Items { get; }
         readonly ObservableCollection<SystemItemViewModel> items;
         readonly DispatcherTimer timer;
-        readonly IDockingManager dockingManager;
+        readonly IDebugingTabDockingManager dockingManager;
         IRenderUpdater updater;
         
 
-        public SystemsViewModel(IDockingManager dockingManager) {
+        public SystemsViewModel(IDockingTabManager dockingManager) {
             this.dockingManager = dockingManager;
             items = new ObservableCollection<SystemItemViewModel>();
             Items = CollectionViewSource.GetDefaultView(items);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -18,10 +19,24 @@ namespace D3DLab.Viewer.Presentation.TDI.Property {
     public partial class PropertyUCTab : UserControl {
         public PropertyUCTab() {
             InitializeComponent();
+            //DataContextChanged += PropertyUCTab_DataContextChanged;
+            //prgr.SelectedObjectChanged += Prgr_SelectedObjectChanged;
         }
 
-        private void PropertyGrid_ValueChanged(object sender, Syncfusion.Windows.PropertyGrid.ValueChangedEventArgs args) {
+        private void Prgr_SelectedObjectChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            
+            Dispatcher.InvokeAsync(() => {
 
+               // prgr.SelectedObject = new PropertyUCTab();
+            });
+
+        }
+
+        private void PropertyUCTab_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
+            if(DataContext is PropertyVeiwModel vm) {
+               // vm.Test(prgr);
+            }
+            
         }
     }
 }

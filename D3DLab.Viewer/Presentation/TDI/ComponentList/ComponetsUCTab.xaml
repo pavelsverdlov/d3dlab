@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:WPFLab.Converters;assembly=WPFLab"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"  
-            
+            x:Name="ComponentTab"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <ResourceDictionary>

@@ -20,6 +20,7 @@ namespace D3DLab.Viewer.D3D {
     using D3DLab.ECS.Components;
     using D3DLab.Toolkit.Techniques.TriangleColored;
     using D3DLab.Toolkit.Techniques.OrderIndependentTransparency;
+    using D3DLab.Toolkit.Systems;
 
     public sealed class GenneralContextState : BaseContextState {
         public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor, new ManagerContainer(notificator, processor)) {
@@ -59,7 +60,7 @@ namespace D3DLab.Viewer.D3D {
 
                 smanager.CreateSystem<DefaultInputSystem>();
                 smanager.CreateSystem<D3DCameraSystem>();
-                smanager.CreateSystem<DefaultLightsSystem>();
+                smanager.CreateSystem<LightsSystem>();
                 // smanager.CreateSystem<CollidingSystem>();
                 //  smanager.CreateSystem<MovementSystem>();
                 //  smanager.CreateSystem<EmptyAnimationSystem>();

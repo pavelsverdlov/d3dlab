@@ -13,13 +13,14 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using WPFLab;
 using WPFLab.MVVM;
 
 namespace D3DLab.Viewer.Presentation {
-    class MainWindowViewModel : BaseNotify, IViewportNotifier, IRenderUpdater, IDropFiles {
-        public IDockingManager Docking { get; }
+    class MainWindowViewModel : BaseNotify, IViewportNotifier, IRenderUpdater, IDropFiles, ITabStateChanged {
+        public IDockingTabManager Docking { get; }
         public SystemsViewModel Systems { get; }
         public SceneViewModel Scene { get; }
         public ComponetsViewModel Componets { get; }
@@ -29,7 +30,7 @@ namespace D3DLab.Viewer.Presentation {
 
         readonly ViewportSubscriber subscriber;
         
-        public MainWindowViewModel(IDockingManager docking,
+        public MainWindowViewModel(IDockingTabManager docking,
             SystemsViewModel systemsVM, SceneViewModel sceneVM, ComponetsViewModel componetsVM) {
             OpenSceneInWindow = new WpfActionCommand(OnOpenSceneInWindow);
             Docking = docking;
@@ -78,6 +79,7 @@ namespace D3DLab.Viewer.Presentation {
         }
         public void FrameRendered(IEnumerable<GraphicEntityDecorator> en) {
             Componets.Refresh(en);
+            Docking.Update();
         }
 
         #endregion
@@ -109,6 +111,14 @@ namespace D3DLab.Viewer.Presentation {
                 }
             }
         }
+
+        #region Tab stated changes
+
+        public void Closed(UserControl control) {
+            Docking.TabClosed(control);
+        }
+
+        #endregion
 
     }
 }

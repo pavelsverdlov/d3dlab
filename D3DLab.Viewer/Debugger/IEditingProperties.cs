@@ -7,5 +7,7 @@ namespace D3DLab.Viewer.Debugger {
         string Titile { get; }
         object TargetObject { get; }
         void MarkAsModified();
+        void Refresh();
+       // void TryUpdateInternalComponent(ECS.IGraphicComponent component);
     }
 }

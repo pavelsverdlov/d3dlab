@@ -6,10 +6,10 @@ using WPFLab;
 
 namespace D3DLab.Viewer.Debugger {
     public abstract class OpenShaderEditorCommand<T> : BaseWPFCommand<T> {
-        readonly IDockingManager docker;
+        readonly IDebugingTabDockingManager docker;
         readonly IRenderUpdater updater;
 
-        public OpenShaderEditorCommand(IDockingManager docking, IRenderUpdater updater) {
+        public OpenShaderEditorCommand(IDebugingTabDockingManager docking, IRenderUpdater updater) {
             this.docker = docking;
             this.updater = updater;
         }

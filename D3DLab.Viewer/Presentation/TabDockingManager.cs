@@ -6,12 +6,18 @@ using D3DLab.Viewer.Presentation.TDI.Editer;
 using D3DLab.Viewer.Presentation.TDI.Property;
 using D3DLab.Viewer.Presentation.TDI.SystemList;
 using Syncfusion.Windows.Tools.Controls;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Input;
+using WPFLab;
 using WPFLab.MVVM;
 
 namespace D3DLab.Viewer.Presentation {
-    class DockingManagerTest : IDockingManager {
+    class DockingManagerTest : IDebugingTabDockingManager {
         public ObservableCollection<DockItem> Tabs { get; }
 
         public void OpenComponetsTab(BaseNotify mv) {
@@ -34,19 +40,22 @@ namespace D3DLab.Viewer.Presentation {
 
         }
     }
-    class TabDockingManager : IDockingManager {
+    class TabDockingManager : IDockingTabManager {
         public ObservableCollection<DockItem> Tabs { get; }
+
+        readonly List<PropertyVeiwModel> propertyTabs;
 
         DockItem leftTabFixed;
         DockItem rightTabFixed;
         DockItem bottomTabFixed;
-        
+
         public TabDockingManager() {
+            propertyTabs = new List<PropertyVeiwModel>();
             Tabs = new ObservableCollection<DockItem>();
             InitDefaultTabs();
         }
 
-
+       
         void InitDefaultTabs() {
             leftTabFixed = CreateLeft();
             leftTabFixed.Name = "LeftTab";
@@ -173,8 +182,9 @@ namespace D3DLab.Viewer.Presentation {
             //ApplyFixed(property);
             property.CanClose = true;
             property.CanDrag = true;
-            property.Content = new PropertyUCTab() { DataContext = new PropertyVeiwModel(properties, updater) };
-            
+            var vm = new PropertyVeiwModel(properties, updater);
+            property.Content = new PropertyUCTab() { DataContext =vm  };
+            propertyTabs.Add(vm);
             Tabs.Add(property);
         }
 
@@ -185,6 +195,24 @@ namespace D3DLab.Viewer.Presentation {
             scene.Content = new ShaderEditerUCTab() { DataContext = new ShaderEditerViewModel(shader, updater) };
 
             Tabs.Add(scene);
+        }
+
+        void IPropertyTabUpdater.Update() {
+            foreach(var pr in propertyTabs) {
+                pr.EditingProperties.Refresh();
+            }
+        }
+
+        public void TabClosed(UserControl control) {
+            //Tabs remove
+            switch (control) {
+                case PropertyUCTab property:
+                    var item = Tabs.Single(x => x.Content == property);
+                    Tabs.Remove(item);
+                    propertyTabs.Remove((PropertyVeiwModel)property.DataContext);
+                    break;
+
+            }
         }
     }
 }

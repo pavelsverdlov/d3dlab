@@ -71,7 +71,7 @@ namespace D3DLab.ECS.Render {
 
                 var emanager = Context.GetEntityManager();
 
-                Rendering(emanager, imanager, millisec, changed);
+                var rendered = Rendering(emanager, imanager, millisec, changed);
                 
                 millisec = speed.ElapsedMilliseconds;
 
@@ -85,15 +85,17 @@ namespace D3DLab.ECS.Render {
                 emanager.GetEntity(engineInfoTag)
                     .UpdateComponent(PerfomanceComponent.Create(millisec, (int)(total / millisec)));
                 //Debug.WriteLine($"FPS {(int)(total / speed.ElapsedMilliseconds)} / {speed.ElapsedMilliseconds} ms");
-
-                notify.NotifyRender(emanager.GetEntities().ToArray());
+                
+                if (rendered) {
+                    notify.NotifyRender(emanager.GetEntities().ToArray());
+                }
             }
 
             //Window.InputManager.Dispose();
             //Context.Dispose();
         }
 
-        void Rendering(IEntityManager emanager, IInputManager imanager, double millisec, bool changed) {
+        bool Rendering(IEntityManager emanager, IInputManager imanager, double millisec, bool changed) {
             var id = Thread.CurrentThread.ManagedThreadId;
 
             changed = changed || emanager.HasChanges;
@@ -102,7 +104,7 @@ namespace D3DLab.ECS.Render {
             var isnap = Window.InputManager.GetInputSnapshot();
 
             if (!isnap.Events.Any() && !changed) {//no input no rendering 
-                return;
+                return false;
             }
 
             var snapshot = CreateSceneSnapshot(isnap, TimeSpan.FromMilliseconds(millisec));// new SceneSnapshot(Window, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
@@ -118,6 +120,7 @@ namespace D3DLab.ECS.Render {
 #endif
                 }
             }
+            return true;
         }
 
         public virtual void Dispose() {

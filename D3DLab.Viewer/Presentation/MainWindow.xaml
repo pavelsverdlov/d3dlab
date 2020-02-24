@@ -13,6 +13,7 @@
         xmlns:interop="clr-namespace:System.Windows.Interop;assembly=PresentationCore"
         xmlns:render="clr-namespace:D3DLab.Render;assembly=D3DLab.Wpf.Render"
         xmlns:con="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"  AllowDrop="True"
         Title="MainWindow" Height="450" Width="1000" Background="White">
 
@@ -154,10 +155,9 @@
 
         <!---->
         <syncfusion:DockingManager x:Name="_DockingManager" ItemsSource="{Binding Docking.Tabs}"
-            Grid.Row="1" Grid.ColumnSpan="3"
-            syncfusionskin:SfSkinManager.VisualStyle="Blend"                       
-                                  
-                                   
+            Grid.Row="1" Grid.ColumnSpan="3" 
+                                   DockStateChanged="_DockingManager_DockStateChanged"
+                syncfusionskin:SfSkinManager.VisualStyle="Blend"        
                                    UseInteropCompatibilityMode="True"
                                    EnableDocumentTabHeaderEdit="False"
                                    TabGroupEnabled="True"
@@ -170,87 +170,13 @@
                                    DockTabAlignment="Top"
                                    CanMinimize="False"
                                    >
-
-
-
-
-            <!--<syncfusion:DockingManager.Resources>
-                <Style x:Key="NoFloat" TargetType="UserControl">
-                    <Setter Property="syncfusion:DocumentContainer.ShowPin" Value="False"/>
-                    <Setter Property="syncfusion:DocumentContainer.IsPinned" Value="False"/>
-                    <Setter Property="syncfusion:DockingManager.CanMaximize" Value="False"/>
-                    <Setter Property="syncfusion:DockingManager.ShowFloatingMenuItem" Value="False"/>
-                    <Setter Property="syncfusion:DockingManager.CanFloat" Value="False"/>
-                    <Setter Property="syncfusion:DockingManager.CanClose" Value="False"/>
-                    <Setter Property="syncfusion:DockingManager.IsContextMenuButtonVisible" Value="False"/>
-                    <Setter Property="syncfusion:DockingManager.CanDrag" Value="False"/>
-                    <Setter Property="syncfusion:DockingManager.DockAbility" Value="None"/>
-                    <Setter Property="syncfusion:DockingManager.SizetoContentInDock" Value="True"/>
-                    <Setter Property="syncfusion:DockingManager.NoHeader" Value="True"/>
-
-                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                </Style>
-                
-            </syncfusion:DockingManager.Resources>
-
-
-
-            <tdicom:ComponetsUCTab x:Name="LeftTab" DataContext="{Binding Componets}" Style="{StaticResource NoFloat}"
-                            Width="250"                                
-                            syncfusion:DockingManager.Header="Componets"
-                            syncfusion:DockingManager.State="Dock" 
-                            syncfusion:DockingManager.SideInDockedMode= "Left" 
-                                                            
-                            >
-            </tdicom:ComponetsUCTab>
-
-            <tdisys:SystemsUCTab DataContext="{Binding Systems}" Style="{StaticResource NoFloat}"
-                                 
-                            syncfusion:DockingManager.SizetoContentInDock="True"
-                            syncfusion:DockingManager.Header="Systems"
-                            syncfusion:DockingManager.SideInDockedMode="Tabbed"
-                            syncfusion:DockingManager.TargetNameInDockedMode="LeftTab"
-                            />
+            <!--<i:Interaction.Triggers>
+                <i:EventTrigger EventName="DockStateChanged">
+                    <i:InvokeCommandAction Command="{Binding Docking.TabClosed}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>-->
             
             
-
-            <tdi:EntitiesUCTab x:Name="RightTab"
-                            Width="250" syncfusion:DockingManager.SizetoContentInDock="True"
-                               
-                            syncfusion:DockingManager.Header="Entities"  
-                            syncfusion:DockingManager.State="Dock" 
-                            syncfusion:DockingManager.SideInDockedMode= "Right"/>
-            <tdi:PropertyUCTab 
-                            syncfusion:DockingManager.Header="Properties"
-                            syncfusion:DockingManager.SideInDockedMode="Tabbed"
-                            syncfusion:DockingManager.TargetNameInDockedMode="RightTab">
-            </tdi:PropertyUCTab>
-
-            
-            
-
-            <ContentControl x:Name="DockingTab"
-                            syncfusion:DockingManager.Header="Output"  
-                            syncfusion:DockingManager.State="Dock" 
-                            syncfusion:DockingManager.SideInDockedMode= "Bottom"/>
-            <ContentControl 
-                            syncfusion:DockingManager.Header="Interactive"  
-                            syncfusion:DockingManager.SideInDockedMode= "Tabbed"
-                            syncfusion:DockingManager.TargetNameInDockedMode="DockingTab"/>
-
-            
-
-
-            <tdi:SceneWinFormUCTab DataContext="{Binding Scene}"
-                            syncfusion:DockingManager.Header="Tabbed1" 
-                            syncfusion:DocumentContainer.ShowPin="False"    
-                            syncfusion:DocumentContainer.AllowPin="False"    
-                            syncfusion:DockingManager.State="Document" 
-                            syncfusion:DockingManager.SideInDockedMode="Tabbed" 
-                            syncfusion:DockingManager.CanMinimize="False"
-                            syncfusion:DockingManager.CanClose="True"
-                            
-                            />-->
         </syncfusion:DockingManager>
 
     </Grid>

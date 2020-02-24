@@ -16,9 +16,9 @@
                              EditableBackground="{StaticResource BlackBackgroundColor}"
                              ReadOnlyBackground="{StaticResource BlackBackgroundColor}"
                              CategoryForeground="{StaticResource TextColor}"-->
-    
-    
-    <syncfusion:PropertyGrid SelectedObject="{Binding TargetObject}" 
+
+
+    <syncfusion:PropertyGrid SelectedObject="{Binding EditingProperties.TargetObject, Mode=OneWay}" x:Name="prgr"
                              syncfusionskin:SfSkinManager.VisualStyle="Blend"
                              ViewBackgroundColor="{StaticResource BlackBackgroundColor}"
                              Background="{StaticResource BlackBackgroundColor}"

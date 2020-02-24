@@ -6,7 +6,7 @@ namespace D3DLab.ECS {
     public interface IGraphicComponent : IDisposable {
         ElementTag Tag { get; }
         ElementTag EntityTag { get; set; }
-        [Obsolete("Not usable fot struct, remote later")]
+        [Obsolete("Not applicable fot struct, remote later")]
         bool IsModified { get; set; }
         bool IsValid { get; }
         bool IsDisposed { get; }

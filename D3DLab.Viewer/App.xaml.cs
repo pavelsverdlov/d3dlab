@@ -35,7 +35,7 @@ namespace D3DLab.Viewer {
                 //.RegisterView<MainWindow_TEST>()
 
 
-                .Register<IDockingManager, TabDockingManager>()
+                .Register<IDockingTabManager, TabDockingManager>()
                 .Register<SystemsViewModel>()
                 .Register<SceneViewModel>()
                 .Register<ComponetsViewModel>()

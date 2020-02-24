@@ -15,7 +15,7 @@ namespace D3DLab.Viewer.Debugger {
 
         IGraphicComponent GetOriginComponent();
 
-        void Refresh();
+        void Refresh(IGraphicComponent component);
         void MarkAsModified();
     }
 

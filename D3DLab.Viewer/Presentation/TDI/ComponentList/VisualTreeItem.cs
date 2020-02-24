@@ -64,7 +64,7 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
             if (!hash.ContainsKey(com.Tag)) {
                 return false;
             }
-            hash[com.Tag].Refresh();
+            hash[com.Tag].Refresh(com);
             return true;
         }
 

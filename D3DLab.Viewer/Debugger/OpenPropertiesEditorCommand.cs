@@ -5,10 +5,10 @@ using WPFLab;
 
 namespace D3DLab.Viewer.Debugger {
     public abstract class OpenPropertiesEditorCommand<T> : BaseWPFCommand<T> {
-        readonly IDockingManager docker;
+        readonly IDebugingTabDockingManager docker;
         readonly IRenderUpdater updater;
 
-        public OpenPropertiesEditorCommand(IDockingManager docker, IRenderUpdater updater) {
+        public OpenPropertiesEditorCommand(IDebugingTabDockingManager docker, IRenderUpdater updater) {
             this.docker = docker;
             this.updater = updater;
         }

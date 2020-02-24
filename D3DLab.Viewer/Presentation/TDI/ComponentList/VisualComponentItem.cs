@@ -7,36 +7,36 @@ using System.Windows.Input;
 using WPFLab;
 using WPFLab.MVVM;
 
-namespace D3DLab.Viewer.Presentation.TDI.ComponentList {    
-    public class OpenPropertiesTabCommand : BaseWPFCommand<MouseButtonEventArgs> {
+namespace D3DLab.Viewer.Presentation.TDI.ComponentList {   
+    interface IPropertyTabManager {
+        void Open(IVisualComponentItem item);
+    }
+    class OpenPropertiesTabCommand : BaseWPFCommand<MouseButtonEventArgs> {
         readonly IVisualComponentItem item;
-        readonly IDockingManager docker;
-        readonly IRenderUpdater updater;
+        readonly IPropertyTabManager tab;
 
-        public OpenPropertiesTabCommand(IVisualComponentItem item, IDockingManager docker, IRenderUpdater updater) {
+        public OpenPropertiesTabCommand(IVisualComponentItem item, IPropertyTabManager docker) {
             this.item = item;
-            this.docker = docker;
-            this.updater = updater;
+            this.tab = docker;
         }
 
         public override void Execute(MouseButtonEventArgs args) {
             if (args.ClickCount > 1) {
-                docker.OpenPropertiesTab(new EditingPropertiesComponentItem(item), updater);
+                tab.Open(item);
+                //tab.OpenPropertiesTab(new EditingPropertiesComponentItem(item), updater);
             }
         }        
     }
 
-    public class VisualComponentItem : BaseNotify, IVisualComponentItem{
+    class VisualComponentItem : BaseNotify, IVisualComponentItem{
         public ICommand OpenPropertiesTab { get; }
 
-        readonly IGraphicComponent com;
-        readonly IDockingManager docker;
+        IGraphicComponent com;
 
-        public VisualComponentItem(IGraphicComponent com, IDockingManager docker,IRenderUpdater updater) {
+        public VisualComponentItem(IGraphicComponent com, IPropertyTabManager propertyTabManager) {
             this.com = com;
-            this.docker = docker;
 
-            OpenPropertiesTab = new OpenPropertiesTabCommand(this, docker, updater);
+            OpenPropertiesTab = new OpenPropertiesTabCommand(this, propertyTabManager);
         }
 
         public string Name { get { return com.GetType().Name; } }
@@ -53,8 +53,10 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
             com.IsModified = true;
         }
 
-        public void Refresh() {
+        public void Refresh(IGraphicComponent component) {
+            com = component;
             SetPropertyChanged(nameof(Name));
         }
+
     }
 }
