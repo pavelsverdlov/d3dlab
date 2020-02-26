@@ -2,6 +2,7 @@
 using Syncfusion.Windows.PropertyGrid;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Windows.Input;
 using WPFLab;
@@ -29,23 +30,21 @@ namespace D3DLab.Viewer.Presentation.TDI.Property {
             var property = obj.Property.PropertyInformation;
             var selected = obj.Property.SelectedObject;
 
-            //if (obj.NewValue != obj.OldValue) {
-            //    property.SetValue(selected, obj.NewValue);
-            //    EditingProperties.MarkAsModified();
-            //    updater.Update();
-            //}
-        }
+            if (property.PropertyType.IsPrimitive) {
+                switch (Type.GetTypeCode(property.PropertyType)) {
+                    case TypeCode.Single:
+                        if(!float.Equals(obj.NewValue, obj.OldValue)) {
 
-        public void Test(Syncfusion.Windows.PropertyGrid.PropertyGrid grid) {
-            ((ComponentList.EditingPropertiesComponentItem)EditingProperties).Test(grid);
-        }
+                        }
+                        break;
+                }
+            }
 
-        //public void RefreshEditingComponent(IEnumerable<GraphicEntityDecorator> en) {
-        //    foreach (var entity in en) {
-        //        foreach (var com in entity.GetComponents()) {
-        //          //  properties.TryUpdateInternalComponent(com);
-        //        }
-        //    }
-        //}
+            if (!Equals(obj.NewValue, obj.OldValue)) {
+                //property.SetValue(selected, obj.NewValue);
+                EditingProperties.MarkAsModified();
+                updater.Update();
+            }
+        }
     }
 }

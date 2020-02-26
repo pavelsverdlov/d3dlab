@@ -22,7 +22,7 @@ namespace D3DLab.ECS.Systems {
                     var light = entity.GetComponent<LightComponent>();
                     var color = entity.GetComponent<ColorComponent>();
 
-                    OnExecuting(entity, light, color, snapshot);
+                    OnExecuting(entity, ref light, ref color, snapshot);
 
                     snapshot.UpdateLight(light.Index, new LightState {
                         Intensity = light.Intensity,
@@ -39,7 +39,7 @@ namespace D3DLab.ECS.Systems {
             }
         }
 
-        protected virtual void OnExecuting(GraphicEntity entity, LightComponent light, ColorComponent color, ISceneSnapshot snapshot) {
+        protected virtual void OnExecuting(GraphicEntity entity, ref LightComponent light, ref ColorComponent color, ISceneSnapshot snapshot) {
 
         }
     }

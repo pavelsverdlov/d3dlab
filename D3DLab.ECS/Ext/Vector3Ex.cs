@@ -78,10 +78,7 @@ namespace D3DLab.ECS.Ext {
 
             return u;
         }
-        //public static Vector4 ToVector4(this System.Windows.Media.Color color) {
-        //    color.Clamp();
-        //    return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
-        //}
+        
         public static bool EqualsRound(this Vector3 a, Vector3 b, int round) {
             return Math.Round(a.X, round) == Math.Round(b.X, round)
                 && Math.Round(a.Y, round) == Math.Round(b.Y, round)

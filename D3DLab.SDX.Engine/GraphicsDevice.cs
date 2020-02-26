@@ -557,16 +557,17 @@ namespace D3DLab.SDX.Engine {
         //context.UnmapSubresource(lightDataBuffer, LightStructLayout.RegisterResourceSlot);
 
         public void UpdateDynamicBuffer<T>(T[] newdata, SharpDX.Direct3D11.Buffer buffer, int slot) where T : struct {
-            SharpDX.DataStream stream = null;
+            var desc = buffer.Description;
+            if (desc.CpuAccessFlags != CpuAccessFlags.Write && desc.Usage != ResourceUsage.Dynamic) {
+                throw GraphicsDeviceException.NotDynamicBuffer;
+            }
             try {
-                SharpDX.DataBox src = ImmediateContext.MapSubresource(buffer, slot, MapMode.WriteDiscard,
-                    SharpDX.Direct3D11.MapFlags.None, out stream);
-
+                ImmediateContext.MapSubresource(buffer, slot, MapMode.WriteDiscard,
+                    SharpDX.Direct3D11.MapFlags.None, out var stream);
                 // src.DataPointer
                 stream.WriteRange(newdata);
-                ImmediateContext.UnmapSubresource(buffer, slot);
             } finally {
-
+                ImmediateContext.UnmapSubresource(buffer, slot);
             }
         }
 
@@ -576,12 +577,12 @@ namespace D3DLab.SDX.Engine {
                 throw GraphicsDeviceException.NotDynamicBuffer;
             }
             try {
-                //  Disable GPU access to the vertex buffer data.
+                //  Disable GPU access to the buffer data.
                 ImmediateContext.MapSubresource(buffer, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None,
                     out var mappedResource);
                 mappedResource.Write(newdata);
             } finally {
-                //  Reenable GPU access to the vertex buffer data.
+                //  Reenable GPU access to the buffer data.
                 ImmediateContext.UnmapSubresource(buffer, slot);
             }
 

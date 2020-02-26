@@ -41,15 +41,19 @@ namespace D3DLab.ECS {
                     item.Item1(owner, item.Item2);
                 }catch(Exception ex) {
                     System.Diagnostics.Trace.WriteLine($"retry, move action to next render iteration [{ex.Message}]");
-                    Add(item.Item1, item.Item2);
+                    //Add(item.Item1, item.Item2);
+                    lock (_loker) {
+                        IsChanged = true;
+                        queue.Enqueue(Tuple.Create(item.Item1, item.Item2));
+                    }
                 }
             }
         }
         public void Add(Action<TOwner, TInput> action, TInput input) {
-            //if(Thread.CurrentThread.ManagedThreadId == theadId) {
-            //    action(owner, input);
-            //    return;
-            //}
+            if(Thread.CurrentThread.ManagedThreadId == theadId) {
+                action(owner, input);
+                return;
+            }
             lock (_loker) {
                 IsChanged = true;
                 queue.Enqueue(Tuple.Create(action, input));

@@ -8,6 +8,7 @@ struct GSIn
 {
     float4 position : SV_POSITION;
     float4 normal : NORMAL;
+    float4 positionW : TEXCOORD0;
 };
 
 
@@ -17,9 +18,9 @@ void main(
 	inout TriangleStream<GSIn> stream
 )
 {
-    float3 p0 = i[0].position.xyz;
-    float3 p1 = i[1].position.xyz;
-    float3 p2 = i[2].position.xyz;
+    float3 p0 = i[0].positionW.xyz;
+    float3 p1 = i[1].positionW.xyz;
+    float3 p2 = i[2].positionW.xyz;
 
     float4 triangleNormal = float4(normalize(cross(p1 - p0, p2 - p0)), 0);
    

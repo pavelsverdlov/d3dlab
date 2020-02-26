@@ -46,11 +46,11 @@ namespace D3DLab.ECS.Components {
         /// <summary>
         /// 0 - 1 range
         /// </summary>
-        public float Intensity;
-        public int Index;
-        public Vector3 Position;
-        public Vector3 Direction;
-        public LightTypes Type;
+        public float Intensity { get; private set; }
+        public int Index { get; private set; }
+        public Vector3 Position { get; private set; }
+        public Vector3 Direction { get;  set; }
+        public LightTypes Type { get; private set; }
 
         public ElementTag Tag { get; private set; }
         public ElementTag EntityTag { get; set; }

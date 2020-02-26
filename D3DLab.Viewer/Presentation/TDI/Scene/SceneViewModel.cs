@@ -1,9 +1,9 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
 using D3DLab.ECS.Context;
-using D3DLab.FileFormats.GeometryFormats.OBJ;
 using D3DLab.Render;
 using D3DLab.Toolkit;
+using D3DLab.Toolkit.Components;
 using D3DLab.Toolkit.D3Objects;
 using D3DLab.Utility.Math3D;
 using D3DLab.Viewer.D3D;
@@ -15,7 +15,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using D3DLab.ECS.Ext;
 using WPFLab.MVVM;
+using D3DLab.FileFormats.GeometryFormats;
 
 namespace D3DLab.Viewer.Presentation.TDI.Scene {
 
@@ -61,17 +63,33 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
 
 
 
-        public void LoadGameObject(GroupGeometry3D geo, string fileName) {
+        public void LoadGameObject(IFileGeometry3D geo, string fileName) {
             var em = context.GetEntityManager();
 
             var box = BoundingBox.CreateFromVertices(geo.Positions.ToArray());
             var center = box.GetCenter();
 
-            var en = EntityBuilders.BuildColored(em, geo.Positions.ToList(), geo.Indices.ToList(), V4Colors.Blue, SharpDX.Direct3D11.CullMode.Front);
-            en.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
+            var c = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B598");
 
+            GraphicEntity en;
+            if (geo.TextureCoors.Any()) {
+                en = EntityBuilders.BuildTextured(em, geo.Positions.ToList(), geo.Indices.ToList(), geo.TextureCoors.ToArray(),
+                     new FileInfo(@"D:\Storage_D\trash\archive\2016-08-17_00006-008-Face-MouthClosed.obj.jpg"),
+                     SharpDX.Direct3D11.CullMode.None);
+            } else {
+                en = EntityBuilders.BuildColored(em, geo.Positions.ToList(), geo.Indices.ToList(),
+                   ToVector4(c), SharpDX.Direct3D11.CullMode.Front);
+                en.UpdateComponent(GeometryFlatShadingComponent.Create());
+                
+            }
+            en.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
             GameObject.Add(new SingleGameObject(en.Tag, fileName));
         }
 
+
+        static Vector4 ToVector4(System.Windows.Media.Color color) {
+            color.Clamp();
+            return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+        }
     }
 }

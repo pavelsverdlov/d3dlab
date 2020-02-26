@@ -80,12 +80,12 @@ namespace D3DLab.Render{
                 );
         }
 
-        public static GraphicEntity BuildTextured(IEntityManager manager, ElementTag tag,
+        public static GraphicEntity BuildTextured(IEntityManager manager, 
             List<Vector3> pos, List<int> indexes, Vector2[] texCoor, FileInfo texture, CullMode cullMode) {
             if (texCoor == null) {
                 throw new Exception("Geo must have TextCoor.");
             }
-            var en = manager.CreateEntity(tag);
+            var en = manager.CreateEntity(new ElementTag("TexturedGeometry" + Guid.NewGuid()));
 
             var geo = new GeometryComponent(
                pos.ToArray(),

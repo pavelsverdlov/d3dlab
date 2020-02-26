@@ -8,13 +8,14 @@ using System.Text;
 
 namespace D3DLab.Toolkit.Systems {
     public class LightsSystem : DefaultLightsSystem {
-        protected override void OnExecuting(GraphicEntity entity, LightComponent light, ColorComponent color, ISceneSnapshot snapshot) {
+        protected override void OnExecuting(GraphicEntity entity, ref LightComponent light, ref ColorComponent color, ISceneSnapshot snapshot) {
 
-            if (entity.Has<FollowCameraDirectLightComponent>()) {
+            if (entity.Has<FollowCameraDirectLightComponent>() && light.Direction != snapshot.Camera.LookDirection) {
                 light.Direction = snapshot.Camera.LookDirection;
+                entity.UpdateComponent(light);
             }
 
-            base.OnExecuting(entity, light, color, snapshot);
+            base.OnExecuting(entity, ref light, ref color, snapshot);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace D3DLab.Viewer.D3D {
     using D3DLab.Toolkit.Techniques.TriangleColored;
     using D3DLab.Toolkit.Techniques.OrderIndependentTransparency;
     using D3DLab.Toolkit.Systems;
+    using D3DLab.Toolkit.Techniques.TriangleTextured;
 
     public sealed class GenneralContextState : BaseContextState {
         public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor, new ManagerContainer(notificator, processor)) {
@@ -78,8 +79,9 @@ namespace D3DLab.Viewer.D3D {
                      //   .CreateNested<TerrainRenderTechnique>()//
                     
                     //.CreateNested<Toolkit.D3D.CameraViews.CameraViewsRenderTechnique<CustomRenderProperties>>()
-                  //  .CreateNested<OITTriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
+                  ///  .CreateNested<OITTriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
                     .CreateNested<TriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
+                    .CreateNested<TriangleTexturedVertexRenderTechnique<CustomRenderProperties>>()
                     
                     //.CreateNested<LineVertexRenderTechnique>()
                     //.CreateNested<SpherePointRenderStrategy>()
