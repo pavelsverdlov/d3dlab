@@ -72,16 +72,16 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
             var c = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B598");
 
             GraphicEntity en;
-            if (geo.TextureCoors.Any()) {
-                en = EntityBuilders.BuildTextured(em, geo.Positions.ToList(), geo.Indices.ToList(), geo.TextureCoors.ToArray(),
-                     new FileInfo(@"D:\Storage_D\trash\archive\2016-08-17_00006-008-Face-MouthClosed.obj.jpg"),
-                     SharpDX.Direct3D11.CullMode.None);
-            } else {
+            //if (geo.TextureCoors.Any()) {
+                //en = EntityBuilders.BuildTextured(em, geo.Positions.ToList(), geo.Indices.ToList(), geo.TextureCoors.ToArray(),
+                //     new FileInfo(@""),
+                //     SharpDX.Direct3D11.CullMode.None);
+            //} else {
                 en = EntityBuilders.BuildColored(em, geo.Positions.ToList(), geo.Indices.ToList(),
                    ToVector4(c), SharpDX.Direct3D11.CullMode.Front);
                 en.UpdateComponent(GeometryFlatShadingComponent.Create());
                 
-            }
+            //}
             en.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
             GameObject.Add(new SingleGameObject(en.Tag, fileName));
         }
