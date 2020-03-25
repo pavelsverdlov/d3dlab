@@ -15,6 +15,7 @@ namespace D3DLab.Toolkit {
 
 
         public static Vector4 NextColor(this Random random) {
+            
             return new Vector4(random.NextFloat(0.0f, 1.0f), random.NextFloat(0.0f, 1.0f), random.NextFloat(0.0f, 1.0f), 1.0f);
         }
     }

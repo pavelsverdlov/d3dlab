@@ -2,6 +2,7 @@
 using D3DLab.ECS.Common;
 using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
+using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -118,6 +119,8 @@ namespace D3DLab.SDX.Engine {
                 RenderTarget = new RenderTargetView(D3DDevice, targetTexture);
             }
         }
+
+
         class RenderWithSwapChain : DirectX11 {
             readonly SwapChain4 swapChain;
             public RenderWithSwapChain(Adapter adapter, IntPtr handle, int width, int height) {
@@ -149,7 +152,7 @@ namespace D3DLab.SDX.Engine {
                 //                          new[] { FeatureLevel.Level_11_1 }, 1, D3D11.SdkVersion, device, out outputLevel,
                 //                          out var context);
 
-
+                //return new SwapChain1(factory, device, Window.Handle, ref desc, CreateFullScreenDescription(), null);
                 SharpDX.Direct3D11.Device.CreateWithSwapChain(adapter, flags, swapChainDesc, out var d3dDevice, out var sch);
 
                 swapChain = sch.QueryInterface<SwapChain4>();
@@ -171,7 +174,8 @@ namespace D3DLab.SDX.Engine {
 
             public override void Present() {
                 //swapChain.Present(1, PresentFlags.None);//TODO: use second one
-                swapChain.Present(1, PresentFlags.None, new PresentParameters());
+                swapChain.Present(1, //VSync enabled
+                    PresentFlags.None, new PresentParameters());
 
                 try {//only for Window 10
                      //    WaitForSingleObjectEx(swapChain.FrameLatencyWaitableObject.ToInt32(), 1000, true);
@@ -184,7 +188,10 @@ namespace D3DLab.SDX.Engine {
             }
 
             public override void Resize(int width, int height) {
-                swapChain.ResizeBuffers(2, width, height, Format.R8G8B8A8_UNorm, SwapChainFlags.None);
+                swapChain.ResizeBuffers(swapChain.Description1.BufferCount,
+                    width, height,
+                    swapChain.Description.ModeDescription.Format,
+                    swapChain.Description.Flags);
 
                 using (var backBuffer = swapChain.GetBackBuffer<Texture2D>(0)) {
                     RenderTarget = new RenderTargetView(D3DDevice, backBuffer);
@@ -355,7 +362,9 @@ namespace D3DLab.SDX.Engine {
         }
 
         public void Refresh() {
-            ImmediateContext.ClearDepthStencilView(depthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
+            ImmediateContext.ClearDepthStencilView(depthStencilView, 
+                DepthStencilClearFlags.Depth,// | DepthStencilClearFlags.Stencil,
+                1f, 0);
             ImmediateContext.ClearRenderTargetView(directX.RenderTarget, new RawColor4(0, 0, 0, 0));
         }
 
@@ -366,7 +375,6 @@ namespace D3DLab.SDX.Engine {
         public void Present() {
             directX.Present();
             resourseHash.Clear();
-            // CopyBackBufferTexture().Save(@"D:\Zirkonzahn\MB_Database\back.png");
         }
 
         public Texture2D GetBackBuffer() => directX.GetBackBuffer();
@@ -645,6 +653,25 @@ namespace D3DLab.SDX.Engine {
 
         #endregion
 
+
+        #region 
+
+        public InputLayout CreateInputLayout(byte[] vertexShaderByteCode, InputElement[] elements) {
+            var inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
+            return new InputLayout(directX.D3DDevice, inputSignature, elements);
+        }
+
+
+        public void ClearAllShader() {
+            ImmediateContext.VertexShader.Set(null);
+            ImmediateContext.GeometryShader.Set(null);
+            ImmediateContext.ComputeShader.Set(null);
+            ImmediateContext.HullShader.Set(null);
+            ImmediateContext.DomainShader.Set(null);
+            ImmediateContext.PixelShader.Set(null);
+        }
+
+        #endregion
 
         static CpuAccessFlags GetCpuAccessFlagsFromUsage(ResourceUsage usage) {
             switch (usage) {

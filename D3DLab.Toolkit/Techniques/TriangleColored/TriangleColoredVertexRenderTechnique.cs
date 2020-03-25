@@ -57,7 +57,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
             //debug2.Activate();
         }
 
-        public IEnumerable<IRenderTechniquePass> GetPass() => new[] { pass , flatShadingPass, wireframePass };
+        public IEnumerable<IRenderTechniquePass> GetPass() => new[] { pass, flatShadingPass, wireframePass };
 
 
         public TriangleColoredVertexRenderTechnique()
@@ -92,7 +92,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
         protected override void Rendering(GraphicsDevice graphics, TProperties props) {
             var device = graphics.D3DDevice;
             var context = graphics.ImmediateContext;
-
+            
             if (!pass.IsCompiled) {
                 pass.Compile(graphics.Compilator);
                 var vertexShaderByteCode = pass.VertexShader.ReadCompiledBytes();
@@ -100,27 +100,25 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
 
                 inputLayout.Set(new InputLayout(device, inputSignature, layconst.ConstuctElements()));
                 vertexShader.Set(new VertexShader(device, vertexShaderByteCode));
-
-                if (pass.PixelShader != null) {
-                    pixelShader.Set(new PixelShader(device, pass.PixelShader.ReadCompiledBytes()));
-                }
+                pixelShader.Set(new PixelShader(device, pass.PixelShader.ReadCompiledBytes()));
             }
 
             if (!flatShadingPass.IsCompiled) {
                 flatShadingPass.Compile(graphics.Compilator);
-                if (flatShadingPass.GeometryShader != null) {
-                    flatShadingGS.Set(new GeometryShader(device, flatShadingPass.GeometryShader.ReadCompiledBytes()));
-                }
+                flatShadingGS.Set(new GeometryShader(device, flatShadingPass.GeometryShader.ReadCompiledBytes()));
             }
 
             if (!wireframePass.IsCompiled) {
                 wireframePass.Compile(graphics.Compilator);
-                if (wireframePass.GeometryShader != null) {
-                    wireframeGS.Set(new GeometryShader(device, wireframePass.GeometryShader.ReadCompiledBytes()));
-                }
-                if (wireframePass.GeometryShader != null) {
-                    wireframePS.Set(new PixelShader(device, wireframePass.PixelShader.ReadCompiledBytes()));
-                }
+                wireframeGS.Set(new GeometryShader(device, wireframePass.GeometryShader.ReadCompiledBytes()));
+                wireframePS.Set(new PixelShader(device, wireframePass.PixelShader.ReadCompiledBytes()));
+            }
+
+            //clear shaders off prev. technique 
+            graphics.ClearAllShader();
+
+            {//set shaders that shader for all entities
+                context.VertexShader.Set(vertexShader.Get());
             }
 
             foreach (var en in entities) {
@@ -138,17 +136,18 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
                 }
 
                 {
-                    context.VertexShader.Set(vertexShader.Get());
-                    context.GeometryShader.Set(null);
-                    context.PixelShader.Set(null);
-
                     if (en.Has<GeometryFlatShadingComponent>()) {
+                        context.GeometryShader.Set(null);
+                        context.PixelShader.Set(null);
                         context.GeometryShader.Set(flatShadingGS.Get());
                         context.PixelShader.Set(pixelShader.Get());
                     } else if (en.Has<WireframeGeometryComponent>()) {
+                        context.GeometryShader.Set(null);
+                        context.PixelShader.Set(null);
                         context.GeometryShader.Set(wireframeGS.Get());
                         context.PixelShader.Set(wireframePS.Get());
                     } else {
+                        context.PixelShader.Set(null);
                         context.PixelShader.Set(pixelShader.Get());
                     }
                 }
@@ -210,7 +209,8 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
                     context.OutputMerger.SetBlendState(render.BlendingState.Get(), new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0), -1);
                 }
 
-                using (var rasterizerState = new RasterizerState2(graphics.D3DDevice, render.RasterizerStateDescription.GetDescription())) {
+                var stated = render.RasterizerStateDescription.GetDescription();
+                using (var rasterizerState = new RasterizerState2(graphics.D3DDevice, stated)) {
                     context.Rasterizer.State = rasterizerState;
 
                     graphics.ImmediateContext.DrawIndexed(geo.Indices.Length, 0, 0);

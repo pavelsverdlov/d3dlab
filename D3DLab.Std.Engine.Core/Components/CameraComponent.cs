@@ -107,7 +107,7 @@ namespace D3DLab.Std.Engine.Core.Components {
             FieldOfViewRadians = 1.05f;
             NearPlaneDistance = 1f;
             LookDirection = ForwardRH;
-            Position = Vector3.UnitZ * 200f;
+            Position = Vector3.UnitZ * 10f;
 
             FarPlaneDistance = Position.Length() * 70;
         }

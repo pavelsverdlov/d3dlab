@@ -22,6 +22,7 @@ namespace D3DLab.Viewer.D3D {
     using D3DLab.Toolkit.Techniques.OrderIndependentTransparency;
     using D3DLab.Toolkit.Systems;
     using D3DLab.Toolkit.Techniques.TriangleTextured;
+    using D3DLab.Toolkit.Techniques.Line;
 
     public sealed class GenneralContextState : BaseContextState {
         public GenneralContextState(ContextStateProcessor processor, EngineNotificator notificator) : base(processor, new ManagerContainer(notificator, processor)) {
@@ -29,10 +30,10 @@ namespace D3DLab.Viewer.D3D {
     }
     public abstract class D3DScene {
         public event Action SceneLoaded = () => { };
-       // protected readonly FrameworkElement overlay;
+        // protected readonly FrameworkElement overlay;
         protected readonly EngineNotificator notify;
 
-        
+
 
         /// <summary>
         /// DO NOT CHANGE, PASS OR MAKE SOMETHING STUPID
@@ -44,18 +45,18 @@ namespace D3DLab.Viewer.D3D {
         public IInputManager Input => Window.InputManager;
 
         public D3DScene(ContextStateProcessor context) :
-            this( context, new EngineNotificator()) {
+            this(context, new EngineNotificator()) {
         }
 
         public D3DScene(ContextStateProcessor context, EngineNotificator notify) {
-          //  this.overlay = overlay;
+            //  this.overlay = overlay;
             this.Context = context;
             this.notify = notify;
         }
 
         protected void InitScene() {
-           
-           
+
+
             {   //systems creating
                 var smanager = Context.GetSystemManager();
 
@@ -74,15 +75,16 @@ namespace D3DLab.Viewer.D3D {
                 smanager
                     .CreateSystem<RenderSystem>()
                     .Init(engine.Graphics)
-                     // .CreateNested<SkyGradientColoringRenderTechnique>()
-                     //  .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
-                     //   .CreateNested<TerrainRenderTechnique>()//
-                    
+                    // .CreateNested<SkyGradientColoringRenderTechnique>()
+                    //  .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
+                    //   .CreateNested<TerrainRenderTechnique>()//
+
                     //.CreateNested<Toolkit.D3D.CameraViews.CameraViewsRenderTechnique<CustomRenderProperties>>()
-                  ///  .CreateNested<OITTriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
+                    ///  .CreateNested<OITTriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
                     .CreateNested<TriangleColoredVertexRenderTechnique<CustomRenderProperties>>()
                     .CreateNested<TriangleTexturedVertexRenderTechnique<CustomRenderProperties>>()
-                    
+                    .CreateNested<LineVertexRenderTechnique<CustomRenderProperties>>()
+
                     //.CreateNested<LineVertexRenderTechnique>()
                     //.CreateNested<SpherePointRenderStrategy>()
                     //.CreateNested<AminRenderTechniqueSystem>()
@@ -96,7 +98,7 @@ namespace D3DLab.Viewer.D3D {
                 //var engine = EngineInfoBuilder.Build(em, Window);
             }
 
-           
+
 
             // Toolkit.D3D.CameraViews.CameraViewsObject.Create(em);
 

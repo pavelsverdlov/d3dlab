@@ -30,9 +30,11 @@ namespace D3DLab.Toolkit {
 
                 if (render.TransformWorldBuffer.HasValue) {
                     var buff = render.TransformWorldBuffer.Get();
-                    graphics.UpdateDynamicBuffer(ref tr, buff, TransforStructBuffer.RegisterResourceSlot);
+                    //graphics.UpdateDynamicBuffer(ref tr, buff, TransforStructBuffer.RegisterResourceSlot);
+                    graphics.UpdateSubresource(ref tr, buff, TransforStructBuffer.RegisterResourceSlot);
                 } else {
-                    var buff = graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
+                    //var buff = graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
+                    var buff = graphics.CreateBuffer(SharpDX.Direct3D11.BindFlags.ConstantBuffer, ref tr);
                     render.TransformWorldBuffer.Set(buff);
                 }
 

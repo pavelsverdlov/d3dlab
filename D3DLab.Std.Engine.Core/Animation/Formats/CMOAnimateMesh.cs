@@ -12,6 +12,9 @@ using D3DLab.Std.Engine.Core.Common;
 
 namespace D3DLab.Std.Engine.Core.Animation.Formats {
 
+    //TODO: https://dotnet.libhunt.com/assimpnet-alternatives
+    //https://bitbucket.org/Starnick/assimpnet/src/master/
+
     /// <summary>
     /// Loader for Compiled Mesh Object fromat files (.CMO)
     /// </summary>

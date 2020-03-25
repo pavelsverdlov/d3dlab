@@ -7,6 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Toolkit.Components {
+    class LineGeometryComponent : GraphicComponent {
+        public readonly Vector3[] Positions;
+        public readonly int[] Indices;
+        public LineGeometryComponent(Vector3[] positions, int[] indices) {
+            Positions = positions;
+            Indices = indices;
+            IsModified = true;
+        }
+    }
     class GeometryComponent : GraphicComponent {
         public readonly Vector3[] Positions;
         public readonly Vector3[] Normals;
@@ -17,7 +26,7 @@ namespace D3DLab.Toolkit.Components {
             Positions = positions;
             Normals = normals;
             Indices = indices;
-            TexCoor = new Vector2[positions.Length]; 
+            TexCoor = new Vector2[positions.Length];
             IsModified = true;
         }
         public GeometryComponent(Vector3[] positions, Vector3[] normals, int[] indices, Vector2[] texCoor) {

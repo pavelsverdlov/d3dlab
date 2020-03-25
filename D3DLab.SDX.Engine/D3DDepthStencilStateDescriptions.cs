@@ -81,7 +81,7 @@ namespace D3DLab.SDX.Engine {
 
             DepthWriteMask = DepthWriteMask.All,
             DepthComparison = Comparison.Less,
-            IsStencilEnabled = true,
+            IsStencilEnabled = false,
             StencilReadMask = 0xFF,
             StencilWriteMask = 0xFF,
             // Stencil operation if pixel front-facing.

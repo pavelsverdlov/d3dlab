@@ -59,31 +59,45 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
             Scene =  new WFScene(context, notificator);
             Scene.Init(obj);
             Scene.InitContext();
+
         }
 
 
 
-        public void LoadGameObject(IFileGeometry3D geo, string fileName) {
+        public void LoadGameObject(IFileGeometry3D geo, FileInfo texture, string fileName) {
             var em = context.GetEntityManager();
-
+            
             var box = BoundingBox.CreateFromVertices(geo.Positions.ToArray());
             var center = box.GetCenter();
-
+            
             var c = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B598");
 
             GraphicEntity en;
-            //if (geo.TextureCoors.Any()) {
-                //en = EntityBuilders.BuildTextured(em, geo.Positions.ToList(), geo.Indices.ToList(), geo.TextureCoors.ToArray(),
-                //     new FileInfo(@""),
-                //     SharpDX.Direct3D11.CullMode.None);
-            //} else {
+            if (geo.TextureCoors.Any()) {
+                en = EntityBuilders.BuildTextured(em, geo.Positions.ToList(), geo.Indices.ToList(), 
+                        geo.TextureCoors.ToArray(), texture,
+                        SharpDX.Direct3D11.CullMode.None);
+            } else {
                 en = EntityBuilders.BuildColored(em, geo.Positions.ToList(), geo.Indices.ToList(),
                    ToVector4(c), SharpDX.Direct3D11.CullMode.Front);
                 en.UpdateComponent(GeometryFlatShadingComponent.Create());
                 
-            //}
+            }
             en.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
             GameObject.Add(new SingleGameObject(en.Tag, fileName));
+            
+            var boxlines = PolylineGameObject.Create(
+                Context.GetEntityManager(),
+                new ElementTag("poly"),
+                Std.Engine.Core.Utilities.GeometryBuilder.BuildBox(
+                    new Std.Engine.Core.Utilities.BoundingBox(box.Minimum, box.Maximum)),
+                V4Colors.Blue
+                );
+
+            Context.GetEntityManager().GetEntity(boxlines.Tag)
+                .UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
+
+            GameObject.Add(boxlines);
         }
 
 

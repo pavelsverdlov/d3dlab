@@ -15,6 +15,18 @@ namespace D3DLab.Toolkit.Components {
                 Tag = new ElementTag(Guid.NewGuid().ToString()),
             };
         }
+        public static MaterialColorComponent Create(Vector4 color) {
+            return new MaterialColorComponent {
+                IsValid = true,
+                IsModified = true,
+                Tag = new ElementTag(Guid.NewGuid().ToString()),
+
+                Ambient = color,
+                Diffuse = color,
+                Specular = color,
+                Reflection = color,
+            };
+        }
 
         public MaterialColorComponent Clone() {
             return new MaterialColorComponent() {

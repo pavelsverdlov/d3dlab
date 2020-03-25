@@ -26,6 +26,8 @@ namespace D3DLab.Viewer.Presentation {
         public ComponetsViewModel Componets { get; }
 
         public ICommand OpenSceneInWindow { get; }
+        public ICommand CameraFocusToAll { get; }
+        
 
 
         readonly ViewportSubscriber subscriber;
@@ -33,6 +35,7 @@ namespace D3DLab.Viewer.Presentation {
         public MainWindowViewModel(IDockingTabManager docking,
             SystemsViewModel systemsVM, SceneViewModel sceneVM, ComponetsViewModel componetsVM) {
             OpenSceneInWindow = new WpfActionCommand(OnOpenSceneInWindow);
+            CameraFocusToAll = new WpfActionCommand(OnCameraFocusToAll); 
             Docking = docking;
             Systems = systemsVM;
             Scene = sceneVM;
@@ -53,6 +56,12 @@ namespace D3DLab.Viewer.Presentation {
             componetsVM.SetCurrentRenderUpdater(this);
         }
 
+        void OnCameraFocusToAll() {
+            var file = @"D:\Storage_D\trash\_Hubby\2020-02-21_00004-001_-25-Crown_cad_57f03e2c.NestingEnqueue.obj";
+
+            Dropped(new[] { file });
+        }
+
         void OnOpenSceneInWindow() {
             var ww = new System.Windows.Forms.Form();
             //ww.Handle;
@@ -67,6 +76,8 @@ namespace D3DLab.Viewer.Presentation {
 
         private void Ww_Load(object sender, EventArgs e) {
             Scene.SurfaceCreated((System.Windows.Forms.Form)sender);
+
+           
         }
 
         #region IViewportNotifier
@@ -98,14 +109,10 @@ namespace D3DLab.Viewer.Presentation {
                 var f = new FileInfo(file);
                 switch (f.Extension) {
                     case ".obj":
-                        var reader = new FileFormats.GeometryFormats.OBJ.ObjReader();
-                        using(var str = f.OpenRead()){
-                            reader.Read(str);
-                        }
+                        var reader = new FileFormats.GeometryFormats._OBJ.ObjReader();
+                        reader.Read(f);
 
-                        var mesh = reader.FullGeometry;
-
-                        Scene.LoadGameObject(mesh, f.Name);
+                        Scene.LoadGameObject(reader.FullGeometry, reader.MaterialFilePath, f.Name);
 
                         break;
                 }

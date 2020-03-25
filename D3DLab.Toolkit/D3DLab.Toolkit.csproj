@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <None Remove="Techniques\CameraViews\camera_views.hlsl" />
+    <None Remove="Techniques\Line\Lines.hlsl" />
     <None Remove="Techniques\ManipulationTool\manipulate_tool.hlsl" />
     <None Remove="Techniques\OrderIndependentTransparency\OIT.hlsl" />
     <None Remove="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
@@ -29,6 +30,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Techniques\CameraViews\camera_views.hlsl" />
+    <EmbeddedResource Include="Techniques\Line\Lines.hlsl" />
     <EmbeddedResource Include="Techniques\ManipulationTool\manipulate_tool.hlsl" />
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\OIT.hlsl" />
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
@@ -38,6 +40,10 @@
     <EmbeddedResource Include="Techniques\TriangleColored\wireframe.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleTextured\textured_vertex.hlsl" />
     <EmbeddedResource Include="_CommonShaders\Common.hlsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ParagonClipper" Version="6.4.2" />
   </ItemGroup>
 
   <ItemGroup>
