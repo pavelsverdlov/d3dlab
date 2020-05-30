@@ -36,7 +36,8 @@ namespace D3DLab.Toolkit.Components {
                 Ambient = Ambient,
                 Diffuse = Diffuse,
                 Specular = Specular,
-                SpecularFactor = 400f
+                SpecularFactor = 400f,
+                HasAlpha = HasAlpha
             };
         }
 
@@ -46,6 +47,8 @@ namespace D3DLab.Toolkit.Components {
         public Vector4 Reflection;
         public float SpecularFactor;
 
+        public bool HasAlpha { get; private set; }
+
         public ElementTag Tag { get; private set; }
         public ElementTag EntityTag { get; set; }
         public bool IsModified { get; set; }
@@ -54,6 +57,13 @@ namespace D3DLab.Toolkit.Components {
 
         public void Dispose() {
             IsDisposed = true;
+        }
+        public void SetAlpha(float alfa) {
+            HasAlpha = alfa < 1;
+            Ambient.W = alfa;
+            Diffuse.W = alfa;
+            Specular.W = alfa;
+            IsModified = true;
         }
     }
 }

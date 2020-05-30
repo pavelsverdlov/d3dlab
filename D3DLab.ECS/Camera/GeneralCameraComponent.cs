@@ -61,6 +61,7 @@ namespace D3DLab.ECS.Components {
 
     }
 
+    [Obsolete("Remake")]
     public class OrthographicCameraComponent : GeneralCameraComponent {
         public static OrthographicCameraComponent Clone(OrthographicCameraComponent com) {
             var copied = new OrthographicCameraComponent(com.Width, com.prevScreenHeight);

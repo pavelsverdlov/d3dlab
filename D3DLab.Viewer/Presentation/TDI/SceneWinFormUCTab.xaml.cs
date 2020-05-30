@@ -33,7 +33,7 @@ namespace D3DLab.Viewer.Presentation.TDI {
 
         private void SceneWinFormUCTab_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
             if (DataContext is SceneViewModel scene) {
-                scene.SetSurfaceHost(host);
+                scene.SetSurfaceHost(host, this);
             }
         }
 

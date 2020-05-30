@@ -7,6 +7,11 @@ using System.Text;
 
 namespace D3DLab.ECS {
    
+    public interface IViewport {
+        Ray UnProject(Vector2 screen, CameraState camera, IRenderableSurface window);
+        Vector3 ScreenToVector3(Vector2 screen, CameraState camera, IRenderableSurface window);
+        Vector2 Vector3ToScreen(Vector3 world, CameraState camera, IRenderableSurface window);
+    }
 
     public enum LightTypes : uint {
         Undefined = 0,
@@ -24,15 +29,17 @@ namespace D3DLab.ECS {
     }
 
     public interface ISceneSnapshot {
-        //IViewport Viewport { get; }
+      
+        IViewport Viewport { get; }
         //IContextState ContextState { get; }
         IManagerChangeNotify Notifier { get; }
-        IAppWindow Window { get; }
+        IRenderableSurface Window { get; }
 
         InputSnapshot InputSnapshot { get; }
         TimeSpan FrameRateTime { get; }
 
         ElementTag CurrentCameraTag { get; }
+        ElementTag WorldTag { get; }
 
         CameraState Camera { get;  }
         LightState[] Lights { get; }

@@ -14,10 +14,10 @@ namespace D3DLab.ECS {
     /// DO NOT PUSH SETTING TO ContextState MANUALLY!!!
     /// </remarks>
     public interface IGraphicSystemContextDependent {
-        IContextState ContextState { get; set; }
+        IContextState ContextState { set; }
     }
 
-    public interface IGraphicSystem {
+    public interface IGraphicSystem : IDisposable {
         int ID { get; }
         TimeSpan ExecutionTime { get; }
         void Execute(ISceneSnapshot snapshot);        

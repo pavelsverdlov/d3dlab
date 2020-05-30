@@ -25,7 +25,8 @@ namespace D3DLab.ECS {
         void RemoveEntity(ElementTag elementTag);
 
         void FrameSynchronize(int theadId);
-        void PushSynchronization();
+        
+        //void PushSynchronization();
     }
 
 }

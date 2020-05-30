@@ -16,7 +16,8 @@ namespace D3DLab.ECS.Camera {
             Undefined,
             Zoom,
             Rotate,
-            Pan
+            Pan,
+            ChangeRotationCenter
         }
 
         public static CameraMovementComponent CreateZoom(CameraState state, MovementData movementData, int delta, float speedValue = 1) {
@@ -53,6 +54,15 @@ namespace D3DLab.ECS.Camera {
             };
         }
 
+        public static CameraMovementComponent ChangeRotationCenter(CameraState state, MovementData movementData) {
+            return new CameraMovementComponent {
+                Tag = new ElementTag(Guid.NewGuid().ToString()),
+                State = state,
+                MovementData = movementData,
+                MovementType = MovementTypes.ChangeRotationCenter,
+                IsValid = true,
+            };
+        }
 
 
 

@@ -1,55 +1,65 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="D3D\**" />
-    <EmbeddedResource Remove="D3D\**" />
-    <None Remove="D3D\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Remove="Techniques\Background\shader.hlsl" />
     <None Remove="Techniques\CameraViews\camera_views.hlsl" />
-    <None Remove="Techniques\Line\Lines.hlsl" />
+    <None Remove="Techniques\Lines\simple_lines.hlsl" />
     <None Remove="Techniques\ManipulationTool\manipulate_tool.hlsl" />
+    <None Remove="Techniques\OneFrameFlatWhite\shader.hlsl" />
+    <None Remove="Techniques\OrderIndependentTransparency\helix_oit.hlsl" />
+    <None Remove="Techniques\OrderIndependentTransparency\helix_oit_quard.hlsl" />
     <None Remove="Techniques\OrderIndependentTransparency\OIT.hlsl" />
     <None Remove="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
     <None Remove="Techniques\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
     <None Remove="Techniques\TriangleColored\colored_vertex.hlsl" />
     <None Remove="Techniques\TriangleColored\gs_flat_shading.hlsl" />
     <None Remove="Techniques\TriangleColored\wireframe.hlsl" />
+    <None Remove="Techniques\TriangleTextured\gs_flat_shading.hlsl" />
     <None Remove="Techniques\TriangleTextured\textured_vertex.hlsl" />
     <None Remove="_CommonShaders\Common.hlsl" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Techniques\Background\shader.hlsl" />
     <EmbeddedResource Include="Techniques\CameraViews\camera_views.hlsl" />
-    <EmbeddedResource Include="Techniques\Line\Lines.hlsl" />
+    <EmbeddedResource Include="Techniques\Lines\simple_lines.hlsl" />
     <EmbeddedResource Include="Techniques\ManipulationTool\manipulate_tool.hlsl" />
+    <EmbeddedResource Include="Techniques\OneFrameFlatWhite\shader.hlsl" />
+    <EmbeddedResource Include="Techniques\OrderIndependentTransparency\helix_oit.hlsl" />
+    <EmbeddedResource Include="Techniques\OrderIndependentTransparency\helix_oit_quard.hlsl" />
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\OIT.hlsl" />
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleColored\colored_vertex.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleColored\gs_flat_shading.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleColored\wireframe.hlsl" />
+    <EmbeddedResource Include="Techniques\TriangleTextured\gs_flat_shading.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleTextured\textured_vertex.hlsl" />
     <EmbeddedResource Include="_CommonShaders\Common.hlsl" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ParagonClipper" Version="6.4.2" />
+    <PackageReference Include="geometry3Sharp" Version="1.0.324" />
+    <PackageReference Include="SharpDX" Version="4.2.0" />
+    <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\D3DLab.GVDB\D3DLab.GVDB.vcxproj" />
     <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
-    <ProjectReference Include="..\D3DLab.Std.Engine.Core\D3DLab.Std.Engine.Core.csproj" />
   </ItemGroup>
 
 </Project>

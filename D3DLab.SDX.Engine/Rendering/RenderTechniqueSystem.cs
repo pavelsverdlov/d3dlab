@@ -35,28 +35,15 @@ namespace D3DLab.SDX.Engine.Rendering {
 
     public abstract class D3DAbstractRenderTechnique<TProperties> where TProperties : IRenderProperties {
         protected readonly LinkedList<GraphicEntity> entities;
-        //protected RasterizerStateDescription rasterizerStateDescription;
-        [Obsolete("Move to specific technique/components")]
-        protected BlendStateDescription blendStateDescription;
-        [Obsolete("Move to specific technique/components")]
-        protected DepthStencilStateDescription depthStencilStateDescription;
-
-        readonly EntityHasSet entityHasSet;
-
-        protected D3DAbstractRenderTechnique(EntityHasSet entityHasSet) {
-           // pass = new HashSet<IRenderTechniquePass>();
+        protected D3DAbstractRenderTechnique() {
             entities = new LinkedList<GraphicEntity>();
-            this.entityHasSet = entityHasSet;
         }
 
         public void Render(GraphicsDevice graphics, TProperties game) {
             Rendering(graphics, game);
         }
-        
-        public bool IsAplicable(GraphicEntity entity) {
-            return entityHasSet.HasComponents(entity);
-        }
 
+        public abstract bool IsAplicable(GraphicEntity entity);
 
         protected abstract void Rendering(GraphicsDevice graphics, TProperties game);
         
@@ -73,6 +60,14 @@ namespace D3DLab.SDX.Engine.Rendering {
             var resources = new ShaderResourceView[material.Images.Length];
             for (var i = 0; i < material.Images.Length; i++) {
                 var file = material.Images[i];
+                resources[i] = loader.LoadShaderResource(file);
+            }
+            return resources;
+        }
+        protected ShaderResourceView[] ConvertToResources(MemoryTexturedMaterialComponent material, TextureLoader loader) {
+            var resources = new ShaderResourceView[material.MemoryImages.Length];
+            for (var i = 0; i < material.MemoryImages.Length; i++) {
+                var file = material.MemoryImages[i];
                 resources[i] = loader.LoadShaderResource(file);
             }
             return resources;

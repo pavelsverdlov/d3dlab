@@ -343,7 +343,7 @@ namespace D3DLab.Debugger.Presentation.PropertiesEditor {
 
                 if (val.IsNotNull()) {
                     if (hashed.Contains(val.GetHashCode())) {
-                        return;
+                        return; 
                     }
                     hashed.Add(pr.GetHashCode());
                 }

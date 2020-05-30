@@ -1,9 +1,5 @@
 ﻿using D3DLab.ECS;
-using D3DLab.Std.Engine.Core.Utilities;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace D3DLab.Toolkit.Techniques.ManipulationTool {
     public struct ManipulationToolComponent : IGraphicComponent {
@@ -27,7 +23,7 @@ namespace D3DLab.Toolkit.Techniques.ManipulationTool {
             var obj = new ManipulationToolObject();
             
             var halfSize = com.Size / 2f;
-            var boxgeo = GeometryBuilder.BuildBox(new BoundingBox(new Vector3(-halfSize, -halfSize, -halfSize), new Vector3(halfSize, halfSize, halfSize)));
+           // var boxgeo = GeometryBuilder.BuildBox(new BoundingBox(new Vector3(-halfSize, -halfSize, -halfSize), new Vector3(halfSize, halfSize, halfSize)));
 
            // var farCorner = new Vector3(,);
 

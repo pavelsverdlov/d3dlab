@@ -41,6 +41,20 @@ namespace D3DLab.ECS {
             public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {
                 throw new Exception("Empty graphic Entity does not have any components.");
             }
+
+            public bool TryGet<T>(ElementTag tagEntity, out T component) where T : IGraphicComponent {
+                throw new NotImplementedException();
+            }
+
+            public bool TryGet<T1, T2>(ElementTag tagEntity, out T1 c1, out T2 c2)
+                where T1 : IGraphicComponent
+                where T2 : IGraphicComponent {
+                throw new NotImplementedException();
+            }
+
+            public void RemoveComponents(ElementTag tagEntity, params IGraphicComponent[] components) {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -80,6 +94,16 @@ namespace D3DLab.ECS {
             return manager.GetOrCreateComponent<T>(Tag, newone);
         }
 
+        public bool TryGetComponent<TComponent>(out TComponent component) where TComponent : IGraphicComponent {
+            return manager.TryGet(Tag, out component);
+        }
+        public bool TryGetComponent<TComponent1, TComponent2>(out TComponent1 component1, out TComponent2 component2)
+            where TComponent1 : IGraphicComponent
+            where TComponent2 : IGraphicComponent {
+            return manager.TryGet(Tag, out component1, out component2);
+        }
+
+
         public GraphicEntity AddComponent<T>(T component) where T : IGraphicComponent {
             manager.AddComponent(Tag, component);
             return this;
@@ -107,6 +131,9 @@ namespace D3DLab.ECS {
             foreach (var component in manager.GetComponents<TCom>(Tag)) {
                 manager.RemoveComponent(Tag, component);
             }
+        }
+        public void RemoveComponents(params IGraphicComponent[] components) {
+            manager.RemoveComponents(Tag, components);
         }
 
         public bool Has(params Type[] types) {

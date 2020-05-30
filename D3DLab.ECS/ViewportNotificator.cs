@@ -1,10 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace D3DLab.ECS {
     public interface IEngineSubscriber { }
-    public interface IManagerChangeSubscriber<in T> : IEngineSubscriber{
-        void Change(T visual);
+    public interface IManagerChangeSubscriber<T> : IEngineSubscriber {
+        void Add(ref T obj);
+        void Remove(ref T obj);
     }
 
     public interface IEntityRenderSubscriber : IEngineSubscriber {
@@ -16,33 +20,87 @@ namespace D3DLab.ECS {
     }
 
     public interface IManagerChangeNotify {
-        void NotifyChange<T>(T _object);// where T : class
+        void NotifyAdd<T>(T _object);
+
+        void NotifyAdd<T>(ref T _object);
+        void NotifyRemove<T>(ref T _object);
+
     }
     public interface IEntityRenderNotify {
         void NotifyRender(IEnumerable<GraphicEntity> entities);
     }
 
-    public sealed class EngineNotificator : IEngineSubscribe, IManagerChangeNotify , IEntityRenderNotify {
+    public sealed class EngineNotificator : IEngineSubscribe, IManagerChangeNotify, IEntityRenderNotify {
         private readonly List<IEngineSubscriber> subscribers;
+        readonly Task runner;
         public EngineNotificator() {
             this.subscribers = new List<IEngineSubscriber>();
+            runner = Task.CompletedTask;
         }
 
         public void Subscribe(IEngineSubscriber s) {
             subscribers.Add(s);
         }
 
-        public void NotifyChange<T>(T _object) {// where T : class
-            var handlers = subscribers.OfType<IManagerChangeSubscriber<T>>();
-            foreach (var handler in handlers) {
-                handler.Change(_object);
-            }
-        }
         public void NotifyRender(IEnumerable<GraphicEntity> entities) {
             var handlers = subscribers.OfType<IEntityRenderSubscriber>();
             foreach (var handler in handlers) {
-                handler.Render(entities);
+                try {
+                    handler.Render(entities);
+                } catch (Exception ex) {
+                    Debug.WriteLine(ex.Message);
+#if DEBUG
+                    throw ex;
+#endif
+                }
             }
+        }
+        public void NotifyAdd<T>(T _object) {
+            var handlers = subscribers.OfType<IManagerChangeSubscriber<T>>();
+            foreach (var handler in handlers) {
+                try {
+                    handler.Add(ref _object);
+                } catch (Exception ex) {
+                    Debug.WriteLine(ex.Message);
+#if DEBUG
+                    throw ex;
+#endif
+                }
+            }
+        }
+
+        public void NotifyAdd<T>(ref T _object) {
+            var local = _object;
+            //runner.ContinueWith(x => {
+            var handlers = subscribers.OfType<IManagerChangeSubscriber<T>>();
+            foreach (var handler in handlers) {
+                try {
+                    handler.Add(ref local);
+                } catch (Exception ex) {
+                    Debug.WriteLine(ex.Message);
+#if DEBUG
+                    throw ex;
+#endif
+                }
+            }
+            //});
+        }
+
+        public void NotifyRemove<T>(ref T _object) {
+            var local = _object;
+            //runner.ContinueWith(x => {
+            var handlers = subscribers.OfType<IManagerChangeSubscriber<T>>();
+            foreach (var handler in handlers) {
+                try {
+                    handler.Remove(ref local);
+                } catch (Exception ex) {
+                    Debug.WriteLine(ex.Message);
+#if DEBUG
+                    throw ex;
+#endif
+                }
+            }
+            //});
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Context;
 using D3DLab.ECS.Shaders;
+using D3DLab.Toolkit;
+using D3DLab.Toolkit.Host;
+using D3DLab.Toolkit.Input.Commands;
 using D3DLab.Viewer.D3D;
 using D3DLab.Viewer.Debugger;
 using D3DLab.Viewer.Presentation.TDI.ComponentList;
@@ -47,7 +50,9 @@ namespace D3DLab.Viewer.Presentation {
             notificator.Subscribe(subscriber);
 
             var context = new ContextStateProcessor();
-            context.AddState(0, x => new GenneralContextState(x, notificator));
+            context.AddState(0, x => GenneralContextState.Full(x, 
+                new System.Numerics.AxisAlignedBox(new System.Numerics.Vector3(-10, -10, -10),new System.Numerics.Vector3(10,10,10)),
+                notificator));
             context.SwitchTo(0);
 
             Scene.SetContext(context, notificator);
@@ -57,7 +62,7 @@ namespace D3DLab.Viewer.Presentation {
         }
 
         void OnCameraFocusToAll() {
-            var file = @"D:\Storage_D\trash\_Hubby\2020-02-21_00004-001_-25-Crown_cad_57f03e2c.NestingEnqueue.obj";
+            var file = @"";
 
             Dropped(new[] { file });
         }
@@ -75,7 +80,7 @@ namespace D3DLab.Viewer.Presentation {
         }
 
         private void Ww_Load(object sender, EventArgs e) {
-            Scene.SurfaceCreated((System.Windows.Forms.Form)sender);
+            Scene.SurfaceCreated((WinFormsD3DControl)sender);
 
            
         }
@@ -98,11 +103,10 @@ namespace D3DLab.Viewer.Presentation {
         #region IRenderUpdater
         
         public void Update() {
-            Scene.Scene.Window.InputManager.PushCommand(new Std.Engine.Core.Input.Commands.ForceRenderCommand());
+            Scene.Scene.Surface.InputManager.PushCommand(new ForceRenderCommand());
         }
 
         #endregion
-
 
         public void Dropped(string[] files) {
             foreach(var file in files) {

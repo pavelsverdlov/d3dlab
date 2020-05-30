@@ -15,5 +15,16 @@ namespace D3DLab.ECS.Common {
                 d?.Dispose();
             }
         }
+        public static void RemoveAndDispose<T>(ref T resource) where T : class, IDisposable {
+            if (resource == null)
+                return;
+
+            try {
+                resource.Dispose();
+            } catch {
+            }
+
+            resource = null;
+        }
     }
 }

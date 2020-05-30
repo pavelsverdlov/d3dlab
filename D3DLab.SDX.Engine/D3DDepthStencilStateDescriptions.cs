@@ -23,6 +23,10 @@ namespace D3DLab.SDX.Engine {
             get {
                 var blendStateDesc = new BlendStateDescription();
 
+                //This should only be used for multi-sampling renderings.
+               // blendStateDesc.AlphaToCoverageEnable = true;
+               // blendStateDesc.IndependentBlendEnable = false;
+
                 blendStateDesc.RenderTarget[0].IsBlendEnabled = true; // enable transparency
                 blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;//SourceAlpha
                 blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
@@ -32,7 +36,7 @@ namespace D3DLab.SDX.Engine {
                 blendStateDesc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
                 blendStateDesc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
                 blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
-
+                
                 return blendStateDesc;
             }
         }
@@ -48,7 +52,7 @@ namespace D3DLab.SDX.Engine {
         /// <summary>
         /// Correct overlap objects based on depth 
         /// </summary>
-        public static DepthStencilStateDescription DepthDisabled = new DepthStencilStateDescription {
+        public readonly static DepthStencilStateDescription DepthDisabled = new DepthStencilStateDescription {
             IsDepthEnabled = false, 
             DepthWriteMask = DepthWriteMask.All,
             DepthComparison = Comparison.Less,
@@ -74,14 +78,14 @@ namespace D3DLab.SDX.Engine {
         /// <summary>
         /// Overlap based on rendering order
         /// </summary>
-        public static DepthStencilStateDescription DepthEnabled = new DepthStencilStateDescription {
+        public readonly static DepthStencilStateDescription DepthEnabled = new DepthStencilStateDescription {
             // true - correct overlap objects based on depth 
             // false - overlap based on rendering order
             IsDepthEnabled = true,
 
             DepthWriteMask = DepthWriteMask.All,
             DepthComparison = Comparison.Less,
-            IsStencilEnabled = false,
+            IsStencilEnabled = true,
             StencilReadMask = 0xFF,
             StencilWriteMask = 0xFF,
             // Stencil operation if pixel front-facing.
@@ -98,6 +102,30 @@ namespace D3DLab.SDX.Engine {
                 PassOperation = StencilOperation.Keep,
                 Comparison = Comparison.Always
             }
+        };
+    }
+
+    public static class D3DRasterizerStateDescriptions {
+        public static RasterizerStateDescription2 Default(CullMode mode) =>
+            new RasterizerStateDescription2() {
+                CullMode = mode,
+                FillMode = FillMode.Solid,
+                IsMultisampleEnabled = false,
+
+                IsFrontCounterClockwise = false,
+                IsScissorEnabled = false,
+                IsAntialiasedLineEnabled = false,
+                DepthBias = 0,
+                DepthBiasClamp = .0f,
+                SlopeScaledDepthBias = .0f
+            };
+
+        public static RasterizerStateDescription2 Lines = new RasterizerStateDescription2() {
+            CullMode = CullMode.None,
+            FillMode = FillMode.Solid,
+            IsMultisampleEnabled = true,
+            IsAntialiasedLineEnabled = true,
+            IsFrontCounterClockwise = true
         };
     }
 }

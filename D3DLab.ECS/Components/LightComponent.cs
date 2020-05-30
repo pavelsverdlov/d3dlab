@@ -13,7 +13,8 @@ namespace D3DLab.ECS.Components {
                 Index = index,
                 Direction = direction,
                 Position = position,
-                Type = type
+                Type = type,
+                IsValid = true,
             };
         }
         public static LightComponent CreateDirectional(float intensity, int index, Vector3 direction) {
@@ -23,6 +24,7 @@ namespace D3DLab.ECS.Components {
                 Index = index,
                 Direction = direction,
                 Type = LightTypes.Directional,
+                IsValid = true,
             };
         }
         public static LightComponent CreatePoint(float intensity, int index, Vector3 position) {
@@ -32,6 +34,7 @@ namespace D3DLab.ECS.Components {
                 Index = index,
                 Position = position,
                 Type = LightTypes.Point,
+                IsValid = true,
             };
         }
         public static LightComponent CreateAmbient(float intensity, int index) {
@@ -40,6 +43,7 @@ namespace D3DLab.ECS.Components {
                 Intensity = intensity,
                 Index = index,
                 Type = LightTypes.Ambient,
+                IsValid = true,
             };
         }
 

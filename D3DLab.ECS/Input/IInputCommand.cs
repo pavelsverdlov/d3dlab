@@ -5,6 +5,6 @@ using System.Text;
 namespace D3DLab.ECS.Input {
     public interface IInputCommand {
         InputStateData InputState { get; }
-        bool Execute(GraphicEntity entity);
+        bool Execute(ISceneSnapshot snapshot, IContextState context);
     }
 }

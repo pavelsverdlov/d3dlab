@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using D3DLab.ECS.Common;
 using D3DLab.ECS.Shaders;
+using D3DLab.ECS.Common;
 
 namespace D3DLab.SDX.Engine.Shader {
     public class CombinedShadersLoader {
@@ -15,17 +15,17 @@ namespace D3DLab.SDX.Engine.Shader {
         public CombinedShadersLoader(ManifestResourceLoader mloader) {
             this.mloader = mloader;
         }
-
+       
         public IShaderInfo[] Load(string resource, string keyname) {
-            var text = mloader.GetResourceTextByName(resource);
+            var text = mloader.GetResourceTextByName(resource);            
 
             var res = new List<IShaderInfo>();
             var parts = text.Split(new[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
 
-            for (var i = 0; i < parts.Length; ++i){
-                if(CreateInfo(res, keyname, parts, ShaderStages.Vertex.ToString().ToLower(), ref i)) { continue; }
-                if(CreateInfo(res, keyname, parts, ShaderStages.Fragment.ToString().ToLower(), ref i)) { continue; }
-                if(CreateInfo(res, keyname, parts, ShaderStages.Geometry.ToString().ToLower(), ref i)) { continue; }
+            for (var i = 0; i < parts.Length; ++i) {
+                if (CreateInfo(res, keyname, parts, ShaderStages.Vertex.ToString().ToLower(), ref i)) { continue; }
+                if (CreateInfo(res, keyname, parts, ShaderStages.Fragment.ToString().ToLower(), ref i)) { continue; }
+                if (CreateInfo(res, keyname, parts, ShaderStages.Geometry.ToString().ToLower(), ref i)) { continue; }
             }
             return res.ToArray();
         }
@@ -34,7 +34,7 @@ namespace D3DLab.SDX.Engine.Shader {
             if (part.Length == partName.Length && string.Compare(part, partName, true) == 0 && parts.Length > (i + 1)) {
                 i++;
                 var info = new ShaderInMemoryInfo($"{keyname}_{partName}Shader", parts[i].Trim(), null,
-                    partName, entry);               
+                    partName, entry);
                 infos.Add(info);
                 return true;
             }

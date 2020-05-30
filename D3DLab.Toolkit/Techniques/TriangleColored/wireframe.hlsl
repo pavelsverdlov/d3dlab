@@ -71,5 +71,5 @@ float4 main(
     minBary = smoothstep(0, delta * 2, minBary);
     //minBary = smoothstep(delta, 2 * delta, minBary);
     
-    return float4(color.rgb * minBary, color.w);
+    return float4(color.xyz * minBary, color.w);
 }

@@ -4,7 +4,7 @@
 
 struct VSOut
 {
-    float4 position : SV_POSITION;    
+    float4 position : SV_POSITION;
     float4 normal : NORMAL;
     float4 positionW : TEXCOORD0;
 };
@@ -36,7 +36,7 @@ float4 main(PSIn input, bool isFront : SV_IsFrontFace) : SV_TARGET
 {
     float4 normal = input.normal * (1 - isFront * 2);
     float4 color = ComputePhongColor(input.position.xyz, normal, CurrentMaterial);
-    //color.a = 0.5;
+    
     return color;
 }
 

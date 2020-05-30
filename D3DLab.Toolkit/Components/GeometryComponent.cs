@@ -1,32 +1,29 @@
 ﻿using D3DLab.ECS;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace D3DLab.Toolkit.Components {
-    class LineGeometryComponent : GraphicComponent {
-        public readonly Vector3[] Positions;
-        public readonly int[] Indices;
-        public LineGeometryComponent(Vector3[] positions, int[] indices) {
-            Positions = positions;
-            Indices = indices;
-            IsModified = true;
-        }
-    }
-    class GeometryComponent : GraphicComponent {
-        public readonly Vector3[] Positions;
-        public readonly Vector3[] Normals;
-        public readonly int[] Indices;
-        public readonly Vector2[] TexCoor;
+    [Obsolete("Remake to using GeometryPool")]
+    /// <summary>
+    /// DO NOT USE GeometryComponent OUTSIDE OF Zirkonzahn.Visualization
+    /// APPROACH OF STORING GEO WILL BE CHANGED 
+    /// </summary>
+    public class GeometryComponent : GraphicComponent {
+        public Vector3[] Positions { get; private set; }
+        public int[] Indices { get; private set; }
+        public Vector3[] Normals { get; private set; }
+        public Vector2[] TexCoor { get; private set; }
 
         public GeometryComponent(Vector3[] positions, Vector3[] normals, int[] indices) {
             Positions = positions;
             Normals = normals;
             Indices = indices;
-            TexCoor = new Vector2[positions.Length];
+            TexCoor = new Vector2[positions.Length]; 
             IsModified = true;
         }
         public GeometryComponent(Vector3[] positions, Vector3[] normals, int[] indices, Vector2[] texCoor) {

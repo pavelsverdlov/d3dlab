@@ -17,7 +17,7 @@ namespace D3DLab.ECS {
 
             entitySynchronizer.Add((owner, input) => {
                 owner.entities.Add(tag);
-                owner.notify.NotifyChange(input);
+                owner.notify.NotifyAdd(ref input);
                 owner.components.Add(input.Tag, new Dictionary<ElementTag, IGraphicComponent>());
                 entityHas.Add(input.Tag, new HashSet<Type>());
             }, en);
@@ -29,6 +29,8 @@ namespace D3DLab.ECS {
             entitySynchronizer.Add((owner, input) => {
                 if (owner.entities.Contains(elementTag)) {
                     var entity = _CreateEntity(elementTag);
+                    
+                    notify.NotifyRemove(ref entity);
 
                     foreach (var component in owner.GetComponents(entity.Tag)) {
                         owner._RemoveComponent(entity.Tag, component);
@@ -37,7 +39,7 @@ namespace D3DLab.ECS {
                     owner.components.Remove(entity.Tag);
                     entityHas.Remove(entity.Tag);
 
-                    notify.NotifyChange(entity);
+                    //notify.NotifyChange(entity);
                 }
             }, null);
         }
@@ -79,7 +81,6 @@ namespace D3DLab.ECS {
 
         #region IComponentManager
 
-        //TODO:
         readonly Dictionary<ElementTag, HashSet<Type>> entityHas = new Dictionary<ElementTag, HashSet<Type>>();
         readonly Dictionary<ElementTag, Dictionary<ElementTag,IGraphicComponent>> components = new Dictionary<ElementTag, Dictionary<ElementTag, IGraphicComponent>>();
         readonly Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>> flyweightComponents = new Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>>();
@@ -96,6 +97,8 @@ namespace D3DLab.ECS {
             }, com);
             return com;
         }
+
+
         public void RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
             comSynchronizer.Add((owner, inp) => {
                 owner._RemoveComponent(tagEntity, inp);
@@ -108,6 +111,12 @@ namespace D3DLab.ECS {
                 }, com);
             }
         }
+        public void RemoveComponents(ElementTag tagEntity, params IGraphicComponent[] components) {
+            comSynchronizer.AddRange((owner, inp) => {
+                owner._RemoveComponent(tagEntity, inp);
+            }, components);
+        }
+
 
         public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
             return components[tagEntity].Values.OfType<T>().Single();
@@ -124,6 +133,26 @@ namespace D3DLab.ECS {
         public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent {
             return components.Values.SelectMany(x=>x.Values).OfType<T>().ToArray();
         }
+
+        public bool TryGet<TComponent>(ElementTag tagEntity, out TComponent component)
+            where TComponent : IGraphicComponent {
+            var com = components[tagEntity].Values.OfType<TComponent>();
+
+            if (!com.Any()) {
+                component = default;
+                return false;
+            }
+
+            component = com.Single();
+            return true;
+        }
+        public bool TryGet<T1, T2>(ElementTag tagEntity, out T1 c1, out T2 c2)
+           where T1 : IGraphicComponent
+           where T2 : IGraphicComponent {
+            c2 = default;
+            return TryGet(tagEntity, out c1) && TryGet(tagEntity, out c2);
+        }
+
 
         public bool Has<T>(ElementTag tag) where T : IGraphicComponent {
             return components[tag].Any(x => x.Value is T);
@@ -144,20 +173,25 @@ namespace D3DLab.ECS {
             return newone;
         }
 
-        public void UpdateComponents<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
+        public void UpdateComponents<T>(ElementTag tagEntity, T newComponent) where T : IGraphicComponent {
             comSynchronizer.Add((owner, inp) => {
+                //do not check IsValid OR IsDisposed because it is not important for removing 
                 var any = GetComponents<T>(tagEntity);
                 if (any.Any()) {
                     var old = any.Single();
                     var removed = components[tagEntity].Remove(old.Tag);
                     old.Dispose();
+                    notify.NotifyRemove(ref old);
+                } else {
+                    //case: if it is updating not existed component
+                    entityHas[tagEntity].Add(newComponent.GetType());
                 }
 
-                com.EntityTag = tagEntity;
-                components[tagEntity].Add(com.Tag, com);
-                
-                notify.NotifyChange(com);
-            }, com);
+                newComponent.EntityTag = tagEntity;
+                components[tagEntity].Add(newComponent.Tag, newComponent);
+
+                notify.NotifyAdd(ref newComponent);
+            }, newComponent);
         }
 
         public IFlyweightGraphicComponent AddComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
@@ -166,6 +200,7 @@ namespace D3DLab.ECS {
             }, com);
             return com;
         }
+
         public void RemoveComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
             flyweightComSynchronizer.Add((owner, inp) => {
                 owner._RemoveComponent(tagEntity, inp);
@@ -180,28 +215,28 @@ namespace D3DLab.ECS {
             }
 
             entityHas[tagEntity].Add(com.GetType());
-            notify.NotifyChange(com);
+            notify.NotifyAdd(ref com);
         }
         void _RemoveComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
             if (!flyweightComponents[com].Remove(tagEntity)) {
-                //no data to remove - dispose comp
+                //no data to remove - dispose origin comp
                 com.Dispose();
             }
             entityHas[tagEntity].Remove(com.GetType());
-            notify.NotifyChange(com);
+            notify.NotifyRemove(ref com);
         }
 
         void _AddComponent(ElementTag tagEntity, IGraphicComponent com) {
             com.EntityTag = tagEntity;
             components[tagEntity].Add(com.Tag, com);
             entityHas[tagEntity].Add(com.GetType());
-            notify.NotifyChange(com);
+            notify.NotifyAdd(ref com);
         }
         void _RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {
             var removed = components[tagEntity].Remove(com.Tag);
             removed = entityHas[tagEntity].Remove(com.GetType());
             com.Dispose();
-            notify.NotifyChange(com);
+            notify.NotifyRemove(ref com);
         }
 
         #endregion
@@ -212,9 +247,9 @@ namespace D3DLab.ECS {
             }
         }
 
-        SynchronizationContext<EntityComponentManager, GraphicEntity> entitySynchronizer;
-        SynchronizationContext<EntityComponentManager, IGraphicComponent> comSynchronizer;
-        SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent> flyweightComSynchronizer;
+        readonly SynchronizationContext<EntityComponentManager, GraphicEntity> entitySynchronizer;
+        readonly SynchronizationContext<EntityComponentManager, IGraphicComponent> comSynchronizer;
+        readonly SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent> flyweightComSynchronizer;
 
         public EntityComponentManager(IManagerChangeNotify notify, EntityOrderContainer orderContainer) {
             this.orderContainer = orderContainer;
@@ -226,9 +261,14 @@ namespace D3DLab.ECS {
 
         public void Synchronize(int theadId) {
             frameChanges = false;
-            entitySynchronizer.Synchronize(theadId);
-            comSynchronizer.Synchronize(theadId);
-            flyweightComSynchronizer.Synchronize(theadId);
+
+            flyweightComSynchronizer.BeginSynchronize();
+            comSynchronizer.BeginSynchronize();
+            entitySynchronizer.BeginSynchronize();
+
+            entitySynchronizer.EndSynchronize(theadId);
+            comSynchronizer.EndSynchronize(theadId);
+            flyweightComSynchronizer.EndSynchronize(theadId);
         }
 
         bool frameChanges;
@@ -237,9 +277,14 @@ namespace D3DLab.ECS {
             if (!frameChanges) {
                 frameChanges = HasChanges;
             }
-            entitySynchronizer.Synchronize(theadId);
-            comSynchronizer.Synchronize(theadId);
-            flyweightComSynchronizer.Synchronize(theadId);
+
+            flyweightComSynchronizer.BeginSynchronize();
+            comSynchronizer.BeginSynchronize();
+            entitySynchronizer.BeginSynchronize();
+
+            entitySynchronizer.EndSynchronize(theadId);
+            comSynchronizer.EndSynchronize(theadId);
+            flyweightComSynchronizer.EndSynchronize(theadId);
         }
 
         public void PushSynchronization() {
@@ -252,8 +297,15 @@ namespace D3DLab.ECS {
                     com.Value.Dispose();
                 }
             }
+
+            components.Clear();
+            entities.Clear();
+            flyweightComponents.Clear();
+            entityHas.Clear();
+
             entitySynchronizer.Dispose();
             comSynchronizer.Dispose();
+            flyweightComSynchronizer.Dispose();
         }
     }
 }

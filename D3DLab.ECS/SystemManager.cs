@@ -17,7 +17,7 @@ namespace D3DLab.ECS {
             }
 
             systems.Add(sys);            
-            notify.NotifyChange(sys);
+            notify.NotifyAdd<IGraphicSystem>(sys);
             return sys;
         }
         public IEnumerable<IGraphicSystem> GetSystems() {
@@ -29,6 +29,9 @@ namespace D3DLab.ECS {
         }
 
         public void Dispose() {
+            foreach(var sys in systems) {
+                sys.Dispose();
+            }
             systems.Clear();
         }
 

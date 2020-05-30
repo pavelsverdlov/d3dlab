@@ -65,6 +65,14 @@ namespace D3DLab.SDX.Engine.Rendering {
             return this;
         }
 
+        public void UnSubscribeFromGraphics() {
+            graphics.Changed -= UpdateBuffers;
+            foreach (var nest in nested) {
+                nest.CleanupRenderCache();
+            }
+            this.graphics = null;
+        }
+
         protected abstract void UpdateBuffers(GraphicsDevice device);
 
 
@@ -78,5 +86,17 @@ namespace D3DLab.SDX.Engine.Rendering {
         }
 
         #endregion
+
+        public override void Dispose() {
+            graphics.Changed -= UpdateBuffers;
+            this.graphics = null;
+
+            foreach (var n in nested) {
+                n.Cleanup();
+                n.CleanupRenderCache();
+            }
+            nested.Clear();
+            base.Dispose();
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using D3DLab.ECS;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace D3DLab.ECS.Systems {
@@ -10,11 +11,9 @@ namespace D3DLab.ECS.Systems {
         protected override void Executing(ISceneSnapshot snapshot) {
             var input = snapshot.InputSnapshot;
 
-            foreach (var en in ContextState.GetEntityManager().GetEntities()) {
-                foreach (var cmd in input.Events) {
-                    if (cmd.Execute(en)) {
-                        input.RemoveEvent(cmd);
-                    }
+            foreach (var cmd in input.Events) {
+                if (cmd.Execute(snapshot, ContextState)) {
+                    input.RemoveEvent(cmd);
                 }
             }
         }

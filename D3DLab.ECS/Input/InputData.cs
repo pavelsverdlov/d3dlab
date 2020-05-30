@@ -4,15 +4,14 @@ using System.Text;
 using System.Numerics;
 
 namespace D3DLab.ECS.Input {
-    [Obsolete("Add correct values to support flags 'Right | Middle' etc")]
     [Flags]
     public enum GeneralMouseButtons {
         None = 0,
         Left = 1,
         Right = 2,
-        Middle = 5,
-        XButton1 = 6,
-        XButton2 = 7
+        Middle = 4,
+        XButton1 = 8,
+        XButton2 = 16
     }
     [Flags]
     public enum GeneralKeywords {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace D3DLab.ECS {
     public abstract class GameObject {
@@ -16,7 +17,7 @@ namespace D3DLab.ECS {
         }
         
         public virtual IEnumerable<GraphicEntity> GetEntities(IEntityManager manager) {
-            return new GraphicEntity[0];
+            return Enumerable.Empty<GraphicEntity>();
         }
     }
 }

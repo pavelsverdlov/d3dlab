@@ -20,6 +20,17 @@ namespace D3DLab.ECS.Components{
         public TexturedMaterialComponent(params FileInfo[] image) {
             Images = image;
         }
+    }
+
+    public class MemoryTexturedMaterialComponent : MaterialComponent {
+        /// <summary>
+        /// Order is important! the same order will be setted in shader recources
+        /// </summary>
+        public MemoryStream[] MemoryImages { get; }
+
+        public MemoryTexturedMaterialComponent(params MemoryStream[] image) {
+            MemoryImages = image;
+        }
 
 
     }

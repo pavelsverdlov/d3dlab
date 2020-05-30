@@ -4,8 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:D3DLab.Viewer.Presentation.TDI"
-             xmlns:render="clr-namespace:D3DLab.Render;assembly=D3DLab.Wpf.Render"
-             xmlns:controls="clr-namespace:D3DLab.Wpf.Render.Overlay;assembly=D3DLab.Wpf.Render"
+             xmlns:render="clr-namespace:D3DLab.Toolkit.Host;assembly=D3DLab.Toolkit"
              mc:Ignorable="d" >
 
     <render:FormsHost x:Name="host"/>

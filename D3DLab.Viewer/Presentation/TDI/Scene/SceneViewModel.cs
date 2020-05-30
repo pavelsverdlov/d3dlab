@@ -3,21 +3,18 @@ using D3DLab.ECS.Components;
 using D3DLab.ECS.Context;
 using D3DLab.Render;
 using D3DLab.Toolkit;
-using D3DLab.Toolkit.Components;
 using D3DLab.Toolkit.D3Objects;
-using D3DLab.Utility.Math3D;
 using D3DLab.Viewer.D3D;
-using D3DLab.Viewer.Debugger;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using D3DLab.ECS.Ext;
 using WPFLab.MVVM;
 using D3DLab.FileFormats.GeometryFormats;
+using D3DLab.Toolkit.Host;
+using D3DLab.Toolkit.Components;
+using D3DLab.Toolkit.Math3D;
+using System.Windows;
 
 namespace D3DLab.Viewer.Presentation.TDI.Scene {
 
@@ -25,17 +22,18 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
 
         public WFScene Scene { get; private set; }
         public IContextState Context => context;
-        public ObservableCollection<SingleGameObject> GameObject { get; }
+        public ObservableCollection<SingleGameObject> GameObjects { get; }
 
 
         ContextStateProcessor context;
         EngineNotificator notificator;
         readonly IDockingTabManager dockingManager;
         FormsHost host;
+        FrameworkElement overlay;
 
         public SceneViewModel(IDockingTabManager dockingManager) {
             this.dockingManager = dockingManager;
-            GameObject = new ObservableCollection<SingleGameObject>();
+            GameObjects = new ObservableCollection<SingleGameObject>();
             dockingManager.OpenSceneTab(this);
         }
 
@@ -44,22 +42,22 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
             this.notificator = notificator;
 
         }
-        public void SetSurfaceHost(FormsHost host) {
+        public void SetSurfaceHost(FormsHost host, FrameworkElement overlay) {
             this.host = host;
-            host.SurfaceCreated += SurfaceCreated;
+            this.overlay = overlay;
+            host.HandleCreated += SurfaceCreated;
         }
 
 
-        public void SurfaceCreated(System.Windows.Forms.Control obj) {
+        public void SurfaceCreated(WinFormsD3DControl obj) {
             if (Scene != null) {
                 Scene.ReCreate(obj);
                 return;
             }
             
-            Scene =  new WFScene(context, notificator);
-            Scene.Init(obj);
-            Scene.InitContext();
-
+            Scene = new WFScene(host, overlay, context, notificator);
+            //Scene.Init(obj);
+            //Scene.InitContext();
         }
 
 
@@ -67,37 +65,37 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
         public void LoadGameObject(IFileGeometry3D geo, FileInfo texture, string fileName) {
             var em = context.GetEntityManager();
             
-            var box = BoundingBox.CreateFromVertices(geo.Positions.ToArray());
-            var center = box.GetCenter();
+            var box = AxisAlignedBox.CreateFrom(geo.Positions.ToArray());
+            var center = box.Center;
             
             var c = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B598");
 
             GraphicEntity en;
             if (geo.TextureCoors.Any()) {
-                en = EntityBuilders.BuildTextured(em, geo.Positions.ToList(), geo.Indices.ToList(), 
+                en = EntityBuilders.BuildTextured(context, geo.Positions.ToList(), geo.Indices.ToList(), 
                         geo.TextureCoors.ToArray(), texture,
                         SharpDX.Direct3D11.CullMode.None);
             } else {
-                en = EntityBuilders.BuildColored(em, geo.Positions.ToList(), geo.Indices.ToList(),
+                en = EntityBuilders.BuildColored(context, geo.Positions.ToList(), geo.Indices.ToList(),
                    ToVector4(c), SharpDX.Direct3D11.CullMode.Front);
-                en.UpdateComponent(GeometryFlatShadingComponent.Create());
+                en.UpdateComponent(FlatShadingGeometryComponent.Create());
                 
             }
             en.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
-            GameObject.Add(new SingleGameObject(en.Tag, fileName));
+            GameObjects.Add(new SingleGameObject(en.Tag, fileName));
             
-            var boxlines = PolylineGameObject.Create(
-                Context.GetEntityManager(),
-                new ElementTag("poly"),
-                Std.Engine.Core.Utilities.GeometryBuilder.BuildBox(
-                    new Std.Engine.Core.Utilities.BoundingBox(box.Minimum, box.Maximum)),
-                V4Colors.Blue
-                );
+            //var boxlines = PolylineGameObject.Create(
+            //    Context,
+            //    new ElementTag("poly"),
+            //    GeometryBuilder.BuildBox(
+            //        new AxisAlignedBox(box.Minimum, box.Maximum)),
+            //    V4Colors.Blue
+            //    );
 
-            Context.GetEntityManager().GetEntity(boxlines.Tag)
-                .UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
+            //Context.GetEntityManager().GetEntity(boxlines.Tag)
+            //    .UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
 
-            GameObject.Add(boxlines);
+            //GameObjects.Add(boxlines);
         }
 
 

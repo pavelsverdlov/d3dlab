@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace D3DLab.ECS.Common {
+    class ResourceNotFoundException : Exception {
+        public ResourceNotFoundException(string path) : base(path) { }
+    }
     public class ManifestResourceLoader {
         readonly Type type;
         public ManifestResourceLoader(Type assembly) {
@@ -16,7 +21,7 @@ namespace D3DLab.ECS.Common {
                     return name;
                 }
             }
-            return null;
+            throw new ResourceNotFoundException(resource);
         }
 
         public string GetResourceTextByName(string resource) {

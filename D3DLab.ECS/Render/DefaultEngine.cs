@@ -13,7 +13,7 @@ namespace D3DLab.ECS.Render {
         static readonly double total = TimeSpan.FromSeconds(1).TotalMilliseconds;
         static readonly double oneFrameMilliseconds = (total / 60);
         //static double _desiredFrameLengthSeconds = 1.0 / 60.0;
-        
+
         IEntityRenderNotify notify;
 
         Task loopTask;
@@ -22,14 +22,33 @@ namespace D3DLab.ECS.Render {
 
         public EngineNotificator Notificator { get; }
         public IContextState Context { get; }
-        public IAppWindow Window { get; }
+        public IRenderableSurface Surface { get; }
 
-        public DefaultEngine(IAppWindow window, IContextState context,EngineNotificator notificator) {
+        public ElementTag WorldTag { get; }
+        public ElementTag CameraTag { get; }
+
+
+        readonly IInputManager InputManager;
+     
+        int managedThreadId;
+
+        public DefaultEngine(IRenderableSurface surface, IInputManager inputManager, IContextState context, EngineNotificator notificator) {
             Context = context;
-            this.Window = window;
+            this.Surface = surface;
             this.Notificator = notificator;
+            InputManager = inputManager;
             tokensource = new CancellationTokenSource();
             token = tokensource.Token;
+
+            WorldTag = new ElementTag("World");
+            context.GetEntityManager()
+                .CreateEntity(WorldTag)
+                .AddComponents(new PerfomanceComponent());
+
+            CameraTag = new ElementTag("Camera");
+            context.GetEntityManager()
+               .CreateEntity(CameraTag);
+            context.GetEntityManager().FrameSynchronize(-1);
         }
 
         protected abstract void Initializing();
@@ -44,35 +63,27 @@ namespace D3DLab.ECS.Render {
         protected virtual bool Synchronize() => false;
 
         void Loop() {
-            System.Threading.Thread.CurrentThread.Name = "Game Loop";
-            var imanager = Window.InputManager;
+            Thread.CurrentThread.Name = "Game Loop";
+            managedThreadId = Thread.CurrentThread.ManagedThreadId;
+            var imanager = InputManager;
 
             //first synchronization
             Context.GetEntityManager().Synchronize(Thread.CurrentThread.ManagedThreadId);
             imanager.Synchronize(Thread.CurrentThread.ManagedThreadId);
 
             var speed = new Stopwatch();
-            var any = Context
-                .GetEntityManager()
-                .GetEntities()
-                .Where(x => x.Has<PerfomanceComponent>());
-            var engineInfoTag = ElementTag.Empty;
-
-            if (any.Any()) {
-                engineInfoTag = any.Single().Tag;
-            }
 
             double millisec = oneFrameMilliseconds;
-            while (Window.IsActive && !token.IsCancellationRequested) {
+            while (!token.IsCancellationRequested) {
                 speed.Restart();
 
-                imanager.Synchronize(Thread.CurrentThread.ManagedThreadId);
+                imanager.Synchronize(managedThreadId);
                 var changed = Synchronize();
 
                 var emanager = Context.GetEntityManager();
 
-                var rendered = Rendering(emanager, imanager, millisec, changed);
-                
+                Rendering(emanager, imanager, millisec, changed);
+
                 millisec = speed.ElapsedMilliseconds;
 
                 if (millisec < oneFrameMilliseconds) {
@@ -82,13 +93,12 @@ namespace D3DLab.ECS.Render {
 
                 millisec = speed.ElapsedMilliseconds;
 
-                emanager.GetEntity(engineInfoTag)
+#if DEBUG
+                emanager.GetEntity(WorldTag)
                     .UpdateComponent(PerfomanceComponent.Create(millisec, (int)(total / millisec)));
-                //Debug.WriteLine($"FPS {(int)(total / speed.ElapsedMilliseconds)} / {speed.ElapsedMilliseconds} ms");
-                
-                if (rendered) {
-                    notify.NotifyRender(emanager.GetEntities().ToArray());
-                }
+#endif      
+
+                notify.NotifyRender(emanager.GetEntities().ToArray());
             }
 
             //Window.InputManager.Dispose();
@@ -99,20 +109,22 @@ namespace D3DLab.ECS.Render {
             var id = Thread.CurrentThread.ManagedThreadId;
 
             changed = changed || emanager.HasChanges;
-            emanager.Synchronize(id);
+            emanager.Synchronize(managedThreadId);
 
-            var isnap = Window.InputManager.GetInputSnapshot();
+            var isnap = InputManager.GetInputSnapshot();
 
             if (!isnap.Events.Any() && !changed) {//no input no rendering 
                 return false;
             }
+            Context.GetGeometryPool().Synchronize(managedThreadId);
+            Context.GetOctreeManager().Synchronize(managedThreadId);
 
             var snapshot = CreateSceneSnapshot(isnap, TimeSpan.FromMilliseconds(millisec));// new SceneSnapshot(Window, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
             foreach (var sys in Context.GetSystemManager().GetSystems()) {
                 try {
                     sys.Execute(snapshot);
                     //run synchronization after each exetuted system, to synchronize state for the next system
-                    emanager.FrameSynchronize(id);
+                    emanager.FrameSynchronize(managedThreadId);
                 } catch (Exception ex) {
                     ex.ToString();
 #if !DEBUG
@@ -128,6 +140,7 @@ namespace D3DLab.ECS.Render {
                 tokensource.Cancel();
                 loopTask.Wait();
             }
+            loopTask.Dispose();
         }
 
 

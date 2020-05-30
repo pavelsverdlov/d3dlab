@@ -64,6 +64,21 @@
         }
 
 
+        public unsafe static System.Numerics.Vector3[] ToNVector3(this SharpDX.Vector3[] positions) {
+            var result = new System.Numerics.Vector3[positions.Length];
+            fixed (SharpDX.Vector3* _pSrc = positions) {
+                fixed (System.Numerics.Vector3* _pDst = result) {
+                    SharpDX.Vector3* pSrc = _pSrc;
+                    System.Numerics.Vector3* pDst = _pDst;
+                    var end = pSrc + positions.Length;
+                    for (; pSrc < end; ++pSrc, ++pDst) {
+                        *pDst = *((System.Numerics.Vector3*)pSrc);
+                    }
+                }
+            }
+            return result;
+        }
+
 
         class Color {
             private static byte ToByte(float component) {

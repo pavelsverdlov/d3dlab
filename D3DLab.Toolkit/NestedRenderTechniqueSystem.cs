@@ -20,26 +20,28 @@ namespace D3DLab.Toolkit {
 
     public abstract class NestedRenderTechniqueSystem<TProperties> : D3DAbstractRenderTechnique<TProperties> where TProperties : IToolkitFrameProperties {
 
-        protected NestedRenderTechniqueSystem(EntityHasSet entityHasSet) : base(entityHasSet) {
+        protected NestedRenderTechniqueSystem() {
             disposer = new DisposeObserver();
         }
 
-        protected void ApplyTransformWorldBufferToRenderComp(GraphicsDevice graphics, ID3DTransformWorldRenderComponent render, TransformComponent transform) {
+        protected void ApplyTransformWorldBufferToRenderComp(GraphicsDevice graphics, D3DRenderComponent render, TransformComponent transform) {
             if (transform.IsModified || !render.TransformWorldBuffer.HasValue) {
                 var tr = TransforStructBuffer.ToTranspose(transform.MatrixWorld);
 
                 if (render.TransformWorldBuffer.HasValue) {
                     var buff = render.TransformWorldBuffer.Get();
-                    //graphics.UpdateDynamicBuffer(ref tr, buff, TransforStructBuffer.RegisterResourceSlot);
-                    graphics.UpdateSubresource(ref tr, buff, TransforStructBuffer.RegisterResourceSlot);
+                    graphics.UpdateDynamicBuffer(ref tr, buff);
                 } else {
-                    //var buff = graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
-                    var buff = graphics.CreateBuffer(SharpDX.Direct3D11.BindFlags.ConstantBuffer, ref tr);
+                    var buff = graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
                     render.TransformWorldBuffer.Set(buff);
                 }
 
                 transform.IsModified = false;
             }
+        }
+        protected SharpDX.Direct3D11.Buffer CreateTransformWorldBuffer(GraphicsDevice graphics, ref TransformComponent transform) {
+            var tr = TransforStructBuffer.ToTranspose(transform.MatrixWorld);
+            return graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
         }
 
         protected readonly DisposeObserver disposer;

@@ -1,8 +1,10 @@
 ﻿using D3DLab.ECS.Components;
 using SharpDX.Direct3D11;
+using System;
 using System.IO;
 
 namespace D3DLab.SDX.Engine.Components {
+    [Obsolete("Sampler must be separate SamplerComponent, true")]
     public class D3DTexturedMaterialSamplerComponent : TexturedMaterialComponent {        
 
         /// <summary>

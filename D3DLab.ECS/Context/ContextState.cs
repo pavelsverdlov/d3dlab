@@ -2,26 +2,33 @@
 using System.Collections.Generic;
 
 namespace D3DLab.ECS.Context {
-   
 
     public sealed class ManagerContainer {
         public ISystemManager SystemManager { get; }
         public IComponentManager ComponentManager { get; }
         public IEntityManager EntityManager { get; }
+        public IGeometryMemoryPool GeoMemoryPool { get; }
         public EntityOrderContainer EntityOrder { get; }
+        public IOctreeManager OctreeManager { get; }
 
-        public ManagerContainer(IManagerChangeNotify notify, IContextState context) {
+        public ManagerContainer(IManagerChangeNotify notify, 
+            IOctreeManager octree, IContextState context, IGeometryMemoryPool geoPool) {
             EntityOrder = new EntityOrderContainer();
             this.SystemManager = new SystemManager(notify, context);
             var encom = new EntityComponentManager(notify, EntityOrder);
+            GeoMemoryPool = geoPool;
             this.ComponentManager = encom;
             this.EntityManager = encom;
+            OctreeManager = octree;
+
         }
 
         public void Dispose() {
             SystemManager.Dispose();
             ComponentManager.Dispose();
             EntityManager.Dispose();
+            GeoMemoryPool.Dispose();
+            OctreeManager.Dispose();
         }
     }
 
@@ -43,11 +50,14 @@ namespace D3DLab.ECS.Context {
         public virtual IComponentManager GetComponentManager() { return managers.ComponentManager; }
         public virtual IEntityManager GetEntityManager() { return managers.EntityManager; }
         public virtual ISystemManager GetSystemManager() { return managers.SystemManager; }
+        public virtual IGeometryMemoryPool GetGeometryPool() => managers.GeoMemoryPool;
         public EntityOrderContainer EntityOrder { get { return managers.EntityOrder; } }
-
+        public IOctreeManager GetOctreeManager() => managers.OctreeManager;
         public void Dispose() {
             managers.Dispose();
         }
+
+        
     }
 
     public sealed class ContextStateProcessor : IContextState {
@@ -60,6 +70,14 @@ namespace D3DLab.ECS.Context {
             public ISystemManager GetSystemManager() { throw new NotImplementedException(); }
             public void SwitchTo(int stateTo) { throw new NotImplementedException(); }
             public void Dispose() {}
+
+            public IGeometryMemoryPool GetGeometryPool() {
+                throw new NotImplementedException();
+            }
+
+            public IOctreeManager GetOctreeManager() {
+                throw new NotImplementedException();
+            }
         }
 
         IContextState currentState;
@@ -93,6 +111,9 @@ namespace D3DLab.ECS.Context {
             return currentState.GetEntityManager();
         }
 
+        public IGeometryMemoryPool GetGeometryPool() => currentState.GetGeometryPool();
+        public IOctreeManager GetOctreeManager() => currentState.GetOctreeManager();
+
         public EntityOrderContainer EntityOrder {
             get { return currentState.EntityOrder; }
         }
@@ -109,5 +130,7 @@ namespace D3DLab.ECS.Context {
             states.Clear();
             currentState.Dispose();
         }
+
+       
     }
 }

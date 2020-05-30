@@ -11,6 +11,11 @@ namespace D3DLab.SDX.Engine.D2 {
         public TextureLoader(Device device) {
             this.device = device;
         }
+        public ShaderResourceView LoadShaderResource(MemoryStream file) {
+            using (var texture = LoadFromFile(device, new SharpDX.WIC.ImagingFactory(), file)) {
+                return LoadShaderResource(texture);
+            }
+        }
         public ShaderResourceView LoadShaderResource(FileInfo file) {
             ShaderResourceView res = null;
             try {
@@ -63,6 +68,23 @@ namespace D3DLab.SDX.Engine.D2 {
             }
             return res;
         }
+        public ShaderResourceView LoadShaderResource(Texture2D texture) {
+            ShaderResourceView res = null;
+            try {
+                var srvDesc = new ShaderResourceViewDescription() {
+                    Format = texture.Description.Format,
+                    Dimension = SharpDX.Direct3D.ShaderResourceViewDimension.Texture2D,
+                };
+                srvDesc.Texture2D.MostDetailedMip = 0;
+                srvDesc.Texture2D.MipLevels = -1;
+
+                res = new ShaderResourceView(device, texture, srvDesc);
+                device.ImmediateContext.GenerateMips(res);
+            } catch (Exception ex) {
+                System.Diagnostics.Trace.WriteLine($"TexturedLoader {ex.Message}");
+            }
+            return res;
+        }
 
         Texture2D LoadFromFile(Device device, ImagingFactory factory, string filePath) {
             using (var fs = File.OpenRead(filePath)) {
@@ -77,6 +99,13 @@ namespace D3DLab.SDX.Engine.D2 {
                     return CreateTexture2DFromBitmap(device, bs);
                 }
             }
+        }
+        Texture2D LoadFromFile(Device device, ImagingFactory factory, MemoryStream ms) {
+            var bitmapDecoder = new BitmapDecoder(factory, ms, DecodeOptions.CacheOnLoad);
+            var bs = new FormatConverter(factory);
+            bs.Initialize(bitmapDecoder.GetFrame(0), PixelFormat.Format32bppPRGBA, BitmapDitherType.None, null, 0.0, BitmapPaletteType.Custom);
+
+            return CreateTexture2DFromBitmap(device, bs);
         }
 
         BitmapSource LoadBitmap(ImagingFactory factory, string filename) {

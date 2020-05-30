@@ -10,7 +10,7 @@ namespace D3DLab.ECS {
         public TimeSpan ExecutionTime { get; private set; }
 
         readonly Stopwatch stopwatch;
-        
+
         protected BaseEntitySystem() {
             stopwatch = new Stopwatch();
             //var ddd = Stopwatch.IsHighResolution;
@@ -27,10 +27,12 @@ namespace D3DLab.ECS {
         }
 
         protected abstract void Executing(ISceneSnapshot snapshot);
+        public virtual void Dispose() {
 
         }
+    }
 
-    public abstract class ContainerSystem<TNestedSystem> : BaseEntitySystem{
+    public abstract class ContainerSystem<TNestedSystem> : BaseEntitySystem {
         readonly SynchronizationContext<ContainerSystem<TNestedSystem>, TNestedSystem> synchronization;
         protected readonly List<TNestedSystem> nested;
 

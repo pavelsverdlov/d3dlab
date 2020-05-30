@@ -7,8 +7,7 @@ using D3DLab.SDX.Engine;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Rendering;
 using D3DLab.SDX.Engine.Shader;
-using D3DLab.Std.Engine.Core.Components;
-using D3DLab.Std.Engine.Core.Utilities;
+using D3DLab.Toolkit.Components;
 using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
@@ -17,7 +16,6 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace D3DLab.Toolkit.Techniques.CameraViews {
     struct CameraViewsComponent : IGraphicComponent {
@@ -77,7 +75,8 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
         }
     }
 
-    public class CameraViewsRenderTechnique<TProperties> : NestedRenderTechniqueSystem<TProperties>, IRenderTechnique<TProperties> where TProperties : IToolkitFrameProperties {
+    public class CameraViewsRenderTechnique<TProperties>
+        : NestedRenderTechniqueSystem<TProperties>, IRenderTechnique<TProperties> where TProperties : IToolkitFrameProperties {
         const string path = @"D3DLab.Toolkit.D3D.CameraViews.camera_views.hlsl";
 
         static readonly D3DShaderTechniquePass pass;
@@ -106,11 +105,7 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
             public static readonly int Size = Unsafe.SizeOf<Vertex>();
         }
 
-        public CameraViewsRenderTechnique() : base(new EntityHasSet(
-                typeof(CameraViewsRenderComponent),
-                typeof(CameraViewsComponent))) {
-
-        }
+        public CameraViewsRenderTechnique() { }
 
         public IEnumerable<IRenderTechniquePass> GetPass() => new[] { pass };
 
@@ -121,24 +116,41 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
 
         #region render
 
-        protected void UpdateDepthStencil(GraphicsDevice graphics, D3DRenderComponent render, GraphicEntity entity) {
-            var com = entity.GetComponent<CameraViewsComponent>();
-
-            if (!render.DepthStencilState.HasValue) {
-                render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, com.StencilStateDescription));
+        protected void UpdateDepthStencil(GraphicsDevice graphics, D3DRenderComponent buffers, ref RenderableComponent renderable) {
+            if (!buffers.DepthStencilState.HasValue && renderable.HasDepthStencil) {
+                buffers.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, 
+                    renderable.DepthStencilStateDescription));
+            }
+        }
+        protected void RenderDepthStencil(GraphicsDevice graphics, D3DRenderComponent buffers) {
+            if (buffers.DepthStencilState.HasValue) {
+                graphics.ImmediateContext.OutputMerger
+                    .SetDepthStencilState(buffers.DepthStencilState.Get(), 0);
             }
         }
 
-        protected void UpdateBlendingState(GraphicsDevice graphics, D3DRenderComponent render, GraphicEntity entity) {
-            var com = entity.GetComponent<CameraViewsComponent>();
 
-            if (!render.BlendingState.HasValue) {
-                render.BlendingState.Set(new BlendState(graphics.D3DDevice, com.BlendStateDescription));
+        protected void UpdateBlendingState(GraphicsDevice graphics, D3DRenderComponent buffers, ref RenderableComponent renderable) {
+            if (!buffers.BlendingState.HasValue && renderable.HasBlendState) {
+                buffers.BlendingState.Set(
+                    new BlendState(graphics.D3DDevice, renderable.BlendStateDescription));
             }
         }
+        protected void RenderBlendingState(GraphicsDevice graphics, D3DRenderComponent buffers) {
+            if (buffers.BlendingState.HasValue) {
+                graphics.ImmediateContext.OutputMerger
+                    .SetBlendState(buffers.BlendingState.Get(),
+                        new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0), -1);
+            }
+        }
+
+
+
+
+
 
         protected void UpdateGeometryBuffers(GraphicsDevice graphics, D3DRenderComponent render, GraphicEntity entity) {
-            var geo = entity.GetComponent<IGeometryComponent>();
+            var geo = entity.GetComponent<GeometryComponent>();
             var color = entity.GetComponent<ColorComponent>();
 
             if (geo.IsModified) {
@@ -152,7 +164,6 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
                 render.VertexBuffer.Set(graphics.CreateBuffer(BindFlags.VertexBuffer, vertex));
                 render.IndexBuffer.Set(graphics.CreateBuffer(BindFlags.IndexBuffer, geo.Indices.ToArray()));
 
-                geo.MarkAsRendered();
             }
         }
 
@@ -167,7 +178,7 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
         }
         
         protected void Draw(GraphicsDevice graphics, GraphicEntity entity) {
-            var geo = entity.GetComponent<IGeometryComponent>();
+            var geo = entity.GetComponent<GeometryComponent>();
             graphics.ImmediateContext.DrawIndexed(geo.Indices.Length, 0, 0);
         }
 
@@ -179,6 +190,10 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
             throw new NotImplementedException();
         }
 
+        public override bool IsAplicable(GraphicEntity entity) {
+            throw new NotImplementedException();
+        }
+
 
         #endregion
     }
@@ -186,28 +201,30 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
     public class CameraViewsObject {
         public static CameraViewsObject Create(IEntityManager manager) {
 
+            throw new NotImplementedException();
+
             var cvcom = CameraViewsComponent.Create();
 
-            var halfSize = cvcom.Size * 0.5f;
-            var boxgeo = GeometryBuilder.BuildGeoBox(new BoundingBox(new Vector3(-halfSize, -halfSize, -halfSize), new Vector3(halfSize, halfSize, halfSize)));
+            //var halfSize = cvcom.Size * 0.5f;
+            //var boxgeo = GeometryBuilder.BuildGeoBox(new AxisAlignedBox(new Vector3(-halfSize, -halfSize, -halfSize), new Vector3(halfSize, halfSize, halfSize)));
             
-            var move = Matrix4x4.CreateTranslation(new Vector3(1, 0, 0));
-            var geoc = new SimpleGeometryComponent();
-            geoc.Positions = boxgeo.Positions.ToArray()
-               /// .Transform(ref move)
-                .ToImmutableArray();
-            geoc.Indices = boxgeo.Indices.ToImmutableArray();
-            geoc.Normals = boxgeo.Positions.CalculateNormals(boxgeo.Indices).ToImmutableArray();
+            //var move = Matrix4x4.CreateTranslation(new Vector3(1, 0, 0));
+            //var geoc = new SimpleGeometryComponent();
+            //geoc.Positions = boxgeo.Positions.ToArray()
+            //   /// .Transform(ref move)
+            //    .ToImmutableArray();
+            //geoc.Indices = boxgeo.Indices.ToImmutableArray();
+            //geoc.Normals = boxgeo.Positions.CalculateNormals(boxgeo.Indices).ToImmutableArray();
 
             
 
-            manager.CreateEntity(new ElementTag("CameraViews"))
-                .AddComponents(
-                    new CameraViewsRenderComponent(),
-                    cvcom,
-                    geoc,
-                    ColorComponent.CreateAmbient(V4Colors.Blue).ApplyOpacity(0.2f)
-                );
+            //manager.CreateEntity(new ElementTag("CameraViews"))
+            //    .AddComponents(
+            //        new CameraViewsRenderComponent(),
+            //        cvcom,
+            //        geoc,
+            //        ColorComponent.CreateAmbient(V4Colors.Blue).ApplyOpacity(0.2f)
+            //    );
 
 
             return new CameraViewsObject();

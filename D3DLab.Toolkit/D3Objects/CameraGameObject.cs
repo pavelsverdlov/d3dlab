@@ -1,10 +1,7 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
 using D3DLab.ECS.Systems;
-using D3DLab.Std.Engine.Core.Components;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using D3DLab.Toolkit.Components.Camera;
 using System.Threading;
 
 namespace D3DLab.Toolkit.D3Objects {
@@ -35,9 +32,30 @@ namespace D3DLab.Toolkit.D3Objects {
             return obj;
         }
 
-        public static CameraObject CreateOrthographic<TRenderSystem, TToolkitFrameProperties>(IContextState context, IAppWindow win) 
-            where TRenderSystem : BaseRenderSystem<TToolkitFrameProperties> 
-            where TToolkitFrameProperties : IToolkitFrameProperties {
+        public static CameraObject UpdatePerspective<TRenderSystem, TToolkitFrameProperties>(
+            IContextState context, ElementTag tag)
+                where TRenderSystem : BaseRenderSystem<TToolkitFrameProperties>
+                where TToolkitFrameProperties : IToolkitFrameProperties {
+
+            IEntityManager manager = context.GetEntityManager();
+
+            var obj = new CameraObject(tag, "PerspectiveCamera");
+            manager.GetEntity(tag)
+                   .AddComponent(new PerspectiveCameraComponent());
+
+            {//entities ordering 
+                context.EntityOrder
+                       .RegisterOrder<TRenderSystem>(tag, 0)
+                       .RegisterOrder<DefaultInputSystem>(tag, 0);
+            }
+
+            return obj;
+        }
+
+        public static CameraObject CreateOrthographic<TRenderSystem, TToolkitFrameProperties>(
+            IContextState context, IRenderableSurface win) 
+                where TRenderSystem : BaseRenderSystem<TToolkitFrameProperties> 
+                where TToolkitFrameProperties : IToolkitFrameProperties {
 
             var manager = context.GetEntityManager();
             var cameraTag = new ElementTag("CameraEntity_" + Interlocked.Increment(ref cameras));
@@ -56,5 +74,23 @@ namespace D3DLab.Toolkit.D3Objects {
             return obj;
         }
 
+        public static CameraObject UpdateOrthographic<TRenderSystem>
+            (ElementTag camera, IContextState context, IRenderableSurface win)  {
+
+            var manager = context.GetEntityManager();
+
+            var obj = new CameraObject(camera, "OrthographicCamera");
+
+            manager.GetEntity(camera)
+                   .AddComponent(new OrthographicCameraComponent(win.Width, win.Height));
+
+            {//entities ordering 
+                context.EntityOrder
+                       .RegisterOrder<TRenderSystem>(camera, 0)
+                       .RegisterOrder<DefaultInputSystem>(camera, 0);
+            }
+
+            return obj;
+        }
     }
 }

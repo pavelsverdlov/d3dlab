@@ -30,10 +30,10 @@ namespace D3DLab.ECS.Common {
             if (disposed) {
                 return;
             }
-            if (disposing) {
+          //  if (disposing) {
                 Disposer.DisposeAll(observables);
                 observables.Clear();
-            }
+            //}
             disposed = true;
         }
         /// <summary>
@@ -77,15 +77,15 @@ namespace D3DLab.ECS.Common {
             if (disposed) {
                 return;
             }
-            if (disposing) {
+           // if (disposing) {
                 disposable?.Dispose();
                 disposable = null;
-            }
+           // }
             disposed = true;
         }
     }
 
-    public class EnumerableDisposableSetter<T> : IDisposable where T : IEnumerable<IDisposable> {
+    public class EnumerableDisposableSetter<T> : IDisposable where T : class, IEnumerable<IDisposable>{
         T disposable;
         bool disposed;
 
@@ -111,9 +111,9 @@ namespace D3DLab.ECS.Common {
             if (disposed) {
                 return;
             }
-            if (disposing) {
+           // if (disposing) {
                 DisposeEnumerable();
-            }
+           // }
             disposed = true;
         }
         void DisposeEnumerable() {
@@ -121,6 +121,7 @@ namespace D3DLab.ECS.Common {
                 foreach (var d in disposable) {
                     d?.Dispose();
                 }
+                disposable = null;
             }
         }
     }

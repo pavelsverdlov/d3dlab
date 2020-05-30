@@ -1,34 +1,45 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
 using D3DLab.Toolkit.Components;
-using D3DLab.Toolkit.Techniques.Line;
-using System;
+using D3DLab.Toolkit.Math3D;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace D3DLab.Toolkit.D3Objects {
     public class PolylineGameObject : SingleGameObject {
         public PolylineGameObject(ElementTag tag1) : base(tag1,"poly") {
         }
 
-        public static PolylineGameObject Create(IEntityManager manager, ElementTag tag,
-            IEnumerable<Vector3> points, Vector4 color) {
+        public static PolylineGameObject Create(IContextState context, ElementTag tag,
+            Vector3[] points, Vector4 color) {
+            var manager = context.GetEntityManager();
+
             var indeces = new List<int>();
-            for (var i = 0; i < points.Count(); i++) {
+            var pos = new List<Vector3>();
+            var prev = points[0];
+            for (var i = 0; i < points.Length; i++) {
+                pos.Add(prev);
+                pos.Add(points[i]);
+                prev = points[i];
+
+            }
+            for (var i = 0; i < pos.Count; i++) {
                 indeces.AddRange(new[] { i, i });
             }
-            var geo = new LineGeometryComponent(points.ToArray(), indeces.ToArray());
-            var tag1 = manager
-               .CreateEntity(tag)
-               .AddComponent(geo)
-               .AddComponent(D3DLineVertexRenderComponent.AsLineList())
-               .AddComponent(TransformComponent.Identity())
-               .AddComponent(MaterialColorComponent.Create(color))
-               .Tag;
+            var geo = context.GetGeometryPool()
+                .AddGeometry(new ImmutableGeometryData(pos.AsReadOnly(), indeces.AsReadOnly()));
 
-            return new PolylineGameObject(tag1);
+            manager
+               .CreateEntity(tag)
+               .AddComponents(
+                    geo,
+                    TransformComponent.Identity(),
+                    ColorComponent.CreateDiffuse(color),
+                    RenderableComponent.AsLineList());
+
+
+            return new PolylineGameObject(tag);
         }
 
         public override void Cleanup(IEntityManager manager) {
