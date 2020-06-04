@@ -11,7 +11,8 @@ namespace D3DLab.ECS.Camera {
 
 
 
-    public struct CameraMovementComponent : IGraphicComponent {
+    public readonly struct CameraMovementComponent : IGraphicComponent {       
+
         public enum MovementTypes {
             Undefined,
             Zoom,
@@ -21,72 +22,50 @@ namespace D3DLab.ECS.Camera {
         }
 
         public static CameraMovementComponent CreateZoom(CameraState state, MovementData movementData, int delta, float speedValue = 1) {
-            return new CameraMovementComponent {
-                Tag = new ElementTag(Guid.NewGuid().ToString()),
-                State = state,
-                MovementData = movementData,
-                Delta = delta,
-                MovementType = MovementTypes.Zoom,
-                IsValid = true,
-                SpeedValue = speedValue
-            };
+            return new CameraMovementComponent(state, movementData, MovementTypes.Zoom, delta, speedValue);
         }
 
         public static CameraMovementComponent CreatePan(CameraState state, MovementData movementData, float speedValue = 1) {
-            return new CameraMovementComponent {
-                Tag = new ElementTag(Guid.NewGuid().ToString()),
-                State = state,
-                MovementData = movementData,
-                MovementType = MovementTypes.Pan,
-                IsValid = true,
-                SpeedValue = speedValue
-            };
+            return new CameraMovementComponent(state, movementData, MovementTypes.Pan, 0, speedValue);
         }
 
         public static CameraMovementComponent CreateRotate(CameraState state, MovementData movementData, float speedValue = 1) {
-            return new CameraMovementComponent {
-                Tag = new ElementTag(Guid.NewGuid().ToString()),
-                State = state,
-                MovementData = movementData,
-                MovementType = MovementTypes.Rotate,
-                IsValid = true,
-                SpeedValue = speedValue
-            };
+            return new CameraMovementComponent(state, movementData, MovementTypes.Rotate, 0, speedValue);
+
         }
 
         public static CameraMovementComponent ChangeRotationCenter(CameraState state, MovementData movementData) {
-            return new CameraMovementComponent {
-                Tag = new ElementTag(Guid.NewGuid().ToString()),
-                State = state,
-                MovementData = movementData,
-                MovementType = MovementTypes.ChangeRotationCenter,
-                IsValid = true,
-            };
+            return new CameraMovementComponent(state, movementData, MovementTypes.ChangeRotationCenter, 0, 0);
+        }
+
+        CameraMovementComponent(CameraState state, MovementData movementData, MovementTypes movementType, 
+            int delta, float speedValue) : this() {
+            Tag = ElementTag.New();
+            IsValid = true;
+            State = state;
+            MovementData = movementData;
+            MovementType = movementType;
+            Delta = delta;
+            SpeedValue = speedValue;
         }
 
 
-
-
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
-        public bool IsValid { get; private set; }
-        public bool IsDisposed { get; private set; }
-
+        public ElementTag Tag { get; }
+        public bool IsValid { get; }
+        public bool IsDisposed { get; }
+        public bool IsModified { get; }
         //genneral
-        public CameraState State;
-        public MovementData MovementData;
-        public MovementTypes MovementType;
+        public CameraState State { get; }
+        public MovementData MovementData { get; }
+        public MovementTypes MovementType { get; }
 
         //zooming
-        public int Delta;
-
-        public float SpeedValue;
-
-        
+        public int Delta { get; }
+        public float SpeedValue { get; }
 
         public void Dispose() {
-            IsDisposed = true;
+           
         }
+
     }
 }

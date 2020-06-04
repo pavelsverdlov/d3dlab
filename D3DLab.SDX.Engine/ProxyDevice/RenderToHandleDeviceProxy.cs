@@ -1,4 +1,7 @@
-﻿using SharpDX.Direct3D;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Common;
+
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
@@ -15,9 +18,9 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
 
         readonly SharpDX.Direct3D11.Device3 device3;
 
-        public RenderToHandleDeviceProxy(Adapter adapter, IntPtr handle, int width, int height) {
+        public RenderToHandleDeviceProxy(Adapter adapter, IntPtr handle, GraphicSurfaceSize size) {
 
-            var backBufferDesc = new ModeDescription(width, height, new Rational(60, 1), GraphicsDevice.BackBufferTextureFormat);
+            var backBufferDesc = new ModeDescription(size.Width, size.Height, new Rational(60, 1), GraphicsDevice.BackBufferTextureFormat);
 
             // Descriptor for the swap chain
             var swapChainDesc = new SwapChainDescription() {

@@ -21,8 +21,8 @@ namespace D3DLab.ECS {
             public GraphicEntity GetEntity(ElementTag tag) => GraphicEntity.Empty();
             public IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate) => Enumerable.Empty<GraphicEntity>();
             public IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent => Enumerable.Empty<T>();
-            public bool Has<T>(ElementTag tag) where T : IGraphicComponent => false;
-            public bool Has(ElementTag tag, params Type[] types) => false;
+            public bool HasEntityContained<T>(ElementTag tag) where T : IGraphicComponent => false;
+            public bool HasEntityContained(ElementTag tag, params Type[] types) => false;
             public bool IsExisted(ElementTag tag) => false;
             public void PushSynchronization() {}
             public void RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {            }
@@ -53,6 +53,30 @@ namespace D3DLab.ECS {
             }
 
             public void RemoveComponents(ElementTag tagEntity, params IGraphicComponent[] components) {
+                throw new NotImplementedException();
+            }
+
+            public GraphicEntity GetEntityOf(IGraphicComponent com) {
+                throw new NotImplementedException();
+            }
+
+            public bool HasEntityOfComponentContained<T>(IGraphicComponent com) {
+                throw new NotImplementedException();
+            }
+
+            public T AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
+                throw new NotImplementedException();
+            }
+
+            public void RemoveComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
+                throw new NotImplementedException();
+            }
+
+            public bool HasEntityOfComponentContained<T>(T com) where T : IGraphicComponent {
+                throw new NotImplementedException();
+            }
+
+            public GraphicEntity GetEntityOf<T>(T com) where T : IGraphicComponent {
                 throw new NotImplementedException();
             }
         }
@@ -137,10 +161,10 @@ namespace D3DLab.ECS {
         }
 
         public bool Has(params Type[] types) {
-            return manager.Has(Tag, types);
+            return manager.HasEntityContained(Tag, types);
         }
-        public bool Has<T>() where T : IGraphicComponent {
-            return manager.Has<T>(Tag);
+        public bool Contains<T>() where T : IGraphicComponent {
+            return manager.HasEntityContained<T>(Tag);
         }
         public IEnumerable<IGraphicComponent> GetComponents() {
             return manager.GetComponents(Tag);

@@ -1,4 +1,7 @@
-﻿using SharpDX.Direct3D;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Common;
+
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 
@@ -9,11 +12,11 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
         readonly SharpDX.Direct3D11.Device3 device3;
         Texture2D TargetTexture;
 
-        public RenderToTargetViewDeviceProxy(Adapter adapter, int width, int height) {
+        public RenderToTargetViewDeviceProxy(Adapter adapter, GraphicSurfaceSize size) {
             D3DDevice = new SharpDX.Direct3D11.Device(adapter, DeviceCreationFlags.BgraSupport, levels);
             ImmediateContext = D3DDevice.ImmediateContext;
 
-            Resize(width, height);
+            Resize(size.Width,size.Height);
         }
 
         public override RasterizerState CreateRasterizerState(RasterizerStateDescription2 description2) {

@@ -20,15 +20,15 @@ namespace D3DLab.Toolkit.Math3D {
             // At this point our screen position is the camera world ranging from  
             // -1 to 1  
             // We need adjust to our actual screen width and height  
-            var x = ((screenPosition.X + 1.0f) / 2.0f) * window.Width;
+            var x = ((screenPosition.X + 1.0f) / 2.0f) * window.Size.Width;
             //don't forget the flipping of the y coordinate, since the origin of the window is in a different corner:
-            var y = ((-screenPosition.Y + 1.0f) / 2.0f) * window.Height;
+            var y = ((-screenPosition.Y + 1.0f) / 2.0f) * window.Size.Height;
 
             return new Vector2(x, y);
         }
         public Vector3 ScreenToVector3(Vector2 screen, CameraState camera, IRenderableSurface window) {
-            var winW = window.Width;
-            var winH = window.Height;
+            var winW = window.Size.Width;
+            var winH = window.Size.Height;
 
             var c = UnProject(screen, camera, window);
 
@@ -44,8 +44,8 @@ namespace D3DLab.Toolkit.Math3D {
             var Y = 0;
             var MinDepth = 0f;
             var MaxDepth = 1f;
-            vector.X = (((source.X - X) / (window.Width)) * 2f) - 1f;
-            vector.Y = -((((source.Y - Y) / (window.Height)) * 2f) - 1f);
+            vector.X = (((source.X - X) / (window.Size.Width)) * 2f) - 1f;
+            vector.Y = -((((source.Y - Y) / (window.Size.Height)) * 2f) - 1f);
             vector.Z = (source.Z - MinDepth) / (MaxDepth - MinDepth);
 
             float a = (((vector.X * matrix.M14) + (vector.Y * matrix.M24)) + (vector.Z * matrix.M34)) + matrix.M44;
@@ -58,8 +58,8 @@ namespace D3DLab.Toolkit.Math3D {
 
 
         public Ray UnProject(Vector2 screen, CameraState camera, IRenderableSurface window) {
-            var winW = window.Width;
-            var winH = window.Height;
+            var winW = window.Size.Width;
+            var winH = window.Size.Height;
 
             var matrix = camera.ViewMatrix * camera.ProjectionMatrix;
             Matrix4x4.Invert(matrix, out matrix);

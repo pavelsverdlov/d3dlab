@@ -5,28 +5,24 @@ using System.Numerics;
 using System.Text;
 
 namespace D3DLab.Toolkit.Components {
-    public struct CaptureTargetUnderMouseComponent : IGraphicComponent {
+    public readonly struct CaptureTargetUnderMouseComponent : IGraphicComponent {
         internal static CaptureTargetUnderMouseComponent Create(Vector2 v2)
             => new CaptureTargetUnderMouseComponent(v2);
 
-        public readonly Vector2 ScreenPosition;
+        public Vector2 ScreenPosition { get; }
+        public ElementTag Tag { get; }
+        public bool IsModified { get;}
+        public bool IsValid { get;  }
+        public bool IsDisposed { get; }
+        public void Dispose() {
+           
+        }
 
-        public CaptureTargetUnderMouseComponent(Vector2 screenPosition) : this() {
+        CaptureTargetUnderMouseComponent(Vector2 screenPosition) : this() {
             ScreenPosition = screenPosition;
             Tag = ElementTag.New();
             IsValid = true;
         }
-
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
-        public bool IsValid { get; private set; }
-        public bool IsDisposed { get; private set; }
-        public void Dispose() {
-            IsDisposed = true;
-        }
-
-
     }
 
 }

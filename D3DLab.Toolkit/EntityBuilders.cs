@@ -20,7 +20,6 @@ namespace D3DLab.Render{
             List<Vector3> pos, List<int> indexes, Vector4 v4color, CullMode cullMode) {
 
             var material = MaterialColorComponent.Create(v4color);
-            material.SpecularFactor = 400f;
 
             var manager = context.GetEntityManager();
 
@@ -47,9 +46,7 @@ namespace D3DLab.Render{
             var manager = context.GetEntityManager();
             var en = manager.CreateEntity(new ElementTag("TexturedGeometry" + Guid.NewGuid()));
 
-            var material = MaterialColorComponent.Create();
-            material.SetAlpha(1);
-
+            var material = MaterialColorComponent.CreateTransparent().ApplyAlpha(1);
 
             var geo = context.GetGeometryPool()
               .AddGeometry(new ImmutableGeometryData(

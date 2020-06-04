@@ -66,7 +66,7 @@ namespace D3DLab.Toolkit.Systems {
             }
 
             camera.UpdateViewMatrix();
-            camera.UpdateProjectionMatrix(window.Width, window.Height);
+            camera.UpdateProjectionMatrix(window.Size);
 
             snapshot.UpdateCamera(entity.Tag, camera.GetState());
         }
@@ -141,7 +141,7 @@ namespace D3DLab.Toolkit.Systems {
             var up = Vector3.Cross(forward, left).Normalized();
 
             var move = new Vector2(data.End.X - data.Begin.X, data.End.Y - data.Begin.Y);
-            var PanK = (changed.Width * changed.Scale) / snapshot.Window.Width;
+            var PanK = (changed.Width * changed.Scale) / snapshot.Window.Size.Width;
             var projectionMove = new Vector2(move.X * PanK, move.Y * PanK);
 
             var panVector = left * projectionMove.X + up * projectionMove.Y;
@@ -163,7 +163,7 @@ namespace D3DLab.Toolkit.Systems {
 
                 var begin = snapshot.Viewport.Vector3ToScreen(changed.Position, camera.GetState(), snapshot.Window);
                 var move = new Vector2(capture.ScreenPosition.X - begin.X, capture.ScreenPosition.Y - begin.Y);
-                var PanK = (changed.Width * changed.Scale) / snapshot.Window.Width;
+                var PanK = (changed.Width * changed.Scale) / snapshot.Window.Size.Width;
                 var projectionMove = new Vector2(move.X * PanK, move.Y * PanK);
                 var left = Vector3.Cross(changed.UpDirection, changed.LookDirection).Normalized();
                 var up = Vector3.Cross(changed.LookDirection, left).Normalized();

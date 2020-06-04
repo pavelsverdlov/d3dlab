@@ -107,53 +107,23 @@ namespace D3DLab.SDX.Engine {
         public TextureLoader TexturedLoader { get; }
         public DeviceContext ImmediateContext => directX.ImmediateContext;
         public string VideoCardDescription { get; }
-        public System.Drawing.Size Size { get; private set; }
+        public GraphicSurfaceSize Size { get; private set; }
 
         public DepthStencilView DepthStencilView { get; private set; }
 
         readonly ResourseRegistrHash resourseHash;
         readonly DirectX11Proxy directX;
 
-        internal GraphicsDevice(DirectX11Proxy proxy, int width, int height) {
+        internal GraphicsDevice(DirectX11Proxy proxy, GraphicSurfaceSize size) {
             resourseHash = new ResourseRegistrHash();
             Compilator = new D3DShaderCompilator();
+
+            int width =size.Width;
+            int height = size.Height;
 
             directX = proxy;
             directX.Resize(width, height);
             CreateBuffers(width, height);
-
-            TexturedLoader = new TextureLoader(directX.D3DDevice);
-        }
-       
-        [Obsolete("Legacy",true)]
-        GraphicsDevice(IntPtr handle, float w, float h) {
-            resourseHash = new ResourseRegistrHash();
-            Compilator = new D3DShaderCompilator();
-
-            var width = (int)w;
-            var height = (int)h;
-
-            var factory = new Factory1();
-            var adapter = AdapterFactory.GetBestAdapter(factory);
-
-            VideoCardDescription = adapter.Description.Description.Trim('\0');
-            /*
-             * 
-             *  DeviceCreationFlags.Debug - not supported by default, need to install the optional feature Graphics Tools
-             * 
-             */
-
-
-
-            directX = handle == IntPtr.Zero ?
-                (DirectX11Proxy)new RenderToTexture(adapter, width, height) :
-                new RenderToHandleDeviceProxy(adapter, handle, width, height);
-
-            directX.Resize(width, height);
-            CreateBuffers(width, height);
-            //TODO: Динамический оверлей. Direct3D 11.2 https://habr.com/company/microsoft/blog/199380/
-            //swapChain.SetSourceSize
-            //DContext = new DeviceContext(D3DDevice);
 
             TexturedLoader = new TextureLoader(directX.D3DDevice);
         }
@@ -176,7 +146,7 @@ namespace D3DLab.SDX.Engine {
         }
 
         void CreateBuffers(int width, int height) {
-            Size = new System.Drawing.Size(width, height);
+            Size = new SurfaceSize(width, height);
             var zBufferTextureDescription = new Texture2DDescription {
                 Format = Format.D32_Float_S8X24_UInt,//D24_UNorm_S8_UInt
                 ArraySize = 1,

@@ -1,13 +1,14 @@
-﻿using D3DLab.ECS.Input;
+﻿using D3DLab.ECS.Common;
+using D3DLab.ECS.Input;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
 namespace D3DLab.ECS {
+   
     public interface IRenderableSurface {
-        float Width { get; }
-        float Height { get; }
+        SurfaceSize Size { get; }
 
         event Action Resized;
         event Action Invalidated;

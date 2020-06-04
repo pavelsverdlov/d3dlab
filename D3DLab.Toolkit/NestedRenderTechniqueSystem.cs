@@ -24,6 +24,7 @@ namespace D3DLab.Toolkit {
             disposer = new DisposeObserver();
         }
 
+        [Obsolete("Remake with IsModified")]
         protected void ApplyTransformWorldBufferToRenderComp(GraphicsDevice graphics, D3DRenderComponent render, TransformComponent transform) {
             if (transform.IsModified || !render.TransformWorldBuffer.HasValue) {
                 var tr = TransforStructBuffer.ToTranspose(transform.MatrixWorld);
@@ -36,7 +37,7 @@ namespace D3DLab.Toolkit {
                     render.TransformWorldBuffer.Set(buff);
                 }
 
-                transform.IsModified = false;
+                //transform.IsModified = false;
             }
         }
         protected SharpDX.Direct3D11.Buffer CreateTransformWorldBuffer(GraphicsDevice graphics, ref TransformComponent transform) {

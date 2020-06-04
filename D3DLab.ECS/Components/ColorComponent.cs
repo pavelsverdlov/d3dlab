@@ -5,7 +5,7 @@ using System.Text;
 
 namespace D3DLab.ECS.Components {
     public interface IColoringMaterialComponent : IGraphicComponent {
-        Vector4 GetVertexColor(int vertexInd);
+        
     }
 
 
@@ -16,56 +16,37 @@ namespace D3DLab.ECS.Components {
         Specular,
         Reflection,
     }
-    public struct ColorComponent : IColoringMaterialComponent {
-
+    public readonly struct ColorComponent : IColoringMaterialComponent {
         public static ColorComponent CreateDiffuse(Vector4 color) {
-            return new ColorComponent {
-                IsValid = true,
-                IsModified = true,
-                Tag = new ElementTag(Guid.NewGuid().ToString()),
-                Color = color,
-                Type = ColorTypes.Diffuse,
-            };
+            return new ColorComponent(color, ColorTypes.Diffuse);
         }
         public static ColorComponent CreateAmbient(Vector4 color) {
-            return new ColorComponent {
-                IsValid = true,
-                IsModified = true,
-                Tag = new ElementTag(Guid.NewGuid().ToString()),
-                Color = color,
-                Type = ColorTypes.Ambient,
-            };
+            return new ColorComponent(color, ColorTypes.Ambient);
         }
         public static ColorComponent CreateSpecular(Vector4 color) {
-            return new ColorComponent {
-                IsValid = true,
-                IsModified = true,
-                Tag = new ElementTag(Guid.NewGuid().ToString()),
-                Color = color,
-                Type = ColorTypes.Specular,
-            };
+            return new ColorComponent(color, ColorTypes.Specular);
         }
 
-        public Vector4 Color { get; private set; }
-        public ColorTypes Type { get; private set; }
+        public Vector4 Color { get; }
+        public ColorTypes Type { get; }
 
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
-        public bool IsValid { get; private set; }
-        public bool IsDisposed { get; private set; }
+        public ElementTag Tag { get; }
+        public bool IsModified { get; }
+        public bool IsValid { get; }
+        public bool IsDisposed { get; }
+
+        ColorComponent(Vector4 color, ColorTypes type) : this() {
+            IsValid = true;
+            Tag = ElementTag.New();
+            Color = color;
+            Type = type;
+        }
 
         public void Dispose() {
-            IsDisposed = true;
-        }
-
-        public Vector4 GetVertexColor(int vertexInd) {
-            throw new System.NotImplementedException();
         }
 
         public ColorComponent ApplyOpacity(float op) {
-            this.Color = new Vector4(Color.X, Color.Y, Color.Z, op);
-            return this;
+            return new ColorComponent(new Vector4(Color.X, Color.Y, Color.Z, op), Type);
         }
     }
 }

@@ -10,17 +10,22 @@ namespace D3DLab.ECS.Input {
 
         public interface IHandler { }
         protected sealed class StateHandleProcessor<THandler> : InputObserver.StateProcessor where THandler : IHandler {
-            private readonly THandler inputHandler;
-            public StateHandleProcessor(StateDictionary states, THandler inputHandler) : base(states) {
-                this.inputHandler = inputHandler;
+            private readonly THandler[] inputHandlers;
+            public StateHandleProcessor(StateDictionary states, params THandler[] inputHandler) : base(states) {
+                this.inputHandlers = inputHandler;
             }
 
             public override void InvokeHandler<T>(Action<T> action) {
                 //                Dispatcher.CurrentDispatcher.BeginInvoke(action, inputHandler);
                 // action.BeginInvoke(inputHandler, null, null);
                 //                Task.Run(() => action(inputHandler));
-                var handler = (IHandler)inputHandler;
-                action((T)handler);
+                foreach (var inputHandler in inputHandlers) {
+                    var handler = (IHandler)inputHandler;
+                    if(handler is T tHandler) {
+                        action(tHandler);
+                    }
+                    
+                }
             }
         }
         protected abstract class StateProcessor : InputState {

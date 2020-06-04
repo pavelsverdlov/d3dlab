@@ -1,4 +1,6 @@
-﻿using D3DLab.ECS.Camera;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Camera;
+using D3DLab.ECS.Common;
 using D3DLab.ECS.Components;
 using System;
 using System.Collections.Generic;
@@ -16,8 +18,8 @@ namespace D3DLab.Toolkit.Components.Camera {
             ResetToDefault();
         }
 
-        public override Matrix4x4 UpdateProjectionMatrix(float width, float height) {
-            float aspectRatio = width / height;
+        public override Matrix4x4 UpdateProjectionMatrix(SurfaceSize size) {
+            float aspectRatio = size.Width / size.Height;
 
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
                         FieldOfViewRadians,

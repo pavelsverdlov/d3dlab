@@ -1,4 +1,7 @@
-﻿using SharpDX.Direct3D;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Common;
+
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
@@ -14,13 +17,13 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
         readonly SharpDX.Direct3D11.Device3 device3;
         readonly Texture2D TargetTexture;
 
-        public RenderToTextureDeviceProxy(Adapter adapter, int width, int height) {
+        public RenderToTextureDeviceProxy(Adapter adapter, GraphicSurfaceSize size) {
             D3DDevice = new SharpDX.Direct3D11.Device(adapter, DeviceCreationFlags.None, levels);
 
             TargetTexture = new Texture2D(D3DDevice, new Texture2DDescription() {
                 Format = Format.R8G8B8A8_UNorm,
-                Width = width,
-                Height = height,
+                Width = size.Width,
+                Height = size.Height,
                 ArraySize = 1,
                 BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
                 CpuAccessFlags = CpuAccessFlags.None,

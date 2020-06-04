@@ -20,8 +20,13 @@ struct Material
 
 cbuffer Game : register(b0)
 {
-    float4 LookDirection;
-    float4 CameraPosF4;
+    float4 v4LookDirection;
+    float4 v4CameraPos;
+    
+    // viewport:
+	// [w,h,1/w,1/h]
+    float4 v4Viewport;
+
 	
     float4x4 View;
     float4x4 Projection;
@@ -65,7 +70,7 @@ float4 toWVP(float4 position)
 
 float4 ComputePhongColor(float3 P, float4 N, Material mat)
 {
-    float4 traceRay = LookDirection;
+    float4 traceRay = v4LookDirection;
     float3 finalColor = mat.ColorAmbient;
     float intensity = 0;
     for (int i = 0; i < 3; ++i)

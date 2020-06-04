@@ -21,27 +21,21 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 namespace D3DLab.Toolkit.Techniques.BlackAndWhite {
-    public struct BlackAndWhiteRenderComponent : IGraphicComponent {
+    public readonly struct BlackAndWhiteRenderComponent : IGraphicComponent {
+      
         public static BlackAndWhiteRenderComponent Create() {
-            return new BlackAndWhiteRenderComponent {
-                CanRender = true,
-                Tag = ElementTag.New(),
-                IsValid = true
-            };
+            return new BlackAndWhiteRenderComponent(true);
         }
-        public bool CanRender { get; set; }
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
-        public bool IsValid { get; private set; }
-        public bool IsDisposed { get; private set; }
-
-        public void ClearBuffers() {
-
+        public ElementTag Tag { get; }
+        public bool IsModified { get; }
+        public bool IsValid { get; }
+        public bool IsDisposed { get;  }
+        BlackAndWhiteRenderComponent(bool isValid) : this() {
+            IsValid = isValid;
+            Tag = ElementTag.New();
         }
 
         public void Dispose() {
-            IsDisposed = true;
         }
     }
     public class OneFrameFlatWhiteRenderTechnique<TProperties> : NestedRenderTechniqueSystem<TProperties>, IRenderTechnique<TProperties>
@@ -117,7 +111,7 @@ namespace D3DLab.Toolkit.Techniques.BlackAndWhite {
                 blendingState = new BlendState(graphics.D3DDevice, D3DBlendStateDescriptions.BlendStateEnabled);
 
                 foreach (var en in entities) {
-                    if (!en.Has<BlackAndWhiteRenderComponent>()) {
+                    if (!en.Contains<BlackAndWhiteRenderComponent>()) {
                         continue;
                     }
                     var geo = en.GetComponent<GeometryComponent>();

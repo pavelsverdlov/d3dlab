@@ -2,19 +2,17 @@
 using System;
 
 namespace D3DLab.Toolkit.Components {
-    public struct WireframeGeometryComponent : IGraphicComponent {
+    public readonly struct WireframeGeometryComponent : IGraphicComponent {
+        public static WireframeGeometryComponent Create() => new WireframeGeometryComponent(true);
 
-        public static WireframeGeometryComponent Create() => new WireframeGeometryComponent {
-            Tag = new ElementTag(Guid.NewGuid().ToString()),
-            IsValid = true,
-        };
-
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
-        public bool IsValid { get; private set; }
+        public ElementTag Tag { get;  }
+        public bool IsModified { get; }
+        public bool IsValid { get; }
         public bool IsDisposed { get; }
-
+        public WireframeGeometryComponent(bool isValid) : this() {
+            IsValid = isValid;
+            Tag = ElementTag.New();
+        }
         public void Dispose() { }
     }
 }

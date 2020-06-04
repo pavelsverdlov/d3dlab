@@ -1,9 +1,12 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Camera;
+using D3DLab.ECS.Components;
 using D3DLab.SDX.Engine;
 using D3DLab.SDX.Engine.Rendering;
 using D3DLab.Toolkit._CommonShaders;
 using D3DLab.Toolkit.Components;
+
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
 using System;
 using System.Linq;
@@ -28,7 +31,7 @@ namespace D3DLab.Toolkit.Render {
 
         protected override void UpdateBuffers(GraphicsDevice device) {
             //camera
-            var gamebuff = GameStructBuffer.FromCameraState(prevCameraState);
+            var gamebuff = GameStructBuffer.FromCameraState(prevCameraState, device.Size);
             gameDataBuffer = device.CreateBuffer(BindFlags.ConstantBuffer, ref gamebuff);
 
             //lights
@@ -47,14 +50,14 @@ namespace D3DLab.Toolkit.Render {
                 using (var frame = graphics.FrameBegin()) {
 
                     foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
-                        if (entity.Has<RenderableComponent>()) {
+                        if (entity.Has(typeof(RenderableComponent), typeof(TransformComponent))) {
                             registrator.Register(entity);
                         }
                     }
 
                     prevCameraState = snapshot.Camera;
                     var lights = snapshot.Lights.Select(x => LightStructBuffer.From(x)).ToArray();
-                    var gamebuff = GameStructBuffer.FromCameraState(prevCameraState);
+                    var gamebuff = GameStructBuffer.FromCameraState(prevCameraState, snapshot.Window.Size);
 
                     frame.Graphics.UpdateSubresource(ref gamebuff, gameDataBuffer);
                     frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer);

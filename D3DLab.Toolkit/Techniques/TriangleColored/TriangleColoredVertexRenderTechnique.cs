@@ -212,9 +212,9 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
                 context.GeometryShader.Set(null);
                 context.PixelShader.Set(pixelShader.Get());
 
-                if (en.Has<FlatShadingGeometryComponent>()) {
+                if (en.Contains<FlatShadingGeometryComponent>()) {
                     context.GeometryShader.Set(flatShadingGS.Get());
-                } else if (en.Has<WireframeGeometryComponent>()) {
+                } else if (en.Contains<WireframeGeometryComponent>()) {
                     context.GeometryShader.Set(wireframeGS.Get());
                     context.PixelShader.Set(wireframePS.Get());
                 }

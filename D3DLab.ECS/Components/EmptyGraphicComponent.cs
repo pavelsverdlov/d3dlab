@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.ECS.Components {
-    public struct EmptyGraphicComponent : IGraphicComponent {
-
-        public static EmptyGraphicComponent Create() {
-            return new EmptyGraphicComponent {
-                Tag = ElementTag.Empty,
-                EntityTag = ElementTag.Empty,
-            };
+    public readonly struct EmptyGraphicComponent : IGraphicComponent {
+        EmptyGraphicComponent(ElementTag tag) : this() {
+            Tag = tag;
         }
 
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
+        public static EmptyGraphicComponent Create() {
+            return new EmptyGraphicComponent(ElementTag.Empty);
+        }
+
+        public ElementTag Tag { get;}
+        public bool IsModified { get; }
         public bool IsValid { get; }
         public bool IsDisposed { get; }
 

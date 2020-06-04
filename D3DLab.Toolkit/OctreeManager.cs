@@ -30,22 +30,22 @@ namespace D3DLab.Toolkit {
         }
 
         public void Remove(ref IGraphicComponent com) {
-            var manager = context.GetComponentManager();
-            if (!manager.Has<HittableComponent>(com.EntityTag)) {
+            var entity = context.GetEntityManager().GetEntityOf(com);
+            if (!entity.Contains<HittableComponent>()) {
                 return;
             }
             switch (com) {
                 case HittableComponent h:
-                    this.Remove(com.EntityTag);
+                    this.Remove(entity.Tag);
                     break;
                 case TransformComponent tr:
-                    if (!manager.Has<GeometryPoolComponent>(com.EntityTag)) {
-                        this.Remove(com.EntityTag);
+                    if (!entity.Contains<GeometryPoolComponent>()) {
+                        this.Remove(entity.Tag);
                     }
                     break;
                 case GeometryPoolComponent geo:
-                    if (!manager.Has<TransformComponent>(com.EntityTag)) {
-                        this.Remove(com.EntityTag);
+                    if (!entity.Contains<TransformComponent>()) {
+                        this.Remove(entity.Tag);
                     }
                     break;
             }
@@ -53,7 +53,8 @@ namespace D3DLab.Toolkit {
 
         public void Add(ref IGraphicComponent com) {
             var manager = context.GetComponentManager();
-            if (!context.GetComponentManager().Has<HittableComponent>(com.EntityTag)) {
+            var entity = context.GetEntityManager().GetEntityOf(com);
+            if (!entity.Contains<HittableComponent>()) {
                 return;
             }
 
@@ -61,13 +62,13 @@ namespace D3DLab.Toolkit {
             GeometryPoolComponent geo;
             switch (com) {
                 case TransformComponent trcom:
-                    if (!manager.TryGet(com.EntityTag, out geo)) {
+                    if (!entity.TryGetComponent(out geo)) {
                         return;
                     }
                     tr = trcom;
                     break;
                 case GeometryPoolComponent geocom:
-                    if (!manager.TryGet(com.EntityTag, out tr)) {
+                    if (!entity.TryGetComponent( out tr)) {
                         return;
                     }
                     geo = geocom;
@@ -75,13 +76,13 @@ namespace D3DLab.Toolkit {
                 default:
                     return;
             }
-            var enTag = com.EntityTag;
+            var enTag = entity.Tag;
 
             if (!geo.IsValid) {
                 return;
             }
 
-            var bounds = manager.GetComponent<GeometryBoundsComponent>(enTag);
+            var bounds = entity.GetComponent<GeometryBoundsComponent>();
 
             var box = bounds.Bounds.Transform(tr.MatrixWorld);
 

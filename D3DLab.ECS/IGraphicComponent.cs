@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.ECS {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// DO NOT ADD {set} in this interface because it is used for 'readonly struct'
+    /// </remarks>
     public interface IGraphicComponent : IDisposable {
         ElementTag Tag { get; }
-        ElementTag EntityTag { get; set; }
-        [Obsolete("Not applicable fot struct, remote later")]
-        bool IsModified { get; set; }
         bool IsValid { get; }
+        bool IsModified { get; }
         bool IsDisposed { get; }
     }
 

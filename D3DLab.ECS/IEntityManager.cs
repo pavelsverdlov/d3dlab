@@ -16,6 +16,7 @@ namespace D3DLab.ECS {
         /// 
         /// </returns>
         GraphicEntity GetEntity(ElementTag tag);
+        GraphicEntity GetEntityOf<T>(T com) where T : IGraphicComponent;
         IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate);
         bool IsExisted(ElementTag tag);
 

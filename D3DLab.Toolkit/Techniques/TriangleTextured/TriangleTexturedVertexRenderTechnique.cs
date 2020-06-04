@@ -175,7 +175,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
             {
                 graphics.ClearAllShader();
                 context.VertexShader.Set(vertexShader.Get());
-                if (en.Has<FlatShadingGeometryComponent>()) {
+                if (en.Contains<FlatShadingGeometryComponent>()) {
                     context.GeometryShader.Set(flatShadingGS.Get());
                 }
                 context.PixelShader.Set(pixelShader.Get());

@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 
 namespace D3DLab.Toolkit.Components {
-    struct GeometryBoundsComponent : IGraphicComponent {
+    readonly struct GeometryBoundsComponent : IGraphicComponent {
         public static GeometryBoundsComponent Create(AxisAlignedBox bounds) {
             return new GeometryBoundsComponent(bounds);
         }
@@ -14,19 +14,17 @@ namespace D3DLab.Toolkit.Components {
         public AxisAlignedBox Bounds { get; }
 
         public GeometryBoundsComponent(AxisAlignedBox bounds) : this() {
-            Bounds = bounds;
             Tag = ElementTag.New();
+            Bounds = bounds;
             IsValid = true;
         }
 
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
-        public bool IsValid { get; private set; }
-        public bool IsDisposed { get; private set; }
+        public ElementTag Tag { get; }
+        public bool IsModified { get;  }
+        public bool IsValid { get;  }
+        public bool IsDisposed { get; }
 
         public void Dispose() {
-            IsDisposed = true;
         }
     }
 }

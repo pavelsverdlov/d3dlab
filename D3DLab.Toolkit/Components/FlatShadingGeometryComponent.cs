@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Toolkit.Components {
-    public struct FlatShadingGeometryComponent : IGraphicComponent {
+    public readonly struct FlatShadingGeometryComponent : IGraphicComponent {
+        public static FlatShadingGeometryComponent Create() => new FlatShadingGeometryComponent(true);
 
-        public static FlatShadingGeometryComponent Create() => new FlatShadingGeometryComponent {
-            Tag = new ElementTag(Guid.NewGuid().ToString()),
-            IsValid = true
-        };
-
-        public ElementTag Tag { get; private set; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
-        public bool IsValid { get; private set; }
+        public ElementTag Tag { get;  }
+        public bool IsModified { get;}
+        public bool IsValid { get; }
         public bool IsDisposed { get; }
 
         public void Dispose() {}
+
+        FlatShadingGeometryComponent(bool isValid) : this() {
+            Tag = ElementTag.New();
+            IsValid = isValid;
+        }
     }
 }

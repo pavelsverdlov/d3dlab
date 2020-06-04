@@ -64,7 +64,7 @@ namespace D3DLab.SDX.Engine {
             synchronizer.Add((_this, size) => {
                 _this.Device.Resize(size.Width, size.Height);
                 Changed(_this.Device);
-            }, new Size { Height = surface.Height, Width = surface.Width });
+            }, new Size { Height = surface.Size.Height, Width = surface.Size.Width });
         }
 
         private void OnInvalidated() {

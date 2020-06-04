@@ -10,9 +10,8 @@ namespace D3DLab.Toolkit.Systems {
     public class LightsSystem : DefaultLightsSystem {
         protected override void OnExecuting(GraphicEntity entity, ref LightComponent light, ref ColorComponent color, ISceneSnapshot snapshot) {
 
-            if (entity.Has<FollowCameraDirectLightComponent>() && light.Direction != snapshot.Camera.LookDirection) {
-                light.Direction = snapshot.Camera.LookDirection;
-                entity.UpdateComponent(light);
+            if (entity.Contains<FollowCameraDirectLightComponent>() && light.Direction != snapshot.Camera.LookDirection) {
+                entity.UpdateComponent(light.ApplyDirection(snapshot.Camera.LookDirection));
             }
 
             base.OnExecuting(entity, ref light, ref color, snapshot);

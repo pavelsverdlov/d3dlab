@@ -5,8 +5,8 @@ namespace D3DLab.ECS {
 
     public interface IComponentManager : ISynchronizationContext {
         void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com);
-        IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com);
-        void RemoveComponent(ElementTag tagEntity, IGraphicComponent com);
+        T AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent;
+        void RemoveComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent;
         void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent;
         void RemoveComponents(ElementTag tagEntity, params IGraphicComponent[] components);
 
@@ -24,9 +24,9 @@ namespace D3DLab.ECS {
            where T2 : IGraphicComponent;
 
 
-        bool Has<T>(ElementTag tag) where T : IGraphicComponent;
-        bool Has(ElementTag tag, params Type[] types);
-
+        bool HasEntityContained<T>(ElementTag tag) where T : IGraphicComponent;
+        bool HasEntityContained(ElementTag tag, params Type[] types);
+        bool HasEntityOfComponentContained<T>(T com) where T : IGraphicComponent;
 
         IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types);
 

@@ -1,4 +1,5 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Common;
 using D3DLab.ECS.Context;
 using D3DLab.ECS.Input;
 using D3DLab.Toolkit.Host;
@@ -21,8 +22,9 @@ namespace D3DLab.Toolkit.Render {
             this.control.Paint += OnControlPaint;
             host.SizeChanged += OnHostSizeChanged;
 
-            width = (float)control.Width;
-            height = (float)control.Height;
+            var width = (float)control.Width;
+            var height = (float)control.Height;
+            Size = new SurfaceSize(width, height);
         }
 
         private void OnControlPaint(object sender, System.Windows.Forms.PaintEventArgs e) {
@@ -30,37 +32,27 @@ namespace D3DLab.Toolkit.Render {
         }
 
         private void OnHostSizeChanged(object sender, EventArgs e) {
-            width = (float)control.Width;
-            height = (float)control.Height;
+            var width = (float)control.Width;
+            var height = (float)control.Height;
+            Size = new SurfaceSize(width, height);
             Resized();
         }
 
         private void OnControlResized(object sender, EventArgs e) {
-            width = (float)control.Width;
-            height = (float)control.Height;
+            var width = (float)control.Width;
+            var height = (float)control.Height;
+            Size = new SurfaceSize(width, height);
             Resized();
         }
-
-        float width;
-        float height;
 
         public event Action Resized = () => { };
         public event Action Invalidated = () => { };
 
-        public float Width {
-            get {
-                return width;
-            }
-        }
-        public float Height {
-            get {
-                return height;
-            }
-        }
 
         public bool IsActive => true;
         public IntPtr Handle => control.Handle;
         public IInputManager InputManager { get; }
+        public SurfaceSize Size { get; private set; }
 
         public void Dispose() {
             this.control.Resize -= OnControlResized;

@@ -63,7 +63,7 @@ namespace D3DLab.Toolkit.D3Objects {
             var obj = new CameraObject(cameraTag, "OrthographicCamera");
 
             manager.CreateEntity(cameraTag)
-                   .AddComponent(new OrthographicCameraComponent(win.Width, win.Height));
+                   .AddComponent(new OrthographicCameraComponent(win.Size));
 
             {//entities ordering 
                 context.EntityOrder
@@ -82,7 +82,7 @@ namespace D3DLab.Toolkit.D3Objects {
             var obj = new CameraObject(camera, "OrthographicCamera");
 
             manager.GetEntity(camera)
-                   .AddComponent(new OrthographicCameraComponent(win.Width, win.Height));
+                   .AddComponent(new OrthographicCameraComponent(win.Size));
 
             {//entities ordering 
                 context.EntityOrder

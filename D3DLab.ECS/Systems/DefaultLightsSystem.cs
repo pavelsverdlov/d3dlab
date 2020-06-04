@@ -16,7 +16,7 @@ namespace D3DLab.ECS.Systems {
 
             try {
                 foreach (var entity in emanager.GetEntities()) {
-                    if (!entity.Has<LightComponent>()) {
+                    if (!entity.Contains<LightComponent>()) {
                         continue;
                     }
                     var light = entity.GetComponent<LightComponent>();
