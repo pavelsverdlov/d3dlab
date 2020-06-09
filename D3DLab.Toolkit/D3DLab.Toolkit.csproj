@@ -58,7 +58,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
-    <ProjectReference Include="..\D3DLab.GVDB\D3DLab.GVDB.vcxproj" />
     <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
   </ItemGroup>
 
