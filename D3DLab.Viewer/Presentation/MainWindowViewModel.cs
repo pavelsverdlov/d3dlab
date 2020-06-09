@@ -113,10 +113,16 @@ namespace D3DLab.Viewer.Presentation {
                 var f = new FileInfo(file);
                 switch (f.Extension) {
                     case ".obj":
-                        var reader = new FileFormats.GeometryFormats._OBJ.ObjReader();
-                        reader.Read(f);
+                        var parser = new FileFormats.GeometryFormats._OBJ.Utf8ByteOBJParser();
+                        using (var reader = new FileFormats.MemoryMappedFileReader(f)){
+                            parser.Read(reader.ReadSpan());
+                        }
+                        FileInfo material = null;
+                        try {
+                            material = parser.HasMTL ? new FileInfo(parser.GetMaterialFilePath(f.Directory, f.Directory)) : null;
+                        } catch { }
 
-                        Scene.LoadGameObject(reader.FullGeometry, reader.MaterialFilePath, f.Name);
+                        Scene.LoadGameObject(parser.FullGeometry, material , f.Name);
 
                         break;
                 }

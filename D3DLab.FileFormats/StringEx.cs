@@ -4,10 +4,9 @@ using System.Text;
 
 namespace D3DLab.FileFormats {
     static class StringEx {
-        static char[] whiteChars = new[] { ' ', '\t' };
+        static readonly char[] whiteChars = new[] { ' ', '\t' };
 
         public static string[] SplitOnWhitespace(this string input) {
-            //return oneOrMoreWhitespaces.Split(input.Trim());
             if (string.IsNullOrWhiteSpace(input)) {
                 return new string[0];
             }

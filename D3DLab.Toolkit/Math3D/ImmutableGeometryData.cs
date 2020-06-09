@@ -29,24 +29,24 @@ namespace D3DLab.Toolkit.Math3D {
         public bool IsModified { get; set; }
         public bool IsDisposed { get; private set; }
 
-        public ImmutableGeometryData(ReadOnlyCollection<Vector3> positions, ReadOnlyCollection<int> indices) 
+        public ImmutableGeometryData(IReadOnlyCollection<Vector3> positions, IReadOnlyCollection<int> indices) 
             : this(positions, null, indices, null) {
         }
-        public ImmutableGeometryData(ReadOnlyCollection<Vector3> positions, ReadOnlyCollection<int> indices,
-            ReadOnlyCollection<Vector4> colors) : this(positions, null, indices, null, colors) {
+        public ImmutableGeometryData(IReadOnlyCollection<Vector3> positions, IReadOnlyCollection<int> indices,
+            IReadOnlyCollection<Vector4> colors) : this(positions, null, indices, null, colors) {
         }
-        public ImmutableGeometryData(ReadOnlyCollection<Vector3> positions,
-           ReadOnlyCollection<Vector3> normals, ReadOnlyCollection<int> indices) 
+        public ImmutableGeometryData(IReadOnlyCollection<Vector3> positions,
+           IReadOnlyCollection<Vector3> normals, IReadOnlyCollection<int> indices) 
             : this(positions, normals, indices,null) {
         }
-        public ImmutableGeometryData(ReadOnlyCollection<Vector3> positions,
-            ReadOnlyCollection<Vector3> normals, ReadOnlyCollection<int> indices,
-            ReadOnlyCollection<Vector2> texCoor) 
+        public ImmutableGeometryData(IReadOnlyCollection<Vector3> positions,
+            IReadOnlyCollection<Vector3> normals, IReadOnlyCollection<int> indices,
+            IReadOnlyCollection<Vector2> texCoor) 
             :this(positions, normals, indices, texCoor, null){
         }
-        ImmutableGeometryData(ReadOnlyCollection<Vector3> positions,
-            ReadOnlyCollection<Vector3> normals, ReadOnlyCollection<int> indices,
-            ReadOnlyCollection<Vector2> texCoor, ReadOnlyCollection<Vector4> colors) {
+        ImmutableGeometryData(IReadOnlyCollection<Vector3> positions,
+            IReadOnlyCollection<Vector3> normals, IReadOnlyCollection<int> indices,
+            IReadOnlyCollection<Vector2> texCoor, IReadOnlyCollection<Vector4> colors) {
 
             Positions = positions == null ? ImmutableArray<Vector3>.Empty : positions.ToImmutableArray();
             Normals = normals == null ? ImmutableArray<Vector3>.Empty : positions.ToImmutableArray();

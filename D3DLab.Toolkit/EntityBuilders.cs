@@ -17,17 +17,18 @@ using D3DLab.Toolkit.Math3D;
 namespace D3DLab.Render{
     public static class EntityBuilders {
         public static GraphicEntity BuildColored(IContextState context,
-            List<Vector3> pos, List<int> indexes, Vector4 v4color, CullMode cullMode) {
+            IReadOnlyCollection<Vector3> pos, IReadOnlyCollection<int> indexes,
+            IReadOnlyCollection<Vector3> norm, Vector4 v4color, CullMode cullMode) {
 
             var material = MaterialColorComponent.Create(v4color);
 
             var manager = context.GetEntityManager();
-
+            var mormals = norm ?? pos.ToList().CalculateNormals(indexes.ToList()).AsReadOnly();
             var geo = context.GetGeometryPool()
                 .AddGeometry(new ImmutableGeometryData(
-                    pos.AsReadOnly(),
-                    pos.CalculateNormals(indexes).AsReadOnly(), 
-                    indexes.AsReadOnly()));
+                    pos,
+                    mormals, 
+                    indexes));
 
             return manager.CreateEntity(new ElementTag("Geometry" + Guid.NewGuid()))
                 .AddComponents(

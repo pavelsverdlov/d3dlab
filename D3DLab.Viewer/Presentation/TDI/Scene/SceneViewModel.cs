@@ -72,11 +72,11 @@ namespace D3DLab.Viewer.Presentation.TDI.Scene {
 
             GraphicEntity en;
             if (geo.TextureCoors.Any()) {
-                en = EntityBuilders.BuildTextured(context, geo.Positions.ToList(), geo.Indices.ToList(), 
+                en = EntityBuilders.BuildTextured(context, geo.Positions, geo.Indices, 
                         geo.TextureCoors.ToArray(), texture,
                         SharpDX.Direct3D11.CullMode.None);
             } else {
-                en = EntityBuilders.BuildColored(context, geo.Positions.ToList(), geo.Indices.ToList(),
+                en = EntityBuilders.BuildColored(context, geo.Positions, geo.Indices, geo.Normals,
                    ToVector4(c), SharpDX.Direct3D11.CullMode.Front);
                 en.UpdateComponent(FlatShadingGeometryComponent.Create());
                 
