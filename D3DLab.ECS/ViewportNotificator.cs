@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace D3DLab.ECS {
     public interface IEngineSubscriber { }
     public interface IManagerChangeSubscriber<T> : IEngineSubscriber {
-        void Add(ref T obj);
-        void Remove(ref T obj);
+        void Add(in T obj);
+        void Remove(in T obj);
     }
 
     public interface IEntityRenderSubscriber : IEngineSubscriber {
@@ -20,10 +20,8 @@ namespace D3DLab.ECS {
     }
 
     public interface IManagerChangeNotify {
-        void NotifyAdd<T>(T _object);
-
-        void NotifyAdd<T>(ref T _object);
-        void NotifyRemove<T>(ref T _object);
+        void NotifyAdd<T>(in T _object);
+        void NotifyRemove<T>(in T _object);
 
     }
     public interface IEntityRenderNotify {
@@ -55,27 +53,14 @@ namespace D3DLab.ECS {
                 }
             }
         }
-        public void NotifyAdd<T>(T _object) {
-            var handlers = subscribers.OfType<IManagerChangeSubscriber<T>>();
-            foreach (var handler in handlers) {
-                try {
-                    handler.Add(ref _object);
-                } catch (Exception ex) {
-                    Debug.WriteLine(ex.Message);
-#if DEBUG
-                    throw ex;
-#endif
-                }
-            }
-        }
 
-        public void NotifyAdd<T>(ref T _object) {
+        public void NotifyAdd<T>(in T _object) {
             var local = _object;
             //runner.ContinueWith(x => {
             var handlers = subscribers.OfType<IManagerChangeSubscriber<T>>();
             foreach (var handler in handlers) {
                 try {
-                    handler.Add(ref local);
+                    handler.Add(local);
                 } catch (Exception ex) {
                     Debug.WriteLine(ex.Message);
 #if DEBUG
@@ -86,13 +71,13 @@ namespace D3DLab.ECS {
             //});
         }
 
-        public void NotifyRemove<T>(ref T _object) {
+        public void NotifyRemove<T>(in T _object) {
             var local = _object;
             //runner.ContinueWith(x => {
             var handlers = subscribers.OfType<IManagerChangeSubscriber<T>>();
             foreach (var handler in handlers) {
                 try {
-                    handler.Remove(ref local);
+                    handler.Remove(local);
                 } catch (Exception ex) {
                     Debug.WriteLine(ex.Message);
 #if DEBUG

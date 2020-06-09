@@ -29,7 +29,7 @@ namespace D3DLab.Toolkit {
             sync = new SynchronizationContext<OctreeManager, SyncData>(this);
         }
 
-        public void Remove(ref IGraphicComponent com) {
+        public void Remove(in IGraphicComponent com) {
             var entity = context.GetEntityManager().GetEntityOf(com);
             if (!entity.Contains<HittableComponent>()) {
                 return;
@@ -51,7 +51,7 @@ namespace D3DLab.Toolkit {
             }
         }
 
-        public void Add(ref IGraphicComponent com) {
+        public void Add(in IGraphicComponent com) {
             var manager = context.GetComponentManager();
             var entity = context.GetEntityManager().GetEntityOf(com);
             if (!entity.Contains<HittableComponent>()) {

@@ -17,7 +17,7 @@ namespace D3DLab.ECS {
 
             entitySynchronizer.Add((owner, input) => {
                 owner.entities.Add(tag);
-                owner.notify.NotifyAdd(ref input);
+                owner.notify.NotifyAdd(input);
                 owner.components.Add(input.Tag, new Dictionary<ElementTag, IGraphicComponent>());
                 entityHas.Add(input.Tag, new HashSet<Type>());
             }, en);
@@ -30,7 +30,7 @@ namespace D3DLab.ECS {
                 if (owner.entities.Contains(elementTag)) {
                     var entity = _CreateEntity(elementTag);
                     
-                    notify.NotifyRemove(ref entity);
+                    notify.NotifyRemove(entity);
 
                     foreach (var component in owner.GetComponents(entity.Tag)) {
                         owner._RemoveComponent(entity.Tag, component);
@@ -197,7 +197,7 @@ namespace D3DLab.ECS {
                     var old = any.Single();
                     var removed = components[tagEntity].Remove(old.Tag);
                     old.Dispose();
-                    notify.NotifyRemove(ref old);
+                    notify.NotifyRemove(old);
                 } else {
                     //case: if it is updating not existed component
                     entityHas[tagEntity].Add(newComponent.GetType());
@@ -205,7 +205,7 @@ namespace D3DLab.ECS {
 
                 components[tagEntity].Add(newComponent.Tag, newComponent);
 
-                notify.NotifyAdd(ref newComponent);
+                notify.NotifyAdd(newComponent);
             }, newComponent);
         }
 
@@ -242,13 +242,13 @@ namespace D3DLab.ECS {
         void _AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
             components[tagEntity].Add(com.Tag, com);
             entityHas[tagEntity].Add(com.GetType());
-            notify.NotifyAdd(ref com);
+            notify.NotifyAdd(com);
         }
         void _RemoveComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
             var removed = components[tagEntity].Remove(com.Tag);
             removed = entityHas[tagEntity].Remove(com.GetType());
             com.Dispose();
-            notify.NotifyRemove(ref com);
+            notify.NotifyRemove(com);
         }
 
         #endregion

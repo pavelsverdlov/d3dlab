@@ -2,10 +2,9 @@
 using System.Numerics;
 
 namespace D3DLab.Toolkit.Techniques.ManipulationTool {
-    public struct ManipulationToolComponent : IGraphicComponent {
+    public readonly struct ManipulationToolComponent {
         public ElementTag Tag { get; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
+        public bool IsModified { get; }
         public bool IsValid { get; }
         public bool IsDisposed { get; }
 
@@ -14,8 +13,8 @@ namespace D3DLab.Toolkit.Techniques.ManipulationTool {
         }
 
 
-        public Vector3 AttachPoint;
-        public float Size; 
+        public Vector3 AttachPoint { get; }
+        public float Size { get; }
     }
 
     public class ManipulationToolObject {

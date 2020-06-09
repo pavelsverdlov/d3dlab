@@ -86,8 +86,8 @@ namespace D3DLab.Toolkit {
             sync.Synchronize(theadId);
         }
 
-        public void Add(ref GraphicEntity obj) { /* NOT INTERESTING */ }
-        public void Remove(ref GraphicEntity obj) {
+        public void Add(in GraphicEntity obj) { /* NOT INTERESTING */ }
+        public void Remove(in GraphicEntity obj) {
             if (obj.TryGetComponent<GeometryPoolComponent>(out var com)) {
                 sync.Add((_this, c) => {
                     if (!pool.TryRemove(c.Key, out var oldgeo)) {

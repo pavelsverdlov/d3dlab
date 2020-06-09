@@ -50,7 +50,8 @@ namespace D3DLab.Viewer.Presentation.TDI.ComponentList {
         }
 
         public void MarkAsModified() {
-            com.IsModified = true;
+            //com.IsModified = true;
+            //context.GetEntityOf(com).UpdateComponent(com);
         }
 
         public void Refresh(IGraphicComponent component) {

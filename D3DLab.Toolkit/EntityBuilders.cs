@@ -39,8 +39,8 @@ namespace D3DLab.Render{
                 );
         }
 
-        public static GraphicEntity BuildTextured(IContextState context, 
-            List<Vector3> pos, List<int> indexes, Vector2[] texCoor, FileInfo texture, CullMode cullMode) {
+        public static GraphicEntity BuildTextured(IContextState context,
+            IReadOnlyCollection<Vector3> pos, IReadOnlyCollection<int> indexes, IReadOnlyCollection<Vector2> texCoor, FileInfo texture, CullMode cullMode) {
             if (texCoor == null) {
                 throw new Exception("Geo must have TextCoor.");
             }
@@ -51,10 +51,10 @@ namespace D3DLab.Render{
 
             var geo = context.GetGeometryPool()
               .AddGeometry(new ImmutableGeometryData(
-                  pos.AsReadOnly(),
-                  pos.CalculateNormals(indexes).AsReadOnly(),
-                  indexes.AsReadOnly(),
-                  texCoor.AsReadOnly()));
+                  pos,
+                  pos.ToList().CalculateNormals(indexes.ToList()).AsReadOnly(),
+                  indexes,
+                  texCoor));
 
             en.AddComponents(
                     TransformComponent.Identity(),

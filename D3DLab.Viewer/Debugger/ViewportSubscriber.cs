@@ -22,19 +22,19 @@ namespace D3DLab.Viewer.Debugger {
             this.notify = notify;
         }
 
-        public void Add(ref IGraphicSystem sys) {
+        public void Add(in IGraphicSystem sys) {
             var s = sys;
             Application.Current.Dispatcher.BeginInvoke(new Action(() => {
                 notify.AddSystem(s);
             }));
         }
-        public void Remove(ref IGraphicSystem obj) {
+        public void Remove(in IGraphicSystem obj) {
         }
 
-        public void Remove(ref GraphicEntity obj) {
+        public void Remove(in GraphicEntity obj) {
         }
 
-        public void Add(ref GraphicEntity entity) {
+        public void Add(in GraphicEntity entity) {
             var en = new GraphicEntityDecorator(entity);
             Application.Current.Dispatcher.BeginInvoke(new Action(() => {
                 notify.GraphicEntityChange(en);

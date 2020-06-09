@@ -18,29 +18,28 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace D3DLab.Toolkit.Techniques.CameraViews {
-    struct CameraViewsComponent : IGraphicComponent {
+    readonly struct CameraViewsComponent : IGraphicComponent {      
 
         public static CameraViewsComponent Create() {
-            return new CameraViewsComponent {
-                Size = 0.15f,
-                StencilStateDescription = D3DDepthStencilStateDescriptions.DepthDisabled,
-                BlendStateDescription = D3DBlendStateDescriptions.BlendStateEnabled
+            return new CameraViewsComponent(0.15f, D3DDepthStencilStateDescriptions.DepthDisabled, D3DBlendStateDescriptions.BlendStateEnabled) {
             };
         }
 
         public ElementTag Tag { get; }
-        public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
+        public bool IsModified { get;  }
         public bool IsValid { get; }
         public bool IsDisposed { get; }
+        public float Size { get; }
+        public DepthStencilStateDescription StencilStateDescription { get; }
+        public BlendStateDescription BlendStateDescription { get; }
 
-        public void Dispose() {
-            throw new NotImplementedException();
+        public CameraViewsComponent(float size, DepthStencilStateDescription stencilStateDescription, BlendStateDescription blendStateDescription) : this() {
+            Size = size;
+            StencilStateDescription = stencilStateDescription;
+            BlendStateDescription = blendStateDescription;
         }
-
-        public float Size;
-        public DepthStencilStateDescription StencilStateDescription;
-        public BlendStateDescription BlendStateDescription;
+        public void Dispose() {
+        }
     }
 
     class CameraViewsRenderComponent : D3DRenderComponent {

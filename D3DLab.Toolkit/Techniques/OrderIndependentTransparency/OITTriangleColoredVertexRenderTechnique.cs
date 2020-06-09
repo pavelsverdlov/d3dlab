@@ -193,8 +193,8 @@ namespace D3DLab.Toolkit.Techniques.OrderIndependentTransparency {
                     alphaDesc.SampleDescription =
                     new SampleDescription(1, 0);
 
-                colorDesc.Width = alphaDesc.Width = graphics.Size.Width;
-                colorDesc.Height = alphaDesc.Height = graphics.Size.Height;
+                colorDesc.Width = alphaDesc.Width = (int)graphics.Size.Width;
+                colorDesc.Height = alphaDesc.Height = (int)graphics.Size.Height;
 
                 colorTargetTex2D.Set( new Texture2D(device, colorDesc));
                 alphaTargetTex2D.Set( new Texture2D(device, alphaDesc));
