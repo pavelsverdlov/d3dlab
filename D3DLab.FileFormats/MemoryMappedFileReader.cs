@@ -41,24 +41,20 @@ namespace D3DLab.FileFormats {
         void Dispose(bool disposing) {
             if (!disposedValue) {
                 if (disposing) {
-                    mm.Dispose();
-                    va.Dispose();
+                    mm?.Dispose();
+                    va?.Dispose();
                 }
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-
-                mma.Dispose();
+                mma?.Dispose();
                 mma = null;
                 
                 disposedValue = true;
             }
         }
         ~MemoryMappedFileReader() {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: false);
         }
 
         public void Dispose() {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
