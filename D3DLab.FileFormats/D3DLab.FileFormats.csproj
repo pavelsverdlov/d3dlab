@@ -12,4 +12,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
+  </ItemGroup>
+
 </Project>

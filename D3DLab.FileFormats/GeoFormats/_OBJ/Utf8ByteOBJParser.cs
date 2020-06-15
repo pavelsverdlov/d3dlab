@@ -1,4 +1,6 @@
-﻿using System;
+﻿using D3DLab.ECS;
+
+using System;
 using System.Buffers;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -11,22 +13,16 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace D3DLab.FileFormats.GeometryFormats._OBJ {
+namespace D3DLab.FileFormats.GeoFormats._OBJ {
     /// <remarks>
     /// See the file format specifications at
     /// https://en.wikipedia.org/wiki/Wavefront_.obj_file
     /// http://en.wikipedia.org/wiki/Material_Template_Library
     /// http://www.martinreddy.net/gfx/3d/OBJ.spec
-    /// http://www.eg-models.de/formats/Format_Obj.html
     /// </remarks>
     public sealed class Utf8ByteOBJParser {
-        enum TriangleTopology {
-            TriangleList,
-            TriangleFan
-        }
-
         static readonly Encoding utf8;
-        
+
         static readonly byte[] LFChars;
         static readonly byte[] commentChars;
 
@@ -58,17 +54,17 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
             materialChars = utf8.GetBytes(new[] { 'm', 't', 'l', 'l', 'i', 'b' });
         }
 
-        public GroupGeometry3D FullGeometry { get; }
+        public OBJGeometryCache GeometryCache { get; }
         public bool HasMTL => !string.IsNullOrWhiteSpace(MtlFileName);
         public string MtlFileName { get; private set; }
 
         public Utf8ByteOBJParser() {
-            FullGeometry = new GroupGeometry3D();
+            GeometryCache = new OBJGeometryCache();
         }
         public void Read(ReadOnlySpan<byte> bytes) {
             UnsafeRead(bytes);
         }
-        
+
         public string GetMaterialFilePath(DirectoryInfo mtlDir, DirectoryInfo imgDir) {
             var path = Path.Combine(mtlDir.FullName, MtlFileName);
             if (!File.Exists(path)) {
@@ -111,10 +107,10 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
 
         unsafe void UnsafeRead(ReadOnlySpan<byte> all) {
             var groupname = "noname";
-            var current = FullGeometry.CreatePart(groupname);
+            var current = GeometryCache.CreatePart(groupname);
             var floats = new float[3];
-            var triangleList = new int[4];
-            var triangleFan = new int[6];
+            var vertices = new OBJVertex[4];
+            var triangleFan = new OBJVertex[6];
 
             while (!all.IsEmpty) {
                 var endLine = all.IndexOf(LFChars);
@@ -145,7 +141,7 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
                 if (line.StartsWith(groupChars)) {
                     var names = GetString(part).Trim().SplitOnWhitespace();
                     groupname = string.Join(" ", names);//clean up group name from extra space
-                    current = FullGeometry.CreatePart(groupname);
+                    current = GeometryCache.CreatePart(groupname);
                 } else if (line.StartsWith(textureChars)) {
                     //vt u v w
                     // u is the value for the horizontal direction of the texture.
@@ -175,16 +171,8 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
                         throw new NotSupportedException("Unexpected vertex format.");
                     }
                 } else if (line.StartsWith(faceChars)) {
-                    switch (SplitFace(part, triangleList, triangleFan)) {
-                        case TriangleTopology.TriangleList:
-                            current.AddTriangle(triangleList[0], triangleList[1], triangleList[2]);
-                            //ignore triangleList[3] it is just buffer for triangle fan parsing 
-                            break;
-                        case TriangleTopology.TriangleFan:
-                            current.AddTriangles(triangleFan);
-                            current.AddTrianglesFun(triangleList[0], triangleList[1], triangleList[2], triangleList[3]);
-                            break;
-                    }
+                    var topo = SplitFace(part, vertices);
+                    current.AddVertices(vertices, topo);
                 } else if (line.StartsWith(materialChars)) {
                     //mtllib filename.mat
                     var end = line.IndexOf(space);
@@ -192,8 +180,6 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
                     LoadMaterial(filename);
                 }
             }
-
-            FullGeometry.Build();
         }
 
         static bool IsWhiteSpace(in ReadOnlySpan<byte> span) {
@@ -240,7 +226,7 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
         static unsafe void SplitVertex(ref ReadOnlySpan<byte> span, float[] val, int count = 3) {
             var index = 0;
             while (index < count) {
-                val[index] = 0;
+                val[index] = 0;//cleanup previous value, because the array always the same, not important for result
                 var end = span.IndexOf(space);
                 if (end == -1) {
                     end = span.Length;
@@ -255,7 +241,8 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
                 span = span.Slice(end, span.Length - end).Trim(space);
             }
         }
-        static TriangleTopology SplitFace(ReadOnlySpan<byte> span, int[] triangleBuf, int[] triangleFanBuf) {
+        static GeometryPrimitiveTopologies SplitFace1(ReadOnlySpan<byte> span,
+            OBJVertex[] triangleBuf, OBJVertex[] triangleFanBuf) {
             //example: f v/vt/vn v/vt/vn v/vt/vn v/vt/vn
             var index = 0;
             while (!span.IsEmpty) {
@@ -271,7 +258,7 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
                 if (!Utf8Parser.TryParse(part, out int value, out _)) {
                     throw new Exception("Can't read float");
                 }
-                triangleBuf[index] = value - 1;//' - 1' specific for OBJ format
+                triangleBuf[index] = new OBJVertex(value - 1);//' - 1' specific for OBJ format
                 index++;
                 span = span.Slice(end, span.Length - end).Trim(space);
             }
@@ -284,11 +271,81 @@ namespace D3DLab.FileFormats.GeometryFormats._OBJ {
                     triangleFanBuf[++index] = triangleBuf[i + 2];
                     ++index;
                 }
-                return TriangleTopology.TriangleFan;
+                return GeometryPrimitiveTopologies.TriangleFan;
             } else {
-                return TriangleTopology.TriangleList;
+                return GeometryPrimitiveTopologies.TriangleList;
+            }
+        }
+        static GeometryPrimitiveTopologies SplitFace(ReadOnlySpan<byte> span, OBJVertex[] triangleBuf) {
+            //full example: f v/vt/vn v/vt/vn v/vt/vn v/vt/vn
+            var index = 0;
+            // var all = GetString(span);
+            while (!span.IsEmpty) {
+                var end = span.IndexOf(space);
+                if (end == -1) {
+                    end = span.Length;
+                }
+                var part = span.Slice(0, end).Trim(space);
+                var iSeparator = part.IndexOf(slash);
+                if (iSeparator != -1) {
+                    //read part - v/vt/vn
+                    SplitFaceVertex(ref part, iSeparator, out var v);
+                    triangleBuf[index] = v;
+                } else {
+                    if (!Utf8Parser.TryParse(part, out int value, out _)) {
+                        throw new Exception("Can't read float");
+                    }
+                    triangleBuf[index] = new OBJVertex(value - 1);//' - 1' specific for OBJ format
+                }
+                span = span.Slice(end, span.Length - end).Trim(space);
+                index++;
+            }
+            if (index == 4) {
+                //example: f 2 1 5 6
+                return GeometryPrimitiveTopologies.TriangleFan;
+            } else {
+                return GeometryPrimitiveTopologies.TriangleList;
+            }
+        }
+
+        static void SplitFaceVertex(ref ReadOnlySpan<byte> part, int end, out OBJVertex vertex) {
+            //read part - v/vt/vn
+            //example: 
+            //  14338/14339/14340
+            //  14338//14340
+            //  14338/14339
+            int vt = -1;
+            var vn = -1;
+            //v
+            var value = part.Slice(0, end);
+            if (!Utf8Parser.TryParse(value, out int v, out _)) {
+                throw new Exception("Can't read float");
+            }
+            part = part.Slice(end + 1);//+1 is slash
+            //vt
+            end = part.IndexOf(slash);
+            if(end == -1) {
+                end = part.Length;
+            }
+            value = part.Slice(0, end);
+            if (!value.IsEmpty) {//example: 'v//vn' - no vt value
+                if (!Utf8Parser.TryParse(value, out vt, out _)) {
+                    throw new Exception("Can't read float");
+                }
+            }            
+            //vn
+            if (part.Length > end) {//remained span must be bigger than new slice or it is end of span
+                part = part.Slice(end + 1);
+                end = part.IndexOf(slash);
+                value = part.Slice(0, end == -1 ? part.Length : end);
+                if (!value.IsEmpty) {//example v/vt
+                    if (!Utf8Parser.TryParse(value, out vn, out _)) {
+                        throw new Exception("Can't read float");
+                    }
+                }
             }
 
+            vertex = new OBJVertex(v - 1, vt - 1, vn - 1);
         }
 
         void LoadMaterial(ReadOnlySpan<byte> part) {
