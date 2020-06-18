@@ -14,16 +14,8 @@ using D3DLab.Toolkit.Input.Publishers;
 using D3DLab.Toolkit.D3Objects;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.Toolkit.Techniques.TriangleColored;
-using System.Numerics;
-using D3DLab.Render;
-using D3DLab.FileFormats.GeoFormats;
-using System.IO;
-using D3DLab.Toolkit.Components;
-using System.Linq;
-using D3DLab.ECS.Components;
-using D3DLab.Toolkit;
 
-namespace D3DLab.Viewer.D3D {
+namespace D3DLab.Debugger.D3D {
     public class WFScene : D3DWFScene {
         class EmptyHandler : DefaultInputObserver.ICameraInputHandler {
             public void ChangeRotateCenter(InputStateData state) {
@@ -67,9 +59,9 @@ namespace D3DLab.Viewer.D3D {
             var smanager = Context.GetSystemManager();
 
             smanager.CreateSystem<DefaultInputSystem>();
-            smanager.CreateSystem<CollidingSystem>();
             smanager.CreateSystem<DefaultOrthographicCameraSystem>();
             smanager.CreateSystem<LightsSystem>();
+            // smanager.CreateSystem<CollidingSystem>();
             //  smanager.CreateSystem<MovementSystem>();
             //  smanager.CreateSystem<EmptyAnimationSystem>();
             //  smanager.CreateSystem<MeshAnimationSystem>();
@@ -106,15 +98,19 @@ namespace D3DLab.Viewer.D3D {
             LightObject.CreateFollowCameraDirectLight(manager, System.Numerics.Vector3.UnitZ, 0.8f);//0.95f
         }
 
+        internal void ReCreate(WinFormsD3DControl obj) {
+            base.Dispose();
 
-        public System.Collections.ObjectModel.ObservableCollection<SingleGameObject> GameObjects { get; }
-    
+            foreach (var com in Context.GetComponentManager().GetComponents<D3DRenderComponent>()) {
+                com.ClearBuffers();
+            }
 
-        static Vector4 ToVector4(System.Windows.Media.Color color) {
-            color.Clamp();
-            return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+            foreach (var sys in Context.GetSystemManager().GetSystems<RenderSystem>()) {
+                sys.Init(engine.Graphics);
+            }
+
+            OnHandleCreated(obj);
         }
-
 
         public override void Dispose() {
             base.Dispose();

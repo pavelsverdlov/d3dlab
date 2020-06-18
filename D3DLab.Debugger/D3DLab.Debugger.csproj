@@ -1,24 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Resources\ShaderSyntaxDef.xshd" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\ShaderSyntaxDef.xshd" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.0.1" />
@@ -29,6 +15,14 @@
     <PackageReference Include="Syncfusion.Themes.Office2013DarkGray.WPF" Version="17.4.0.46" />
     <PackageReference Include="Syncfusion.Tools.WPF" Version="17.4.0.46" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WPFLab\WPFLab.csproj" />
+    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />
+    <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
+    <ProjectReference Include="..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,15 +38,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\_\WPFLab\WPFLab.csproj" />
-    <ProjectReference Include="..\D3DLab.Debugger\D3DLab.Debugger.csproj" />
-    <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
-    <ProjectReference Include="..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />
-    <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
-    <ProjectReference Include="..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
   </ItemGroup>
 
 </Project>

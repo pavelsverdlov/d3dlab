@@ -1,20 +1,17 @@
 ﻿using D3DLab.ECS.Input;
 using D3DLab.Toolkit.Input;
-using D3DLab.Toolkit.Input.Commands.Camera;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 
-namespace D3DLab.Viewer.D3D {
+namespace D3DLab.Debugger.D3D {
     class ViewerInputObserver : RotateZoomPanInputObserver {
         readonly ICameraInputHandler inputHandler;
 
         public ViewerInputObserver(FrameworkElement control, IInputPublisher publisher, ICameraInputHandler inputHandler)
             : base(control, publisher, inputHandler) {
             this.inputHandler = inputHandler;
-
-            RotationSensitivity = 1;
         }
 
         protected override InputState GetIdleState() {
@@ -30,6 +27,10 @@ namespace D3DLab.Viewer.D3D {
             router.SwitchTo((int)AllInputStates.Idle, InputStateData.Create());
             return router;
 
+        }
+
+        public override void ChangeRotateCenter(InputStateData state) {
+            //currentSnapshot.AddEvent(new CameraSetRotationCenterUnderMouseCommand(state.Clone()));
         }
     }
 }

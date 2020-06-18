@@ -8,6 +8,7 @@ namespace D3DLab.Viewer.Presentation {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
+            formhost.Overlay = overlay;
             this.Drop += MainWindow_Drop;
         }
 
@@ -15,15 +16,6 @@ namespace D3DLab.Viewer.Presentation {
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (DataContext is IDropFiles drop) {
                 drop.Dropped(files);
-            }
-        }
-
-        private void _DockingManager_DockStateChanged(FrameworkElement sender, Syncfusion.Windows.Tools.Controls.DockStateEventArgs e) {
-            var cc = (ContentControl)sender;
-            if(e.NewState == Syncfusion.Windows.Tools.Controls.DockState.Hidden) {
-                if (DataContext is ITabStateChanged dc) {
-                    dc.Closed((UserControl)cc.Content);
-                }
             }
         }
     }
