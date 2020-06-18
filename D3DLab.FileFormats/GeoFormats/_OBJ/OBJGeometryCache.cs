@@ -38,63 +38,58 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
     }
 
     public class OBJGeometryCache {
-        public List<OBJGroupGeometryCache> Groups { get; }
-        public List<OBJVertex> Vertices { get; }
+        public IReadOnlyCollection<OBJGroupGeometryCache> Groups => groupMap.Values;
 
         public readonly List<Vector2> TextureCoorsCache;
         public readonly List<Vector3> PositionsCache;
         public readonly List<Vector3> NormalsCache;
         public readonly List<Vector3> ColorsCache;
-        
+        public int VertexCount { get; internal set; }
+
+        readonly Dictionary<string, OBJGroupGeometryCache> groupMap;
         public OBJGeometryCache() {
-            Groups = new List<OBJGroupGeometryCache>();
+            groupMap = new Dictionary<string, OBJGroupGeometryCache>();
             PositionsCache = new List<Vector3>();
             ColorsCache = new List<Vector3>();
             NormalsCache = new List<Vector3>();
-            TextureCoorsCache = new List<Vector2>();
-
-            Vertices = new List<OBJVertex>();
+            TextureCoorsCache = new List<Vector2>();           
         }
 
         internal OBJGroupGeometryCache CreatePart(string fullName) {
-            var group = new OBJGroupGeometryCache(this, fullName);
-            Groups.Add(group);
+            if (!groupMap.TryGetValue(fullName, out var group)) {
+                group = new OBJGroupGeometryCache(this, fullName);
+                groupMap.Add(fullName, group);
+            }
+            group.Duplicates += 1;
             return group;
         }
     }
-    internal class ListRange {
-        public int Start;
-        public int Count;
-        public override string ToString() {
-            return $"{Start}/{Count}";
-        }
-    }
+
     public class OBJGroupGeometryCache {
-        public bool IsEmpty => VerticesRange.Count == 0;
+        public List<OBJVertex> Vertices { get; }
+        public int Duplicates { get; set; }
+        public bool IsEmpty => Vertices.Count == 0;
         public readonly string Name;
         
-        internal readonly ListRange VerticesRange;
-        readonly OBJGeometryCache builder;
+        readonly OBJGeometryCache cache;
 
-        public OBJGroupGeometryCache(OBJGeometryCache builder, string key) {
-            this.builder = builder;
+        public OBJGroupGeometryCache(OBJGeometryCache cache, string key) {
+            Vertices = new List<OBJVertex>();
+            this.cache = cache;
             this.Name = key;
-            VerticesRange = new ListRange {
-                Start = this.builder.Vertices.Count
-            };
         }
 
         public void AddTextureCoor(ref Vector2 v) {
-            builder.TextureCoorsCache.Add(v);
+            cache.TextureCoorsCache.Add(v);
         }
         public void AddPosition(ref Vector3 v) {
-            builder.PositionsCache.Add(v);
+            cache.PositionsCache.Add(v);
         }
         public void AddNormal(ref Vector3 v) {
-            builder.NormalsCache.Add(v);
+            cache.NormalsCache.Add(v);
         }
         public void AddColor(ref Vector3 v) {
-            builder.ColorsCache.Add(v);
+            cache.ColorsCache.Add(v);
         }
 
         public void AddVertices(OBJVertex[] vertex, GeometryPrimitiveTopologies topology) {
@@ -105,22 +100,23 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
             //convert to one topology to simplify post processing
             switch (topology) {
                 case GeometryPrimitiveTopologies.TriangleList:
-                    builder.Vertices.Add(vertex[0]);
-                    builder.Vertices.Add(vertex[1]);
-                    builder.Vertices.Add(vertex[2]);
-                    VerticesRange.Count += 3;
+                    Vertices.Add(vertex[0]);
+                    Vertices.Add(vertex[1]);
+                    Vertices.Add(vertex[2]);
+                    cache.VertexCount += 3;
                     break;
                 case GeometryPrimitiveTopologies.TriangleFan:
                     //suport triangle fan format https://en.wikipedia.org/wiki/Triangle_fan
                     //https://docs.microsoft.com/en-us/windows/win32/direct3d9/triangle-fans
-                    builder.Vertices.Add(vertex[0]);
-                    builder.Vertices.Add(vertex[1]);
-                    builder.Vertices.Add(vertex[2]);
+                    Vertices.Add(vertex[0]);
+                    Vertices.Add(vertex[1]);
+                    Vertices.Add(vertex[2]);
 
-                    builder.Vertices.Add(vertex[0]);
-                    builder.Vertices.Add(vertex[2]);
-                    builder.Vertices.Add(vertex[3]);
-                    VerticesRange.Count += 6;
+                    Vertices.Add(vertex[0]);
+                    Vertices.Add(vertex[2]);
+                    Vertices.Add(vertex[3]);
+
+                    cache.VertexCount += 6;
                     break;
             }
         }

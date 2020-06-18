@@ -15,6 +15,7 @@ namespace D3DLab.FileFormats.GeoFormats {
     /// you can lock the collection during the entire enumeration.
     /// </summary>
     public interface IFileGeometry3D {
+        string Name { get; }
         ReadOnlyCollection<Vector3> Positions { get; }
         ReadOnlyCollection<Vector3> Normals { get; }
         ReadOnlyCollection<int> Indices { get; }

@@ -22,11 +22,11 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
             Colors = colors.AsReadOnly();
             Indices = indices.AsReadOnly();
             TextureCoors = textureCoors.AsReadOnly();
-            GroupName = group;
+            Name = group;
             Topology = topology;
         }
 
-        public string GroupName { get; }
+        public string Name { get; }
         public GeometryPrimitiveTopologies Topology { get; }
         public ReadOnlyCollection<Vector3> Positions { get; }
         public ReadOnlyCollection<Vector3> Normals { get; }
@@ -89,23 +89,25 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
     public class UnitedGroupsBulder : BaseGroupsBulder {
         public UnitedGroupsBulder(OBJGeometryCache _base) : base(_base) {
             Positions = _base.PositionsCache;
-            Indices = new List<int>(_base.Vertices.Count);
-            Normals = new Vector3[Positions.Count];
-            Colors = new Vector3[Positions.Count];
-            TextureCoors = new Vector2[Positions.Count];
+            Indices = new List<int>(_base.VertexCount);
+            Normals = _base.NormalsCache.Any() ? new Vector3[Positions.Count] : Array.Empty<Vector3>();
+            Colors = _base.ColorsCache.Any() ? new Vector3[Positions.Count] : Array.Empty<Vector3>();
+            TextureCoors = _base.TextureCoorsCache.Any() ? new Vector2[Positions.Count] : Array.Empty<Vector2>();
         }
 
-        public IFileGeometry3D Build() => Build(GeometryPrimitiveTopologies.TriangleList);
-        public IFileGeometry3D Build(GeometryPrimitiveTopologies newTopology) {
+        public IEnumerable<IFileGeometry3D> Build() => Build(GeometryPrimitiveTopologies.TriangleList);
+        public IEnumerable<IFileGeometry3D> Build(GeometryPrimitiveTopologies newTopology) {
             //TODO: support conveting to other topology
-
-            for (var index = 0; index < cache.Vertices.Count; index += 3) {
-                Add(cache.Vertices[index], cache.Vertices[index + 1], cache.Vertices[index + 2]);
+            foreach (var group in cache.Groups) {
+                if (group.IsEmpty) { continue; }
+                for (var index = 0; index < group.Vertices.Count; index += 3) {
+                    Add(group.Vertices[index], group.Vertices[index + 1], group.Vertices[index + 2]);
+                }
             }
 
-            return new GeometryData(string.Join('|', cache.Groups), Positions,
+            return new IFileGeometry3D[]{ new GeometryData(string.Join('|', cache.Groups), Positions,
                 Normals.ToList(), Colors.ToList(), Indices,
-                TextureCoors.ToList(), newTopology);
+                TextureCoors.ToList(), newTopology)};
         }
 
         void Add(in OBJVertex v0, in OBJVertex v1, in OBJVertex v2) {
@@ -142,17 +144,16 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
         }
 
         void BuildGroup(OBJGroupGeometryCache group) {
-            var count = group.VerticesRange.Start + group.VerticesRange.Count;
             //first add all points 
-            for (var index = group.VerticesRange.Start; index < count; index++) {
-                AddPosition(cache.Vertices[index]);
+            for (var index = 0; index < group.Vertices.Count; index++) {
+                AddPosition(group.Vertices[index]);
             }
             Normals = cache.NormalsCache.Any() ? new Vector3[Positions.Count] : Array.Empty<Vector3>();
             Colors = cache.ColorsCache.Any() ? new Vector3[Positions.Count] : Array.Empty<Vector3>();
             TextureCoors = cache.TextureCoorsCache.Any() ? new Vector2[Positions.Count] : Array.Empty<Vector2>();
             //add the rest of data
-            for (var index = group.VerticesRange.Start; index < count; index += 3) {
-                Add(cache.Vertices[index], cache.Vertices[index + 1], cache.Vertices[index + 2]);
+            for (var index = 0; index < group.Vertices.Count; index += 3) {
+                Add(group.Vertices[index], group.Vertices[index + 1], group.Vertices[index + 2]);
             }
         }
         void AddPosition(in OBJVertex v) {
