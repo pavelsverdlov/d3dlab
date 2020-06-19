@@ -24,8 +24,11 @@ namespace D3DLab.ECS.Components {
         public bool IsValid { get; }
 
         TransformComponent(Matrix4x4 matrixWorld) : this() {
+            IsValid = true;
             MatrixWorld = matrixWorld;
             Tag = ElementTag.New();
         }
+
+        public TransformComponent Multiply(in Matrix4x4 matrix) => Create(MatrixWorld * matrix);
     }
 }

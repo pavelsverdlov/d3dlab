@@ -1,3 +1,18 @@
+/*
+    CONSTS
+*/
+
+//const - Mark a variable that cannot be changed by a shader, therefore, it must be initialized in the variable declaration. 
+//static -  it is initialized one time and persists between function calls
+
+static const float3 unitZ = float3(0, 0, 1);
+static const float3 unitX = float3(1, 0, 0);
+static const float3 unitY = float3(0, 1, 0);
+
+/*
+    STRUCTS
+*/
+
 struct Light
 {
     float4 Color;
@@ -21,6 +36,7 @@ struct Material
 cbuffer Game : register(b0)
 {
     float4 v4LookDirection;
+    float4 v4CameraUp;
     float4 v4CameraPos;
     
     // viewport:
@@ -66,6 +82,11 @@ float4 toWVP(float4 position)
     position = mul(position, Projection);
 
     return position;
+}
+//convert from window coordinates to normalized device coordinates, values btw {-1;1}
+float2 winToNdc(in float2 pos)
+{
+    return float2((pos.x * v4Viewport.z) * 2.0, (pos.y * v4Viewport.w) * 2.0);
 }
 
 float4 ComputePhongColor(float3 P, float4 N, Material mat)

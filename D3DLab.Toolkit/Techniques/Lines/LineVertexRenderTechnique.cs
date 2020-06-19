@@ -109,7 +109,7 @@ namespace D3DLab.Toolkit.Techniques.Lines {
                     d3drender.BlendingState.Set(new BlendState(graphics.D3DDevice, renderable.BlendStateDescription));
                 }
 
-                ApplyTransformWorldBufferToRenderComp(graphics, d3drender, transform);
+                UppdateTransformWorld(graphics, d3drender, en);
 
                 if (geo.IsModified) {
                     var pos = geo.Positions;
@@ -156,7 +156,7 @@ namespace D3DLab.Toolkit.Techniques.Lines {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
                 && ren.IsValid
                 && ren.Technique == RenderTechniques.Lines
-                && entity.Has(
+                && entity.Contains(
                     typeof(GeometryPoolComponent),
                     typeof(TransformComponent),
                     typeof(ColorComponent));

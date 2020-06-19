@@ -8,10 +8,13 @@ using System.Text;
 
 namespace D3DLab.Toolkit.Input.Commands.Camera {
     class CameraRotateWithCursorReturntingCommand : IInputCommand {
+        readonly float sensitivity;
+
         public InputStateData InputState { get; }
 
-        public CameraRotateWithCursorReturntingCommand(InputStateData state) {
+        public CameraRotateWithCursorReturntingCommand(InputStateData state, float sensitivity) {
             this.InputState = state;
+            this.sensitivity = sensitivity;
         }
 
         public bool Execute(ISceneSnapshot snapshot, IContextState context) {
@@ -27,7 +30,7 @@ namespace D3DLab.Toolkit.Input.Commands.Camera {
             //    state = any.Single().State;
             //}
 
-            entity.UpdateComponent(CameraMovementComponent.CreateRotate(state, data, 2.5f));
+            entity.UpdateComponent(CameraMovementComponent.CreateRotate(state, data, sensitivity));
 
             return true;
         }

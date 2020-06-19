@@ -62,14 +62,12 @@ namespace D3DLab.Viewer.D3D {
                 renderable = RenderableComponent.AsTriangleColoredList(cullmode);
             }
 
-            en.AddComponents(
-                    TransformComponent.Identity(),
-                    HittableComponent.Create(0),
-                    GeometryBoundsComponent.Create(gdata.Positions),
-                    material,
-                    geo,
-                    renderable
-                ); ;
+            en.AddComponent(TransformComponent.Identity())
+              .AddComponent(HittableComponent.Create(0))
+              .AddComponent(GeometryBoundsComponent.Create(gdata.Positions))
+              .AddComponent(material)
+              .AddComponent(geo)
+              .AddComponent(renderable); 
 
             return tag;
         }
@@ -101,9 +99,9 @@ namespace D3DLab.Viewer.D3D {
         public T GetComponent<T>(IEntityManager manager,in ElementTag tag) where T : IGraphicComponent {
             return manager.GetEntity(tag).GetComponent<T>();
         }
-        public void UpdateComponent<T>(IEntityManager manager, T com) where T : IGraphicComponent {
+        public void Move(IEntityManager manager, in Matrix4x4 move) {
             foreach (var t in Tags) {
-                manager.GetEntity(t).UpdateComponent(com);
+                manager.GetEntity(t).UpdateComponent(MovingComponent.Create(move));
             }
         }
 

@@ -243,7 +243,7 @@ namespace D3DLab.Toolkit.Techniques.OrderIndependentTransparency {
             foreach (var en in entities) {
                 var render = en.GetComponent<D3DRenderComponent>();
                 var geo = en.GetComponent<GeometryComponent>();
-                var colors = en.GetComponents<MaterialColorComponent>();
+                var color = en.GetComponent<MaterialColorComponent>();
                 var transform = en.GetComponent<TransformComponent>();
 
                 if (!render.DepthStencilState.HasValue) {
@@ -274,9 +274,7 @@ namespace D3DLab.Toolkit.Techniques.OrderIndependentTransparency {
                     throw RenderTechniqueException.NoVertexAndIndexBuffers;
                 }
 
-                if (colors.Any()) {
-                    var color = colors.Single();
-
+                if (color.IsValid) {
                     var material = MaterialStructBuffer.From(color);
 
                     if (render.MaterialBuffer.HasValue) {
@@ -288,7 +286,7 @@ namespace D3DLab.Toolkit.Techniques.OrderIndependentTransparency {
                     }
                 }
 
-                ApplyTransformWorldBufferToRenderComp(graphics, render, transform);
+                UppdateTransformWorld(graphics, render, en);
 
                 if (!render.TransformWorldBuffer.HasValue) {
                     throw RenderTechniqueException.NoWorldTransformBuffers;

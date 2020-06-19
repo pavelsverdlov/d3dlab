@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace D3DLab.ECS {
-    public struct ElementTag : IEquatable<ElementTag> {
+    public readonly struct ElementTag : IEquatable<ElementTag> {
         public static ElementTag Empty = new ElementTag(string.Empty);
         public static ElementTag New() => new ElementTag(Guid.NewGuid().ToString());
         public static ElementTag New(string prefix) => new ElementTag(string.Concat(prefix,"_",Guid.NewGuid().ToString()));

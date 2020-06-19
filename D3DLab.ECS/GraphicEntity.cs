@@ -6,79 +6,37 @@ using System.Linq;
 
 namespace D3DLab.ECS {
 
-    public sealed class GraphicEntity  {
+    public readonly struct GraphicEntity  {
 
         struct EmptyManager : IComponentManager, IEntityManager {
-            public bool HasChanges => false;
-            public IGraphicComponent AddComponent(ElementTag tagEntity, IGraphicComponent com) => EmptyGraphicComponent.Create();
-            public void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com) { }
+            public bool HasChanges { get; }
+            public IComponentManager AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent => this;
             public GraphicEntity CreateEntity(ElementTag tag) => GraphicEntity.Empty();
-            public void Dispose() {            }
-            public void FrameSynchronize(int theadId) {            }
+            public void Dispose() {}
+            public void FrameSynchronize(int theadId) {}
+            public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent => default;
             public IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity) => Enumerable.Empty<IGraphicComponent>();
-            public IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types) => Enumerable.Empty<IGraphicComponent>();
+            public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent => Enumerable.Empty<T>();
+            public IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types)
+                 => Enumerable.Empty<IGraphicComponent>();
             public IEnumerable<GraphicEntity> GetEntities() => Enumerable.Empty<GraphicEntity>();
-            public GraphicEntity GetEntity(ElementTag tag) => GraphicEntity.Empty();
+            public GraphicEntity GetEntity(ElementTag tag) => default;
             public IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate) => Enumerable.Empty<GraphicEntity>();
-            public IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent => Enumerable.Empty<T>();
+            public GraphicEntity GetEntityOf<T>(T com) where T : IGraphicComponent => GraphicEntity.Empty();
+            public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent => default;
             public bool HasEntityContained<T>(ElementTag tag) where T : IGraphicComponent => false;
             public bool HasEntityContained(ElementTag tag, params Type[] types) => false;
+            public bool HasEntityOfComponentContained<T>(T com) where T : IGraphicComponent => false;
             public bool IsExisted(ElementTag tag) => false;
-            public void PushSynchronization() {}
-            public void RemoveComponent(ElementTag tagEntity, IGraphicComponent com) {            }
-            public void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {            }
-            public void RemoveEntity(ElementTag elementTag) {           }
-            public void SetFilter(Func<ElementTag, bool> predicate) {           }
+            public void RemoveComponent<T>(ElementTag tagEntity) where T : IGraphicComponent { }
+            public void RemoveEntity(ElementTag elementTag) { }
             public void Synchronize(int theadId) { }
-            public void UpdateComponents<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {}
-            public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent => Enumerable.Empty<T>();
-
-
-            //TODO refactor! should not be methods with no results
-            public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
-                throw new Exception("Empty graphic Entity does not have any components.");
+            public bool TryGetComponent<T>(ElementTag tagEntity, out T component)
+                where T : IGraphicComponent {
+                component = default;
+                return false;
             }
-            public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {
-                throw new Exception("Empty graphic Entity does not have any components.");
-            }
-
-            public bool TryGet<T>(ElementTag tagEntity, out T component) where T : IGraphicComponent {
-                throw new NotImplementedException();
-            }
-
-            public bool TryGet<T1, T2>(ElementTag tagEntity, out T1 c1, out T2 c2)
-                where T1 : IGraphicComponent
-                where T2 : IGraphicComponent {
-                throw new NotImplementedException();
-            }
-
-            public void RemoveComponents(ElementTag tagEntity, params IGraphicComponent[] components) {
-                throw new NotImplementedException();
-            }
-
-            public GraphicEntity GetEntityOf(IGraphicComponent com) {
-                throw new NotImplementedException();
-            }
-
-            public bool HasEntityOfComponentContained<T>(IGraphicComponent com) {
-                throw new NotImplementedException();
-            }
-
-            public T AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
-                throw new NotImplementedException();
-            }
-
-            public void RemoveComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
-                throw new NotImplementedException();
-            }
-
-            public bool HasEntityOfComponentContained<T>(T com) where T : IGraphicComponent {
-                throw new NotImplementedException();
-            }
-
-            public GraphicEntity GetEntityOf<T>(T com) where T : IGraphicComponent {
-                throw new NotImplementedException();
-            }
+            public void UpdateComponents<T>(ElementTag tagEntity, T com) where T : IGraphicComponent { }
         }
 
         /// <summary>
@@ -96,78 +54,73 @@ namespace D3DLab.ECS {
         readonly IEntityManager emanager;
         readonly EntityOrderContainer order;
 
-        public GraphicEntity(ElementTag tag, IComponentManager manager, IEntityManager emanager,EntityOrderContainer order) {
+        internal GraphicEntity(ElementTag tag, IComponentManager manager, IEntityManager emanager,EntityOrderContainer order) {
             this.order = order;
             this.manager = manager;
             this.emanager = emanager;
             Tag =tag;
            
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">Only certain type, not base or interface</typeparam>
+        /// <returns></returns>
         public T GetComponent<T>() where T : IGraphicComponent {
             return manager.GetComponent<T>(Tag);
-        }
-        public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent {
-            return manager.GetComponents<T>(Tag);
         }
         public IEnumerable<IGraphicComponent> GetComponents(params Type[] types) {
             return manager.GetComponents(Tag, types);
         }
-
+        public IEnumerable<IGraphicComponent> GetComponents() {
+            return manager.GetComponents(Tag);
+        }
         public T GetOrCreateComponent<T>(T newone) where T : IGraphicComponent {
             return manager.GetOrCreateComponent<T>(Tag, newone);
         }
-
         public bool TryGetComponent<TComponent>(out TComponent component) where TComponent : IGraphicComponent {
-            return manager.TryGet(Tag, out component);
+            return manager.TryGetComponent(Tag, out component);
         }
-        public bool TryGetComponent<TComponent1, TComponent2>(out TComponent1 component1, out TComponent2 component2)
-            where TComponent1 : IGraphicComponent
-            where TComponent2 : IGraphicComponent {
-            return manager.TryGet(Tag, out component1, out component2);
+        public bool TryGetComponents<T1, T2>(out T1 c1, out T2 c2)
+           where T1 : IGraphicComponent
+           where T2 : IGraphicComponent {
+            c2 = default;
+            return manager.TryGetComponent(Tag, out c1)
+                && manager.TryGetComponent(Tag, out c2);
         }
-
+        public bool TryGetComponents<T1, T2, T3>(out T1 c1, out T2 c2, out T3 c3)
+        where T1 : IGraphicComponent
+        where T2 : IGraphicComponent
+        where T3 : IGraphicComponent {
+            c2 = default;
+            c3 = default;
+            return manager.TryGetComponent(Tag, out c1) 
+                && manager.TryGetComponent(Tag, out c2) 
+                && manager.TryGetComponent(Tag, out c3);
+        }
 
         public GraphicEntity AddComponent<T>(T component) where T : IGraphicComponent {
             manager.AddComponent(Tag, component);
             return this;
         }
-        public GraphicEntity AddComponents(params IGraphicComponent[] components){
-            manager.AddComponents(Tag, components);
+        public GraphicEntity RemoveComponent<T>() where T : IGraphicComponent {
+            manager.RemoveComponent<T>(Tag);
             return this;
         }
-        public GraphicEntity AddComponents(IEnumerable<IGraphicComponent> components) {
-            manager.AddComponents(Tag, components);
+        public GraphicEntity RemoveComponents<T1, T2>() where T1 : IGraphicComponent where T2 : IGraphicComponent {
+            manager.RemoveComponent<T1>(Tag);
+            manager.RemoveComponent<T2>(Tag);
             return this;
         }
-        public void RemoveComponent(IGraphicComponent component) {
-            manager.RemoveComponent(Tag, component);            
+        public void UpdateComponent<T>(T com) where T : IGraphicComponent {
+            manager.UpdateComponents(Tag, com);
         }
 
-        public void Remove() {
-            emanager.RemoveEntity(Tag);
-        }
-
-        public void RemoveComponents<T>() where T : IGraphicComponent {
-            manager.RemoveComponents<T>(Tag);
-        }
-        public void RemoveComponentsOfType<TCom>() where TCom : IGraphicComponent {
-            foreach (var component in manager.GetComponents<TCom>(Tag)) {
-                manager.RemoveComponent(Tag, component);
-            }
-        }
-        public void RemoveComponents(params IGraphicComponent[] components) {
-            manager.RemoveComponents(Tag, components);
-        }
-
-        public bool Has(params Type[] types) {
+        public bool Contains(params Type[] types) {
             return manager.HasEntityContained(Tag, types);
         }
         public bool Contains<T>() where T : IGraphicComponent {
             return manager.HasEntityContained<T>(Tag);
-        }
-        public IEnumerable<IGraphicComponent> GetComponents() {
-            return manager.GetComponents(Tag);
         }
 
         public int GetOrderIndex<TSys>()
@@ -175,8 +128,8 @@ namespace D3DLab.ECS {
             return order.Get<TSys>(Tag);
         }
 
-        public void UpdateComponent<T>(T com) where T : IGraphicComponent {
-            manager.UpdateComponents(Tag, com);
+        public void Remove() {
+            emanager.RemoveEntity(Tag);
         }
 
         public bool IsDestroyed => !emanager.IsExisted(Tag);
@@ -185,9 +138,11 @@ namespace D3DLab.ECS {
             return $"Entity[{Tag}]";
         }
     }
+
     public class OrderSystemContainer : Dictionary<Type, int> {
 
     }
+
     public class EntityOrderContainer {
         readonly Dictionary<ElementTag, OrderSystemContainer> componentOrderIndex;
         readonly Dictionary<Type, int> systemsOrder;

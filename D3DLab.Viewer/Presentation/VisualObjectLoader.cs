@@ -36,10 +36,9 @@ namespace D3DLab.Viewer.Presentation {
                         var meshes = builder.Build();
                         var box = AxisAlignedBox.CreateFrom(parser.GeometryCache.PositionsCache.AsReadOnly());
                         var center = box.Center;
-                        var move = MovingComponent.CreateTranslation(Vector3.Zero - center);
 
                         var loaded = LoadedVisualObject.Create(scene.Context, meshes, material, f.Name);
-                        loaded.UpdateComponent(scene.Context.GetEntityManager(), move);
+                        loaded.Move(scene.Context.GetEntityManager(), Matrix4x4.CreateTranslation(Vector3.Zero - center));
 
                         loads.Add(loaded);
 

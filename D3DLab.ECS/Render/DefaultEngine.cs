@@ -43,7 +43,7 @@ namespace D3DLab.ECS.Render {
             WorldTag = new ElementTag("World");
             context.GetEntityManager()
                 .CreateEntity(WorldTag)
-                .AddComponents(new PerfomanceComponent());
+                .AddComponent(new PerfomanceComponent());
 
             CameraTag = new ElementTag("Camera");
             context.GetEntityManager()

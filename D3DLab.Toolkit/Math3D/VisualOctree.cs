@@ -1,4 +1,7 @@
-﻿using System;
+﻿using D3DLab.ECS;
+using D3DLab.Toolkit.D3Objects;
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -15,12 +18,13 @@ namespace D3DLab.Toolkit.Math3D {
     public class VisualOctree<T> {
         readonly OctreeNode<T> root;
         readonly Dictionary<T, OctreeItem<T>> items;
-
+        readonly List<VisualPolylineObject> drawedDebug;
         public AxisAlignedBox Bounds { get { return root.Bounds; } }
 
         public VisualOctree(AxisAlignedBox box, int MaximumChildren) {
             root = OctreeNode<T>.CreateRoot(ref box, MaximumChildren);
             items = new Dictionary<T, OctreeItem<T>>();
+            drawedDebug = new List<VisualPolylineObject>();
         }
 
         public bool Add(AxisAlignedBox box, T item) {
@@ -72,11 +76,15 @@ namespace D3DLab.Toolkit.Math3D {
         }
 
 
-        public void Draw() {
-            //Application.Current.Dispatcher.InvokeAsync(() => {
-            //    Debug3DEx.Clear();
-            //    root.Draw();
-            //});
+        public void Draw(IContextState context) {
+            ClearDrew(context);            
+            root.Draw(context, drawedDebug);
+        }
+        public void ClearDrew(IContextState context) {
+            foreach (var b in drawedDebug) {
+                b.Cleanup(context.GetEntityManager());
+            }
+            drawedDebug.Clear();
         }
     }
 
@@ -172,7 +180,8 @@ namespace D3DLab.Toolkit.Math3D {
         void Add(OctreeItem<T> item) {
             var box = item.Bound;
             if (!Add(ref box, item)) {
-                //items.Add(item);
+                //if can't add to any small boxes will add in parent box
+                items.Add(item);
             }
         }
 
@@ -232,18 +241,19 @@ namespace D3DLab.Toolkit.Math3D {
             }
         }
 
-
-        public void Draw() {
-            //if (IsLeaf()) {
-            //    Bounds.DrawBox();
-            //} else {
-            //    for (int i = 0; i < Nodes.Length; i++) {
-            //        Nodes[i].Draw();
-            //    }
-            //}
-            //foreach (var i in items) {
-            //    i.Bound.DrawBox(global::SharpDX.Color.Beige);
-            //}
+        public void Draw(IContextState context, List<VisualPolylineObject> drawed) {
+            if (IsLeaf()) {
+                drawed.Add(VisualPolylineObject.CreateBox(context, ElementTag.New(),
+                    Bounds, V4Colors.Yellow));
+            } else {
+                for (int i = 0; i < Nodes.Length; i++) {
+                    Nodes[i].Draw(context, drawed);
+                }
+            }
+            foreach (var i in items) {
+                drawed.Add(VisualPolylineObject.CreateBox(context, ElementTag.New("DEBUG_BOX_"),
+                     i.Bound, V4Colors.Blue));
+            }
         }
 
         public void Remove(OctreeItem<T> item) {

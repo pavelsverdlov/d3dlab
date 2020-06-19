@@ -9,8 +9,12 @@ using D3DLab.SDX.Engine.Rendering;
 using D3DLab.SDX.Engine.Shader;
 using D3DLab.Toolkit._CommonShaders;
 using D3DLab.Toolkit.Components;
+
 using SharpDX.D3DCompiler;
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,7 +23,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace D3DLab.Toolkit.Techniques.TriangleColored {
-    public class TriangleColoredVertexRenderTechnique<TProperties> : 
+    public class TriangleColoredVertexRenderTechnique<TProperties> :
         NestedRenderTechniqueSystem<TProperties>, IRenderTechnique<TProperties>, IGraphicSystemContextDependent
         where TProperties : IToolkitFrameProperties {
         const string path = @"D3DLab.Toolkit.Techniques.TriangleColored.colored_vertex.hlsl";
@@ -44,9 +48,9 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
             public static readonly int Size = Unsafe.SizeOf<Vertex>();
         }
 
-	public IEnumerable<IRenderTechniquePass> GetPass() => new[] { pass, flatShadingPass, wireframePass };
+        public IEnumerable<IRenderTechniquePass> GetPass() => new[] { pass, flatShadingPass, wireframePass };
 
-        public TriangleColoredVertexRenderTechnique(){
+        public TriangleColoredVertexRenderTechnique() {
 
             layconst = new VertexLayoutConstructor(Vertex.Size)
                .AddPositionElementAsVector3()
@@ -181,7 +185,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
 
             var renderable = en.GetComponent<RenderableComponent>();
             var color = en.GetComponent<MaterialColorComponent>();
-            var transform = en.GetComponent<TransformComponent>();
+            
 
             var geo = ContextState.GetGeometryPool().GetGeometry<IGeometryData>(en);
 
@@ -220,11 +224,20 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
                 }
             }
 
+            var topology = renderable.PrimitiveTopology;
+
             if (geo.IsModified || (!render.VertexBuffer.HasValue && !render.IndexBuffer.HasValue)) {
-                var vertex = new Vertex[geo.Positions.Length];
-                for (var index = 0; index < vertex.Length; index++) {
-                    vertex[index] = new Vertex(geo.Positions[index], geo.Normals[index]);
-                }
+                Vertex[] vertex= null;
+                switch (geo.Topology) {
+                    case GeometryPrimitiveTopologies.TriangleList:
+                        topology = PrimitiveTopology.TriangleList;
+                        vertex = new Vertex[geo.Positions.Length];
+                        for (var index = 0; index < vertex.Length; index++) {
+                            vertex[index] = new Vertex(geo.Positions[index], geo.Normals[index]);
+                        }
+                        break;
+
+                }              
 
                 render.VertexBuffer.Set(graphics.CreateBuffer(BindFlags.VertexBuffer, vertex));
                 render.IndexBuffer.Set(graphics.CreateBuffer(BindFlags.IndexBuffer, geo.Indices.ToArray()));
@@ -247,7 +260,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
                 }
             }
 
-            ApplyTransformWorldBufferToRenderComp(graphics, render, transform);
+            UppdateTransformWorld(graphics, render, en);
 
             if (!render.TransformWorldBuffer.HasValue) {
                 throw RenderTechniqueException.NoWorldTransformBuffers;
@@ -269,7 +282,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
                 context.InputAssembler.SetIndexBuffer(render.IndexBuffer.Get(), SharpDX.DXGI.Format.R32_UInt, 0);
 
                 context.InputAssembler.InputLayout = inputLayout.Get();
-                context.InputAssembler.PrimitiveTopology = renderable.PrimitiveTopology;
+                context.InputAssembler.PrimitiveTopology = topology;
 
                 context.OutputMerger.SetDepthStencilState(render.DepthStencilState.Get(), 0);
                 context.OutputMerger.SetBlendState(render.BlendingState.Get(),
@@ -295,7 +308,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
                 && ren.IsValid
                 && ren.Technique == RenderTechniques.TriangleColored
-                && entity.Has(
+                && entity.Contains(
                     typeof(GeometryPoolComponent),
                     typeof(TransformComponent),
                     typeof(MaterialColorComponent));

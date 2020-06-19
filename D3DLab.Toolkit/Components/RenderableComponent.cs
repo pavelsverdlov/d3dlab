@@ -116,7 +116,6 @@ namespace D3DLab.Toolkit.Components {
 
         public ElementTag Tag { get; private set; }
         public ElementTag EntityTag { get; set; }
-        public bool IsModified { get; set; }
         public bool IsValid { get; private set; }
         public bool IsDisposed { get; private set; }
 

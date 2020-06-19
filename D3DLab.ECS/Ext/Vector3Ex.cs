@@ -51,10 +51,10 @@ namespace D3DLab.ECS.Ext {
         }
         
 
-        public static Vector3 TransformedNormal(this Vector3 vector, Matrix4x4 matrix) {
+        public static Vector3 TransformedNormal(this Vector3 vector, in Matrix4x4 matrix) {
             return Vector3.TransformNormal(vector, matrix);
         }
-        public static Vector3 TransformedCoordinate(this Vector3 vector, Matrix4x4 matrix) {
+        public static Vector3 TransformedCoordinate(this Vector3 vector, in Matrix4x4 matrix) {
             return Vector3.Transform(vector, matrix);
         }
 
@@ -62,7 +62,7 @@ namespace D3DLab.ECS.Ext {
         public static Matrix4x4 RotationAround(this Vector3 axis, float angleRadians) {
             return Matrix4x4.CreateFromAxisAngle(axis, angleRadians);
         }
-        public static Matrix4x4 RotationAround(this Vector3 axis, float angle, Vector3 center) {
+        public static Matrix4x4 RotationAround(this Vector3 axis, float angle, in Vector3 center) {
             var m1 = Matrix4x4.CreateTranslation(center * -1f);
             var m2 = axis.RotationAround(angle);
             var m3 = Matrix4x4.CreateTranslation(center);

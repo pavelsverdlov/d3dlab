@@ -16,7 +16,7 @@ namespace D3DLab.Toolkit.Input.Commands.Camera {
         }
 
         public bool Execute(ISceneSnapshot snapshot, IContextState context) {
-            var p1 = InputState.ButtonsStates[GeneralMouseButtons.Middle].PointV2;
+            var p1 = InputState.ButtonsStates[GeneralMouseButtons.Left].PointV2;
 
             var manager = context.GetEntityManager();
             var camera = manager.GetEntity(snapshot.CurrentCameraTag);

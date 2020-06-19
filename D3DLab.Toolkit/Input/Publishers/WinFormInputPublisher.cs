@@ -73,7 +73,17 @@ namespace D3DLab.Toolkit.Input.Publishers {
         }
 
         private void OnMouseDoubleClick(object sender, MouseEventArgs e) {
+            var btn = GetMouseButton(e.Button);
+            state.Buttons |= btn;
 
+            var bs = new ButtonsState {
+                CursorPoint = Cursor.Position.ToWindowPoint(),
+                PointV2 = control.PointToClient(Cursor.Position).ToNumericsV2(),
+                Condition = ButtonStates.Pressed,
+            };
+
+            state.ButtonsStates[btn] = bs;
+            InvokeSubscribers((s, ev) => s.OnMouseDoubleDown(ev));
         }
 
         private void OnMouseWheel(object sender, MouseEventArgs e) {

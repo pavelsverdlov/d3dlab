@@ -125,7 +125,6 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
             
             var renderable = en.GetComponent<RenderableComponent>();
             var geo = ContextState.GetGeometryPool().GetGeometry<IGeometryData>(en);
-            var transform = en.GetComponent<TransformComponent>();
             //optional
             var hasColor = en.TryGetComponent<MaterialColorComponent>(out var color);
             var hasTexture = en.TryGetComponent<D3DTexturedMaterialSamplerComponent>(out var texture);
@@ -139,7 +138,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
                 render.BlendingState.Set(new BlendState(graphics.D3DDevice, renderable.BlendStateDescription));
             }
 
-            ApplyTransformWorldBufferToRenderComp(graphics, render, transform);
+            UppdateTransformWorld(graphics, render, en);
 
             if (geo.IsModified) {
                 var vertex = new Vertex[geo.Positions.Length];
@@ -218,7 +217,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
                 && ren.IsValid
                 && ren.Technique == RenderTechniques.TriangleTextured
-                && entity.Has(
+                && entity.Contains(
                     typeof(GeometryPoolComponent),
                     typeof(TransformComponent));
         }

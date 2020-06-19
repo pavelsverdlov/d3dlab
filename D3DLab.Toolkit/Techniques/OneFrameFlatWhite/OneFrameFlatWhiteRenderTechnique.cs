@@ -172,7 +172,7 @@ namespace D3DLab.Toolkit.Techniques.BlackAndWhite {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
                 && ren.IsValid
                 && ren.Technique == RenderTechniques.OneFrameFlatWhite
-                && entity.Has(
+                && entity.Contains(
                     typeof(BlackAndWhiteRenderComponent), 
                     typeof(TransformComponent));
         }

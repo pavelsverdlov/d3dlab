@@ -14,7 +14,7 @@ namespace D3DLab.ECS.Filter {
         }
 
         public bool HasComponents(GraphicEntity entity) {
-            return entity.Has(types);
+            return entity.Contains(types);
         }
     }
 }

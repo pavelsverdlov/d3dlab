@@ -7,6 +7,7 @@ using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.D2;
 using D3DLab.SDX.Engine.Shader;
 using SharpDX.D3DCompiler;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
@@ -54,7 +55,9 @@ namespace D3DLab.SDX.Engine.Rendering {
         public void Cleanup() {
             entities.Clear();
         }
-
+        protected ShaderResourceView ConvertToResource(System.Drawing.Bitmap btm, TextureLoader loader) {
+            return loader.LoadBitmapShaderResource(btm);
+        }
 
         protected ShaderResourceView[] ConvertToResources(TexturedMaterialComponent material, TextureLoader loader) {
             var resources = new ShaderResourceView[material.Images.Length];

@@ -17,13 +17,15 @@ namespace D3DLab.Toolkit._CommonShaders {
                       Matrix4x4.Transpose(state.ViewMatrix),
                       Matrix4x4.Transpose(state.ProjectionMatrix),
                       state.LookDirection,
+                      state.UpDirection,
                       state.Position,
                       size);
         }
 
         public const int RegisterResourceSlot = 0;
 
-        public readonly Vector4 LookDirection;
+        public readonly Vector4 CameraLook;
+        public readonly Vector4 CameraUp;
         public readonly Vector4 CameraPosition;
         /// <summary>
         /// [w,h,1/w,1/h]
@@ -35,10 +37,11 @@ namespace D3DLab.Toolkit._CommonShaders {
 
         //  
 
-        public GameStructBuffer(Matrix4x4 view, Matrix4x4 proj, Vector3 lookDirection, Vector3 pos, SurfaceSize size) {
+        public GameStructBuffer(Matrix4x4 view, Matrix4x4 proj, Vector3 lookDirection, Vector3 up, Vector3 pos, SurfaceSize size) {
             View = view;
             Projection = proj;
-            LookDirection = new Vector4(lookDirection, 0);// Matrix4x4.Identity ;// lookDirection;
+            CameraLook = new Vector4(lookDirection, 0);// Matrix4x4.Identity ;// lookDirection;
+            CameraUp = new Vector4(up, 0);
             CameraPosition = new Vector4(pos, 1);
             Viewport = new Vector4(size.Width, size.Height, 1f / size.Width, 1f / size.Height);
         }

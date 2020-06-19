@@ -25,6 +25,7 @@ namespace D3DLab.SDX.Engine.Rendering {
         const Format UInt4 = Format.R32G32B32A32_UInt;
 
         int textcoorCount = 0;
+        int colorsCount = 0;
 
         readonly List<InputElement> elements;
 
@@ -76,11 +77,13 @@ namespace D3DLab.SDX.Engine.Rendering {
         }
 
         public VertexLayoutConstructor AddColorElementAsVector4() {
-            elements.Add(new InputElement(SemanticColorName, 0, Vector4, GetOffset(), 0, perverxdata, 0));
+            elements.Add(new InputElement(SemanticColorName, colorsCount, Vector4, GetOffset(), 0, perverxdata, 0));
+            colorsCount++;
             return this;
         }
         public VertexLayoutConstructor AddColorElementAsVector3() { //can be Format.R8G8B8A8_UNorm
-            elements.Add(new InputElement(SemanticColorName, 0, Vector3, GetOffset(), 0, perverxdata, 0));
+            elements.Add(new InputElement(SemanticColorName, colorsCount, Vector3, GetOffset(), 0, perverxdata, 0));
+            colorsCount++;
             return this;
         }
 

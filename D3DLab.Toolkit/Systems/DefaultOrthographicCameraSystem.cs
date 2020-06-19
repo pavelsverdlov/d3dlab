@@ -61,7 +61,7 @@ namespace D3DLab.Toolkit.Systems {
                 if (needRemove) {
                     //need to remove zoom com. manually because WinForm pushs many mouse wheel commands for one user scroll 
                     //also remove for all, there is no garantee to get mouse up
-                    entity.RemoveComponent(movement);
+                    entity.RemoveComponent<CameraMovementComponent>();
                 }
             }
 
@@ -87,10 +87,6 @@ namespace D3DLab.Toolkit.Systems {
 
             var cursorPosition = snapshot.InputSnapshot.CurrentInputState.ButtonsStates[GeneralMouseButtons.Right]
                 .CursorPoint.ToDrawingPoint();
-            if (cursorPosition != System.Drawing.Point.Empty) {
-                //TODO:
-                //Cursor.Position = snapshot.InputSnapshot.CurrentInputState.ButtonsStates[GeneralMouseButtons.Right].CursorPoint.ToDrawingPoint();
-            }
 
             var rotateAround = camera.RotatePoint;
             var delta = data.End - data.Begin;
@@ -154,7 +150,7 @@ namespace D3DLab.Toolkit.Systems {
             OrthographicCameraComponent camera, ref CameraMovementComponent component) {
             var world = ContextState.GetEntityManager().GetEntity(snapshot.WorldTag);
 
-            if (world.TryGetComponent(
+            if (world.TryGetComponents(
                     out CaptureTargetUnderMouseComponent capture,
                     out CollidedWithEntityByRayComponent collided)) {
 
@@ -170,7 +166,7 @@ namespace D3DLab.Toolkit.Systems {
                 var panVector = left * projectionMove.X + up * projectionMove.Y;
                 changed.Position += -panVector;
 
-                world.RemoveComponents(capture, collided);
+                world.RemoveComponents<CaptureTargetUnderMouseComponent, CollidedWithEntityByRayComponent>();
 
                 camera = changed;
             }

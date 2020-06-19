@@ -23,6 +23,8 @@ namespace D3DLab.Toolkit.D3Objects {
             en.UpdateComponent(en.GetComponent<RenderableComponent>().Enable());
         }
 
+        public virtual GraphicEntity GetEntity(IEntityManager manager) => manager.GetEntity(Tag);
+
         public void LookAtSelf(IEntityManager manager) {
             //var entity = manager.GetEntity(Tag);
             //var geos = entity.GetComponents<IGeometryComponent>();

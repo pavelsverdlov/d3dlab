@@ -32,11 +32,10 @@ namespace D3DLab.Toolkit.D3Objects {
 
             manager
                .CreateEntity(tag)
-               .AddComponents(
-                    geo,
-                    TransformComponent.Identity(),
-                    ColorComponent.CreateDiffuse(color),
-                    RenderableComponent.AsLineList());
+               .AddComponent(geo)
+               .AddComponent(TransformComponent.Identity())
+               .AddComponent(ColorComponent.CreateDiffuse(color))
+               .AddComponent(RenderableComponent.AsLineList());
 
 
             return new PolylineGameObject(tag);

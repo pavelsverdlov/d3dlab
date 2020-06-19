@@ -20,7 +20,7 @@ namespace D3DLab.ECS {
         IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate);
         bool IsExisted(ElementTag tag);
 
-        void SetFilter(Func<ElementTag, bool> predicate);
+       // void SetFilter(Func<ElementTag, bool> predicate);
         void Dispose();
 
         void RemoveEntity(ElementTag elementTag);

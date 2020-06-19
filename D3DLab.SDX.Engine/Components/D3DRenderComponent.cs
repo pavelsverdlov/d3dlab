@@ -20,7 +20,6 @@ namespace D3DLab.SDX.Engine.Components {
         /// </remarks>
         public D3DRasterizerState RasterizerStateDescription { get; set; }
 
-        public DepthStencilStateDescription? DepthStencilStateDescription { get; set; }
         public PrimitiveTopology PrimitiveTopology { get; set; }
 
         [IgnoreDebuging]

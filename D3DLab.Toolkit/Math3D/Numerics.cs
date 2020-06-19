@@ -2,6 +2,7 @@
 using g3;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace System.Numerics {
@@ -59,6 +60,15 @@ namespace System.Numerics {
             Diagonal = Dimensions.Length();
             boxf = new AxisAlignedBox3f(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
             boxd = boxf;
+        }
+        internal AxisAlignedBox(AxisAlignedBox3d box3d) {
+            Minimum = box3d.Min.ToVector3();
+            Maximum = box3d.Max.ToVector3();
+            boxf = new AxisAlignedBox3f(Minimum.X, Minimum.Y, Minimum.Z, Maximum.X, Maximum.Y, Maximum.Z);
+            boxd = box3d;
+            Center = box3d.Center.ToVector3();
+            Dimensions = Maximum - Minimum;
+            Diagonal = Dimensions.Length();
         }
 
         //public bool Contains(ref Vector3 p) {
@@ -145,11 +155,11 @@ namespace System.Numerics {
         }
 
 
-        public static unsafe AxisAlignedBox CreateFrom(Vector3[] vertices) {
+        public static unsafe AxisAlignedBox CreateFrom(IReadOnlyList<Vector3> vertices) {
             Vector3 min = vertices[0];
             Vector3 max = vertices[0];
 
-            for (int i = 1; i < vertices.Length; i++) {
+            for (int i = 1; i < vertices.Count; i++) {
                 Vector3 pos = vertices[i];
 
                 if (min.X > pos.X) min.X = pos.X;

@@ -11,9 +11,11 @@ namespace D3DLab.ECS {
     /// </remarks>
     public interface IGraphicComponent : IDisposable {
         ElementTag Tag { get; }
+        /// <summary>
+        /// Important flag, set true if the component is valid
+        /// otherwise, it will treat as invalid it means can't be updated correctly
+        /// </summary>
         bool IsValid { get; }
-        bool IsModified { get; }
-        bool IsDisposed { get; }
     }
 
     public interface IFlyweightGraphicComponent : IDisposable {

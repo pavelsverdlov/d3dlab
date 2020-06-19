@@ -2,80 +2,84 @@
 using D3DLab.ECS.Components;
 using D3DLab.Toolkit.Components;
 using D3DLab.Toolkit.Math3D;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace D3DLab.Toolkit {
     public class OctreeManager : VisualOctree<ElementTag>,
-        IManagerChangeSubscriber<IGraphicComponent>,
+        IManagerChangeSubscriber<GeometryPoolComponent>,
+        IManagerChangeSubscriber<TransformComponent>,
+        IManagerChangeSubscriber<HittableComponent>,
+        IManagerChangeSubscriber<GraphicEntity>,
         IOctreeManager {
+
         struct SyncData {
             public AxisAlignedBox Box;
             public ElementTag EntityTag;
         }
 
         readonly IContextState context;
-        protected bool isActualStateDrawed;
+        public bool IsDrawingBoxesEnable { get; private set; }
         readonly SynchronizationContext<OctreeManager, SyncData> sync;
         readonly object loker;
-
+        readonly Task drawerTask;
         public OctreeManager(IContextState context, AxisAlignedBox box, int MaximumChildren) : base(box, MaximumChildren) {
             this.context = context;
-            isActualStateDrawed = false;
+            IsDrawingBoxesEnable = false;
             loker = new object();
             sync = new SynchronizationContext<OctreeManager, SyncData>(this);
+            drawerTask = Task.CompletedTask;
         }
 
-        public void Remove(in IGraphicComponent com) {
-            var entity = context.GetEntityManager().GetEntityOf(com);
-            if (!entity.Contains<HittableComponent>()) {
-                return;
+        #region Subscribers
+
+        public void Add(in TransformComponent tr) {
+            var entity = context.GetEntityManager().GetEntityOf(tr);
+            if (entity.TryGetComponents<GeometryPoolComponent, HittableComponent>(out var geo, out var _)) {
+                Add(entity, tr, geo);
             }
-            switch (com) {
-                case HittableComponent h:
-                    this.Remove(entity.Tag);
-                    break;
-                case TransformComponent tr:
-                    if (!entity.Contains<GeometryPoolComponent>()) {
-                        this.Remove(entity.Tag);
-                    }
-                    break;
-                case GeometryPoolComponent geo:
-                    if (!entity.Contains<TransformComponent>()) {
-                        this.Remove(entity.Tag);
-                    }
-                    break;
+        }
+        public void Add(in HittableComponent com) {
+            var entity = context.GetEntityManager().GetEntityOf(com);
+            if (entity.TryGetComponents<TransformComponent, GeometryPoolComponent>(out var tr, out var geo)) {
+                Add(entity, tr, geo);
+            }
+        }
+        public void Add(in GeometryPoolComponent geo) {
+            var entity = context.GetEntityManager().GetEntityOf(geo);
+            if (entity.TryGetComponents<TransformComponent, HittableComponent>(out var tr, out var _)) {
+                Add(entity, tr, geo);
             }
         }
 
-        public void Add(in IGraphicComponent com) {
-            var manager = context.GetComponentManager();
+        public void Remove(in HittableComponent com) {
             var entity = context.GetEntityManager().GetEntityOf(com);
-            if (!entity.Contains<HittableComponent>()) {
-                return;
-            }
+            this.Remove(entity.Tag);
+        }
+        public void Remove(in TransformComponent com) {
+            //var entity = context.GetEntityManager().GetEntityOf(com);
+            //this.Remove(entity.Tag);
+        }
+        public void Remove(in GeometryPoolComponent com) {
+            //var entity = context.GetEntityManager().GetEntityOf(com);
+            //this.Remove(entity.Tag);
+        }
 
-            TransformComponent tr;
-            GeometryPoolComponent geo;
-            switch (com) {
-                case TransformComponent trcom:
-                    if (!entity.TryGetComponent(out geo)) {
-                        return;
-                    }
-                    tr = trcom;
-                    break;
-                case GeometryPoolComponent geocom:
-                    if (!entity.TryGetComponent( out tr)) {
-                        return;
-                    }
-                    geo = geocom;
-                    break;
-                default:
-                    return;
+        public void Add(in GraphicEntity obj) { }
+        public void Remove(in GraphicEntity obj) {
+            if (obj.Contains<HittableComponent>()) {
+                TryRemove(obj.Tag);
             }
+        }
+
+        #endregion
+
+        void Add(GraphicEntity entity, in TransformComponent tr, in GeometryPoolComponent geo) {
             var enTag = entity.Tag;
 
             if (!geo.IsValid) {
@@ -87,13 +91,20 @@ namespace D3DLab.Toolkit {
             var box = bounds.Bounds.Transform(tr.MatrixWorld);
 
             sync.Add((_this, data) => {
+                _this.TryRemove(data.EntityTag);
                 _this.Add(data.Box, data.EntityTag);
             }, new SyncData { Box = box, EntityTag = enTag });
-
         }
 
         public void Synchronize(int theadId) {
+            var changed = sync.IsChanged;
             sync.Synchronize(theadId);
+
+            if (changed && IsDrawingBoxesEnable) {
+                drawerTask.ContinueWith(_ => {
+                    this.Draw(context);
+                });
+            }
         }
 
         public IEnumerable<ElementTag> GetColliding(ref Ray ray, Func<ElementTag, bool> predicate) {
@@ -103,5 +114,20 @@ namespace D3DLab.Toolkit {
         public void Dispose() {
             Clear();
         }
+
+        public void EnableDrawingBoxes() {
+            IsDrawingBoxesEnable = true;
+            drawerTask.ContinueWith(_ => {
+                this.Draw(context);
+            });
+        }
+        public void DisableDrawingBoxes() {
+            IsDrawingBoxesEnable = false;
+            drawerTask.ContinueWith(_ => {
+                ClearDrew(context);
+            });
+        }
+
+
     }
 }

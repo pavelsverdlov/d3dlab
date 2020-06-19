@@ -1,35 +1,33 @@
 ﻿using D3DLab.ECS;
+
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 
 namespace D3DLab.ECS {
     public sealed class EntityComponentManager : IEntityManager, IComponentManager {
 
         #region IEntityManager
-
-        readonly HashSet<ElementTag> entities = new HashSet<ElementTag>();
-        Func<ElementTag, bool> predicate = x => true;
-        readonly IManagerChangeNotify notify;
-
         public GraphicEntity CreateEntity(ElementTag tag) {
             var en = _CreateEntity(tag);
 
             entitySynchronizer.Add((owner, input) => {
-                owner.entities.Add(tag);
+                // owner.entities.Add(tag);
+                this.entities.Add(input.Tag, new Dictionary<Type, ElementTag>());
                 owner.notify.NotifyAdd(input);
-                owner.components.Add(input.Tag, new Dictionary<ElementTag, IGraphicComponent>());
-                entityHas.Add(input.Tag, new HashSet<Type>());
+                // owner.components.Add(input.Tag, new Dictionary<Type, IGraphicComponent>());
+
             }, en);
 
             return en;
         }
-
         public void RemoveEntity(ElementTag elementTag) {
             entitySynchronizer.Add((owner, input) => {
-                if (owner.entities.Contains(elementTag)) {
+                if (owner.entities.ContainsKey(elementTag)) {
                     var entity = _CreateEntity(elementTag);
-                    
+
                     notify.NotifyRemove(entity);
 
                     foreach (var component in owner.GetComponents(entity.Tag)) {
@@ -37,26 +35,21 @@ namespace D3DLab.ECS {
                     }
                     owner.entities.Remove(entity.Tag);
                     owner.components.Remove(entity.Tag);
-                    entityHas.Remove(entity.Tag);
-
+                    //this.entities.Remove(entity.Tag);
                     //notify.NotifyChange(entity);
                 }
-            }, null);
+            }, default);
         }
-
         public IEnumerable<GraphicEntity> GetEntities() {
-            return entities.Where(predicate).Select(_CreateEntity);
+            return entities.Keys.Select(_CreateEntity);
         }
         public GraphicEntity GetEntity(ElementTag tag) {
-            if (!entities.Contains(tag)) {
-                return GraphicEntity.Empty();
-                //throw new Exception($"There is no {tag} ");
-            }
             return new GraphicEntity(tag, this, this, orderContainer);
         }
         public GraphicEntity GetEntityOf<T>(T com) where T : IGraphicComponent {
-            foreach(var en in components) {
-                if (en.Value.ContainsKey(com.Tag)) {
+            var typec = typeof(T);
+            foreach (var en in entities) {
+                if (en.Value.TryGetValue(typec, out var tag) && tag == com.Tag) {
                     return new GraphicEntity(en.Key, this, this, orderContainer);
                 }
             }
@@ -64,7 +57,7 @@ namespace D3DLab.ECS {
         }
         public IEnumerable<GraphicEntity> GetEntity(Func<GraphicEntity, bool> predicate) {
             var res = new List<GraphicEntity>();
-            foreach (var tag in entities) {
+            foreach (var tag in entities.Keys) {
                 var en = _CreateEntity(tag);
                 if (predicate(en)) {
                     res.Add(en);
@@ -72,13 +65,8 @@ namespace D3DLab.ECS {
             }
             return res;
         }
-
-        public void SetFilter(Func<ElementTag, bool> predicate) {
-            this.predicate = predicate;
-        }
-
         public bool IsExisted(ElementTag tag) {
-            return entities.Contains(tag);
+            return entities.ContainsKey(tag);
         }
 
         GraphicEntity _CreateEntity(ElementTag tag) {
@@ -87,168 +75,140 @@ namespace D3DLab.ECS {
 
         #endregion
 
-        #region IComponentManager
+        #region IComponentManager        
 
-        readonly Dictionary<ElementTag, HashSet<Type>> entityHas = new Dictionary<ElementTag, HashSet<Type>>();
-        readonly Dictionary<ElementTag, Dictionary<ElementTag,IGraphicComponent>> components = new Dictionary<ElementTag, Dictionary<ElementTag, IGraphicComponent>>();
-        readonly Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>> flyweightComponents = new Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>>();
-        readonly EntityOrderContainer orderContainer;
-
-        public void AddComponents(ElementTag tagEntity, IEnumerable<IGraphicComponent> com) {
-            comSynchronizer.AddRange((owner, inp) => {
-                owner._AddComponent(tagEntity, inp);
-            }, com);
-        }
-        public T AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
-            comSynchronizer.Add((owner, inp) => {
-                owner._AddComponent(tagEntity, inp);
-            }, com);
-
-            return com;
-        }
-
-
-        public void RemoveComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
-            comSynchronizer.Add((owner, inp) => {
-                owner._RemoveComponent(tagEntity, inp);
-            }, com);
-        }
-        public void RemoveComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {
-            foreach (var com in GetComponents<T>(tagEntity).ToList()) {
-                comSynchronizer.Add((owner, c) => {
-                    owner._RemoveComponent(tagEntity, c);
-                }, com);
+        public IComponentManager AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
+            if (typeof(T) == typeof(IGraphicComponent)) {
+                throw new NotSupportedException("IGraphicComponent is incorrect type, must be the certain component type.");
             }
+            if (components.ContainsKey(com.Tag)) {
+                throw new NotSupportedException($"Component {typeof(T)} '{com.Tag}' is already belong to other Entity.");
+            }
+            comSynchronizer.Add((owner, inp) => owner._AddComponent(tagEntity, inp), com);
+
+            return this;
         }
-        public void RemoveComponents(ElementTag tagEntity, params IGraphicComponent[] components) {
-            comSynchronizer.AddRange((owner, inp) => {
-                owner._RemoveComponent(tagEntity, inp);
-            }, components);
+        public void RemoveComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
+            if (typeof(T) == typeof(IGraphicComponent)) {
+                throw new NotSupportedException("IGraphicComponent is incorrect type, must be the certain component type.");
+            }
+            comSynchronizer.Add<T>((owner, c) => {
+                var com = GetComponent<T>(tagEntity);
+                return owner._RemoveComponent(tagEntity, com);
+            }, default);
         }
 
 
         public T GetComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
-            return components[tagEntity].Values.OfType<T>().Single();
-        }
-        public IEnumerable<T> GetComponents<T>(ElementTag tagEntity) where T : IGraphicComponent {
-            return components[tagEntity].Values.OfType<T>();
+            if (!entities[tagEntity].TryGetValue(typeof(T), out var comTag)) {
+                return default;
+            }
+            return (T)components[comTag];
         }
         public IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity) {
-            if (!components.ContainsKey(tagEntity)) {
+            if (!entities.ContainsKey(tagEntity)) {
                 return new IGraphicComponent[0];
             }
-            return components[tagEntity].Values.ToArray();
+            return entities[tagEntity].Values.Select(tag => components[tag]).ToArray();
         }
         public IEnumerable<T> GetComponents<T>() where T : IGraphicComponent {
-            return components.Values.SelectMany(x=>x.Values).OfType<T>().ToArray();
+            return components.Values.OfType<T>().ToArray();
         }
-
-        public bool TryGet<TComponent>(ElementTag tagEntity, out TComponent component)
-            where TComponent : IGraphicComponent {
-            var com = components[tagEntity].Values.OfType<TComponent>();
-
-            if (!com.Any()) {
-                component = default;
-                return false;
-            }
-
-            component = com.Single();
-            return true;
-        }
-        public bool TryGet<T1, T2>(ElementTag tagEntity, out T1 c1, out T2 c2)
-           where T1 : IGraphicComponent
-           where T2 : IGraphicComponent {
-            c2 = default;
-            return TryGet(tagEntity, out c1) && TryGet(tagEntity, out c2);
-        }
-
-        public bool HasEntityOfComponentContained<T>(T com) where T : IGraphicComponent {
-            foreach (var en in components) {
-                if (en.Value.ContainsKey(com.Tag)) {
-                    return entityHas[en.Key].Contains(typeof(T));
+        public IEnumerable<IGraphicComponent> GetComponents(ElementTag entity, params Type[] types) {
+            var res = new List<IGraphicComponent>();
+            foreach (var t in types) {
+                if (entities[entity].TryGetValue(t, out var ctag)) {
+                    res.Add(components[ctag]);
                 }
             }
-            return false;
-        }
-        public bool HasEntityContained<T>(ElementTag entity) where T : IGraphicComponent {
-            return components[entity].Any(x => x.Value is T);
-        }
-        public bool HasEntityContained(ElementTag tag, params Type[] types) {
-            return types.All(type => entityHas[tag].Contains(type));
-        }
-        public IEnumerable<IGraphicComponent> GetComponents(ElementTag tag, params Type[] types) {
-            //TODO: temporary decision
-            return components[tag].Values.Where(x => types.Any(t => t == x.GetType()));
+            return res;
         }
         public T GetOrCreateComponent<T>(ElementTag tagEntity, T newone) where T : IGraphicComponent {
-            var any = GetComponents<T>(tagEntity);
-            if (any.Any()) {
-                return any.Single();
+            var any = GetComponent<T>(tagEntity);
+            if (any.IsValid && entities[tagEntity].ContainsKey(typeof(T))) {
+                return any;
             }
             AddComponent(tagEntity, newone);
             return newone;
         }
 
+        public bool TryGetComponent<TComponent>(ElementTag tagEntity, out TComponent component)
+            where TComponent : IGraphicComponent {
+            if (!entities[tagEntity].TryGetValue(typeof(TComponent), out var comTag)) {
+                component = default;
+                return false;
+            }
+
+            component = (TComponent)components[comTag];
+            return true;
+        }        
+
+        public bool HasEntityOfComponentContained<T>(T com) where T : IGraphicComponent {
+            var type = typeof(T);
+            foreach (var en in entities) {
+                if (en.Value.TryGetValue(type, out var tag) && tag == com.Tag) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool HasEntityContained<T>(ElementTag entity) where T : IGraphicComponent {
+            return entities[entity].ContainsKey(typeof(T));
+        }
+        public bool HasEntityContained(ElementTag entity, params Type[] types) {
+            return types.All(type => entities[entity].ContainsKey(type));
+        }
+
         public void UpdateComponents<T>(ElementTag tagEntity, T newComponent) where T : IGraphicComponent {
-            comSynchronizer.Add((owner, inp) => {
+            if (typeof(T) == typeof(IGraphicComponent)) {
+                throw new NotSupportedException("IGraphicComponent is incorrect type, must be the certain component type.");
+            }
+            if (components.ContainsKey(newComponent.Tag)) {
+                throw new NotSupportedException($"Component {typeof(T)} '{newComponent.Tag}' is already belong to other Entity.");
+            }
+            comSynchronizer.Add((owner, newCom) => {
+                var type = newCom.GetType();
                 //do not check IsValid OR IsDisposed because it is not important for removing 
-                var any = GetComponents<T>(tagEntity);
-                if (any.Any()) {
-                    var old = any.Single();
-                    var removed = components[tagEntity].Remove(old.Tag);
-                    old.Dispose();
-                    notify.NotifyRemove(old);
+                if (entities[tagEntity].TryGetValue(type, out var oldTag)) {
+                    components[oldTag].Dispose();
+                    var removed = components.Remove(oldTag);
+                    notify.NotifyRemove(oldTag);
+
+                    entities[tagEntity][type] = newCom.Tag;
                 } else {
                     //case: if it is updating not existed component
-                    entityHas[tagEntity].Add(newComponent.GetType());
+                    entities[tagEntity].Add(type, newCom.Tag);
                 }
+#if DEBUG
+                Debug.Assert(!components.ContainsKey(newCom.Tag));
+#endif
+                components.Add(newCom.Tag, newCom);
 
-                components[tagEntity].Add(newComponent.Tag, newComponent);
-
-                notify.NotifyAdd(newComponent);
+                notify.NotifyAdd(newCom);
+                return true;
             }, newComponent);
         }
 
-        //public T AddComponent(ElementTag tagEntity, T com) where T : IFlyweightGraphicComponent {
-        //    flyweightComSynchronizer.Add((owner, inp) => {
-        //        owner._AddComponent(tagEntity, inp);
-        //    }, com);
-        //    return com;
-        //}
-        //public void RemoveComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
-        //    flyweightComSynchronizer.Add((owner, inp) => {
-        //        owner._RemoveComponent(tagEntity, inp);
-        //    }, com);
-        //}
-        //void _AddComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
-        //    if (flyweightComponents.ContainsKey(com)) {
-        //        flyweightComponents[com].Add(tagEntity);
-        //    } else {
-        //        flyweightComponents.Add(com, new HashSet<ElementTag> { tagEntity });
-        //    }
-
-        //    entityHas[tagEntity].Add(com.GetType());
-        //    notify.NotifyAdd(ref com);
-        //}
-        //void _RemoveComponent(ElementTag tagEntity, IFlyweightGraphicComponent com) {
-        //    if (!flyweightComponents[com].Remove(tagEntity)) {
-        //        //no data to remove - dispose origin comp
-        //        com.Dispose();
-        //    }
-        //    entityHas[tagEntity].Remove(com.GetType());
-        //    notify.NotifyRemove(ref com);
-        //}
-
-        void _AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
-            components[tagEntity].Add(com.Tag, com);
-            entityHas[tagEntity].Add(com.GetType());
+        bool _AddComponent<T>(in ElementTag tagEntity, in T com) where T : IGraphicComponent {
+            if (!entities.ContainsKey(tagEntity)) {
+                return false;
+            }
+            var type = typeof(T);
+            components.Add(com.Tag, com);
+            entities[tagEntity].Add(type, com.Tag);
             notify.NotifyAdd(com);
+            return true;
         }
-        void _RemoveComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
-            var removed = components[tagEntity].Remove(com.Tag);
-            removed = entityHas[tagEntity].Remove(com.GetType());
+        bool _RemoveComponent<T>(in ElementTag tagEntity, in T com) where T : IGraphicComponent {
+            if (!entities.ContainsKey(tagEntity)) {
+                return false;
+            }
+            var type = typeof(T);
+            var removed = components.Remove(com.Tag);
+            removed = entities[tagEntity].Remove(type);
             com.Dispose();
             notify.NotifyRemove(com);
+            return true;
         }
 
         #endregion
@@ -258,17 +218,26 @@ namespace D3DLab.ECS {
                 return entitySynchronizer.IsChanged || comSynchronizer.IsChanged || frameChanges;
             }
         }
+        readonly IManagerChangeNotify notify;
 
         readonly SynchronizationContext<EntityComponentManager, GraphicEntity> entitySynchronizer;
-        readonly SynchronizationContext<EntityComponentManager, IGraphicComponent> comSynchronizer;
+        readonly SynchronizationContext<EntityComponentManager> comSynchronizer;
         readonly SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent> flyweightComSynchronizer;
+
+        readonly Dictionary<ElementTag, Dictionary<Type, ElementTag>> entities;
+        readonly Dictionary<ElementTag, IGraphicComponent> components;
+
+        readonly Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>> flyweightComponents;
+        readonly EntityOrderContainer orderContainer;
 
         public EntityComponentManager(IManagerChangeNotify notify, EntityOrderContainer orderContainer) {
             this.orderContainer = orderContainer;
             this.notify = notify;
             entitySynchronizer = new SynchronizationContext<EntityComponentManager, GraphicEntity>(this);
-            comSynchronizer = new SynchronizationContext<EntityComponentManager, IGraphicComponent>(this);
+            comSynchronizer = new SynchronizationContext<EntityComponentManager>(this);
             flyweightComSynchronizer = new SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent>(this);
+            entities = new Dictionary<ElementTag, Dictionary<Type, ElementTag>>();
+            components = new Dictionary<ElementTag, IGraphicComponent>();
         }
 
         public void Synchronize(int theadId) {
@@ -304,22 +273,20 @@ namespace D3DLab.ECS {
         }
 
         public void Dispose() {
-            foreach (var coms in components) {
-                foreach (var com in coms.Value) {
-                    com.Value.Dispose();
-                }
+            foreach (var com in components) {
+                com.Value.Dispose();
             }
 
             components.Clear();
             entities.Clear();
-            flyweightComponents.Clear();
-            entityHas.Clear();
+            //flyweightComponents.Clear();
+            entities.Clear();
 
             entitySynchronizer.Dispose();
             comSynchronizer.Dispose();
             flyweightComSynchronizer.Dispose();
         }
 
-       
+
     }
 }

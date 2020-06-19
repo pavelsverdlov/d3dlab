@@ -1,4 +1,5 @@
-﻿using D3DLab.ECS.Common;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Common;
 using D3DLab.ECS.Components;
 using D3DLab.ECS.Filter;
 using D3DLab.SDX.Engine;
@@ -24,10 +25,20 @@ namespace D3DLab.Toolkit {
             disposer = new DisposeObserver();
         }
 
-        [Obsolete("Remake with IsModified")]
-        protected void ApplyTransformWorldBufferToRenderComp(GraphicsDevice graphics, D3DRenderComponent render, TransformComponent transform) {
-            if (transform.IsModified || !render.TransformWorldBuffer.HasValue) {
-                var tr = TransforStructBuffer.ToTranspose(transform.MatrixWorld);
+        protected void UppdateTransformWorld(GraphicsDevice graphics, D3DRenderComponent render, GraphicEntity en) {
+            var transform = en.GetComponent<TransformComponent>();
+            var matrixWorld = transform.MatrixWorld;
+
+            //var isChanged = false;
+            //if(en.TryGetComponent<MovingComponent>(out var moving)) {
+            //    isChanged = true;
+            //    matrixWorld *= moving.MovingMatrix;
+            //    en.RemoveComponent(moving);
+            //    en.UpdateComponent(TransformComponent.Create(matrixWorld));
+            //}
+
+            if (!render.TransformWorldBuffer.HasValue) {
+                var tr = TransforStructBuffer.ToTranspose(matrixWorld);
 
                 if (render.TransformWorldBuffer.HasValue) {
                     var buff = render.TransformWorldBuffer.Get();
@@ -36,8 +47,6 @@ namespace D3DLab.Toolkit {
                     var buff = graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());
                     render.TransformWorldBuffer.Set(buff);
                 }
-
-                //transform.IsModified = false;
             }
         }
         protected SharpDX.Direct3D11.Buffer CreateTransformWorldBuffer(GraphicsDevice graphics, ref TransformComponent transform) {

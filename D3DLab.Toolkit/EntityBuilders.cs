@@ -31,12 +31,10 @@ namespace D3DLab.Render{
                     indexes));
 
             return manager.CreateEntity(new ElementTag("Geometry" + Guid.NewGuid()))
-                .AddComponents(
-                    TransformComponent.Identity(),
-                    material,
-                    geo,
-                    RenderableComponent.AsTriangleColoredList(cullMode)
-                );
+                .AddComponent(TransformComponent.Identity())
+                .AddComponent(material)
+                .AddComponent(geo)
+                .AddComponent(RenderableComponent.AsTriangleColoredList(cullMode));
         }
 
         public static GraphicEntity BuildTextured(IContextState context,
@@ -56,13 +54,11 @@ namespace D3DLab.Render{
                   indexes,
                   texCoor));
 
-            en.AddComponents(
-                    TransformComponent.Identity(),
-                    geo,
-                    material,
-                    new D3DTexturedMaterialSamplerComponent(texture),
-                    RenderableComponent.AsTriangleTexturedList(cullMode)
-                );
+            en.AddComponent(TransformComponent.Identity())
+              .AddComponent(geo)
+              .AddComponent(material)
+              .AddComponent(new D3DTexturedMaterialSamplerComponent(texture))
+              .AddComponent(RenderableComponent.AsTriangleTexturedList(cullMode));
 
             return en;
         }

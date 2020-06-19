@@ -1,6 +1,7 @@
 ﻿using D3DLab.ECS.Input;
 using D3DLab.Toolkit.Input.Commands;
 using D3DLab.Toolkit.Input.Commands.Camera;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
 
@@ -14,10 +15,8 @@ namespace D3DLab.Toolkit.Input {
         Target = 4,
         //UnTarget = 5,
         KeywordDown = 6,
-        ChangeFocus = 7,
+      //  ChangeFocus = 7,
         ChangeRotateCenter = 8,
-        HideOrShowObjectUnderCursor = 9,
-        ChangeTransparencyOnObjectUnderCursor = 10,
 
     }
   
@@ -32,8 +31,6 @@ namespace D3DLab.Toolkit.Input {
             void KeywordMove(InputStateData state);
             void FocusToObject(InputStateData state);
             void ChangeRotateCenter(InputStateData state);
-            void HideOrShowObjectUnderCursor(InputStateData state);
-            void ChangeTransparencyOnObjectUnderCursor(InputStateData state, bool isMmbHolded2sec);
         }
 
         public interface ITargetingInputHandler : InputObserver.IHandler {
@@ -69,17 +66,8 @@ namespace D3DLab.Toolkit.Input {
                     case GeneralMouseButtons.Right:
                         SwitchTo((int)AllInputStates.Rotate, state);
                         break;
-
                     case GeneralMouseButtons.Middle:
-                        if (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == (Keys.Shift | Keys.Control)) {
-                            SwitchTo((int)AllInputStates.HideOrShowObjectUnderCursor, state);
-                        } else if(Control.ModifierKeys == Keys.Shift) {
-                             SwitchTo((int)AllInputStates.ChangeTransparencyOnObjectUnderCursor, state);
-                        } else {
-                            SwitchTo((int)AllInputStates.ChangeRotateCenter, state);
-                        }
                         break;
-
                     //manipulation
                     case GeneralMouseButtons.Left:
                         SwitchTo((int)AllInputStates.Target, state);
@@ -98,10 +86,14 @@ namespace D3DLab.Toolkit.Input {
                 return true;
             }
 
-            public override bool OnMouseDoubleDown(InputStateData state) {
-                SwitchTo((int)AllInputStates.ChangeFocus, state);
-                return base.OnMouseDoubleDown(state);
-            }
+            //public override bool OnMouseDoubleDown(InputStateData state) {
+            //    switch (state.Buttons) {
+            //        case GeneralMouseButtons.Left:
+            //            SwitchTo((int)AllInputStates.ChangeRotateCenter, state);
+            //            break;
+            //    }
+            //    return base.OnMouseDoubleDown(state);
+            //}
         }
 
         #region Camera
@@ -132,12 +124,15 @@ namespace D3DLab.Toolkit.Input {
             public override bool OnMouseMove(InputStateData state) {
                 //System.Windows.Forms.Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPoint.ToDrawingPoint();
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Rotate(state));
+                //return cursore to prev position ... allow to calculate delta from static position to new move
+                //static postion is first positoin of rotation
+                Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPoint.ToDrawingPoint();
                 return true;
             }
-            public override bool OnMouseDoubleDown(InputStateData state) {
-                SwitchTo((int)AllInputStates.ChangeFocus, state);
-                return base.OnMouseDoubleDown(state);
-            }
+            //public override bool OnMouseDoubleDown(InputStateData state) {
+            //    SwitchTo((int)AllInputStates.ChangeFocus, state);
+            //    return base.OnMouseDoubleDown(state);
+            //}
         }
 
         protected sealed class InputPanState : CurrentStateMachine {
@@ -181,50 +176,6 @@ namespace D3DLab.Toolkit.Input {
             }
         }
 
-        protected sealed class HideOrShowObjectUnderCursorState : CurrentStateMachine {
-            public HideOrShowObjectUnderCursorState(StateProcessor processor) : base(processor) { }
-
-            public override void EnterState(InputStateData state) {
-                Processor.InvokeHandler<ICameraInputHandler>(x => x.HideOrShowObjectUnderCursor(state));
-            }
-
-            public override bool OnMouseUp(InputStateData state) {
-                SwitchTo((int)AllInputStates.Idle, state);
-                return base.OnMouseUp(state);
-            }
-        }
-
-        protected sealed class ChangeTransparencyState : CurrentStateMachine {
-            public ChangeTransparencyState(StateProcessor processor) : base(processor) { }
-            System.Timers.Timer mmbHoldingTimer;
-            static InputStateData lastState;
-
-            public override void EnterState(InputStateData state) {
-                Processor.InvokeHandler<ICameraInputHandler>(x => x.ChangeTransparencyOnObjectUnderCursor(state, false));
-                mmbHoldingTimer = new System.Timers.Timer(1000);
-                mmbHoldingTimer.AutoReset = false;
-                mmbHoldingTimer.Elapsed += MmbHoldingTimer_Elapsed;
-                lastState = state;
-                mmbHoldingTimer.Start();
-            }
-
-            void MmbHoldingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-                Processor.InvokeHandler<ICameraInputHandler>(x => x.ChangeTransparencyOnObjectUnderCursor(lastState,true));
-                lastState = null;
-                mmbHoldingTimer.Stop();
-                mmbHoldingTimer = null;
-            }
-
-            public override bool OnMouseUp(InputStateData state) {
-                if(mmbHoldingTimer != null) {
-                    mmbHoldingTimer.Stop();
-                    mmbHoldingTimer = null;
-                }
-                SwitchTo((int)AllInputStates.Idle, state);
-                return base.OnMouseUp(state);
-            }
-        }
-
         protected sealed class InputZoomState : CurrentStateMachine {
             public InputZoomState(StateProcessor processor) : base(processor) { }
 
@@ -240,10 +191,6 @@ namespace D3DLab.Toolkit.Input {
             public override bool OnMouseWheel(InputStateData ev) {
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Zoom(ev));
                 return true;
-            }
-            public override bool OnMouseDoubleDown(InputStateData state) {
-                SwitchTo((int)AllInputStates.ChangeFocus, state);
-                return base.OnMouseDoubleDown(state);
             }
 
             //public override bool OnMouseMove(InputStateData state) {
@@ -317,21 +264,32 @@ namespace D3DLab.Toolkit.Input {
             public InputTargetState(StateProcessor processor) : base(processor) {
 
             }
-
+            bool captured;
+            InputStateData enterState;
             public override void EnterState(InputStateData state) {
-                Processor.InvokeHandler<ITargetingInputHandler>(x => x.TargetCapture(state));
+                enterState = state.Clone();
             }
 
             public override bool OnMouseDown(InputStateData state) {
                 switch (state.Buttons) {
                     case GeneralMouseButtons.Left:
+                        captured = true;
+                        Processor.InvokeHandler<ITargetingInputHandler>(x => x.TargetCapture(state));
+                        break;
+                    case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
+                        UnCaptureTarget(state);
+                        //SwitchTo((int)AllInputStates.Idle, state);
+                        SwitchTo((int)AllInputStates.Pan, state);
                         break;
                 }
                 return base.OnMouseDown(state);
             }
             public override bool OnMouseUp(InputStateData state) {
                 if ((state.Buttons & GeneralMouseButtons.Left) != GeneralMouseButtons.Left) {
-                    Processor.InvokeHandler<ITargetingInputHandler>(x => x.UnTarget(state));
+                    UnCaptureTarget(state);
+                    //select will be pushed always ... to handling should be not here 
+                    //here just pushing a commands 
+                    //Processor.InvokeHandler<ITargetingInputHandler>(x => x.SelectTarget(enterState));
                     SwitchTo((int)AllInputStates.Idle, state);
                 }
 
@@ -340,6 +298,22 @@ namespace D3DLab.Toolkit.Input {
             public override bool OnMouseMove(InputStateData state) {
                 Processor.InvokeHandler<ITargetingInputHandler>(x => x.TargetMove(state));
                 return true;
+            }
+            public override bool OnMouseDoubleDown(InputStateData state) {
+                switch (state.Buttons) {
+                    case GeneralMouseButtons.Left:
+                        SwitchTo((int)AllInputStates.ChangeRotateCenter, state);
+                        break;
+                }
+                return base.OnMouseDoubleDown(state);
+            }
+
+            void UnCaptureTarget(InputStateData state) {
+                if (captured) {
+                    captured = false;
+                    //untarget if it was captured
+                    Processor.InvokeHandler<ITargetingInputHandler>(x => x.UnTarget(state));
+                }
             }
         }
 
@@ -350,18 +324,21 @@ namespace D3DLab.Toolkit.Input {
         }
 
 
-        readonly FrameworkElement control;
+        protected float RotationSensitivity;
 
+        readonly FrameworkElement control;
         public DefaultInputObserver(FrameworkElement control, IInputPublisher publisher) : base(publisher) {
             this.currentSnapshot = new InputSnapshot();
             this.control = control;
+
+            RotationSensitivity = 0.7f;
         }
         public void Zoom(InputStateData state) {
             currentSnapshot.AddEvent(new CameraZoomCommand(state.Clone()));
         }
 
         public virtual bool Rotate(InputStateData state) {
-            currentSnapshot.AddEvent(new CameraRotateWithCursorReturntingCommand(state.Clone()));
+            currentSnapshot.AddEvent(new CameraRotateWithCursorReturntingCommand(state.Clone(), RotationSensitivity));
             return true;
         }
         public void Pan(InputStateData state) {
@@ -390,16 +367,8 @@ namespace D3DLab.Toolkit.Input {
             //currentSnapshot.AddEvent(new CaptureTargetUnderMouseCameraCommand(state.Clone()));
         }
         public virtual void ChangeRotateCenter(InputStateData state) {
-            //TODO: dont use CameraChangeRotateCenterCommand
             currentSnapshot.AddEvent(new CameraSetRotationCenterUnderMouseCommand(state.Clone()));
         }
 
-        public void HideOrShowObjectUnderCursor(InputStateData state) {
-       ///     currentSnapshot.AddEvent(new HideOrShowObjectUnderCursorCommand(state.Clone()));
-        }
-
-        public void ChangeTransparencyOnObjectUnderCursor(InputStateData state, bool isMmbHolded2sec = false) {
-          //  currentSnapshot.AddEvent(new ChangeTransparencyCommand(state.Clone(), isMmbHolded2sec));
-        }
     }
 }

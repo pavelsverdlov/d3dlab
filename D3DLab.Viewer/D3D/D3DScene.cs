@@ -67,6 +67,7 @@ namespace D3DLab.Viewer.D3D {
             var smanager = Context.GetSystemManager();
 
             smanager.CreateSystem<DefaultInputSystem>();
+            smanager.CreateSystem<MovingSystem>();
             smanager.CreateSystem<CollidingSystem>();
             smanager.CreateSystem<DefaultOrthographicCameraSystem>();
             smanager.CreateSystem<LightsSystem>();

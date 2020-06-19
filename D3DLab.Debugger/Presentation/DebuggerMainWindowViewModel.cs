@@ -28,7 +28,7 @@ namespace D3DLab.Debugger.Presentation {
         public ComponetsViewModel Componets { get; }
 
         public ICommand OpenSceneInWindow { get; }
-        public ICommand CameraFocusToAll { get; }
+        public ICommand ShowHideOctreeBoxesCommand { get; }
         
 
 
@@ -38,7 +38,7 @@ namespace D3DLab.Debugger.Presentation {
         public DebuggerMainWindowViewModel(IDockingTabManager docking,
             SystemsViewModel systemsVM, ComponetsViewModel componetsVM) {
             OpenSceneInWindow = new WpfActionCommand(OnOpenSceneInWindow);
-            CameraFocusToAll = new WpfActionCommand(OnCameraFocusToAll); 
+            ShowHideOctreeBoxesCommand = new WpfActionCommand(OnShowHideOctreeBoxes); 
             Docking = docking;
             Systems = systemsVM;
             Componets = componetsVM;
@@ -50,13 +50,18 @@ namespace D3DLab.Debugger.Presentation {
         }
 
         public void SetContext(IContextState context, EngineNotificator notificator) {
+            this.context = context;
+            this.notificator = notificator;
             notificator.Subscribe(subscriber);
         }
 
-        void OnCameraFocusToAll() {
-            var file = @"";
-
-            Dropped(new[] { file });
+        void OnShowHideOctreeBoxes() {
+            var om = context.GetOctreeManager();
+            if (om.IsDrawingBoxesEnable) {
+                om.DisableDrawingBoxes();
+            } else {
+                om.EnableDrawingBoxes();
+            }
         }
 
         void OnOpenSceneInWindow() {

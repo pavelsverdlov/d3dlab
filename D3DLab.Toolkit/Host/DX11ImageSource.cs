@@ -22,6 +22,9 @@ namespace D3DLab.Toolkit.Host {
     /// 
     public sealed class DX11ImageHost : System.Windows.Controls.Image {
 
+        public static readonly DependencyProperty OverlayProperty =
+          DependencyProperty.Register(nameof(OverlayProperty), typeof(FrameworkElement), typeof(DX11ImageHost));
+
         public static readonly DependencyProperty HostLoadedProperty =
            DependencyProperty.Register(nameof(HostLoaded), typeof(ICommand), typeof(DX11ImageHost));
         public static readonly DependencyProperty HostUnLoadedProperty =
@@ -34,6 +37,11 @@ namespace D3DLab.Toolkit.Host {
         public ICommand HostUnLoaded {
             get { return (ICommand)this.GetValue(HostUnLoadedProperty); }
             set { this.SetValue(HostUnLoadedProperty, value); }
+        }
+
+        public FrameworkElement Overlay {
+            get { return (FrameworkElement)this.GetValue(OverlayProperty); }
+            set { this.SetValue(OverlayProperty, value); }
         }
 
 

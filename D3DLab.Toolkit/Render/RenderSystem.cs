@@ -50,7 +50,7 @@ namespace D3DLab.Toolkit.Render {
                 using (var frame = graphics.FrameBegin()) {
 
                     foreach (var entity in emanager.GetEntities().OrderBy(x => x.GetOrderIndex<RenderSystem>())) {
-                        if (entity.Has(typeof(RenderableComponent), typeof(TransformComponent))) {
+                        if (entity.Contains(typeof(RenderableComponent), typeof(TransformComponent))) {
                             registrator.Register(entity);
                         }
                     }

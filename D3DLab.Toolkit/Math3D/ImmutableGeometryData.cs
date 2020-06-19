@@ -1,4 +1,6 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Ext;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -28,6 +30,7 @@ namespace D3DLab.Toolkit.Math3D {
         public ImmutableArray<Vector4> Colors { get; private set; }
         public bool IsModified { get; set; }
         public bool IsDisposed { get; private set; }
+        public GeometryPrimitiveTopologies Topology { get; }
 
         public ImmutableGeometryData(IReadOnlyCollection<Vector3> positions, IReadOnlyCollection<int> indices) 
             : this(positions, null, indices, null) {
@@ -44,7 +47,7 @@ namespace D3DLab.Toolkit.Math3D {
             IReadOnlyCollection<Vector2> texCoor) 
             :this(positions, normals, indices, texCoor, null){
         }
-        ImmutableGeometryData(IReadOnlyCollection<Vector3> positions,
+        public ImmutableGeometryData(IReadOnlyCollection<Vector3> positions,
             IReadOnlyCollection<Vector3> normals, IReadOnlyCollection<int> indices,
             IReadOnlyCollection<Vector2> texCoor, IReadOnlyCollection<Vector4> colors) {
 
@@ -54,6 +57,12 @@ namespace D3DLab.Toolkit.Math3D {
             TexCoor = texCoor == null ? ImmutableArray<Vector2>.Empty : texCoor.ToImmutableArray();
             Colors = colors == null ? ImmutableArray<Vector4>.Empty : colors.ToImmutableArray();
             IsModified = true;
+            Topology = GeometryPrimitiveTopologies.TriangleList;
+        }
+
+
+        public void ReCalculateNormals() {
+            Normals = Positions.ToList().CalculateNormals(Indices.ToList()).ToImmutableArray();
         }
 
         public virtual void Dispose() {

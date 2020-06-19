@@ -16,8 +16,6 @@ namespace D3DLab.ECS {
 
         }
         
-        public virtual IEnumerable<GraphicEntity> GetEntities(IEntityManager manager) {
-            return Enumerable.Empty<GraphicEntity>();
-        }
+        
     }
 }

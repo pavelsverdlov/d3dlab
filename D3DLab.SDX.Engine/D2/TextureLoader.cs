@@ -44,25 +44,9 @@ namespace D3DLab.SDX.Engine.D2 {
                 btm.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 ms.Position = 0;
 
-                var factory = new SharpDX.WIC.ImagingFactory();
-                var bitmapDecoder = new BitmapDecoder(factory, ms, DecodeOptions.CacheOnDemand);
-                var result = new FormatConverter(factory);
-
-                result.Initialize(bitmapDecoder.GetFrame(0), PixelFormat.Format32bppPRGBA, BitmapDitherType.None,
-                    null, 0.0, BitmapPaletteType.Custom);
-
-                using (var texture = CreateTexture2DFromBitmap(device, result)) {
-                    var srvDesc = new ShaderResourceViewDescription() {
-                        Format = texture.Description.Format,
-                        Dimension = SharpDX.Direct3D.ShaderResourceViewDimension.Texture2D,
-                    };
-                    srvDesc.Texture2D.MostDetailedMip = 0;
-                    srvDesc.Texture2D.MipLevels = -1;
-
-                    res = new ShaderResourceView(device, texture, srvDesc);
-                    device.ImmediateContext.GenerateMips(res);
+                using (var texture = LoadFromFile(device, new SharpDX.WIC.ImagingFactory(), ms)) {
+                    return LoadShaderResource(texture);
                 }
-                // TextureResource = ShaderResourceView.FromFile(device, fileName);
             } catch (Exception ex) {
                 System.Diagnostics.Trace.WriteLine($"TexturedLoader {ex.Message}");
             }
@@ -92,11 +76,7 @@ namespace D3DLab.SDX.Engine.D2 {
                     fs.CopyTo(ms);
                     ms.Position = 0;
 
-                    var bitmapDecoder = new BitmapDecoder(factory, ms, DecodeOptions.CacheOnLoad);
-                    var bs = new FormatConverter(factory);
-                    bs.Initialize(bitmapDecoder.GetFrame(0), PixelFormat.Format32bppPRGBA, BitmapDitherType.None, null, 0.0, BitmapPaletteType.Custom);
-
-                    return CreateTexture2DFromBitmap(device, bs);
+                    return LoadFromFile(device, factory, ms);
                 }
             }
         }
