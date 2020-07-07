@@ -22,7 +22,7 @@ namespace D3DLab.NUnitTests {
             var parser = new Utf8ByteOBJParser();
             parser.Read(utf8.GetBytes("f 1 2 3".ToCharArray()).AsSpan());
 
-            var mesh = parser.GeometryCache;
+            var mesh = parser.GeometryCache.Groups.First();
 
             Assert.AreEqual(mesh.Vertices.Count, 3);
             var array = mesh.Vertices.ToArray();
@@ -36,7 +36,7 @@ namespace D3DLab.NUnitTests {
             var parser = new Utf8ByteOBJParser();
             parser.Read(utf8.GetBytes("f 1 2 3 4".ToCharArray()).AsSpan());
 
-            var mesh = parser.GeometryCache;
+            var mesh = parser.GeometryCache.Groups.First();
 
             Assert.AreEqual(mesh.Vertices.Count, 6);
             var array = mesh.Vertices.ToArray();
@@ -54,7 +54,7 @@ namespace D3DLab.NUnitTests {
             var parser = new Utf8ByteOBJParser();
             parser.Read(utf8.GetBytes("f 1/2/2 2/5/5 3/6/6 4/3/3".ToCharArray()).AsSpan());
 
-            var v = parser.GeometryCache.Vertices;
+            var v = parser.GeometryCache.Groups.First().Vertices;
 
             Assert.AreEqual(v.Count, 6);
             var array = v.ToArray();
@@ -72,7 +72,7 @@ namespace D3DLab.NUnitTests {
             var parser = new Utf8ByteOBJParser();//
             parser.Read(utf8.GetBytes("f 1//1 2//2 3//3 4//4".ToCharArray()).AsSpan());
             //v/vt/vn
-            var v = parser.GeometryCache.Vertices;
+            var v = parser.GeometryCache.Groups.First().Vertices;
 
             Assert.AreEqual(v.Count, 6);
             var array = v.ToArray();
@@ -103,7 +103,7 @@ namespace D3DLab.NUnitTests {
             var parser = new Utf8ByteOBJParser();//
             parser.Read(utf8.GetBytes("f 1/1 2/2 3/3 4/4".ToCharArray()).AsSpan());
             //v/vt/vn
-            var v = parser.GeometryCache.Vertices;
+            var v = parser.GeometryCache.Groups.First().Vertices;
 
             Assert.AreEqual(v.Count, 6);
             var array = v.ToArray();
