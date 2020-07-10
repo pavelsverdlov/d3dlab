@@ -6,21 +6,28 @@ using System.Linq;
 using System.Numerics;
 
 namespace D3DLab.Toolkit.D3Objects {
-    public class SingleGameObject : GeometryGameObject {
+    public class SingleVisualObject : GeometryGameObject {
         public ElementTag Tag { get; }
+        /// <summary>
+        /// this status is only be actual if Show/Hide methods were used
+        /// </summary>
+        public bool IsVisible { get; set; }
 
-        public SingleGameObject(ElementTag tag, string desc) : base(desc) {
+        public SingleVisualObject(ElementTag tag, string desc) : base(desc) {
             Tag = tag;
+            IsVisible = true;
         }
 
         public override void Hide(IEntityManager manager) {
             var en = manager.GetEntity(Tag);
             en.UpdateComponent(en.GetComponent<RenderableComponent>().Disable());
+            IsVisible = false;
         }
 
         public override void Show(IEntityManager manager) {
             var en = manager.GetEntity(Tag);
             en.UpdateComponent(en.GetComponent<RenderableComponent>().Enable());
+            IsVisible = true;
         }
 
         public virtual GraphicEntity GetEntity(IEntityManager manager) => manager.GetEntity(Tag);
@@ -43,9 +50,9 @@ namespace D3DLab.Toolkit.D3Objects {
             throw new NotImplementedException();
         }
 
-        public override void Cleanup(IEntityManager manager) {
-            base.Cleanup(manager);
-            manager.RemoveEntity(Tag);
+        public override void Cleanup(IContextState context) {
+            base.Cleanup(context);
+            context.GetEntityManager().RemoveEntity(Tag);
         }
     }
 }

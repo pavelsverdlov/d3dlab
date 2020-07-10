@@ -19,6 +19,7 @@
     <None Remove="Techniques\OrderIndependentTransparency\OIT.hlsl" />
     <None Remove="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
     <None Remove="Techniques\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
+    <None Remove="Techniques\SpherePoint\sphere_point.hlsl" />
     <None Remove="Techniques\TriangleColored\colored_vertex.hlsl" />
     <None Remove="Techniques\TriangleColored\gs_flat_shading.hlsl" />
     <None Remove="Techniques\TriangleColored\wireframe.hlsl" />
@@ -38,6 +39,7 @@
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\OIT.hlsl" />
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\oit_colored_vertex - Copy.hlsl" />
     <EmbeddedResource Include="Techniques\OrderIndependentTransparency\oit_colored_vertex.hlsl" />
+    <EmbeddedResource Include="Techniques\SpherePoint\sphere_point.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleColored\colored_vertex.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleColored\gs_flat_shading.hlsl" />
     <EmbeddedResource Include="Techniques\TriangleColored\wireframe.hlsl" />
@@ -58,6 +60,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />
     <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
   </ItemGroup>
 

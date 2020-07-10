@@ -7,6 +7,7 @@ using g3;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -57,16 +58,19 @@ namespace D3DLab.Toolkit.Math3D {
        
         public Task BuildTreeAsync() {
             return Task.Run(() => {
-                var norm = Normals.ConvertToVector3f();
-                DMeshLocal = DMesh3Builder.Build(Positions.ConvertToVector3f(), Indices, norm);
+                try {
+                    var norm = Normals.ConvertToVector3f();
+                    DMeshLocal = DMesh3Builder.Build(Positions.ConvertToVector3f(), Indices, norm);
 
-                TreeLocal = new DMeshAABBTree3(DMeshLocal);
-                TreeLocal.Build();
+                    TreeLocal = new DMeshAABBTree3(DMeshLocal);
+                    TreeLocal.Build();
 
-                Bounds = new AxisAlignedBox(DMeshLocal.GetBounds());
+                    Bounds = new AxisAlignedBox(DMeshLocal.GetBounds());
 
-                IsBuilt = true;
-
+                    IsBuilt = true;
+                }catch(Exception ex) {
+                    Debug.WriteLine($"BuildTreeAsync {ex.Message}");
+                }
                 return this;
             });
         }

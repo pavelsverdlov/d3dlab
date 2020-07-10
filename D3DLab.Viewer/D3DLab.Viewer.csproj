@@ -37,6 +37,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Update="Properties\ViewerSettings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ViewerSettings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -48,11 +53,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\_\WPFLab\WPFLab.csproj" />
+    <ProjectReference Include="..\D3DLab.CLI.SDX\D3DLab.CLI.SDX.vcxproj" />
     <ProjectReference Include="..\D3DLab.Debugger\D3DLab.Debugger.csproj" />
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
     <ProjectReference Include="..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />
     <ProjectReference Include="..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
     <ProjectReference Include="..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\ViewerSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>ViewerSettings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
 </Project>

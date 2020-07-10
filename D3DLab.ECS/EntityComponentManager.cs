@@ -103,7 +103,10 @@ namespace D3DLab.ECS {
             if (!entities[tagEntity].TryGetValue(typeof(T), out var comTag)) {
                 return default;
             }
-            return (T)components[comTag];
+            if (!components.TryGetValue(comTag, out var found)) {
+                return default;
+            }
+            return (T)found;
         }
         public IEnumerable<IGraphicComponent> GetComponents(ElementTag tagEntity) {
             if (!entities.ContainsKey(tagEntity)) {
@@ -138,8 +141,11 @@ namespace D3DLab.ECS {
                 component = default;
                 return false;
             }
-
-            component = (TComponent)components[comTag];
+            if(!components.TryGetValue(comTag, out var found)){
+                component = default;
+                return false;
+            }
+            component = (TComponent)found;
             return true;
         }        
 
@@ -203,10 +209,16 @@ namespace D3DLab.ECS {
             if (!entities.ContainsKey(tagEntity)) {
                 return false;
             }
-            var type = typeof(T);
+          
             var removed = components.Remove(com.Tag);
+            if (!removed) {
+                return false;
+            }
+
+            var type = typeof(T);
             removed = entities[tagEntity].Remove(type);
             com.Dispose();
+
             notify.NotifyRemove(com);
             return true;
         }

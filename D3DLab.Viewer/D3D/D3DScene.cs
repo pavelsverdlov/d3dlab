@@ -22,6 +22,7 @@ using D3DLab.Toolkit.Components;
 using System.Linq;
 using D3DLab.ECS.Components;
 using D3DLab.Toolkit;
+using D3DLab.Toolkit.Techniques;
 
 namespace D3DLab.Viewer.D3D {
     public class WFScene : D3DWFScene {
@@ -52,6 +53,8 @@ namespace D3DLab.Viewer.D3D {
 
         CameraObject cameraObject;
         BaseInputPublisher publisher;
+
+        public event Action Loaded;
 
         public WFScene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, EngineNotificator notify)
             : base(host, overlay, context, notify) {
@@ -91,7 +94,7 @@ namespace D3DLab.Viewer.D3D {
                 .CreateNested<TriangleColoredVertexRenderTechnique<ToolkitRenderProperties>>()
                 //.CreateNested<TriangleTexturedVertexRenderTechnique<CustomRenderProperties>>()
                 .CreateNested<LineVertexRenderTechnique<ToolkitRenderProperties>>()
-
+                //.CreateNested<CudaTestTechniques<ToolkitRenderProperties>>()
                 //.CreateNested<LineVertexRenderTechnique>()
                 //.CreateNested<SpherePointRenderStrategy>()
                 //.CreateNested<AminRenderTechniqueSystem>()
@@ -105,10 +108,12 @@ namespace D3DLab.Viewer.D3D {
 
             LightObject.CreateAmbientLight(manager, 0.2f);//0.05f
             LightObject.CreateFollowCameraDirectLight(manager, System.Numerics.Vector3.UnitZ, 0.8f);//0.95f
+
+            Loaded?.Invoke();
         }
 
 
-        public System.Collections.ObjectModel.ObservableCollection<SingleGameObject> GameObjects { get; }
+        public System.Collections.ObjectModel.ObservableCollection<SingleVisualObject> GameObjects { get; }
     
 
         static Vector4 ToVector4(System.Windows.Media.Color color) {
@@ -121,5 +126,7 @@ namespace D3DLab.Viewer.D3D {
             base.Dispose();
             publisher?.Dispose();
         }
+
+        
     }
 }

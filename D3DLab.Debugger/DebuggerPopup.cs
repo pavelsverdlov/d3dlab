@@ -27,5 +27,12 @@ namespace D3DLab.Debugger {
             }
             v.Show();
         }
+
+        public void Dispose() {
+            if (v != null) {
+                v.DataContext = null;
+                v.Close();
+            }
+        }
     }
 }

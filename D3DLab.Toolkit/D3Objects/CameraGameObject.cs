@@ -5,7 +5,7 @@ using D3DLab.Toolkit.Components.Camera;
 using System.Threading;
 
 namespace D3DLab.Toolkit.D3Objects {
-    public class CameraObject : SingleGameObject {
+    public class CameraObject : SingleVisualObject {
         static int cameras = 0;
 
         public CameraObject(ElementTag tag, string descr) : base(tag, descr) { }

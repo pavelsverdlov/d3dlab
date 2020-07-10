@@ -11,6 +11,7 @@ namespace D3DLab.ECS {
         public ElementTag(string tag) {
             this.tag = tag;
         }
+        public ElementTag WithPrefix(string prefix) => new ElementTag(string.Concat(prefix, "_", tag));
 
         public bool IsEmpty => Empty.tag == tag || tag == null;
 

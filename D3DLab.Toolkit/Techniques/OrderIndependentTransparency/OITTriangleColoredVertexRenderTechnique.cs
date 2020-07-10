@@ -286,7 +286,7 @@ namespace D3DLab.Toolkit.Techniques.OrderIndependentTransparency {
                     }
                 }
 
-                UppdateTransformWorld(graphics, render, en);
+                UpdateTransformWorld(graphics, render, en);
 
                 if (!render.TransformWorldBuffer.HasValue) {
                     throw RenderTechniqueException.NoWorldTransformBuffers;

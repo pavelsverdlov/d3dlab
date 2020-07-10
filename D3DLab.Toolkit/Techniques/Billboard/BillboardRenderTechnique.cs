@@ -150,7 +150,7 @@ namespace D3DLab.Toolkit.Techniques.Billboard {
                         renderable.DepthStencilStateDescription));
                 }
 
-                base.UppdateTransformWorld(graphics, render, en);
+                base.UpdateTransformWorld(graphics, render, en);
 
                 graphics.ClearAllShader();
                 {

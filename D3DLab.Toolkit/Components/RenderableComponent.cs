@@ -24,6 +24,29 @@ namespace D3DLab.Toolkit.Components {
     public struct RenderableComponent : IGraphicComponent {
 
         #region creators
+
+        public static RenderableComponent AsPoints() => 
+            new RenderableComponent(CullMode.None, PrimitiveTopology.PointList, RenderTechniques.Background) {
+                Tag = ElementTag.New(),
+                IsValid = true,
+                HasDepthStencil = true,
+                DepthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled,
+                RasterizerStateDescription = new RasterizerStateDescription2() {
+                    CullMode = CullMode.None,
+                    FillMode = FillMode.Solid,
+                    IsMultisampleEnabled = false,
+
+                    IsFrontCounterClockwise = false,
+                    IsScissorEnabled = false,
+                    IsAntialiasedLineEnabled = false,
+                    DepthBias = 0,
+                    DepthBiasClamp = .0f,
+                    SlopeScaledDepthBias = .0f
+                },
+                HasBlendState = true,
+                BlendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled,
+            };
+
         public static RenderableComponent AsBackground()
             => new RenderableComponent(CullMode.None, PrimitiveTopology.TriangleStrip, RenderTechniques.Background) {
                 Tag = ElementTag.New(),
@@ -112,11 +135,13 @@ namespace D3DLab.Toolkit.Components {
             CullMode = cullMode;
             PrimitiveTopology = primitiveTopology;
             Technique = technique;
+            IsRenderable = true;
         }
 
         public ElementTag Tag { get; private set; }
         public ElementTag EntityTag { get; set; }
         public bool IsValid { get; private set; }
+        public bool IsRenderable { get; private set; }
         public bool IsDisposed { get; private set; }
 
         public void Dispose() {
@@ -124,11 +149,13 @@ namespace D3DLab.Toolkit.Components {
         }
 
         public RenderableComponent Disable() {
-            IsValid = false;
+            Tag = ElementTag.New();
+            IsRenderable = false;
             return this;
         }
         public RenderableComponent Enable() {
-            IsValid = true;
+            Tag = ElementTag.New();
+            IsRenderable = true;
             return this;
         }
     }

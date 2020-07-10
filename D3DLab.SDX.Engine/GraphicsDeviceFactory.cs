@@ -16,18 +16,21 @@ namespace D3DLab.SDX.Engine {
         }
 
         public static GraphicsDevice CreateOutputHandleDevice(IRenderableWindow window) {
-            var proxy = new RenderToHandleDeviceProxy(GetAdapter(), window.Handle, window.Size);
-            return new GraphicsDevice(proxy, window.Size);
+            var adapter = GetAdapter();
+            var proxy = new RenderToHandleDeviceProxy(adapter, window.Handle, window.Size);
+            return new GraphicsDevice(proxy, window.Size, adapter.Description);
         }
 
         public static GraphicsDevice CreateOutputTextureDevice(IRenderableSurface window) {
-            var proxy = new RenderToTextureDeviceProxy(GetAdapter(), window.Size);
-            return new GraphicsDevice(proxy, window.Size);
+            var adapter = GetAdapter();
+            var proxy = new RenderToTextureDeviceProxy(adapter, window.Size);
+            return new GraphicsDevice(proxy, window.Size, adapter.Description);
         }
 
         public static GraphicsDevice CreateOutputTargetView(IFrameRenderableSurface surface) {
-            var proxy = new RenderToTargetViewDeviceProxy(GetAdapter(),surface.Size);
-            return new GraphicsDevice(proxy, surface.Size);
+            var adapter = GetAdapter();
+            var proxy = new RenderToTargetViewDeviceProxy(adapter, surface.Size);
+            return new GraphicsDevice(proxy, surface.Size, adapter.Description);
         }
 
 

@@ -28,7 +28,7 @@ namespace D3DLab.Debugger.ECSDebug.ShaderEditer {
                 RequireControlModifierForHyperlinkClick = true,
             };
 
-            using (var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("D3DLab.Viewer.Resources.ShaderSyntaxDef.xshd")) {
+            using (var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("D3DLab.Debugger.Resources.ShaderSyntaxDef.xshd")) {
                 using (var reader = new System.Xml.XmlTextReader(resource)) {
                     this.SyntaxHighlighting = HighlightingLoader.Load(HighlightingLoader.LoadXshd(reader), HighlightingManager.Instance);
                 }

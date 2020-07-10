@@ -12,7 +12,7 @@ namespace D3DLab.ECS {
         public abstract void Hide(IEntityManager manager);
         public abstract void Show(IEntityManager manager);
 
-        public virtual void Cleanup(IEntityManager manager) {
+        public virtual void Cleanup(IContextState context) {
 
         }
         

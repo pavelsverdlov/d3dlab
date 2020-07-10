@@ -5,10 +5,10 @@ using System.Linq;
 namespace D3DLab.ECS {
     public sealed class SystemManager : ISystemManager {
         readonly List<IGraphicSystem> systems = new List<IGraphicSystem>();
-        public TSystem CreateSystem<TSystem>() where TSystem : class, IGraphicSystem {
-            var sys = Activator.CreateInstance<TSystem>();
-            
-            if(sys is IComponentSystemIncrementId incrementId) {
+        public TSystem CreateSystem<TSystem>() where TSystem : class, IGraphicSystem, new() {
+            var sys = new TSystem();
+
+            if (sys is IComponentSystemIncrementId incrementId) {
                 incrementId.ID = systems.Count;
             }            
 

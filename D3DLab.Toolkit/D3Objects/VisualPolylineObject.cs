@@ -9,12 +9,12 @@ using System.Numerics;
 using System.Text;
 
 namespace D3DLab.Toolkit.D3Objects {
-    public class VisualPolylineObject : SingleGameObject {
+    public class VisualPolylineObject : SingleVisualObject {
         public VisualPolylineObject(ElementTag tag1) : base(tag1, "poly") {
         }
 
         public static VisualPolylineObject Create(IContextState context, ElementTag tag,
-            Vector3[] points, Vector4 color) {
+            Vector3[] points, Vector4 color, bool isVisible = true) {
             var manager = context.GetEntityManager();
 
             var indeces = new List<int>();
@@ -35,7 +35,7 @@ namespace D3DLab.Toolkit.D3Objects {
                .AddComponent(geo)
                .AddComponent(TransformComponent.Identity())
                .AddComponent(ColorComponent.CreateDiffuse(color))
-               .AddComponent(RenderableComponent.AsLineList());
+               .AddComponent(isVisible ? RenderableComponent.AsLineList() : RenderableComponent.AsLineList().Disable());
 
             return new VisualPolylineObject(tag);
         }

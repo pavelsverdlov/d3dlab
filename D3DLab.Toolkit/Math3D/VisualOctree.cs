@@ -82,7 +82,7 @@ namespace D3DLab.Toolkit.Math3D {
         }
         public void ClearDrew(IContextState context) {
             foreach (var b in drawedDebug) {
-                b.Cleanup(context.GetEntityManager());
+                b.Cleanup(context);
             }
             drawedDebug.Clear();
         }

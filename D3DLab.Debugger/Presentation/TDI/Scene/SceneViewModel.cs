@@ -22,7 +22,7 @@ namespace D3DLab.Debugger.Presentation.TDI.Scene {
 
         public WFScene Scene { get; private set; }
         public IContextState Context => context;
-        public ObservableCollection<SingleGameObject> GameObjects { get; }
+        public ObservableCollection<SingleVisualObject> GameObjects { get; }
 
 
         ContextStateProcessor context;
@@ -33,7 +33,7 @@ namespace D3DLab.Debugger.Presentation.TDI.Scene {
 
         public SceneViewModel(IDockingTabManager dockingManager) {
             this.dockingManager = dockingManager;
-            GameObjects = new ObservableCollection<SingleGameObject>();
+            GameObjects = new ObservableCollection<SingleVisualObject>();
             dockingManager.OpenSceneTab(this);
         }
 
@@ -82,7 +82,7 @@ namespace D3DLab.Debugger.Presentation.TDI.Scene {
                 
             }
             en.UpdateComponent(TransformComponent.Create(Matrix4x4.CreateTranslation(Vector3.Zero - center)));
-            GameObjects.Add(new SingleGameObject(en.Tag, fileName));
+            GameObjects.Add(new SingleVisualObject(en.Tag, fileName));
             
             //var boxlines = PolylineGameObject.Create(
             //    Context,

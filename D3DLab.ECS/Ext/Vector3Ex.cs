@@ -25,7 +25,7 @@ namespace D3DLab.ECS.Ext {
         }
         public static Vector3 Normalized(this Vector3 v) {
             return Vector3.Normalize(v);
-            
+
         }
         public static Vector3 Cross(this Vector3 v1, Vector3 v2) {
             return Vector3.Cross(v1, v2);
@@ -39,17 +39,17 @@ namespace D3DLab.ECS.Ext {
         public static Vector3 XYZ(this Vector4 v) {
             return new Vector3(v.X, v.Y, v.Z);
         }
-      
+
         public static Vector3 Round(this Vector3 v, int round) {
             return new Vector3(
                 (float)Math.Round(v.X, round),
-                (float)Math.Round(v.Y, round), 
+                (float)Math.Round(v.Y, round),
                 (float)Math.Round(v.Z, round));
         }
         public static bool IsZero(ref this Vector3 v) {
             return Vector3.Zero == v;
         }
-        
+
 
         public static Vector3 TransformedNormal(this Vector3 vector, in Matrix4x4 matrix) {
             return Vector3.TransformNormal(vector, matrix);
@@ -172,6 +172,21 @@ namespace D3DLab.ECS.Ext {
             return aNormals.ToList();
         }
 
+        public static List<Vector3> ToVector3List(this float[] vertex) {
+            var v = new List<Vector3>(vertex.Length / 3);
+            for (var i = 0; i < vertex.Length - 3; i += 3) {
+                v.Add(new Vector3(vertex[i], vertex[i + 1], vertex[i + 2]));
+            }
+            return v;
+        }
+        public static List<Vector2> ToVector2List(this float[] vertex) {
+            var v = new List<Vector2>(vertex.Length / 2);
+            for (var i = 0; i < vertex.Length -2; i += 2) {
+                v.Add(new Vector2(vertex[i], vertex[i + 1]));
+            }
+            return v;
+        }
+
     }
 
     public static class ConvertorsEx {
@@ -184,7 +199,7 @@ namespace D3DLab.ECS.Ext {
     }
 
 
-    public static class PlaneEx{
+    public static class PlaneEx {
         public static void Normalize(this Plane plane) {
             var normal = plane.Normal;
             float magnitude = 1.0f / (float)(Math.Sqrt((normal.X * normal.X) + (normal.Y * normal.Y) + (normal.Z * normal.Z)));
@@ -194,5 +209,5 @@ namespace D3DLab.ECS.Ext {
             plane.Normal.Z *= magnitude;
             plane.D *= magnitude;
         }
-    }    
+    }
 }

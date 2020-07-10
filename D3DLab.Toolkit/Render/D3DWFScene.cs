@@ -1,9 +1,13 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Common;
+using D3DLab.ECS.Components;
 using D3DLab.ECS.Context;
 using D3DLab.ECS.Input;
 using D3DLab.Toolkit.Host;
 using D3DLab.Toolkit.Input;
+
+using SharpDX.DXGI;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -91,6 +95,10 @@ namespace D3DLab.Toolkit.Render {
             loker = new object();
         }
 
+        public AdapterDescription GetAdapterDescription() => engine.Graphics.Device.Adapter;
+        public PerfomanceComponent GetPerfomanceState() {
+            return Context.GetEntityManager().GetEntity(engine.WorldTag).GetComponent<PerfomanceComponent>();
+        }
         private void OnUnloaded(object sender, RoutedEventArgs e) {
             Dispose();
         }

@@ -2,6 +2,7 @@
 using D3DLab.ECS.Components;
 using D3DLab.FileFormats.GeoFormats;
 using D3DLab.FileFormats.GeoFormats._OBJ;
+using D3DLab.Toolkit.Math3D;
 using D3DLab.Viewer.D3D;
 
 using System;
@@ -13,40 +14,43 @@ using System.Text;
 
 namespace D3DLab.Viewer.Presentation {
     class VisualObjectLoader {
-        public IEnumerable<LoadedVisualObject> LoadFromFiles(IEnumerable<string> files, WFScene scene) {
-            var loads = new List<LoadedVisualObject>();
-            foreach (var file in files) {
-                var f = new FileInfo(file);
-                switch (f.Extension) {
-                    case ".obj":
-                        var parser = new Utf8ByteOBJParser();
-                        using (var reader = new FileFormats.MemoryMappedFileReader(f)) {
-                            parser.Read(reader.ReadSpan());
-                        }
+        public LoadedVisualObject LoadFromFiles(string file, WFScene scene) {
+            IEnumerable<IFileGeometry3D> meshes;
+            FileInfo material = null;
+            AxisAlignedBox box = AxisAlignedBox.Zero;
+            var f = new FileInfo(file);
+            switch (f.Extension.ToLower()) {
+                case ".stl":
+                    meshes = G3Readers.ReadStl(f);
+                    box = AxisAlignedBox.CreateFrom(meshes.First().Positions);
+                    break;
+                case ".obj":
+                    var parser = new Utf8ByteOBJParser();
+                    using (var reader = new FileFormats.MemoryMappedFileReader(f)) {
+                        parser.Read(reader.ReadSpan());
+                    }
 
-                        FileInfo material = null;
-                        try {
-                            material = parser.HasMTL ?
-                                new FileInfo(parser.GetMaterialFilePath(f.Directory, f.Directory)) : null;
-                        } catch { }
+                    try {
+                        material = parser.HasMTL ?
+                            new FileInfo(parser.GetMaterialFilePath(f.Directory, f.Directory)) : null;
+                    } catch { }
 
-                        //var builder = new UnitedGroupsBulder(parser.GeometryCache);
-                        var builder = new GroupGeoBuilder(parser.GeometryCache);
-                        
-                        var meshes = builder.Build();
-                        var box = AxisAlignedBox.CreateFrom(parser.GeometryCache.PositionsCache.AsReadOnly());
-                        var center = box.Center;
+                    //var builder = new UnitedGroupsBulder(parser.GeometryCache);
+                    var builder = new GroupGeoBuilder(parser.GeometryCache);
 
-                        var loaded = LoadedVisualObject.Create(scene.Context, meshes, material, f.Name);
-                        loaded.Move(scene.Context.GetEntityManager(), Matrix4x4.CreateTranslation(Vector3.Zero - center));
+                    meshes = builder.Build();
+                    box = AxisAlignedBox.CreateFrom(parser.GeometryCache.PositionsCache.AsReadOnly());
 
-                        loads.Add(loaded);
-
-                        break;
-                }
+                    break;
+                default:
+                    throw new NotSupportedException($"'{f.Extension}' is not suppported format.");
             }
+            var center = box.Center;
 
-            return loads;
+            var loaded = LoadedVisualObject.Create(scene.Context, meshes, material, f.Name);
+            loaded.Transform(scene.Context.GetEntityManager(), Matrix4x4.CreateTranslation(Vector3.Zero - center));
+
+            return loaded;
         }
     }
 }

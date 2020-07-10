@@ -104,26 +104,26 @@ namespace D3DLab.Debugger.Presentation {
         #endregion
 
         public void Dropped(string[] files) {
-            foreach(var file in files) {
-                var f = new FileInfo(file);
-                switch (f.Extension) {
-                    case ".obj":
-                        var parser = new FileFormats.GeoFormats._OBJ.Utf8ByteOBJParser();
-                        using (var reader = new FileFormats.MemoryMappedFileReader(f)){
-                            parser.Read(reader.ReadSpan());
-                        }
-                        FileInfo material = null;
-                        try {
-                            material = parser.HasMTL ? new FileInfo(parser.GetMaterialFilePath(f.Directory, f.Directory)) : null;
-                        } catch { }
+            //foreach(var file in files) {
+            //    var f = new FileInfo(file);
+            //    switch (f.Extension) {
+            //        case ".obj":
+            //            var parser = new FileFormats.GeoFormats._OBJ.Utf8ByteOBJParser();
+            //            using (var reader = new FileFormats.MemoryMappedFileReader(f)){
+            //                parser.Read(reader.ReadSpan());
+            //            }
+            //            FileInfo material = null;
+            //            try {
+            //                material = parser.HasMTL ? new FileInfo(parser.GetMaterialFilePath(f.Directory, f.Directory)) : null;
+            //            } catch { }
 
-                        var builder = new FileFormats.GeoFormats._OBJ.UnitedGroupsBulder(parser.GeometryCache);
+            //            var builder = new FileFormats.GeoFormats._OBJ.UnitedGroupsBulder(parser.GeometryCache);
                         
-                       // Scene.LoadGameObject(builder.Build(), material, f.Name);
+            //           // Scene.LoadGameObject(builder.Build(), material, f.Name);
 
-                        break;
-                }
-            }
+            //            break;
+            //    }
+            //}
         }
 
         #region Tab stated changes

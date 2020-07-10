@@ -12,6 +12,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -20,40 +21,7 @@ using WPFLab.MVVM;
 using WPFLab.Threading;
 
 namespace D3DLab.Viewer.Presentation.FileDetails {
-    static class ObjDetailsPopup {
-        static ObjDetailsWindow win;
-        static readonly NullVerificationLock<ObjDetailsWindow> loker;
-        static ObjDetailsPopup() {
-            loker = new NullVerificationLock<ObjDetailsWindow>();
-        }
-
-        static ObjDetailsWindow Create() {
-            var win = new ObjDetailsWindow();
-            win.DataContext = new ObjGroupsViewModel();
-            win.Closed += Win_Closed;
-            return win;
-        }
-
-        static void Win_Closed(object sender, EventArgs e) {
-            loker.Destroy(ref win, Cleanup);
-        }
-
-        static ObjDetailsWindow Cleanup() {
-            win.Closed -= Win_Closed;
-            return null;
-        }
-
-        public static void Open(LoadedVisualObject gobj, IContextState context) {
-            loker.Create(ref win, Create);
-            var vm = ((ObjGroupsViewModel)win.DataContext);
-            vm.Fill(gobj, context);
-            win.Show();
-        }
-        public static void Close() {
-            //loker.Destroy(ref win, Cleanup);
-            win.Close();
-        }
-    }
+    
     public class ObjGroup {
         public readonly string Name;
         public ObjGroup(string name) {
@@ -74,9 +42,9 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         //
         public ICommand ShowHideAll { get; }
 
-        readonly ObjGroupsViewModel facade;
+        readonly ObjDetailsViewModel facade;
 
-        public Controler(ObjGroupsViewModel facade) {
+        public Controler(ObjDetailsViewModel facade) {
             this.facade = facade;
             ShowHideGroup = new WpfActionCommand<bool>(OnShowHideGroup);
             HighlightGroup = new WpfActionCommand<bool>(OnHighlightGroup);
@@ -84,10 +52,10 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
 
             Refresh = new WpfActionCommand(OnRefresh);
             CopyGroupName = new WpfActionCommand<string>(OnWpfActionCommand);
-            VisiblityChanged = new WpfActionCommand<ObjGroupsViewModel.ObjGroupViewItem>(OnVisiblityChanged);
+            VisiblityChanged = new WpfActionCommand<ObjDetailsViewModel.ObjGroupViewItem>(OnVisiblityChanged);
         }
 
-        void OnVisiblityChanged(ObjGroupsViewModel.ObjGroupViewItem item) {
+        void OnVisiblityChanged(ObjDetailsViewModel.ObjGroupViewItem item) {
             facade.ShowHideItem(item, item.IsVisible);
         }
 
@@ -110,7 +78,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
 
         }
     }
-    class ObjGroupsViewModel : BaseNotify {
+    class ObjDetailsViewModel : BaseNotify {
         public class ColorFilterViewItem {
             private string filter;
             private string color;
@@ -183,7 +151,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         LoadedVisualObject gobj;
         IEntityManager entityManager;
 
-        public ObjGroupsViewModel() {
+        public ObjDetailsViewModel() {
             Controler = new Controler(this);
             FilterColors = new ObservableCollection<ColorFilterViewItem>();
 
@@ -195,6 +163,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         internal void ShowHideItem(ObjGroupViewItem item, bool show) {
             var en = entityManager.GetEntity(item.Entity);
             var com = en.GetComponent<RenderableComponent>();
+
             en.UpdateComponent(show ? com.Enable() : com.Disable());
         }
         internal void AddNewColorFilter(string filer, Color color) {

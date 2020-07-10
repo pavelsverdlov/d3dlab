@@ -5,13 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:con="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
-        xmlns:host="clr-namespace:D3DLab.Toolkit.Host;assembly=D3DLab.Toolkit"
+        xmlns:host="clr-namespace:D3DLab.Toolkit.Host;assembly=D3DLab.Toolkit" 
+        xmlns:transform="clr-namespace:D3DLab.Viewer.Modules.Transform"
+        xmlns:comp="clr-namespace:D3DLab.Viewer.Presentation.Componets"
         mc:Ignorable="d"  AllowDrop="True"
         x:Name="mainwin"
-        Title="MainWindow" Height="450" Width="1000" Background="Black">
+        Title="D3DLab Viewer" Height="450" Width="1000" Background="Black">
 
     <Window.Resources>
-        <con:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Modules\ModulesDictionary.xaml"/>
+                <ResourceDictionary>
+                    <con:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+                    <DataTemplate DataType="{x:Type comp:BoundingBoxDetailsViewModel}">
+                        <comp:BoundingBoxDetailsView/>
+                    </DataTemplate>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
     </Window.Resources>
 
     <Grid>
@@ -19,24 +32,30 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="50" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="250"/>
         </Grid.ColumnDefinitions>
 
         <!-- TOP -->
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"  BorderThickness="0,0,0,1"
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"  BorderThickness="0,0,0,1"
                          BorderBrush="White" HorizontalAlignment="Stretch">
             <Grid Height="50" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                
+
                 <DockPanel x:Name="LeftDock" HorizontalAlignment="Left" Grid.Column="0">
+                    <Button Margin="5,5,5,5" Style="{StaticResource ImageButton}"
+                            Content="{StaticResource NormalFolderIconCanvas}"
+                            Command="{Binding OpenFilesCommand}"/>
+
                     <Button Margin="5,5,5,5" Style="{StaticResource ImageButton}">
                         <Canvas Width="40" Margin="3,2,0,0">
                             <Canvas.RenderTransform>
@@ -85,7 +104,7 @@
                     </Button>
                 </DockPanel>
                 <DockPanel x:Name="RightDock" HorizontalAlignment="Right" Grid.Column="1" >
-                    <Button Style="{StaticResource ImageButton}" Margin="5" DockPanel.Dock="Right"
+                    <Button Style="{StaticResource ImageButton}" Margin="5"
                         Command="{Binding OpenDebuggerWindow}">
                         <Grid>
                             <Canvas Width="40" Margin="5,2,0,0">
@@ -98,68 +117,101 @@
                             </Canvas>
                         </Grid>
                     </Button>
+                    <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1" Margin="0,5,5,5"
+                            Padding="5"
+                            Width="190" DockPanel.Dock="Right">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock FontSize="10" TextTrimming="CharacterEllipsis">
+                                <Run Text="{Binding GraphicsInfo.Adapter}" />
+                            </TextBlock>
+                            <TextBlock FontSize="10" HorizontalAlignment="Right">
+                                <Run Text="{Binding GraphicsInfo.Fps}"/>
+                                <Run Text="fps"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
                 </DockPanel>
+                
             </Grid>
         </Border>
+
+
+        <ContentPresenter Content="{Binding Module}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="4" />
+
+        <GridSplitter Grid.Column="1" Grid.Row="1" Grid.RowSpan="4"
+                      ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        
         <!--Overlay="{Binding ElementName=scene}"-->
-        <Grid x:Name="overlay" Grid.Row="1" Grid.Column="1">
+        <Grid x:Name="overlay" Grid.Row="1" Grid.Column="2">
             <host:FormsHost x:Name="formhost"
                            
                             HostLoaded="{Binding HostLoadedCommand}">
             </host:FormsHost>
         </Grid>
-        <GridSplitter Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
-                      ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
         
-        <ListBox Grid.Row="1" Grid.Column="3" Grid.RowSpan="3" ItemsSource="{Binding LoadedObjects}"
-                 IsSynchronizedWithCurrentItem="True">
-            <ListBox.ContextMenu>
+        <GridSplitter Grid.Column="3" Grid.Row="1" Grid.RowSpan="4"
+                      ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+
+        <ItemsControl Grid.Row="1" Grid.Column="4" Grid.RowSpan="5" ItemsSource="{Binding LoadedObjects}"
+                 >
+            <ItemsControl.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Remove" 
                               Command="{Binding RemoveSelectedObjectCommand}" 
                               CommandParameter="{Binding}"
                                           />
                 </ContextMenu>
-            </ListBox.ContextMenu>
-            <ListBox.ItemTemplate>
+            </ItemsControl.ContextMenu>
+            <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Expander>
                         <Expander.Header>
                             <DockPanel>
-                                <TextBlock Text="{Binding Name}" DockPanel.Dock="Left" Margin="0,0,5,0">
-                                    <TextBlock.InputBindings>
-                                        <MouseBinding MouseAction="LeftDoubleClick"
-                                  Command="{Binding DataContext.OpenDetailsSelectedObjectCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-                                  CommandParameter="{Binding}" />
-                                    </TextBlock.InputBindings>
-                                </TextBlock>
-                            </DockPanel>
-                        </Expander.Header>
-                        <Expander.Content>
-                            <StackPanel Margin="5,0" Orientation="Vertical">
-                                <TextBlock>
-                                    <Run Text="Vertices"/>
-                                    <Run Text=" "/>
-                                    <Run Text="1111"/>
-                                </TextBlock>
-                                <TextBlock>
-                                    <Run Text="Vertices"/>
-                                    <Run Text=" "/>
-                                    <Run Text="222"/>
-                                </TextBlock>
-                                <DockPanel HorizontalAlignment="Left" Margin="0,5">
-                                    <ToggleButton Style="{StaticResource ShowHideToggleButton}"
-                                                  Content="{StaticResource SmallLockIconCanvas}"
+                                <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="0,0,5,0" 
+                                                  Content="{StaticResource SmallShowHideIconCanvas}"
                                                   IsChecked="{Binding IsVisible}"
                                                   Command="{Binding DataContext.ShowHideSelectedObjectCommand, ElementName=mainwin}"
                                                   CommandParameter="{Binding}"/>
-                                    <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="5,0"
+                                <TextBlock Text="{Binding Name}" Width="125" TextTrimming="CharacterEllipsis"/>                                
+                                <Button Style="{StaticResource ImageButton}" Margin="5,0,0,0" 
+                                            Content="{StaticResource SmallRefreshIconCanvas}"
+                                            Command="{Binding DataContext.RefreshSelectedObjectCommand, ElementName=mainwin}"
+                                            CommandParameter="{Binding}"/>
+                                <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="5,0"
                                                   Content="{StaticResource SmallLockIconCanvas}"
                                                   Command="{Binding DataContext.LockSelectedObjectCommand, ElementName=mainwin}"
                                                   CommandParameter="{Binding}"/>
-                                    <Button Style="{StaticResource ImageButton}" Margin="0,0" 
+                                <Button Style="{StaticResource ImageButton}" Margin="0,0" 
                                             Content="{StaticResource SmallRemoveIconCanvas}"
                                             Command="{Binding DataContext.RemoveSelectedObjectCommand, ElementName=mainwin}"
+                                            CommandParameter="{Binding}"/>
+                            </DockPanel>
+                        </Expander.Header>
+                        <Expander.Content>
+                            <StackPanel Margin="5,5,0,0" Orientation="Vertical">
+                                <TextBlock Text="{Binding Name}" DockPanel.Dock="Left" Margin="0,0,0,5" TextWrapping="Wrap">
+                                    <!--<TextBlock.InputBindings>
+                                        <MouseBinding MouseAction="LeftDoubleClick"
+                                  Command="{Binding DataContext.OpenDetailsSelectedObjectCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+                                  CommandParameter="{Binding}" />
+                                    </TextBlock.InputBindings>-->
+                                </TextBlock>
+                                <TextBlock Text="Geometry"/>
+                                <TextBlock Foreground="LightGray">
+                                    <Run Text="Vertices:"/>
+                                    <Run Text="{Binding Details.VertexCount}"/>
+                                    <Run Text="     "/>
+                                    <Run Text="Triangles:"/>
+                                    <Run Text="{Binding Details.TriangleCount}"/>
+                                </TextBlock>
+
+                                <ContentPresenter Content="{Binding ActiveComponent}"/>
+
+                                <DockPanel HorizontalAlignment="Left" Margin="0,5,0,0">
+
+                                    <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="0,0" 
+                                            Content="{StaticResource SmallLineBoxIconCanvas}" IsChecked="{Binding IsBoundsShowed}"
+                                            Command="{Binding DataContext.ShowBoundsSelectedObjectCommand, ElementName=mainwin}"
                                             CommandParameter="{Binding}"/>
                                     <Button Style="{StaticResource ImageButton}" Margin="5,0" 
                                             Content="{StaticResource SmallFolderIconCanvas}"
@@ -171,13 +223,20 @@
                                             CommandParameter="{Binding}"/>
                                 </DockPanel>
                             </StackPanel>
-                        </Expander.Content> 
+                        </Expander.Content>
                     </Expander>
-                               
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
 
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!--Buttom-->
+        <GridSplitter Grid.Column="2" Grid.Row="2" ShowsPreview="False" Height="3"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="2" Grid.Row="3">
+            Console:
+        </TextBlock>
+        
     </Grid>
 
 </Window>

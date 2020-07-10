@@ -14,6 +14,9 @@ namespace D3DLab.Toolkit.D3Objects {
         }
         public virtual void HideDebugVisualization(IEntityManager manager) {
         }
+        public override void Cleanup(IContextState context) {
+            base.Cleanup(context);
 
+        }
     }
 }

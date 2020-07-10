@@ -6,6 +6,10 @@ using D3DLab.SDX.Engine;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.SDX.Engine.Rendering;
 using D3DLab.Toolkit._CommonShaders;
+using D3DLab.Toolkit.Components;
+
+using SharpDX.Direct3D11;
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -25,7 +29,20 @@ namespace D3DLab.Toolkit {
             disposer = new DisposeObserver();
         }
 
-        protected void UppdateTransformWorld(GraphicsDevice graphics, D3DRenderComponent render, GraphicEntity en) {
+        protected void UpdateMaterial(GraphicsDevice graphics, D3DRenderComponent render, MaterialColorComponent material) {
+            if (material.IsValid) {
+                var buf = MaterialStructBuffer.From(material);
+
+                if (render.MaterialBuffer.HasValue) {
+                    var buff = render.MaterialBuffer.Get();
+                    graphics.UpdateDynamicBuffer(ref buf, buff);
+                } else {
+                    var buff = graphics.CreateDynamicBuffer(ref buf, Unsafe.SizeOf<MaterialStructBuffer>());
+                    render.MaterialBuffer.Set(buff);
+                }
+            }
+        }
+        protected void UpdateTransformWorld(GraphicsDevice graphics, D3DRenderComponent render, GraphicEntity en) {
             var transform = en.GetComponent<TransformComponent>();
             var matrixWorld = transform.MatrixWorld;
 
@@ -49,6 +66,22 @@ namespace D3DLab.Toolkit {
                 }
             }
         }
+        protected void DefaultUpdateInputOutput(GraphicsDevice graphics, D3DRenderComponent render,
+            VertexLayoutConstructor layconst, DisposableSetter<InputLayout> inputLayout, RenderableComponent renderable) {
+            var context = graphics.ImmediateContext;
+            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(render.VertexBuffer.Get(),
+                       layconst.VertexSize, 0));
+            context.InputAssembler.SetIndexBuffer(render.IndexBuffer.Get(), SharpDX.DXGI.Format.R32_UInt, 0);
+
+            context.InputAssembler.InputLayout = inputLayout.Get();
+            context.InputAssembler.PrimitiveTopology = renderable.PrimitiveTopology;
+
+            context.OutputMerger.SetDepthStencilState(render.DepthStencilState.Get(), 0);
+            context.OutputMerger.SetBlendState(render.BlendingState.Get(),
+                new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0), -1);
+        }
+
+
         protected SharpDX.Direct3D11.Buffer CreateTransformWorldBuffer(GraphicsDevice graphics, ref TransformComponent transform) {
             var tr = TransforStructBuffer.ToTranspose(transform.MatrixWorld);
             return graphics.CreateDynamicBuffer(ref tr, Unsafe.SizeOf<TransforStructBuffer>());

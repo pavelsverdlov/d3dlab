@@ -43,6 +43,13 @@ namespace System.Numerics {
             float.IsNaN(Minimum.X) || float.IsNaN(Minimum.Y) || float.IsNaN(Minimum.Z)
             || float.IsNaN(Maximum.X) || float.IsNaN(Maximum.Y) || float.IsNaN(Maximum.Z);
 
+        public Vector3 Size() {
+            return new Vector3(
+                Math.Abs(Minimum.X - Maximum.X),
+                Math.Abs(Minimum.Y - Maximum.Y),
+                Math.Abs(Minimum.Z - Maximum.Z));
+        }
+
         public readonly Vector3 Minimum;
         public readonly Vector3 Maximum;
         public readonly Vector3 Center;
@@ -95,7 +102,12 @@ namespace System.Numerics {
         }
         public bool Intersects(ref Ray ray, out float distance) 
             => RayIntersectsBox(ref ray, out distance);
-
+        public AxisAlignedBox Merge(in AxisAlignedBox box) {
+            return new AxisAlignedBox(
+                   Vector3.Min(this.Minimum, box.Minimum),
+                   Vector3.Max(this.Maximum, box.Maximum)
+               );
+        }
 
         public static bool operator ==(AxisAlignedBox first, AxisAlignedBox second) {
             return first.Equals(second);
@@ -120,12 +132,7 @@ namespace System.Numerics {
             uint shift5 = ((uint)h1 << 5) | ((uint)h1 >> 27);
             return ((int)shift5 + h1) ^ h2;
         }
-        public Vector3 Size() {
-            return new Vector3(
-                Math.Abs(Minimum.X - Maximum.X),
-                Math.Abs(Minimum.Y - Maximum.Y),
-                Math.Abs(Minimum.Z - Maximum.Z));
-        }
+        
 
         public Vector3[] GetCorners() {
             Vector3[] corners = new Vector3[8];
@@ -140,7 +147,7 @@ namespace System.Numerics {
             return corners;
         }
 
-        public unsafe AxisAlignedBox Transform(Matrix4x4 mat) {
+        public unsafe AxisAlignedBox Transform(in Matrix4x4 mat) {
             var corners = GetCorners();
 
             Vector3 min = Vector3.Transform(corners[0], mat);

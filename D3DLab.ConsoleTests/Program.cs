@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -41,7 +42,7 @@ namespace D3DLab.ConsoleTests {
                     sw.Stop();
 
                     var builder = new UnitedGroupsBulder(parser.GeometryCache);
-                    var mesh = builder.Build();
+                    var mesh = builder.Build().Single();
 
                     if (mesh.Indices.Count != 4692648 || mesh.Positions.Count != 786586) {
                         Console.WriteLine($"ERROR: Not all data was readed");

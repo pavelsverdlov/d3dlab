@@ -87,5 +87,9 @@ namespace D3DLab.ECS {
             }
             //});
         }
+
+        public void Clear() {
+            subscribers.Clear();
+        }
     }
 }

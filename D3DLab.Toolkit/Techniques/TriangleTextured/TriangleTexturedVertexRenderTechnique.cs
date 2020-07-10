@@ -138,7 +138,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
                 render.BlendingState.Set(new BlendState(graphics.D3DDevice, renderable.BlendStateDescription));
             }
 
-            UppdateTransformWorld(graphics, render, en);
+            UpdateTransformWorld(graphics, render, en);
 
             if (geo.IsModified) {
                 var vertex = new Vertex[geo.Positions.Length];
@@ -215,7 +215,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
 
         public override bool IsAplicable(GraphicEntity entity) {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
-                && ren.IsValid
+                && ren.IsRenderable
                 && ren.Technique == RenderTechniques.TriangleTextured
                 && entity.Contains(
                     typeof(GeometryPoolComponent),

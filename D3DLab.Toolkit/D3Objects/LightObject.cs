@@ -14,7 +14,7 @@ namespace D3DLab.Toolkit.D3Objects {
         public LightIndexOccupiedException(int index) : base($"Index '{index}' is occupied.") { }
     }
 
-    public class LightObject : SingleGameObject {
+    public class LightObject : SingleVisualObject {
         static float lightpower = 1;
         static int lights = 0;
         static HashSet<int> occupiedIndex;

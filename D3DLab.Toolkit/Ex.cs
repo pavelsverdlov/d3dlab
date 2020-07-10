@@ -16,6 +16,7 @@ namespace D3DLab.Toolkit {
                 action(item);
             }
         }
+        public static IEnumerable<T> ToEnumerable<T>(this T source) { yield return source; }
     }
     internal static class ArrayEx {
         public static ReadOnlyCollection<T> AsReadOnly<T>(this T[] source) => Array.AsReadOnly(source);

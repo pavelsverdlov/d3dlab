@@ -78,7 +78,7 @@ namespace D3DLab.Toolkit.Techniques.Background {
 
         public override bool IsAplicable(GraphicEntity entity) {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
-                && ren.IsValid
+                && ren.IsRenderable
                 && ren.Technique == RenderTechniques.Background
                 && entity.Contains(
                     typeof(BackgroundRenderComponent), 
@@ -100,8 +100,12 @@ namespace D3DLab.Toolkit.Techniques.Background {
                 depthStencilState.Set(new DepthStencilState(graphics.D3DDevice, D3DDepthStencilStateDescriptions.DepthDisabled));
             }
 
-            SharpDX.Direct3D11.Device.FromPointer<SharpDX.Direct3D11.Device>(System.IntPtr.Zero);
-            var d = new D3DLab.CUDA.TestCudaLib();
+            //SharpDX.Direct3D11.Device.FromPointer<SharpDX.Direct3D11.Device>(System.IntPtr.Zero);
+            //var d = new D3DLab.CUDA.TestCudaLib();
+            //d.SetDevice(graphics.D3DDevice);
+            //var text = graphics.CreateTexture2D(new GraphicSurfaceSize(256, 256));
+            //d.SetTexture(text.NativePointer);
+            //d.SetTexture(text);
 
             foreach (var en in entities) {
                 if (en.TryGetComponent<BackgroundRenderComponent>(out var render)) {

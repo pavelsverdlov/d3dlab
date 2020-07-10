@@ -88,6 +88,25 @@ float2 winToNdc(in float2 pos)
 {
     return float2((pos.x * v4Viewport.z) * 2.0, (pos.y * v4Viewport.w) * 2.0);
 }
+float3x3 fromAxisAngle3x3(float angle, float3 axis) {
+    float c, s;
+    sincos(angle, s, c);
+
+    float t = 1 - c;
+    float x = axis.x;
+    float y = axis.y;
+    float z = axis.z;
+
+    return float3x3(
+        t * x * x + c, t * x * y - s * z, t * x * z + s * y,
+        t * x * y + s * z, t * y * y + c, t * y * z - s * x,
+        t * x * z - s * y, t * y * z + s * x, t * z * z + c
+        );
+}
+
+float toNewRange(float oldVal, float oldMin, float oldMax, float newMim, float newMax) {
+    return (((oldVal - oldMin) * (newMax - newMim)) / (oldMax - oldMin)) + newMim;
+}
 
 float4 ComputePhongColor(float3 P, float4 N, Material mat)
 {

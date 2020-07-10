@@ -170,7 +170,7 @@ namespace D3DLab.Toolkit.Techniques.BlackAndWhite {
 
         public override bool IsAplicable(GraphicEntity entity) {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
-                && ren.IsValid
+                && ren.IsRenderable
                 && ren.Technique == RenderTechniques.OneFrameFlatWhite
                 && entity.Contains(
                     typeof(BlackAndWhiteRenderComponent), 

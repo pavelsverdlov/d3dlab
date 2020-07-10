@@ -17,8 +17,11 @@ namespace D3DLab.SDX.Engine.Shader {
         }
        
         public IShaderInfo[] Load(string resource, string keyname) {
-            var text = mloader.GetResourceTextByName(resource);            
+            var text = mloader.GetResourceTextByName(resource);
 
+            return LoadText(text, keyname);
+        }
+        public IShaderInfo[] LoadText(string text, string keyname) {
             var res = new List<IShaderInfo>();
             var parts = text.Split(new[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
 

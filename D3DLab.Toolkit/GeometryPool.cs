@@ -68,17 +68,18 @@ namespace D3DLab.Toolkit {
         /// </param>
         /// <returns></returns>
         public GeometryPoolComponent UpdateGeometry<TGeoData>(GeometryPoolComponent old, TGeoData newGeo)
-            where TGeoData : IGeometryData {
+            where TGeoData : IGeometryData {            
             var id = Guid.NewGuid();
             if (!pool.TryAdd(id, newGeo)) {
                 throw new Exception("Can't store geometry.");
             }
-            sync.Add((_this, c) => {
-                if (!pool.TryRemove(c.Key, out var oldgeo)) {
-                    throw new Exception("Can't remove geometry.");
-                }
-                oldgeo.Dispose();
-            }, old);
+            if (old.IsValid) {
+                sync.Add((_this, c) => {
+                    if (pool.TryRemove(c.Key, out var oldgeo)) {
+                        oldgeo.Dispose();
+                    }
+                }, old);
+            }
             return GeometryPoolComponent.Create(id);
         }
 
@@ -90,10 +91,9 @@ namespace D3DLab.Toolkit {
         public void Remove(in GraphicEntity obj) {
             if (obj.TryGetComponent<GeometryPoolComponent>(out var com)) {
                 sync.Add((_this, c) => {
-                    if (!pool.TryRemove(c.Key, out var oldgeo)) {
-                        throw new Exception("Can't remove geometry.");
-                    }
-                    oldgeo.Dispose();
+                    if (pool.TryRemove(c.Key, out var oldgeo)) {
+                        oldgeo.Dispose();
+                    }                    
                 }, com);
             }
         }

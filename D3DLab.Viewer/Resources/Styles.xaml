@@ -15,8 +15,13 @@
     <PathGeometry x:Key="RemoveIconPathGeometry" Figures="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
     <PathGeometry x:Key="FolderIconPathGeometry" Figures="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
     <PathGeometry x:Key="SettingsIconPathGeometry" Figures="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-    
-    <Canvas x:Key="SmallRemoveIconCanvas" Width="15" Height="15" Margin="1,0,1,0">
+    <PathGeometry x:Key="RefreshIconPathGeometry" Figures="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
+    <PathGeometry x:Key="FileIconPathGeometry" Figures="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>
+    <PathGeometry x:Key="LineBoxIconPathGeometry" Figures="m221.703125 0-221.703125 128v256l221.703125 128 221.703125-128v-256zm176.515625 136.652344-176.515625 101.914062-176.515625-101.914062 176.515625-101.910156zm-368.132812 26.027344 176.574218 101.941406v203.953125l-176.574218-101.945313zm206.660156 305.894531v-203.953125l176.574218-101.941406v203.949218zm0 0"/>
+
+    <!-- Small Size -->
+
+    <Canvas x:Key="SmallRemoveIconCanvas" x:Shared="False" Width="15" Height="15" Margin="1,0,1,0">
         <Canvas.RenderTransform>
             <TransformGroup>
                 <ScaleTransform ScaleX="0.6" ScaleY="0.6" />
@@ -24,7 +29,7 @@
         </Canvas.RenderTransform>
         <Path Fill="White" Data="{StaticResource RemoveIconPathGeometry}"/>
     </Canvas>
-    <Canvas x:Key="SmallFolderIconCanvas" Width="15" Height="15" Margin="1,0,1,0">
+    <Canvas x:Key="SmallFolderIconCanvas" x:Shared="False" Width="15" Height="15" Margin="1,0,1,0">
         <Canvas.RenderTransform>
             <TransformGroup>
                 <ScaleTransform ScaleX="0.6" ScaleY="0.6" />
@@ -32,7 +37,7 @@
         </Canvas.RenderTransform>
         <Path Fill="White" Data="{StaticResource FolderIconPathGeometry}"/>
     </Canvas>
-    <Canvas x:Key="SmallLockIconCanvas" Width="15" Height="15" Margin="1,0,1,0">
+    <Canvas x:Key="SmallLockIconCanvas" x:Shared="False" Width="15" Height="15" Margin="1,0,1,0">
         <Canvas.RenderTransform>
             <TransformGroup>
                 <ScaleTransform ScaleX="0.6" ScaleY="0.6" />
@@ -40,7 +45,7 @@
         </Canvas.RenderTransform>
         <Path Fill="White" Data="{StaticResource LockIconPathGeometry}"/>
     </Canvas>
-    <Canvas x:Key="SmallSettingsIconCanvas" Width="15" Height="15" Margin="1,0,1,0">
+    <Canvas x:Key="SmallSettingsIconCanvas" x:Shared="False" Width="15" Height="15" Margin="1,0,1,0">
         <Canvas.RenderTransform>
             <TransformGroup>
                 <ScaleTransform ScaleX="0.6" ScaleY="0.6" />
@@ -48,7 +53,52 @@
         </Canvas.RenderTransform>
         <Path Fill="White" Data="{StaticResource SettingsIconPathGeometry}"/>
     </Canvas>
+    <Canvas x:Key="SmallRefreshIconCanvas" x:Shared="False" Width="15" Height="15" Margin="1,0,1,0">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform ScaleX="0.6" ScaleY="0.6" />
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path Fill="White" Data="{StaticResource RefreshIconPathGeometry}"/>
+    </Canvas>
+    <Canvas x:Key="SmallShowHideIconCanvas" x:Shared="False" Width="15" Height="15" Margin="1,0,1,0">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform ScaleX="0.6" ScaleY="0.6" />
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path Fill="Transparent" Data="M0 0h24v24H0z"/>
+        <Path Fill="White" Data="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+    </Canvas>
+    <Canvas x:Key="SmallLineBoxIconCanvas" x:Shared="False" Width="15" Height="15" 
+            Margin="2,0,1,0">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform ScaleX="0.03" ScaleY="0.03" />
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path Fill="Transparent" Data="M0 0h24v24H0z"/>
+        <Path Fill="White" Data="{StaticResource LineBoxIconPathGeometry}"/>
+    </Canvas>
+    <!-- Normal Size -->
     
+    <Canvas x:Key="NormalFolderIconCanvas" Width="40" Margin="3,2,0,0">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path Fill="White" Data="{StaticResource FolderIconPathGeometry}"/>
+    </Canvas>
+    <Canvas x:Key="NormalFileIconCanvas" Width="40" Margin="3,2,0,0">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path Fill="White" Data="{StaticResource FileIconPathGeometry}"/>
+    </Canvas>
+
 
     <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="White"/>
@@ -121,6 +171,30 @@
                     <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1"  
                             Background="{StaticResource BlackBackgroundColor}" Name="btn_border">
                         <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="btn_border" Property="BorderBrush"
+                                    Value="{StaticResource SelectedBorderBrushColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="TextToggleButton" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1"  
+                            Background="{StaticResource BlackBackgroundColor}" Name="btn_border">
+                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" >
+                             <ContentPresenter />
+                        </TextBlock>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="true">

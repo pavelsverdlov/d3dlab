@@ -260,7 +260,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
                 }
             }
 
-            UppdateTransformWorld(graphics, render, en);
+            UpdateTransformWorld(graphics, render, en);
 
             if (!render.TransformWorldBuffer.HasValue) {
                 throw RenderTechniqueException.NoWorldTransformBuffers;
@@ -306,7 +306,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
 
         public override bool IsAplicable(GraphicEntity entity) {
             return entity.TryGetComponent<RenderableComponent>(out var ren)
-                && ren.IsValid
+                && ren.IsRenderable
                 && ren.Technique == RenderTechniques.TriangleColored
                 && entity.Contains(
                     typeof(GeometryPoolComponent),
