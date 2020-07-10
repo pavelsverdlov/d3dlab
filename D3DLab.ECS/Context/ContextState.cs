@@ -1,26 +1,32 @@
-﻿using System;
+﻿using D3DLab.ECS.Sync;
+
+using System;
 using System.Collections.Generic;
 
 namespace D3DLab.ECS.Context {
 
     public sealed class ManagerContainer {
+        public ISynchronizationContext SynchronizationContext { get; }
         public ISystemManager SystemManager { get; }
         public IComponentManager ComponentManager { get; }
         public IEntityManager EntityManager { get; }
         public IGeometryMemoryPool GeoMemoryPool { get; }
         public EntityOrderContainer EntityOrder { get; }
         public IOctreeManager OctreeManager { get; }
+        public ILabLogger Logger { get; }
 
         public ManagerContainer(IManagerChangeNotify notify, 
-            IOctreeManager octree, IContextState context, IGeometryMemoryPool geoPool) {
+            IOctreeManager octree, IContextState context, IGeometryMemoryPool geoPool,
+            RenderLoopSynchronizationContext syncContext, ILabLogger logger) {
+            SynchronizationContext = syncContext;
             EntityOrder = new EntityOrderContainer();
             this.SystemManager = new SystemManager(notify, context);
-            var encom = new EntityComponentManager(notify, EntityOrder);
+            var encom = new EntityComponentManager(notify, EntityOrder, syncContext);
             GeoMemoryPool = geoPool;
             this.ComponentManager = encom;
             this.EntityManager = encom;
             OctreeManager = octree;
-
+            Logger = logger;
         }
 
         public void Dispose() {
@@ -46,23 +52,30 @@ namespace D3DLab.ECS.Context {
         }
         public virtual void EndState() { }
         public virtual void BeginState() { }
-
+        public ILabLogger Logger => managers.Logger;
         public virtual IComponentManager GetComponentManager() { return managers.ComponentManager; }
         public virtual IEntityManager GetEntityManager() { return managers.EntityManager; }
         public virtual ISystemManager GetSystemManager() { return managers.SystemManager; }
         public virtual IGeometryMemoryPool GetGeometryPool() => managers.GeoMemoryPool;
+        public virtual ISynchronizationContext GetSynchronizationContext() => managers.SynchronizationContext;
+
         public EntityOrderContainer EntityOrder { get { return managers.EntityOrder; } }
+
+    
+
         public IOctreeManager GetOctreeManager() => managers.OctreeManager;
         public void Dispose() {
             managers.Dispose();
         }
 
-        
     }
 
     public sealed class ContextStateProcessor : IContextState {
         private sealed class EmptyContextState : IContextState {
             public EntityOrderContainer EntityOrder => throw new NotImplementedException();
+
+            public ILabLogger Logger => throw new NotImplementedException();
+
             public void BeginState() { }
             public void EndState() { }
             public IComponentManager GetComponentManager() { throw new NotImplementedException(); }
@@ -78,6 +91,11 @@ namespace D3DLab.ECS.Context {
             public IOctreeManager GetOctreeManager() {
                 throw new NotImplementedException();
             }
+
+            public ISynchronizationContext GetSynchronizationContext() {
+                throw new NotImplementedException();
+            }
+
         }
 
         IContextState currentState;
@@ -113,10 +131,13 @@ namespace D3DLab.ECS.Context {
 
         public IGeometryMemoryPool GetGeometryPool() => currentState.GetGeometryPool();
         public IOctreeManager GetOctreeManager() => currentState.GetOctreeManager();
+        public ISynchronizationContext GetSynchronizationContext() => currentState.GetSynchronizationContext();
 
         public EntityOrderContainer EntityOrder {
             get { return currentState.EntityOrder; }
         }
+
+        public ILabLogger Logger { get; }
 
         public void BeginState() {
             currentState.BeginState();

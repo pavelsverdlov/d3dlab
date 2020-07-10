@@ -1,5 +1,6 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
+using D3DLab.ECS.Sync;
 using D3DLab.Toolkit.Components;
 using D3DLab.Toolkit.Math3D;
 
@@ -25,14 +26,15 @@ namespace D3DLab.Toolkit {
 
         readonly IContextState context;
         public bool IsDrawingBoxesEnable { get; private set; }
-        readonly SynchronizationContext<OctreeManager, SyncData> sync;
+        readonly SynchronizationContextAdapter<OctreeManager, SyncData> sync;
         readonly object loker;
         readonly Task drawerTask;
-        public OctreeManager(IContextState context, AxisAlignedBox box, int MaximumChildren) : base(box, MaximumChildren) {
+        public OctreeManager(IContextState context, AxisAlignedBox box, int MaximumChildren,
+            RenderLoopSynchronizationContext syncContext) : base(box, MaximumChildren) {
             this.context = context;
             IsDrawingBoxesEnable = false;
             loker = new object();
-            sync = new SynchronizationContext<OctreeManager, SyncData>(this);
+            sync = new SynchronizationContextAdapter<OctreeManager, SyncData>(this, syncContext);
             drawerTask = Task.CompletedTask;
         }
 
@@ -93,14 +95,12 @@ namespace D3DLab.Toolkit {
             sync.Add((_this, data) => {
                 _this.TryRemove(data.EntityTag);
                 _this.Add(data.Box, data.EntityTag);
+                return true;
             }, new SyncData { Box = box, EntityTag = enTag });
         }
 
         public void Synchronize(int theadId) {
-            var changed = sync.IsChanged;
-            sync.Synchronize(theadId);
-
-            if (changed && IsDrawingBoxesEnable) {
+            if (IsDrawingBoxesEnable) {
                 drawerTask.ContinueWith(_ => {
                     this.Draw(context);
                 });

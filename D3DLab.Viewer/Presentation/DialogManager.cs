@@ -1,5 +1,6 @@
 ﻿using D3DLab.Viewer.Presentation.FileDetails;
 using D3DLab.Viewer.Presentation.OpenFiles;
+using D3DLab.Viewer.Presentation.TopPanel.SaveAll;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,23 +53,14 @@ namespace D3DLab.Viewer.Presentation {
                 ()=> service.ResolveView<ObjDetailsWindow, ObjDetailsViewModel>());
             OpenFiles = new ProxyDialog<OpenFilesWindow, OpenFilesViewModel>(
                 () => service.ResolveView<OpenFilesWindow, OpenFilesViewModel>());
+            SaveAll = new ProxyDialog<SaveAllWindow, SaveAllViewModel>(
+               () => service.ResolveView<SaveAllWindow, SaveAllViewModel>());
         }
 
         public ProxyDialog<ObjDetailsWindow, ObjDetailsViewModel> ObjDetails { get; }
         public ProxyDialog<OpenFilesWindow, OpenFilesViewModel>  OpenFiles { get; }
+        public ProxyDialog<SaveAllWindow, SaveAllViewModel>  SaveAll { get; }
 
-        public string OpenFolderDialog(DirectoryInfo directory) {
-            var dialog = new Microsoft.Win32.OpenFileDialog();
-            dialog.InitialDirectory = directory.FullName;
-            dialog.Filter = "*.png|*.png";
-            dialog.DefaultExt = "*.png|*.png";
-            dialog.Title = "Open image";
-
-            if (dialog.ShowDialog() == false) {
-                return null;
-            }
-
-            return dialog.FileName;
-        }
+       
     }
 }

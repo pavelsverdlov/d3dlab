@@ -1,5 +1,7 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
+using D3DLab.ECS.Sync;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,12 +14,12 @@ namespace D3DLab.Toolkit {
         //IManagerChangeSubscriber<Entity>
         {
 
-        readonly ISynchronizationContext<GeometryPool, GeometryPoolComponent> sync;
+        readonly ISynchronizationQueue<GeometryPool, GeometryPoolComponent> sync;
         readonly ConcurrentDictionary<Guid, IGeometryData> pool;
         readonly IManagerChangeNotify notify;
 
-        public GeometryPool(IManagerChangeNotify notify) {
-            sync = SynchronizationContextBuilder.Create<GeometryPool, GeometryPoolComponent>(this, true);
+        public GeometryPool(IManagerChangeNotify notify, RenderLoopSynchronizationContext syncContext) {
+            sync = SynchronizationContextBuilder.Create<GeometryPool, GeometryPoolComponent>(this, syncContext);
             pool = new ConcurrentDictionary<Guid, IGeometryData>();
             this.notify = notify;
         }
@@ -78,13 +80,10 @@ namespace D3DLab.Toolkit {
                     if (pool.TryRemove(c.Key, out var oldgeo)) {
                         oldgeo.Dispose();
                     }
+                    return true;
                 }, old);
             }
             return GeometryPoolComponent.Create(id);
-        }
-
-        public void Synchronize(int theadId) {
-            sync.Synchronize(theadId);
         }
 
         public void Add(in GraphicEntity obj) { /* NOT INTERESTING */ }
@@ -93,13 +92,13 @@ namespace D3DLab.Toolkit {
                 sync.Add((_this, c) => {
                     if (pool.TryRemove(c.Key, out var oldgeo)) {
                         oldgeo.Dispose();
-                    }                    
+                    }
+                    return true;
                 }, com);
             }
         }
 
         public void Dispose() {
-            sync.Dispose();
             foreach (var val in pool.Values) {
                 val.Dispose();
             }

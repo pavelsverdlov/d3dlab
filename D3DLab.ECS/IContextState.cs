@@ -1,4 +1,6 @@
 ﻿using D3DLab.ECS.Camera;
+using D3DLab.ECS.Sync;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,6 +9,9 @@ namespace D3DLab.ECS {
     public interface IContextState {
         void BeginState();
         void EndState();
+        ILabLogger Logger { get; }
+
+        ISynchronizationContext GetSynchronizationContext();
         IComponentManager GetComponentManager();
         IEntityManager GetEntityManager();
         ISystemManager GetSystemManager();

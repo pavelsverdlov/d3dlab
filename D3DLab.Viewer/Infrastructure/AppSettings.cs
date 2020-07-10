@@ -17,7 +17,9 @@ namespace D3DLab.Viewer.Infrastructure {
         public IEnumerable<string> GetReceintFiles() {
             var list = new List<string>();
             foreach (var file in settings.RecentFilePaths) {
-                list.Add(file);
+                if (File.Exists(file)) {
+                    list.Add(file);
+                }
             }
             return list;
         }
@@ -29,6 +31,11 @@ namespace D3DLab.Viewer.Infrastructure {
             }
             settings.RecentFilePaths.Clear();
             settings.RecentFilePaths.AddRange(all.ToArray());
+            settings.Save();
+        }
+
+        internal void ClearReceintFiles() {
+            settings.RecentFilePaths.Clear();
             settings.Save();
         }
     }

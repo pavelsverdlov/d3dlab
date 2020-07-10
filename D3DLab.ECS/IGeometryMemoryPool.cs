@@ -26,7 +26,7 @@ namespace D3DLab.ECS {
         bool IsDisposed { get; }
     }
 
-    public interface IGeometryMemoryPool : ISynchronizationContext, IDisposable {
+    public interface IGeometryMemoryPool : IDisposable {
         TGeoData GetGeometry<TGeoData>(GraphicEntity entity) where TGeoData : IGeometryData;
         TGeoData GetGeometry<TGeoData>(GeometryPoolComponent com) where TGeoData : IGeometryData;
         GeometryPoolComponent AddGeometry<TGeoData>(TGeoData geo) where TGeoData : IGeometryData;

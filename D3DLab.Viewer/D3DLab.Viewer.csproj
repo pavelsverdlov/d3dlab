@@ -23,6 +23,7 @@
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.0.1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
+    <PackageReference Include="NLog" Version="4.7.2" />
     <PackageReference Include="Syncfusion.PropertyGrid.WPF" Version="17.4.0.46" />
     <PackageReference Include="Syncfusion.SfInput.WPF" Version="17.4.0.47" />
     <PackageReference Include="Syncfusion.Shared.WPF" Version="17.4.0.46" />

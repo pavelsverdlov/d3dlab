@@ -1,40 +1,25 @@
-﻿using D3DLab.ECS.Sync;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace D3DLab.ECS {
-   
-    public static class SynchronizationContextBuilder {
-        public static ISynchronizationQueue<TOwner, TInput> Create<TOwner, TInput>(TOwner owner, RenderLoopSynchronizationContext context) {
-            return new SynchronizationContextAdapter<TOwner, TInput>(owner, context);
-        }
-    }
-
-    public class SynchronizationContext<TOwner> : ISynchronization {
-        abstract class AbstractQueueItem {
-            public int Retries;
-            public abstract bool Execute(TOwner owner);
-        }
-        class QueueItem<TInput> : AbstractQueueItem {
-            public readonly Func<TOwner, TInput, bool> Action;
+namespace D3DLab.ECS.Sync {
+    public class SynchronizationContext<TOwner, TInput> {
+        class QueueItem {
+            public readonly Action<TOwner, TInput> Action;
             public readonly TInput Input;
+            public int Retries;
 
-            public QueueItem(Func<TOwner, TInput, bool> action, TInput input) {
+            public QueueItem(Action<TOwner, TInput> action, TInput input) {
                 Action = action;
                 Input = input;
                 Retries = 5;
             }
-
-            public override bool Execute(TOwner owner) => Action(owner, Input);
         }
 
-        Queue<AbstractQueueItem> queue;
-        Queue<AbstractQueueItem> queueSnapshot;
-
+        Queue<QueueItem> queue;
+        Queue<QueueItem> queueSnapshot;
         readonly TOwner owner;
         readonly object _loker;
         int theadId;
@@ -45,15 +30,15 @@ namespace D3DLab.ECS {
             theadId = -1;
         }
         SynchronizationContext(TOwner owner, object _loker) {
-            this.queue = new Queue<AbstractQueueItem>();
+            this.queue = new Queue<QueueItem>();
             this.owner = owner;
             this._loker = _loker;
         }
 
         public void BeginSynchronize() {
             Monitor.Enter(_loker);
-            queueSnapshot = new Queue<AbstractQueueItem>(queue);
-            queue = new Queue<AbstractQueueItem>();
+            queueSnapshot = new Queue<QueueItem>(queue);
+            queue = new Queue<QueueItem>();
             IsChanged = false;
         }
 
@@ -67,12 +52,13 @@ namespace D3DLab.ECS {
             while (local.Any()) {
                 var item = local.Dequeue();
                 try {
-                    if (!item.Execute(owner) && item.Retries > 0) {
-                        item.Retries--;
-                        queue.Enqueue(item);
-                    }
+                    item.Action(owner, item.Input);
                 } catch (Exception ex) {
                     System.Diagnostics.Trace.WriteLine($"retry, move action to next render iteration [{ex.Message}] Retries:{item.Retries}");
+                    item.Retries--;
+                    if (item.Retries > 0) {
+                        Add(item.Action, item.Input);
+                    }
                 }
             }
         }
@@ -82,17 +68,27 @@ namespace D3DLab.ECS {
             EndSynchronize(theadId);
         }
 
-        public void Add<TInput>(Func<TOwner, TInput, bool> action, TInput input) {
+        public void Add(Action<TOwner, TInput> action, TInput input) {
+            //if(Thread.CurrentThread.ManagedThreadId == theadId) {
+            //    action(owner, input);
+            //    return;
+            //}
             lock (_loker) {
                 IsChanged = true;
-                queue.Enqueue(new QueueItem<TInput>(action, input));
+                queue.Enqueue(new QueueItem(action, input));
             }
         }
-        public void AddRange<TInput>(Func<TOwner, TInput, bool> action, IEnumerable<TInput> inputs) {
+        public void AddRange(Action<TOwner, TInput> action, IEnumerable<TInput> inputs) {
+            //if (Thread.CurrentThread.ManagedThreadId == theadId) {
+            //    foreach (var input in inputs) {
+            //        action(owner, input);
+            //    }
+            //    return;
+            //}
             lock (_loker) {
                 IsChanged = true;
                 foreach (var input in inputs) {
-                    queue.Enqueue(new QueueItem<TInput>(action, input));
+                    queue.Enqueue(new QueueItem(action, input));
                 }
             }
         }

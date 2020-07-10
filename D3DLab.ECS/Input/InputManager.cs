@@ -1,4 +1,6 @@
-﻿using System;
+﻿using D3DLab.ECS.Sync;
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 

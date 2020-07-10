@@ -92,7 +92,7 @@ namespace D3DLab.ECS.Ext {
     public static class Vector3CollectionEx {
         unsafe public static Vector3[] Transform(this Vector3[] positions, ref Matrix4x4 matrix) {
             if (positions == null || positions.Length == 0) {
-                return null;
+                return Array.Empty<Vector3>();
             }
 
             var result = new Vector3[positions.Length];

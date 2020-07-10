@@ -10,6 +10,9 @@
     <SolidColorBrush x:Key="BorderBrushColor">White</SolidColorBrush>
     <SolidColorBrush x:Key="TextColor">White</SolidColorBrush>
     <SolidColorBrush x:Key="SelectedBorderBrushColor">#569CD6</SolidColorBrush>
+    <SolidColorBrush x:Key="SecondTextColor">LightGray</SolidColorBrush>
+    <SolidColorBrush x:Key="HighlightedTextColor">Gold</SolidColorBrush>
+    
 
     <PathGeometry x:Key="LockIconPathGeometry" Figures="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
     <PathGeometry x:Key="RemoveIconPathGeometry" Figures="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
@@ -18,7 +21,8 @@
     <PathGeometry x:Key="RefreshIconPathGeometry" Figures="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
     <PathGeometry x:Key="FileIconPathGeometry" Figures="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>
     <PathGeometry x:Key="LineBoxIconPathGeometry" Figures="m221.703125 0-221.703125 128v256l221.703125 128 221.703125-128v-256zm176.515625 136.652344-176.515625 101.914062-176.515625-101.914062 176.515625-101.910156zm-368.132812 26.027344 176.574218 101.941406v203.953125l-176.574218-101.945313zm206.660156 305.894531v-203.953125l176.574218-101.941406v203.949218zm0 0"/>
-
+    <PathGeometry x:Key="SaveIconPathGeometry" Figures="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+    
     <!-- Small Size -->
 
     <Canvas x:Key="SmallRemoveIconCanvas" x:Shared="False" Width="15" Height="15" Margin="1,0,1,0">
@@ -80,6 +84,7 @@
         <Path Fill="Transparent" Data="M0 0h24v24H0z"/>
         <Path Fill="White" Data="{StaticResource LineBoxIconPathGeometry}"/>
     </Canvas>
+   
     <!-- Normal Size -->
     
     <Canvas x:Key="NormalFolderIconCanvas" Width="40" Margin="3,2,0,0">
@@ -98,7 +103,34 @@
         </Canvas.RenderTransform>
         <Path Fill="White" Data="{StaticResource FileIconPathGeometry}"/>
     </Canvas>
+    <Canvas x:Key="NormalSaveIconCanvas" Width="40" Margin="3,2,0,0">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path Fill="White" Data="{StaticResource SaveIconPathGeometry}"/>
+    </Canvas>
+    <Canvas x:Key="NormalRemoveIconCanvas" Width="40" Margin="3,2,0,0">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path Fill="White" Data="{StaticResource RemoveIconPathGeometry}"/>
+    </Canvas>
 
+    <!-- Styles -->
+
+    <Style x:Key="PopupWindowStyle" TargetType="{x:Type Window}">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
+        <Setter Property="WindowStyle" Value="ToolWindow"/>
+        <Setter Property="Height" Value="450"/>
+        <Setter Property="Width" Value="300"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        
+    </Style>
 
     <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="White"/>

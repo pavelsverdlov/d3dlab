@@ -39,12 +39,12 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="252"/>
         </Grid.ColumnDefinitions>
 
         <!-- TOP -->
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"  BorderThickness="0,0,0,1"
-                         BorderBrush="White" HorizontalAlignment="Stretch">
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"  BorderThickness="0,0,0,2"
+                         BorderBrush="{StaticResource BorderBrushColor}" HorizontalAlignment="Stretch">
             <Grid Height="50" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -104,6 +104,11 @@
                     </Button>
                 </DockPanel>
                 <DockPanel x:Name="RightDock" HorizontalAlignment="Right" Grid.Column="1" >
+                    <Button Style="{StaticResource ImageButton}" Margin="5" 
+                            Content="{StaticResource NormalSaveIconCanvas}"
+                            Command="{Binding SaveAllCommand}"
+                            CommandParameter="{Binding}"/>
+                    <Rectangle Fill="{StaticResource BorderBrushColor}" Width="2" Margin="0,5,0,5"/>
                     <Button Style="{StaticResource ImageButton}" Margin="5"
                         Command="{Binding OpenDebuggerWindow}">
                         <Grid>

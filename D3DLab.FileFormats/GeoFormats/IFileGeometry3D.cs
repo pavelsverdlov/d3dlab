@@ -22,5 +22,7 @@ namespace D3DLab.FileFormats.GeoFormats {
         ReadOnlyCollection<Vector2> TextureCoors { get; }
         ReadOnlyCollection<Vector3> Colors { get; }
         GeometryPrimitiveTopologies Topology { get; }
+
+        IFileGeometry3D ApplyMatrix(ref Matrix4x4 matrix);
     }
 }

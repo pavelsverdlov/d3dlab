@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace D3DLab.Toolkit.Components {
     [Obsolete("Remake to using GeometryPool")]
     /// <summary>
-    /// DO NOT USE GeometryComponent OUTSIDE OF Zirkonzahn.Visualization
+    /// DO NOT USE GeometryComponent OUTSIDE
     /// APPROACH OF STORING GEO WILL BE CHANGED 
     /// </summary>
     public class GeometryComponent : GraphicComponent {

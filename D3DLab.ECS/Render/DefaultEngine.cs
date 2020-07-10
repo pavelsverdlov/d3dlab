@@ -48,7 +48,7 @@ namespace D3DLab.ECS.Render {
             CameraTag = new ElementTag("Camera");
             context.GetEntityManager()
                .CreateEntity(CameraTag);
-            context.GetEntityManager().FrameSynchronize(-1);
+            context.GetSynchronizationContext().FrameSynchronize(-1);
         }
 
         protected abstract void Initializing();
@@ -68,8 +68,8 @@ namespace D3DLab.ECS.Render {
             var imanager = InputManager;
 
             //first synchronization
-            Context.GetEntityManager().Synchronize(Thread.CurrentThread.ManagedThreadId);
-            imanager.Synchronize(Thread.CurrentThread.ManagedThreadId);
+            Context.GetSynchronizationContext().Synchronize(managedThreadId);
+            imanager.Synchronize(managedThreadId);
 
             var speed = new Stopwatch();
 
@@ -106,25 +106,25 @@ namespace D3DLab.ECS.Render {
         }
 
         bool Rendering(IEntityManager emanager, IInputManager imanager, double millisec, bool changed) {
-            var id = Thread.CurrentThread.ManagedThreadId;
+            var syncContext = Context.GetSynchronizationContext();
 
-            changed = changed || emanager.HasChanges;
-            emanager.Synchronize(managedThreadId);
+            changed = changed || syncContext.HasChanges;
+            syncContext.Synchronize(managedThreadId);
 
             var isnap = InputManager.GetInputSnapshot();
 
             if (!isnap.Events.Any() && !changed) {//no input no rendering 
                 return false;
             }
-            Context.GetGeometryPool().Synchronize(managedThreadId);
-            Context.GetOctreeManager().Synchronize(managedThreadId);
+            //Context.GetGeometryPool().Synchronize(managedThreadId);
+            //Context.GetOctreeManager().Synchronize(managedThreadId);
 
             var snapshot = CreateSceneSnapshot(isnap, TimeSpan.FromMilliseconds(millisec));// new SceneSnapshot(Window, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
             foreach (var sys in Context.GetSystemManager().GetSystems()) {
                 try {
                     sys.Execute(snapshot);
                     //run synchronization after each exetuted system, to synchronize state for the next system
-                    emanager.FrameSynchronize(managedThreadId);
+                    syncContext.FrameSynchronize(managedThreadId);
                 } catch (Exception ex) {
                     ex.ToString();
 #if !DEBUG

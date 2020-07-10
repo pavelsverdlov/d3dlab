@@ -10,10 +10,12 @@ using D3DLab.Viewer.Presentation.Componets;
 using D3DLab.Viewer.Presentation.FileDetails;
 using D3DLab.Viewer.Presentation.LoadedPanel;
 using D3DLab.Viewer.Presentation.OpenFiles;
+using D3DLab.Viewer.Presentation.TopPanel.SaveAll;
 
 using SharpDX.DXGI;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -33,7 +35,12 @@ namespace D3DLab.Viewer.Presentation {
         public string Adapter { get => adapter; set => Update(ref adapter, value); }
         public double Fps { get => fps; set => Update(ref fps, value); }
     }
-    class MainWindowViewModel : BaseNotify, IDropFiles, IFileLoader, ISelectedObjectTransformation, IEntityRenderSubscriber {
+
+
+
+    class MainWindowViewModel : BaseNotify, IDropFiles,
+        IFileLoader, ISelectedObjectTransformation, ISaveLoadedObject,
+        IEntityRenderSubscriber {
 
         #region selected object cmd
 
@@ -49,6 +56,8 @@ namespace D3DLab.Viewer.Presentation {
         public ICommand OpenFilesCommand { get; }
         public ICommand OpenDebuggerWindow { get; }
         public ICommand HostLoadedCommand { get; }
+        public ICommand SaveAllCommand { get; }
+
         public ICollectionView LoadedObjects { get; }
 
         public IActionModule Module { get; }
@@ -63,7 +72,8 @@ namespace D3DLab.Viewer.Presentation {
         readonly DialogManager dialogs;
         WFScene d3dScene;
 
-        public MainWindowViewModel(MainWindow mainWin, DebuggerPopup debugger, AppSettings settings, DialogManager dialogs) {
+        public MainWindowViewModel(MainWindow mainWin, DebuggerPopup debugger, 
+            AppSettings settings, DialogManager dialogs, AppLogger logger) {
             GraphicsInfo = new GraphicsInfo();
 
             RemoveSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnRemoveSelectedObject);
@@ -76,6 +86,7 @@ namespace D3DLab.Viewer.Presentation {
 
             OpenDebuggerWindow = new WpfActionCommand(OnOpenDebuggerWindow);
             HostLoadedCommand = new WpfActionCommand<FormsHost>(OnHostLoaded);
+            SaveAllCommand = new WpfActionCommand(OnSaveAll);
             loadedObjects = new ObservableCollection<LoadedObjectItem>();
             LoadedObjects = CollectionViewSource.GetDefaultView(loadedObjects);
 
@@ -86,7 +97,7 @@ namespace D3DLab.Viewer.Presentation {
             context = new ContextStateProcessor();
             context.AddState(0, x => GenneralContextState.Full(x,
                 new AxisAlignedBox(new Vector3(-1000, -1000, -1000), new Vector3(1000, 1000, 1000)),
-                notificator));
+                notificator, logger));
             context.SwitchTo(0);
 
             debugger.SetContext(context, notificator);
@@ -97,7 +108,6 @@ namespace D3DLab.Viewer.Presentation {
 
             Module = new Modules.Transform.TransformModuleViewModel(this);
         }
-
 
 
         void OnHostLoaded(FormsHost host) {
@@ -154,12 +164,14 @@ namespace D3DLab.Viewer.Presentation {
         void OnOpenFilesCommand() {
             dialogs.OpenFiles.Open();
         }
-
+        void OnSaveAll() {
+            dialogs.SaveAll.Open();
+        }
 
         public void Dropped(string[] files) {
-            var loader = new VisualObjectLoader();
+            var loader = new VisualObjectImporter();
             foreach (var file in files) {
-                var loaded = loader.LoadFromFiles(file, d3dScene);
+                var loaded = loader.ImportFromFiles(file, d3dScene);
                 loadedObjects.Add(new LoadedObjectItem(loaded, new FileInfo(file)));
             }
             settings.SaveRecentFilePaths(files);
@@ -168,6 +180,7 @@ namespace D3DLab.Viewer.Presentation {
         void IFileLoader.Load(string[] files) {
             Dropped(files);
         }
+
 
         void ISelectedObjectTransformation.Transform(Matrix4x4 matrix) {
             //if(LoadedObjects.CurrentItem is LoadedObjectItem item) {
@@ -190,7 +203,7 @@ namespace D3DLab.Viewer.Presentation {
             }
             foreach (var i in loadedObjects) {
                 i.Visual.ShowWorldAxis(context, type);
-            }            
+            }
         }
         void ISelectedObjectTransformation.HideTransformationAxis(Vector3 axis) {
             WorldAxisTypes type = WorldAxisTypes.X;
@@ -214,9 +227,17 @@ namespace D3DLab.Viewer.Presentation {
         }
 
 
-        void IEntityRenderSubscriber.Render(System.Collections.Generic.IEnumerable<GraphicEntity> entities) {
+        void IEntityRenderSubscriber.Render(IEnumerable<GraphicEntity> entities) {
             GraphicsInfo.Fps = d3dScene.GetPerfomanceState().FPS;
         }
-        
+
+
+        IEnumerable<LoadedObjectItem> ISaveLoadedObject.AvaliableToSave => loadedObjects;
+        void ISaveLoadedObject.Save(IEnumerable<LoadedObjectItem> items) {
+            var exporter = new VisualObjectExporter();
+            foreach (var item in items) {
+                exporter.Export(item.Visual, item.File, d3dScene);
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace D3DLab.ECS {
 
-    public interface IComponentManager : ISynchronizationContext {
+    public interface IComponentManager : IDisposable {
         IComponentManager AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent;
         void RemoveComponent<T>(ElementTag tagEntity) where T : IGraphicComponent;
 

@@ -1,4 +1,5 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Sync;
 using D3DLab.SDX.Engine.Rendering;
 using System;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace D3DLab.SDX.Engine {
         void Dispose();
     }
 
-    public class SynchronizedGraphics : ISynchronizationContext {
+    public class SynchronizedGraphics : ISynchronization {
         struct Size {
             public float Width;
             public float Height;

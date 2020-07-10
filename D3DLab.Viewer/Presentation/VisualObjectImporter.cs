@@ -1,5 +1,4 @@
 ﻿using D3DLab.ECS;
-using D3DLab.ECS.Components;
 using D3DLab.FileFormats.GeoFormats;
 using D3DLab.FileFormats.GeoFormats._OBJ;
 using D3DLab.Toolkit.Math3D;
@@ -13,8 +12,8 @@ using System.Numerics;
 using System.Text;
 
 namespace D3DLab.Viewer.Presentation {
-    class VisualObjectLoader {
-        public LoadedVisualObject LoadFromFiles(string file, WFScene scene) {
+    class VisualObjectImporter {
+        public LoadedVisualObject ImportFromFiles(string file, WFScene scene) {
             IEnumerable<IFileGeometry3D> meshes;
             FileInfo material = null;
             AxisAlignedBox box = AxisAlignedBox.Zero;

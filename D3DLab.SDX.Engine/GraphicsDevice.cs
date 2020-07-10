@@ -214,7 +214,6 @@ namespace D3DLab.SDX.Engine {
         public void Present() {
             directX.Present();
             resourseHash.Clear();
-            // CopyBackBufferTexture().Save(@"D:\Zirkonzahn\MB_Database\back.png");
         }
 
         public Texture2D GetBackBuffer() => directX.GetBackBuffer();

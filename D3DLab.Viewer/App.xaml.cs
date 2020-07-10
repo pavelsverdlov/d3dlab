@@ -1,9 +1,10 @@
 ﻿using D3DLab.Debugger;
+using D3DLab.ECS;
 using D3DLab.Viewer.Infrastructure;
 using D3DLab.Viewer.Presentation;
 using D3DLab.Viewer.Presentation.FileDetails;
 using D3DLab.Viewer.Presentation.OpenFiles;
-
+using D3DLab.Viewer.Presentation.TopPanel.SaveAll;
 using Microsoft.Extensions.DependencyInjection;
 
 using System.Windows;
@@ -25,12 +26,15 @@ namespace D3DLab.Viewer {
                 .RegisterApplication(this)
                 .RegisterAsSingleton<IMessenger, Messenger>()
                 .RegisterUnhandledExceptionHandler()
-                .RegisterAppLoger()
+                .Register<AppLogger>()
+                .Register<IAppLogger>(x => x.GetService<AppLogger>())
+                .Register<ILabLogger>(x => x.GetService<AppLogger>())
                 //
                 .Register<AppSettings>()
                 .RegisterView<MainWindow>()
                 .Register<MainWindowViewModel>()
                 .Register<IFileLoader>(x => x.GetService<MainWindowViewModel>())
+                .Register<ISaveLoadedObject>(x => x.GetService<MainWindowViewModel>())
                 //               
                 .RegisterMvvm()
 
@@ -38,6 +42,7 @@ namespace D3DLab.Viewer {
                 .RegisterDebugger()
                 .RegisterTransient<OpenFilesViewModel>().RegisterTransientView<OpenFilesWindow>()
                 .RegisterTransient<ObjDetailsViewModel>().RegisterTransientView<ObjDetailsWindow>()
+                .RegisterTransient<SaveAllViewModel>().RegisterTransientView<SaveAllWindow>()
                 .Register<DialogManager>()
                 ;
         }

@@ -70,13 +70,12 @@ namespace D3DLab.Toolkit.Render {
                     }
                 }
             } catch (SharpDX.CompilationException cex) {
-                System.Diagnostics.Trace.WriteLine($"CompilationException[\n{cex.Message.Trim()}]");
+                ContextState.Logger.Error(cex);
             } catch (SharpDX.SharpDXException shex) {
-                //var reason = frame.Graphics.D3DDevice.DeviceRemovedReason;
-                System.Diagnostics.Trace.WriteLine(shex.Message);
+                ContextState.Logger.Error(shex);
                 throw shex;
             } catch (Exception ex) {
-                System.Diagnostics.Trace.WriteLine(ex.Message);
+                ContextState.Logger.Error(ex.Message);
                 throw ex;
             } finally {
                 registrator.Cleanup();

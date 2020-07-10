@@ -1,0 +1,123 @@
+﻿using D3DLab.ECS;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace D3DLab.ECS.Sync {
+    public class RenderLoopSynchronizationContext : ISynchronizationContext {
+        abstract class AbstractQueueItem {
+            public int Retries;
+            public abstract bool Execute();
+        }
+        class QueueItem<TOwner, TInput> : AbstractQueueItem {
+            public readonly Func<TOwner, TInput, bool> Action;
+            public readonly TInput Input;
+            public readonly TOwner Owner;
+
+            public QueueItem(Func<TOwner, TInput, bool> action, TOwner owner, TInput input) {
+                Action = action;
+                Input = input;
+                Owner = owner;
+                Retries = 5;
+            }
+
+            public override bool Execute() {
+                try {
+                    Action(Owner, Input);
+                    return true;
+                } catch (Exception ex) {
+                    return false;
+                }
+            }
+        }
+
+        Queue<AbstractQueueItem> queue;
+        Queue<AbstractQueueItem> queueSnapshot;
+
+        readonly object _loker;
+        int theadId;
+
+        public bool HasChanges {
+            get {
+                return isChanged || frameChanges;
+            }
+        }
+
+        bool isChanged;
+
+        public RenderLoopSynchronizationContext() : this(new object()) {
+            theadId = -1;
+        }
+        RenderLoopSynchronizationContext(object _loker) {
+            this.queue = new Queue<AbstractQueueItem>();
+            this._loker = _loker;
+        }
+
+        public void BeginSynchronize() {
+            Monitor.Enter(_loker);
+            queueSnapshot = new Queue<AbstractQueueItem>(queue);
+            queue = new Queue<AbstractQueueItem>();
+            isChanged = false;
+        }
+
+        public void EndSynchronize(int theadId) {
+            this.theadId = theadId;
+
+            var local = queueSnapshot;
+            queueSnapshot = null;
+            Monitor.Exit(_loker);
+
+            while (local.Any()) {
+                var item = local.Dequeue();
+                try {
+                    if (!item.Execute() && item.Retries > 0) {
+                        System.Diagnostics.Trace.WriteLine($"retry, move action to next render iteration, Retries: [{item.Retries}]");
+                        item.Retries--;
+                        queue.Enqueue(item);
+                    }
+                } catch (Exception ex) {
+                    System.Diagnostics.Trace.WriteLine($"throw queue item because of [{ex.Message}]");
+                }
+            }
+        }
+
+
+        public void Add<TOwner, TInput>(Func<TOwner, TInput, bool> action, TOwner owner, TInput input) {
+            lock (_loker) {
+                isChanged = true;
+                queue.Enqueue(new QueueItem<TOwner, TInput>(action, owner, input));
+            }
+        }
+        public void AddRange<TOwner, TInput>(Func<TOwner, TInput, bool> action, TOwner owner, IEnumerable<TInput> inputs) {
+            lock (_loker) {
+                isChanged = true;
+                foreach (var input in inputs) {
+                    queue.Enqueue(new QueueItem<TOwner, TInput>(action, owner, input));
+                }
+            }
+        }
+
+        public void Dispose() {
+            queue.Clear();
+            queueSnapshot?.Clear();
+        }
+
+        bool frameChanges;
+        public void FrameSynchronize(int theadId) {
+            if (!frameChanges) {
+                frameChanges = isChanged;
+            }
+            BeginSynchronize();
+            EndSynchronize(theadId);
+        }
+        public void Synchronize(int theadId) {
+            frameChanges = false;
+            BeginSynchronize();
+            EndSynchronize(theadId);
+        }
+
+    }
+}

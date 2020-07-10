@@ -1,4 +1,5 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Ext;
 
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,17 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
         public ReadOnlyCollection<Vector3> Colors { get; }
         public ReadOnlyCollection<int> Indices { get; }
         public ReadOnlyCollection<Vector2> TextureCoors { get; }
+
+        public IFileGeometry3D ApplyMatrix(ref Matrix4x4 matrix) {
+            return new GeometryData(Name,
+                Positions.ToArray().Transform(ref matrix).ToList(),
+                Normals.ToArray().Transform(ref matrix).ToList(),
+                Colors.ToList(),
+                Indices.ToList(),
+                TextureCoors.ToList(),
+                Topology
+                );
+        }
     }
 
     public class BaseGroupsBulder {

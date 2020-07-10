@@ -1,4 +1,5 @@
 ﻿using D3DLab.ECS;
+using D3DLab.ECS.Sync;
 
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace D3DLab.ECS {
                 this.entities.Add(input.Tag, new Dictionary<Type, ElementTag>());
                 owner.notify.NotifyAdd(input);
                 // owner.components.Add(input.Tag, new Dictionary<Type, IGraphicComponent>());
-
+                return true;
             }, en);
 
             return en;
@@ -38,6 +39,7 @@ namespace D3DLab.ECS {
                     //this.entities.Remove(entity.Tag);
                     //notify.NotifyChange(entity);
                 }
+                return true;
             }, default);
         }
         public IEnumerable<GraphicEntity> GetEntities() {
@@ -225,16 +227,11 @@ namespace D3DLab.ECS {
 
         #endregion
 
-        public bool HasChanges {
-            get {
-                return entitySynchronizer.IsChanged || comSynchronizer.IsChanged || frameChanges;
-            }
-        }
         readonly IManagerChangeNotify notify;
 
-        readonly SynchronizationContext<EntityComponentManager, GraphicEntity> entitySynchronizer;
-        readonly SynchronizationContext<EntityComponentManager> comSynchronizer;
-        readonly SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent> flyweightComSynchronizer;
+        readonly SynchronizationContextAdapter<EntityComponentManager, GraphicEntity> entitySynchronizer;
+        readonly SynchronizationContextAdapter<EntityComponentManager> comSynchronizer;
+        readonly SynchronizationContextAdapter<EntityComponentManager, IFlyweightGraphicComponent> flyweightComSynchronizer;
 
         readonly Dictionary<ElementTag, Dictionary<Type, ElementTag>> entities;
         readonly Dictionary<ElementTag, IGraphicComponent> components;
@@ -242,47 +239,17 @@ namespace D3DLab.ECS {
         readonly Dictionary<IFlyweightGraphicComponent, HashSet<ElementTag>> flyweightComponents;
         readonly EntityOrderContainer orderContainer;
 
-        public EntityComponentManager(IManagerChangeNotify notify, EntityOrderContainer orderContainer) {
+        public EntityComponentManager(IManagerChangeNotify notify, EntityOrderContainer orderContainer, 
+            RenderLoopSynchronizationContext syncContext) {
             this.orderContainer = orderContainer;
             this.notify = notify;
-            entitySynchronizer = new SynchronizationContext<EntityComponentManager, GraphicEntity>(this);
-            comSynchronizer = new SynchronizationContext<EntityComponentManager>(this);
-            flyweightComSynchronizer = new SynchronizationContext<EntityComponentManager, IFlyweightGraphicComponent>(this);
+            entitySynchronizer = new SynchronizationContextAdapter<EntityComponentManager, GraphicEntity>(this, syncContext);
+            comSynchronizer = new SynchronizationContextAdapter<EntityComponentManager>(this, syncContext);
+            flyweightComSynchronizer = new SynchronizationContextAdapter<EntityComponentManager, IFlyweightGraphicComponent>(this, syncContext);
             entities = new Dictionary<ElementTag, Dictionary<Type, ElementTag>>();
             components = new Dictionary<ElementTag, IGraphicComponent>();
         }
 
-        public void Synchronize(int theadId) {
-            frameChanges = false;
-
-            flyweightComSynchronizer.BeginSynchronize();
-            comSynchronizer.BeginSynchronize();
-            entitySynchronizer.BeginSynchronize();
-
-            entitySynchronizer.EndSynchronize(theadId);
-            comSynchronizer.EndSynchronize(theadId);
-            flyweightComSynchronizer.EndSynchronize(theadId);
-        }
-
-        bool frameChanges;
-        //not a good decision :(
-        public void FrameSynchronize(int theadId) {
-            if (!frameChanges) {
-                frameChanges = HasChanges;
-            }
-
-            flyweightComSynchronizer.BeginSynchronize();
-            comSynchronizer.BeginSynchronize();
-            entitySynchronizer.BeginSynchronize();
-
-            entitySynchronizer.EndSynchronize(theadId);
-            comSynchronizer.EndSynchronize(theadId);
-            flyweightComSynchronizer.EndSynchronize(theadId);
-        }
-
-        public void PushSynchronization() {
-            frameChanges = true;
-        }
 
         public void Dispose() {
             foreach (var com in components) {
@@ -293,10 +260,6 @@ namespace D3DLab.ECS {
             entities.Clear();
             //flyweightComponents.Clear();
             entities.Clear();
-
-            entitySynchronizer.Dispose();
-            comSynchronizer.Dispose();
-            flyweightComSynchronizer.Dispose();
         }
 
 

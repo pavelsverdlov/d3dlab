@@ -3,28 +3,60 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:D3DLab.Viewer.Presentation.OpenFiles"
-        mc:Ignorable="d" Background="{StaticResource BlackBackgroundColor}" ResizeMode="CanResize"
-        Title="Open files dialog" Height="450" Width="300" WindowStyle="ToolWindow">
+        xmlns:local="clr-namespace:D3DLab.Viewer.Presentation.OpenFiles" xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d" ResizeMode="CanResize"
+        Style="{StaticResource PopupWindowStyle}" x:Name="wind"
+        Title="Open files"  >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Margin="5" HorizontalAlignment="Stretch" >
-            <Button Content="New Project" />
-            <Button Content="Open Project" Margin="5,0"/>
-            <Button Style="{StaticResource ImageButton}" Content="{StaticResource NormalFileIconCanvas}"
+        <DockPanel Grid.Row="0" Margin="5" HorizontalAlignment="Stretch">
+             <!--<Button Content="New Project" />
+           <Button Content="Open Project" Margin="5,0"/>-->
+            <Button Style="{StaticResource ImageButton}" DockPanel.Dock="Left" Width="50"
+                    Content="{StaticResource NormalRemoveIconCanvas}"
+                    Command="{Binding ClearRecentFilesHistoryCommand}"
+                    HorizontalAlignment="Left"
+                    />
+            <Button Style="{StaticResource ImageButton}" DockPanel.Dock="Right" Width="50"
+                    Content="{StaticResource NormalFileIconCanvas}"
+                    Command="{Binding OpenWinFileDialogCommand}"
+                    HorizontalAlignment="Right"
                     />
         </DockPanel>
 
-        <ListBox ItemsSource="{Binding RecentFiles}" Grid.Row="1" IsSynchronizedWithCurrentItem="True">
+        <Rectangle Grid.Row="1" Height="1" Fill="{StaticResource BorderBrushColor}"/>
+
+        <TextBlock Grid.Row="2" Margin="5,5,0,5">
+            <Run Text="Recent files," />
+            <Run Text="click to load." Foreground="{StaticResource HighlightedTextColor}"/>
+        </TextBlock>
+
+        <ListBox ItemsSource="{Binding RecentFiles}" BorderThickness="0,0,0,1"
+                 Grid.Row="3" IsSynchronizedWithCurrentItem="True"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
+                    <TextBlock Text="{Binding Name}" Margin="0,5,0,0">
+                         <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseMove">
+                                <i:InvokeCommandAction Command="{Binding DataContext.MouseMoveCommand, ElementName=wind}" 
+                                                       CommandParameter="{Binding}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBlock>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+
+        <TextBlock Text="{Binding FullPathPreview}" Margin="5,0"
+                   TextWrapping="Wrap" Foreground="{StaticResource SecondTextColor}"
+                   Grid.Row="4"/>
     </Grid>
 </Window>
