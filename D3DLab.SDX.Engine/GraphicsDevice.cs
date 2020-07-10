@@ -77,6 +77,11 @@ namespace D3DLab.SDX.Engine {
 
         internal const Format BackBufferTextureFormat = Format.R8G8B8A8_UNorm;
 
+        /// <summary>
+        /// class for controlling resourse slots for each shaders 
+        /// to avoid setting to already occupied slot
+        /// it is easy to miss 'cause directX doesn't rise any exceptions in this case
+        /// </summary>
         class ResourseRegistrHash {
             readonly Dictionary<int, HashSet<int>> shaders;
 
@@ -108,15 +113,16 @@ namespace D3DLab.SDX.Engine {
         public DeviceContext ImmediateContext => directX.ImmediateContext;
         public string VideoCardDescription { get; }
         public GraphicSurfaceSize Size { get; private set; }
-
+        public AdapterDescription Adapter { get; }
         public DepthStencilView DepthStencilView { get; private set; }
 
         readonly ResourseRegistrHash resourseHash;
         readonly DirectX11Proxy directX;
 
-        internal GraphicsDevice(DirectX11Proxy proxy, GraphicSurfaceSize size) {
+        internal GraphicsDevice(DirectX11Proxy proxy, GraphicSurfaceSize size, AdapterDescription adapterDescription) {
             resourseHash = new ResourseRegistrHash();
             Compilator = new D3DShaderCompilator();
+            Adapter = adapterDescription;
 
             int width =size.Width;
             int height = size.Height;
@@ -321,6 +327,20 @@ namespace D3DLab.SDX.Engine {
             }
         }
 
+        public SharpDX.Direct3D11.Texture2D CreateTexture2D(GraphicSurfaceSize size) {
+            return new Texture2D(D3DDevice, new Texture2DDescription() {
+                Format =  Format.R32G32B32A32_Float,
+                Width = size.Width,
+                Height = size.Height,
+                ArraySize = 1,
+                BindFlags = BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.GenerateMipMaps,
+                SampleDescription = new SampleDescription(1, 0),
+                Usage = ResourceUsage.Default,
+            });
+        }
 
         public SharpDX.Direct3D11.Buffer CreateUnorderedRWStructuredBuffer<T>(ref T[] range) where T : struct {
             BufferStaticVerifications.CheckSizeInBytes<T>();
@@ -464,6 +484,10 @@ namespace D3DLab.SDX.Engine {
         public void SetPixelShader(DisposableSetter<PixelShader> shader) {
             ImmediateContext.PixelShader.Set(shader.Get());
             resourseHash.RegisterShader(ImmediateContext.PixelShader.GetHashCode());
+        }
+        public void SetGeometryShader(DisposableSetter<GeometryShader> shader) {
+            ImmediateContext.GeometryShader.Set(shader.Get());
+            resourseHash.RegisterShader(ImmediateContext.GeometryShader.GetHashCode());
         }
         public void ClearAllShader() {
             ImmediateContext.VertexShader.Set(null);
