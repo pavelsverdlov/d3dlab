@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D3DLab.CLI.SDX", "D3DLab.CLI.SDX\D3DLab.CLI.SDX.vcxproj", "{3FF0C631-D6D1-47DD-938C-ACDDA6481606}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D3DLab.Cuda", "D3DLab.Cuda\D3DLab.Cuda.vcxproj", "{4FEE8987-550C-45EB-A607-5443C9C6EC8D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3FF0C631-D6D1-47DD-938C-ACDDA6481606}.Debug|x64.ActiveCfg = Debug|x64
+		{3FF0C631-D6D1-47DD-938C-ACDDA6481606}.Debug|x64.Build.0 = Debug|x64
+		{3FF0C631-D6D1-47DD-938C-ACDDA6481606}.Release|x64.ActiveCfg = Release|x64
+		{3FF0C631-D6D1-47DD-938C-ACDDA6481606}.Release|x64.Build.0 = Release|x64
+		{4FEE8987-550C-45EB-A607-5443C9C6EC8D}.Debug|x64.ActiveCfg = Debug|x64
+		{4FEE8987-550C-45EB-A607-5443C9C6EC8D}.Debug|x64.Build.0 = Debug|x64
+		{4FEE8987-550C-45EB-A607-5443C9C6EC8D}.Release|x64.ActiveCfg = Release|x64
+		{4FEE8987-550C-45EB-A607-5443C9C6EC8D}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EC4830A7-C8AC-439E-A7C9-11B83AAA2CD7}
+	EndGlobalSection
+EndGlobal
