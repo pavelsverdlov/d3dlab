@@ -6,9 +6,21 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>lab.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64</Platforms>
+    <StartupObject></StartupObject>
+    <Version>1.0.1</Version>
+    <Copyright>D3DLab Comp.</Copyright>
+    <Company>D3DLab Comp.</Company>
+    <Authors>D3DLab</Authors>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
@@ -54,7 +66,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\_\WPFLab\WPFLab.csproj" />
-    <ProjectReference Include="..\D3DLab.CLI.SDX\D3DLab.CLI.SDX.vcxproj" />
     <ProjectReference Include="..\D3DLab.Debugger\D3DLab.Debugger.csproj" />
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
     <ProjectReference Include="..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />

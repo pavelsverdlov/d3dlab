@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\D3DLab.ECS\D3DLab.ECS.csproj" />
     <ProjectReference Include="..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />
+    <ProjectReference Include="..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
   </ItemGroup>
 
   <ItemGroup>

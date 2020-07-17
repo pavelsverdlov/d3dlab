@@ -13,10 +13,24 @@ using System.Text;
 
 namespace D3DLab.Viewer.Presentation {
     class VisualObjectImporter {
+        public void Reload(FileInfo f, LoadedVisualObject visual, WFScene scene) {
+            Import(f.FullName, out var meshes, out var material, out var box);
+            visual.ReCreate(scene.Context, meshes, material, f.Name);
+        }
         public LoadedVisualObject ImportFromFiles(string file, WFScene scene) {
-            IEnumerable<IFileGeometry3D> meshes;
-            FileInfo material = null;
-            AxisAlignedBox box = AxisAlignedBox.Zero;
+            var f = new FileInfo(file);
+            Import(file,out var meshes, out var material, out var box);
+            var center = box.Center;
+
+            var loaded = LoadedVisualObject.Create(scene.Context, meshes, material, f.Name);
+            loaded.Transform(scene.Context.GetEntityManager(), Matrix4x4.CreateTranslation(Vector3.Zero - center));
+
+            return loaded;
+        }
+
+        static void Import(string file, out IEnumerable<IFileGeometry3D> meshes, out FileInfo material, out AxisAlignedBox box) {
+            box = AxisAlignedBox.Zero;
+            material = null;
             var f = new FileInfo(file);
             switch (f.Extension.ToLower()) {
                 case ".stl":
@@ -44,12 +58,6 @@ namespace D3DLab.Viewer.Presentation {
                 default:
                     throw new NotSupportedException($"'{f.Extension}' is not suppported format.");
             }
-            var center = box.Center;
-
-            var loaded = LoadedVisualObject.Create(scene.Context, meshes, material, f.Name);
-            loaded.Transform(scene.Context.GetEntityManager(), Matrix4x4.CreateTranslation(Vector3.Zero - center));
-
-            return loaded;
         }
     }
 }

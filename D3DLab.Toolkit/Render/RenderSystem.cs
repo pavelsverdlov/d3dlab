@@ -8,6 +8,7 @@ using D3DLab.Toolkit.Components;
 
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
+
 using System;
 using System.Linq;
 using System.Numerics;
@@ -53,6 +54,10 @@ namespace D3DLab.Toolkit.Render {
                         if (entity.Contains(typeof(RenderableComponent), typeof(TransformComponent))) {
                             registrator.Register(entity);
                         }
+                    }
+
+                    if (!registrator.HasAny) {
+                        return;
                     }
 
                     prevCameraState = snapshot.Camera;

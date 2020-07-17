@@ -9,8 +9,12 @@ using System.Text;
 using WPFLab;
 
 namespace D3DLab.Viewer.Infrastructure {
+    interface IAppLoggerSubscriber : IAppLogger{
+
+    }
     class AppLogger : IAppLogger, ILabLogger {
         readonly Logger log;
+        readonly List<IAppLoggerSubscriber> subscribers;
         public AppLogger() {
             var config = new LoggingConfiguration();
             var logfile = new FileTarget("logfile") { FileName = "lab.log" };
@@ -18,6 +22,11 @@ namespace D3DLab.Viewer.Infrastructure {
 
             LogManager.Configuration = config;
             log = NLog.LogManager.GetCurrentClassLogger();
+            subscribers = new List<IAppLoggerSubscriber>();
+        }
+
+        public void Subscrube(IAppLoggerSubscriber subscriber) {
+            subscribers.Add(subscriber);
         }
 
         public void Debug(string message) {
@@ -28,9 +37,11 @@ namespace D3DLab.Viewer.Infrastructure {
         }
         public void Error(Exception exception) {
             log.Error(exception);
+            subscribers.ForEach(x => x.Error(exception));
         }
         public void Error(string message) {
             log.Error(message);
+            subscribers.ForEach(x => x.Error(message));
         }
         public void Info(string message) {
             log.Info(message);

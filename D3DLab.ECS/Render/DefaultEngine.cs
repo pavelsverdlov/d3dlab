@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace D3DLab.ECS.Render {
     public abstract class DefaultEngine {
         static readonly double total = TimeSpan.FromSeconds(1).TotalMilliseconds;
-        static readonly double oneFrameMilliseconds = (total / 60);
+        static readonly double oneFrameMilliseconds = (total / 60.0);
         //static double _desiredFrameLengthSeconds = 1.0 / 60.0;
 
         IEntityRenderNotify notify;
@@ -57,7 +57,7 @@ namespace D3DLab.ECS.Render {
         public void Run(IEntityRenderNotify notify) {
             this.notify = notify;
             Initializing();
-            loopTask = Task.Factory.StartNew((Action)Loop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            loopTask = Task.Factory.StartNew(Loop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         protected virtual bool Synchronize() => false;
@@ -72,6 +72,9 @@ namespace D3DLab.ECS.Render {
             imanager.Synchronize(managedThreadId);
 
             var speed = new Stopwatch();
+            var reset = new ManualResetEventSlim(false);
+
+           // var oneFrameMilliseconds = (total / 80.0);
 
             double millisec = oneFrameMilliseconds;
             while (!token.IsCancellationRequested) {
@@ -82,23 +85,18 @@ namespace D3DLab.ECS.Render {
 
                 var emanager = Context.GetEntityManager();
 
-                Rendering(emanager, imanager, millisec, changed);
+                var rendered = Rendering(emanager, imanager, millisec, changed);
 
+                speed.Stop();
                 millisec = speed.ElapsedMilliseconds;
 
                 if (millisec < oneFrameMilliseconds) {
-                    Thread.Sleep((int)(oneFrameMilliseconds - millisec));
+                    reset.Wait((int)(oneFrameMilliseconds - millisec));
                 }
-                speed.Stop();
-
-                millisec = speed.ElapsedMilliseconds;
-
-#if DEBUG
-                emanager.GetEntity(WorldTag)
-                    .UpdateComponent(PerfomanceComponent.Create(millisec, (int)(total / millisec)));
-#endif      
-
-                notify.NotifyRender(emanager.GetEntities().ToArray());
+                
+                if (rendered) {
+                    notify.NotifyRender(emanager.GetEntities().ToArray());
+                }
             }
 
             //Window.InputManager.Dispose();
@@ -107,17 +105,21 @@ namespace D3DLab.ECS.Render {
 
         bool Rendering(IEntityManager emanager, IInputManager imanager, double millisec, bool changed) {
             var syncContext = Context.GetSynchronizationContext();
+            var isnap = InputManager.GetInputSnapshot();
 
             changed = changed || syncContext.HasChanges;
-            syncContext.Synchronize(managedThreadId);
 
-            var isnap = InputManager.GetInputSnapshot();
+            if(isnap.Events.Any() || changed) {
+                emanager
+                   .GetEntity(WorldTag)
+                   .UpdateComponent(PerfomanceComponent.Create(millisec, total, millisec));
+            }
+
+            syncContext.Synchronize(managedThreadId);
 
             if (!isnap.Events.Any() && !changed) {//no input no rendering 
                 return false;
             }
-            //Context.GetGeometryPool().Synchronize(managedThreadId);
-            //Context.GetOctreeManager().Synchronize(managedThreadId);
 
             var snapshot = CreateSceneSnapshot(isnap, TimeSpan.FromMilliseconds(millisec));// new SceneSnapshot(Window, notificator, viewport, Octree, ishapshot, TimeSpan.FromMilliseconds(millisec));
             foreach (var sys in Context.GetSystemManager().GetSystems()) {
@@ -126,7 +128,7 @@ namespace D3DLab.ECS.Render {
                     //run synchronization after each exetuted system, to synchronize state for the next system
                     syncContext.FrameSynchronize(managedThreadId);
                 } catch (Exception ex) {
-                    ex.ToString();
+                    Context.Logger.Error(ex);
 #if !DEBUG
                     throw ex;
 #endif

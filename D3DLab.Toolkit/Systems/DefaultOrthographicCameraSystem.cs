@@ -30,6 +30,7 @@ namespace D3DLab.Toolkit.Systems {
             if (entity.TryGetComponent(out CameraMovementComponent movement) && movement.IsValid) {
                 bool needUpdate;
                 bool needRemove;
+                camera = OrthographicCameraComponent.Clone(camera);
                 switch (movement.MovementType) {
                     case CameraMovementComponent.MovementTypes.Rotate:
                         camera = HandleRotatingWithCursorReturningPosition(snapshot, camera, movement);

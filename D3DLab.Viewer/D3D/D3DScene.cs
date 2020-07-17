@@ -23,9 +23,10 @@ using System.Linq;
 using D3DLab.ECS.Components;
 using D3DLab.Toolkit;
 using D3DLab.Toolkit.Techniques;
+using System.Collections.Generic;
 
 namespace D3DLab.Viewer.D3D {
-    public class WFScene : D3DWFScene {
+    class WFScene : D3DWFScene {
         class EmptyHandler : DefaultInputObserver.ICameraInputHandler {
             public void ChangeRotateCenter(InputStateData state) {
             }
@@ -112,15 +113,37 @@ namespace D3DLab.Viewer.D3D {
             Loaded?.Invoke();
         }
 
-
-        public System.Collections.ObjectModel.ObservableCollection<SingleVisualObject> GameObjects { get; }
-    
-
         static Vector4 ToVector4(System.Windows.Media.Color color) {
             color.Clamp();
             return new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }
 
+
+        public void ZoomToAllObjects(IEnumerable<LoadedVisualObject> gameObjects) {
+            var box = AxisAlignedBox.Zero;
+            foreach (var ob in gameObjects) {
+                var b = ob.GetAllBounds(Context);
+                box = box.Merge(b);
+            }
+
+            var surface = this.Surface.Size;
+            var aspectRatio = surface.Width / surface.Height;
+
+            var size = box.Size();
+
+            var camera = Context.GetEntityManager().GetEntity(engine.CameraTag);
+            var com = OrthographicCameraComponent.Clone(camera.GetComponent<OrthographicCameraComponent>());
+
+            var move = Math.Max(Math.Abs(com.LookDirection.X * size.X), 
+                Math.Max(Math.Abs(com.LookDirection.Y * size.Y), Math.Abs(com.LookDirection.Z * size.Z)));
+            
+            com.Position = box.Center + com.LookDirection * -move * 10;
+            com.RotatePoint = box.Center;
+            com.Width = Math.Max(size.X,Math.Max(size.Y, size.Z)) * aspectRatio;
+            com.Scale = 1;
+
+            camera.UpdateComponent(com);
+        }
 
         public override void Dispose() {
             base.Dispose();

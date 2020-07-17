@@ -116,7 +116,7 @@ namespace D3DLab.ECS.Context {
             currentState = states[stateTo](this);
             currentState.BeginState();
         }
-
+        public ILabLogger Logger => currentState.Logger;
         public ISystemManager GetSystemManager() {
             return currentState.GetSystemManager();
         }
@@ -137,7 +137,7 @@ namespace D3DLab.ECS.Context {
             get { return currentState.EntityOrder; }
         }
 
-        public ILabLogger Logger { get; }
+      
 
         public void BeginState() {
             currentState.BeginState();

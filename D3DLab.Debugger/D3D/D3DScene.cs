@@ -14,6 +14,9 @@ using D3DLab.Toolkit.Input.Publishers;
 using D3DLab.Toolkit.D3Objects;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.Toolkit.Techniques.TriangleColored;
+using D3DLab.Toolkit.Components;
+using System.Numerics;
+using D3DLab.ECS.Components;
 
 namespace D3DLab.Debugger.D3D {
     public class WFScene : D3DWFScene {
@@ -111,6 +114,8 @@ namespace D3DLab.Debugger.D3D {
 
             OnHandleCreated(obj);
         }
+
+      
 
         public override void Dispose() {
             base.Dispose();

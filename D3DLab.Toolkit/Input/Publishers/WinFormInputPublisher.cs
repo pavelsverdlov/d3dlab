@@ -96,7 +96,8 @@ namespace D3DLab.Toolkit.Input.Publishers {
 
         private void OnMouseUp(object sender, MouseEventArgs e) {
             var btn = GetMouseButton(e.Button);
-            state.Buttons ^= btn;
+            //state.Buttons ^= btn;
+            state.Buttons &= ~btn;
             var bs = new ButtonsState {
                 CursorPoint = new WindowPoint(),
                 PointV2 = Vector2.Zero,

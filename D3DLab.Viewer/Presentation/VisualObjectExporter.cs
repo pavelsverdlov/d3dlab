@@ -14,17 +14,12 @@ namespace D3DLab.Viewer.Presentation {
             switch (path.Extension.ToLower()) {
                 case ".obj":
                     var meshes = new List<IFileGeometry3D>();
-                    //foreach (var tag in loaded.Tags) {
-                    //    var matrix = manager.GetComponent<TransformComponent>(tag).MatrixWorld;
-                    //    var geo = loaded.GetMesh(context, tag);
-                    //    geo.ApplyMatrix(ref matrix);
-                    //    meshes.Add(geo);
-                    //}
-
-                    var matrix = manager.GetComponent<TransformComponent>(loaded.Tags[0]).MatrixWorld;
-                    var geo = loaded.GetMesh(context, loaded.Tags[0]).OriginGeometry;
-                    geo.ApplyMatrix(ref matrix);
-                    meshes.Add(geo);
+                    foreach (var tag in loaded.Tags) {
+                        var matrix = manager.GetComponent<TransformComponent>(tag).MatrixWorld;
+                        var geo = loaded.GetMesh(context, tag).OriginGeometry;
+                        geo.ApplyMatrix(ref matrix);
+                        meshes.Add(geo);
+                    }
 
                     G3Writers.WriteObj(path, meshes);
                     break;

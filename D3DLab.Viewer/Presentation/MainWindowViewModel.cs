@@ -20,8 +20,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Text;
+using System.Windows;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 using WPFLab;
@@ -30,13 +34,52 @@ using WPFLab.MVVM;
 namespace D3DLab.Viewer.Presentation {
     class GraphicsInfo : BaseNotify {
         private double fps;
-        private string adapter;
+        private double milliseconds;
+        private string? adapter;
 
-        public string Adapter { get => adapter; set => Update(ref adapter, value); }
+        public string? Adapter { get => adapter; set => Update(ref adapter, value); }
         public double Fps { get => fps; set => Update(ref fps, value); }
+        public double Milliseconds { get => milliseconds; set => Update(ref milliseconds, value); }
     }
 
+    class AppOutput : BaseNotify, IAppLoggerSubscriber {
+        public ObservableCollection<string> Text { get; private set; }
+        const int maxLines = 10;
 
+        public AppOutput() {
+            Text = new ObservableCollection<string>();
+        }
+
+        public void Debug(string message) {
+            Write(message);
+        }
+        public void Error(Exception exception) {
+            Write(exception.Message);
+        }
+        public void Error(Exception exception, string message) {
+            Write(exception.Message);
+        }
+        public void Error(string message) {
+            Write(message);
+        }
+        public void Info(string message) {
+            Write(message);
+        }
+        public void Warn(string message) {
+            Write(message);
+        }
+
+        void Write(string message) {
+            Application.Current.Dispatcher.InvokeAsync(() => {
+                var now = DateTime.Now;
+                Text.Insert(0,$"[{now.Hour}:{now.Minute}:{now.Second}] {message}");
+                if (Text.Count > maxLines) {
+                    Text.RemoveAt(Text.Count-1);
+                }
+            });
+        }
+        
+    }
 
     class MainWindowViewModel : BaseNotify, IDropFiles,
         IFileLoader, ISelectedObjectTransformation, ISaveLoadedObject,
@@ -50,6 +93,7 @@ namespace D3DLab.Viewer.Presentation {
         public ICommand OpenFolderSelectedObjectCommand { get; }
         public ICommand LockSelectedObjectCommand { get; }
         public ICommand ShowBoundsSelectedObjectCommand { get; }
+        public ICommand RefreshSelectedObjectCommand { get; }
 
         #endregion
 
@@ -57,11 +101,13 @@ namespace D3DLab.Viewer.Presentation {
         public ICommand OpenDebuggerWindow { get; }
         public ICommand HostLoadedCommand { get; }
         public ICommand SaveAllCommand { get; }
+        public ICommand CameraFocusToAllCommand { get; }
 
         public ICollectionView LoadedObjects { get; }
 
         public IActionModule Module { get; }
         public GraphicsInfo GraphicsInfo { get; }
+        public AppOutput Output { get; }
 
         readonly ObservableCollection<LoadedObjectItem> loadedObjects;
         readonly ContextStateProcessor context;
@@ -70,23 +116,30 @@ namespace D3DLab.Viewer.Presentation {
         readonly DebuggerPopup debugger;
         readonly AppSettings settings;
         readonly DialogManager dialogs;
+        readonly AppLogger logger;
         WFScene d3dScene;
 
         public MainWindowViewModel(MainWindow mainWin, DebuggerPopup debugger, 
             AppSettings settings, DialogManager dialogs, AppLogger logger) {
             GraphicsInfo = new GraphicsInfo();
+            Output = new AppOutput();
+
+            logger.Subscrube(Output);
 
             RemoveSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnRemoveSelectedObject);
             ShowHideSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnShowHideSelectedObject);
             OpenDetailsSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnOpenDetailsSelectedObject);
             ShowBoundsSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnShowBoundsSelectedObject);
             OpenFolderSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnOpenFolderSelectedObject);
+            RefreshSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnRefreshSelectedObject);
 
             OpenFilesCommand = new WpfActionCommand(OnOpenFilesCommand);
 
             OpenDebuggerWindow = new WpfActionCommand(OnOpenDebuggerWindow);
             HostLoadedCommand = new WpfActionCommand<FormsHost>(OnHostLoaded);
             SaveAllCommand = new WpfActionCommand(OnSaveAll);
+            CameraFocusToAllCommand = new WpfActionCommand(OnCameraFocusToAll);
+
             loadedObjects = new ObservableCollection<LoadedObjectItem>();
             LoadedObjects = CollectionViewSource.GetDefaultView(loadedObjects);
 
@@ -105,10 +158,10 @@ namespace D3DLab.Viewer.Presentation {
             this.debugger = debugger;
             this.settings = settings;
             this.dialogs = dialogs;
+            this.logger = logger;
 
-            Module = new Modules.Transform.TransformModuleViewModel(this);
+            // Module = new Modules.Transform.TransformModuleViewModel(this);
         }
-
 
         void OnHostLoaded(FormsHost host) {
             d3dScene = new WFScene(host, host.Overlay, context, notificator);
@@ -157,6 +210,10 @@ namespace D3DLab.Viewer.Presentation {
         void OnOpenFolderSelectedObject(LoadedObjectItem obj) {
             Process.Start("explorer.exe", $"/select,\"{obj.File.FullName}\"");
         }
+        void OnRefreshSelectedObject(LoadedObjectItem obj) {
+            var loader = new VisualObjectImporter();
+            loader.Reload(obj.File, obj.Visual, d3dScene);
+        }
 
         void OnOpenDebuggerWindow() {
             debugger.Show();
@@ -167,18 +224,30 @@ namespace D3DLab.Viewer.Presentation {
         void OnSaveAll() {
             dialogs.SaveAll.Open();
         }
+        void OnCameraFocusToAll() {
+            d3dScene.ZoomToAllObjects(loadedObjects.Select(x=>x.Visual));
+        }
 
         public void Dropped(string[] files) {
             var loader = new VisualObjectImporter();
             foreach (var file in files) {
-                var loaded = loader.ImportFromFiles(file, d3dScene);
-                loadedObjects.Add(new LoadedObjectItem(loaded, new FileInfo(file)));
+                try {
+                    var loaded = loader.ImportFromFiles(file, d3dScene);
+                    loadedObjects.Add(new LoadedObjectItem(loaded, new FileInfo(file)));
+                }catch(Exception ex) {
+                    logger.Error(ex);
+                }
             }
             settings.SaveRecentFilePaths(files);
         }
 
         void IFileLoader.Load(string[] files) {
-            Dropped(files);
+            try {
+                IsBusy = true;
+                Dropped(files);
+            } finally {
+                IsBusy = false;
+            }
         }
 
 
@@ -228,7 +297,9 @@ namespace D3DLab.Viewer.Presentation {
 
 
         void IEntityRenderSubscriber.Render(IEnumerable<GraphicEntity> entities) {
-            GraphicsInfo.Fps = d3dScene.GetPerfomanceState().FPS;
+            var state = d3dScene.GetPerfomanceState();
+            GraphicsInfo.Fps = state.FPS;
+            GraphicsInfo.Milliseconds = state.ElapsedMilliseconds;
         }
 
 

@@ -88,7 +88,8 @@ namespace D3DLab.Toolkit.Input.Publishers {
             // If TopPanel implemented as separate control, after drag&move we receive only keyUp.
             // So this check is used to prevent situation when keyUp calls without KeyUp.
             if (state.Buttons!= GeneralMouseButtons.None) {
-                state.Buttons ^= btn;
+                //state.Buttons ^= btn;
+                state.Buttons &= ~btn;
             }
             state.ButtonsStates[btn] = new ButtonsState {
                 CursorPoint = new WindowPoint(),

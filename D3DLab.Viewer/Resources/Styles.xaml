@@ -6,7 +6,7 @@
 
 
     <!--1E1E1E-->
-    <SolidColorBrush x:Key="BlackBackgroundColor">#1E1E1E</SolidColorBrush>
+    <SolidColorBrush x:Key="BlackBackgroundColor">#333333</SolidColorBrush>
     <SolidColorBrush x:Key="BorderBrushColor">White</SolidColorBrush>
     <SolidColorBrush x:Key="TextColor">White</SolidColorBrush>
     <SolidColorBrush x:Key="SelectedBorderBrushColor">#569CD6</SolidColorBrush>
@@ -122,6 +122,11 @@
 
     <!-- Styles -->
 
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}" />
+        <Setter Property="Foreground" Value="{StaticResource SecondTextColor}" />
+    </Style>
+
     <Style x:Key="PopupWindowStyle" TargetType="{x:Type Window}">
         <Setter Property="Background" Value="{StaticResource BlackBackgroundColor}"/>
         <Setter Property="WindowStyle" Value="ToolWindow"/>
@@ -200,7 +205,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
-                    <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1"  
+                    <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1" Padding="1"
                             Background="{StaticResource BlackBackgroundColor}" Name="btn_border">
                         <ContentPresenter />
                     </Border>
@@ -208,6 +213,7 @@
                         <Trigger Property="IsChecked" Value="true">
                             <Setter TargetName="btn_border" Property="BorderBrush"
                                     Value="{StaticResource SelectedBorderBrushColor}" />
+                          
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="btn_border" Property="BorderBrush"

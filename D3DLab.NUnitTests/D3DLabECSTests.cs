@@ -1,5 +1,5 @@
 ﻿using D3DLab.ECS;
-
+using D3DLab.Toolkit.Components;
 using NUnit.Framework;
 
 using System;
@@ -17,7 +17,8 @@ namespace D3DLab.NUnitTests {
 
         [Test]
         public void ENTITY_COMPS_MANAGRS_ASYNC_ADD_GET_TEST() {
-            var manager = new EntityComponentManager(new Notify(), new EntityOrderContainer());
+            var sync = new ECS.Sync.RenderLoopSynchronizationContext();
+            var manager = new EntityComponentManager(new Notify(), new EntityOrderContainer(), sync);
             
             var en = manager.CreateEntity(ElementTag.New());
             
@@ -25,7 +26,7 @@ namespace D3DLab.NUnitTests {
             var runner = Task.Run(() => {
                 while (true) {
                     Thread.Sleep(sleep);
-                    manager.Synchronize(0);
+                    sync.Synchronize(0);
                 }
             });
 

@@ -18,5 +18,6 @@ namespace D3DLab.Viewer.Presentation.OpenFiles {
         public OpenFilesWindow() {
             InitializeComponent();
         }
+
     }
 }

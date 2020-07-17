@@ -35,8 +35,8 @@ namespace D3DLab.Viewer.D3D {
         VisualPolylineObject worldY;
         VisualPolylineObject worldZ;
 
-        public List<ElementTag> Tags { get; }
-        public LoadedObjectDetails Details { get; }
+        public IEnumerable<ElementTag> Tags { get; private set; }
+        public LoadedObjectDetails Details { get; private set; }
 
         static LoadedVisualObject() {
             var c = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B598");
@@ -44,13 +44,20 @@ namespace D3DLab.Viewer.D3D {
         }
         public static LoadedVisualObject Create(IContextState context, IEnumerable<IFileGeometry3D> meshes,
             FileInfo texture, string name) {
+            var visual = new LoadedVisualObject(name);
+            _Create(context, meshes, texture,name, visual);
+
+            return visual;
+        }
+        static void _Create(IContextState context, IEnumerable<IFileGeometry3D> meshes,
+            FileInfo texture, string name, LoadedVisualObject visual) {
             List<ElementTag> t = new List<ElementTag>();
             var details = new LoadedObjectDetails();
             var baseTag = ElementTag.New();
             var index = 0;
             AxisAlignedBox fullBox = AxisAlignedBox.Zero;
             foreach (var geo in meshes) {
-                var tag = Create(context, baseTag.WithPrefix(index.ToString()), 
+                var tag = Create(context, baseTag.WithPrefix(geo.Name ?? index.ToString()),
                     new GeometryStructures<IFileGeometry3D>(geo), texture, out var box);
                 t.Add(tag);
                 fullBox = fullBox.Merge(box.Bounds);
@@ -59,8 +66,9 @@ namespace D3DLab.Viewer.D3D {
                 index++;
             }
 
-            var visual = new LoadedVisualObject(t, name, details);
-            
+            visual.Tags = t;
+            visual.Details = details;
+
             var size = fullBox.Size();
 
             visual.worldX = VisualPolylineObject.Create(context, baseTag.WithPrefix("WorldX"),
@@ -72,8 +80,6 @@ namespace D3DLab.Viewer.D3D {
             visual.worldZ = VisualPolylineObject.Create(context, baseTag.WithPrefix("WorldZ"),
                new[] { Vector3.Zero + Vector3.UnitZ * size.Z * -0.8f, Vector3.Zero + Vector3.UnitZ * size.Z * 0.8f }, V4Colors.Blue, false);
             visual.worldZ.IsVisible = false;
-
-            return visual;
         }
 
         static ElementTag Create(IContextState context, ElementTag tag, GeometryStructures gdata, FileInfo texture,
@@ -112,9 +118,13 @@ namespace D3DLab.Viewer.D3D {
             return tag;
         }
 
-        LoadedVisualObject(List<ElementTag> tag, string filename, in LoadedObjectDetails details) : base(filename) {
-            this.Tags = tag;
-            Details = details;            
+        public void ReCreate(IContextState context, IEnumerable<IFileGeometry3D> meshes, FileInfo material, string name) {
+            this.Cleanup(context);
+
+            _Create(context, meshes, material, name, this);
+        }
+
+        LoadedVisualObject(string filename) : base(filename) {
         }
 
         public override void Hide(IEntityManager manager) {
@@ -158,7 +168,12 @@ namespace D3DLab.Viewer.D3D {
         }
         public void ShowBoundingBox(IContextState context, out AxisAlignedBox fullBox) {
             if (bounds != null) throw new Exception("Bounds has already showed.");
-            fullBox = new AxisAlignedBox();
+            fullBox = GetAllBounds(context);
+            bounds = VisualPolylineObject.CreateBox(context, ElementTag.New("Bounds_"), fullBox, V4Colors.White);
+        }
+
+        public AxisAlignedBox GetAllBounds(IContextState context) {
+            var fullBox = new AxisAlignedBox();
             var manager = context.GetEntityManager();
             foreach (var t in Tags) {
                 var en = manager.GetEntity(t);
@@ -166,9 +181,9 @@ namespace D3DLab.Viewer.D3D {
                 var tr = en.GetComponent<TransformComponent>();
                 fullBox = fullBox.Merge(box.Bounds.Transform(tr.MatrixWorld));
             }
-
-            bounds = VisualPolylineObject.CreateBox(context, ElementTag.New("Bounds_"), fullBox, V4Colors.White);
+            return fullBox;
         }
+
         public void HideBoundingBox(IContextState context) {
             bounds?.Cleanup(context);
             bounds = null;           
@@ -207,5 +222,7 @@ namespace D3DLab.Viewer.D3D {
                     break;
             }
         }
+
+        
     }
 }

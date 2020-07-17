@@ -1,4 +1,6 @@
-﻿using D3DLab.ECS;
+﻿#define OCTREEDEBUG
+
+using D3DLab.ECS;
 using D3DLab.ECS.Components;
 using D3DLab.ECS.Sync;
 using D3DLab.Toolkit.Components;
@@ -28,7 +30,7 @@ namespace D3DLab.Toolkit {
         public bool IsDrawingBoxesEnable { get; private set; }
         readonly SynchronizationContextAdapter<OctreeManager, SyncData> sync;
         readonly object loker;
-        readonly Task drawerTask;
+        Task drawerTask;
         public OctreeManager(IContextState context, AxisAlignedBox box, int MaximumChildren,
             RenderLoopSynchronizationContext syncContext) : base(box, MaximumChildren) {
             this.context = context;
@@ -95,16 +97,15 @@ namespace D3DLab.Toolkit {
             sync.Add((_this, data) => {
                 _this.TryRemove(data.EntityTag);
                 _this.Add(data.Box, data.EntityTag);
+
+                if (IsDrawingBoxesEnable) {
+                    drawerTask = drawerTask.ContinueWith(_ => {
+                        this.Draw(context);
+                    });
+                }
+
                 return true;
             }, new SyncData { Box = box, EntityTag = enTag });
-        }
-
-        public void Synchronize(int theadId) {
-            if (IsDrawingBoxesEnable) {
-                drawerTask.ContinueWith(_ => {
-                    this.Draw(context);
-                });
-            }
         }
 
         public IEnumerable<ElementTag> GetColliding(ref Ray ray, Func<ElementTag, bool> predicate) {
@@ -117,13 +118,13 @@ namespace D3DLab.Toolkit {
 
         public void EnableDrawingBoxes() {
             IsDrawingBoxesEnable = true;
-            drawerTask.ContinueWith(_ => {
+            drawerTask = drawerTask.ContinueWith(_ => {
                 this.Draw(context);
             });
         }
         public void DisableDrawingBoxes() {
             IsDrawingBoxesEnable = false;
-            drawerTask.ContinueWith(_ => {
+            drawerTask = drawerTask.ContinueWith(_ => {
                 ClearDrew(context);
             });
         }

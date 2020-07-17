@@ -7,7 +7,8 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d" x:Name="wind"
         Style="{StaticResource PopupWindowStyle}" 
-        Title="Save all" 
+        Title="Save all"
+        MinWidth="150"
         BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
@@ -57,7 +58,7 @@
         <Button Content="Select All" Margin="5,5,0,0" Command="{Binding SelectAllCommand}" 
                 Grid.Row="3" Grid.Column="0"/>
         <Button Content="Save as ..." Margin="5,5,5,0" Command="{Binding SaveAsCommand}" 
-                Grid.Row="3"  Grid.Column="1"/>
+                Grid.Row="3"  Grid.Column="1" IsEnabled="False"/>
         <Button Content="Close" Margin="5,0,0,5" Command="{Binding CloseCommand}" 
                 Grid.Row="5"  Grid.Column="0"/>
         <Button Content="Save" Margin="5,0,5,5" Command="{Binding SaveCommand}"

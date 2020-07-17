@@ -49,11 +49,14 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
             ShowHideGroup = new WpfActionCommand<bool>(OnShowHideGroup);
             HighlightGroup = new WpfActionCommand<bool>(OnHighlightGroup);
             AddNewColorFilter = new WpfActionCommand(OnAddNewColorFilter);
+            RemoveColorFilter = new WpfActionCommand(OnRemoveColorFilter);
 
             Refresh = new WpfActionCommand(OnRefresh);
             CopyGroupName = new WpfActionCommand<string>(OnWpfActionCommand);
             VisiblityChanged = new WpfActionCommand<ObjDetailsViewModel.ObjGroupViewItem>(OnVisiblityChanged);
         }
+
+        
 
         void OnVisiblityChanged(ObjDetailsViewModel.ObjGroupViewItem item) {
             facade.ShowHideItem(item, item.IsVisible);
@@ -70,7 +73,9 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         void OnAddNewColorFilter() {
             facade.AddNewColorFilter(null, Colors.White);
         }
-
+        void OnRemoveColorFilter() {
+            facade.RemoveSelectedColor();
+        }
         void OnHighlightGroup(bool obj) {
 
         }
@@ -97,6 +102,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
                     color = value;
                 }
             }
+            public bool IsChecked { get; set; }
         }
 
         public class ObjGroupViewItem : BaseNotify {
@@ -143,17 +149,20 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         }
         string filder;
 
-        public ObservableCollection<ColorFilterViewItem> FilterColors { get; }
+        public ICollectionView FilterColors { get; }
         public Controler Controler { get; }
         public ICollectionView ObjGroups { get; private set; }
         ObservableCollection<ObjGroupViewItem> items;
+        readonly ObservableCollection<ColorFilterViewItem> filterColors;
         ListCollectionView listView;
         LoadedVisualObject gobj;
         IEntityManager entityManager;
+        IContextState context;
 
         public ObjDetailsViewModel() {
             Controler = new Controler(this);
-            FilterColors = new ObservableCollection<ColorFilterViewItem>();
+            filterColors = new ObservableCollection<ColorFilterViewItem>();
+            FilterColors = CollectionViewSource.GetDefaultView(filterColors);
 
             AddNewColorFilter("^A ID*?", Colors.Blue);
             AddNewColorFilter("^((?!LT0352).)*$", Colors.Green);
@@ -167,23 +176,31 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
             en.UpdateComponent(show ? com.Enable() : com.Disable());
         }
         internal void AddNewColorFilter(string filer, Color color) {
-            FilterColors.Add(new ColorFilterViewItem {
+            filterColors.Add(new ColorFilterViewItem {
                 Color = color.ToString(),
                 Filter = filer,
             });
         }
+        internal void RemoveSelectedColor() {
+            var checkedColors = filterColors.Where(x => x.IsChecked).ToList();
+            foreach (var color in checkedColors) {
+                filterColors.Remove(color);
+            }
+        }
+
         internal void Refresh() {
             Refresh(items);
         }
 
         void Refresh(IEnumerable<ObjGroupViewItem> groups) {
-            var regex = new Tuple<Regex, Vector4>[FilterColors.Count];
-            for (var i = 0; i < FilterColors.Count; i++) {
-                var item = FilterColors[i];
+            var regex = new Tuple<Regex, Vector4, string>[filterColors.Count];
+            for (var i = 0; i < filterColors.Count; i++) {
+                var item = filterColors[i];
                 var color = (Color)ColorConverter.ConvertFromString(item.Color);
                 regex[i] = Tuple.Create(
                     new Regex(item.Filter, RegexOptions.Compiled),
-                    new Vector4(color.ScR, color.ScG, color.ScB, color.ScA));
+                    new Vector4(color.ScR, color.ScG, color.ScB, color.ScA),
+                    item.Color);
             }
             //keep the order of regex
             foreach (var reg in regex) {
@@ -191,9 +208,11 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
                     var match = reg.Item1.IsMatch(item.Name);
                     if (match) {
                         ChangeColor(item, reg.Item2);
+                        item.Color = reg.Item3;
                     }
                 }
             }
+
         }
 
         void ChangeColor(ObjGroupViewItem item, Vector4 color) {
@@ -204,6 +223,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
 
         public void Fill(LoadedVisualObject gobj, IContextState context) {
             this.gobj = gobj;
+            this.context = context;
             this.entityManager = context.GetEntityManager();
 
             items = new ObservableCollection<ObjGroupViewItem>();
@@ -223,6 +243,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
 
             UpdateCount();
             //Refresh();
+            ObjGroups.Refresh();
         }
 
         void Filter(string filder) {
@@ -258,6 +279,6 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
             SetPropertyChanged(nameof(AllGroupsCount));
         }
 
-
+       
     }
 }

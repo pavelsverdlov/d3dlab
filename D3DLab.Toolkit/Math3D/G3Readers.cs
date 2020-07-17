@@ -7,6 +7,7 @@ using g3;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -76,32 +77,58 @@ namespace D3DLab.Toolkit.Math3D {
 
     public static class G3Writers {
         public static void WriteObj(FileInfo file, IEnumerable<IFileGeometry3D> geometries) {
-            var obj = new OBJWriter();
             var meshes = new List<WriteMesh>();
-
             var mesh = new SimpleMesh();
 
+            var map = new Dictionary<Vector3, int>();
+            var indeces = new List<int>();
             foreach (var geo in geometries) {
-                var pcount = geo.Positions.Count * 3;
-                var pp = new double[pcount];
-                var pindex = 0;
-                for(var index =0; index < geo.Positions.Count; index++) {
+                //var pcount = geo.Positions.Count * 3;
+                //var pp = new double[pcount];
+                //var pindex = 0;
+                //for(var index =0; index < geo.Positions.Count; index++) {
+                //    var v = geo.Positions[index];
+                //    pp[pindex++] = v.X;
+                //    pp[pindex++] = v.Y;
+                //    pp[pindex++] = v.Z;
+                //}
+                //mesh.Initialize(new VectorArray3d(pp), new VectorArray3i(geo.Indices.ToArray()));
+                for (var index = 0; index < geo.Positions.Count; index++) {
                     var v = geo.Positions[index];
-                    pp[pindex++] = v.X;
-                    pp[pindex++] = v.Y;
-                    pp[pindex++] = v.Z;
+                    if (!map.ContainsKey(v)) {
+                        map.Add(v, map.Count);
+                    }
                 }
-
-                mesh.Initialize(new VectorArray3d(pp), new VectorArray3i(geo.Indices.ToArray()));
-
-                meshes.Add(new WriteMesh(mesh, $"d3dlab export: {geo.Name}"));
-            }
-            
-            using (var stream = File.Open(file.FullName, FileMode.Create)) {
-                using (var writer = new StreamWriter(stream, Encoding.UTF8)) {
-                    obj.Write(writer, meshes, WriteOptions.Defaults);
+                for (var index = 0; index < geo.Indices.Count; index++) {
+                    var i = geo.Indices[index];
+                    var v = geo.Positions[i];
+                    indeces.Add(map[v]);
                 }
             }
+
+            var points = map.Keys.ToArray();
+            var pcount = points.Length * 3;
+            var pp = new double[pcount];
+            var pindex = 0;
+            for (var index = 0; index < points.Length; index++) {
+                var v = points[index];
+                pp[pindex++] = v.X;
+                pp[pindex++] = v.Y;
+                pp[pindex++] = v.Z;
+            }
+            mesh.Initialize(new VectorArray3d(pp), new VectorArray3i(indeces.ToArray()));
+
+            meshes.Add(new WriteMesh(mesh, $"d3dlab export"));
+
+            StandardMeshWriter.WriteFile(file.FullName, meshes, WriteOptions.Defaults);
+
+            //var obj = new OBJWriter();
+            //System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            //using (var stream = File.Open(file.FullName, FileMode.Create)) {
+            //    using (var writer = new StreamWriter(stream, Encoding.UTF8)) {
+            //        obj.Write(writer, meshes, WriteOptions.Defaults);
+            //    }
+            //}
         }
     }
 }

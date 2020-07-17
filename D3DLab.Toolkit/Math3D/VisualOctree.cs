@@ -1,8 +1,11 @@
-﻿using D3DLab.ECS;
+﻿#define OCTREEDEBUG
+
+using D3DLab.ECS;
 using D3DLab.Toolkit.D3Objects;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
@@ -77,7 +80,7 @@ namespace D3DLab.Toolkit.Math3D {
 
 
         public void Draw(IContextState context) {
-            ClearDrew(context);            
+            ClearDrew(context);
             root.Draw(context, drawedDebug);
         }
         public void ClearDrew(IContextState context) {
@@ -122,7 +125,7 @@ namespace D3DLab.Toolkit.Math3D {
 
         OctreeNode<T>[] BuildNodes() {
             Vector3 dimensions = Bounds.Maximum - Bounds.Minimum;
-            Vector3 half = dimensions * 0.25f;
+            // Vector3 half = dimensions * 0.25f;
             Vector3 center = Bounds.Center;
             var m_region = Bounds;
             var octant = new AxisAlignedBox[NumChildNodes];
@@ -158,31 +161,30 @@ namespace D3DLab.Toolkit.Math3D {
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void AddIntoNodes(OctreeItem<T> item) {
+            var added = false;
+            var box = item.Bound;
             for (int j = 0; j < octants.Length; j++) {
                 var node = octants[j];
 
                 var cross = node.Bounds.Contains(item.Bound);
 
                 if (cross == AlignedBoxContainmentType.Contains) {
-                    node.Add(item);
-                    return;
+                    added = node.Add(ref box, item);
+                    break;//if whole item inside octant, do not check the rest of octants
                 }
                 if (cross == AlignedBoxContainmentType.Intersects) {
-                    node.Add(item);
-                    continue;
+                    //if item Intersects, try to add it to suboctants
+                    // added = node.Add(ref box, item) || added;
+                    //node.items.Add(item);
+                    //continue;
                 }
             }
-            //items.Add(item);
-        }
-
-        void Add(OctreeItem<T> item) {
-            var box = item.Bound;
-            if (!Add(ref box, item)) {
-                //if can't add to any small boxes will add in parent box
-                items.Add(item);
+            if (!added) {
+                //if can't add to any suboctants will add in parent octant
+                AddItem(item);
             }
+            //items.Add(item);
         }
 
         public bool Add(ref AxisAlignedBox box, OctreeItem<T> item) {
@@ -193,16 +195,24 @@ namespace D3DLab.Toolkit.Math3D {
             if (items.Count >= MaximumChildren && IsLeaf()) {
                 if (this.Bounds.Contains(item.Bound) == AlignedBoxContainmentType.Contains) {
                     //split nodes if can
-                    items.Add(item);
-                    return RebuildTree();
+                    var builded = RebuildTree();
+                    if (builded) {
+                        //if octants were created
+                        //try to add into suboctants
+                        AddIntoNodes(item);
+                    } else {
+                        //if rebuild failed it means we can't add into suboctants
+                        //so add item into current node because it Contains() == AlignedBoxContainmentType.Contains
+                        AddItem(item);
+                    }
+                    return true;//always true, item was added in current octant or suboctants for sure!
                 }
-                return false;
+                return false;//can't contain whole item so upper/bigger octant must contain it
             }
-            if (!IsLeaf()) {
+            if (!IsLeaf()) {//try to add into some suboctants
                 AddIntoNodes(item);
-            } else {
-                item.AddOwner(this);
-                items.Add(item);
+            } else {//till saved items less than max count just put in the current node
+                AddItem(item);
             }
 
             return true;
@@ -246,11 +256,12 @@ namespace D3DLab.Toolkit.Math3D {
                 drawed.Add(VisualPolylineObject.CreateBox(context, ElementTag.New(),
                     Bounds, V4Colors.Yellow));
             } else {
-                for (int i = 0; i < Nodes.Length; i++) {
-                    Nodes[i].Draw(context, drawed);
+                var nodes = Nodes.ToArray();
+                for (int i = 0; i < nodes.Length; i++) {
+                    nodes[i].Draw(context, drawed);
                 }
             }
-            foreach (var i in items) {
+            foreach (var i in items.ToList()) {
                 drawed.Add(VisualPolylineObject.CreateBox(context, ElementTag.New("DEBUG_BOX_"),
                      i.Bound, V4Colors.Blue));
             }
@@ -259,6 +270,7 @@ namespace D3DLab.Toolkit.Math3D {
         public void Remove(OctreeItem<T> item) {
             items.Remove(item);
         }
+        
         public void Clear() {
             foreach (var n in octants) {
                 n.Clear();
@@ -266,81 +278,62 @@ namespace D3DLab.Toolkit.Math3D {
             octants = Array.Empty<OctreeNode<T>>();
             items.Clear();
         }
-        public void Merge() {
-            var sw = new Stopwatch();
-            sw.Start();
-            MergeUp(this);
-            sw.Stop();
-            //Log.Debug($"Merge time: {sw.ElapsedMilliseconds} ms");
-        }
-        static void MergeUp(OctreeNode<T> current) {
-            while (!current.IsRoot) {
-                var movedItems = new HashSet<OctreeItem<T>>();
-                if (!current.CanMerged(movedItems) && !movedItems.Any()) {
-                    return;
-                }
 
-                //movedItems.ForEach(x => current.items.Add(x));
-                //movedItems.ForEach(x => x.AddOwner(current));
-                //if (current.items.Count > current.MaximumChildren) {
-                //    current.RebuildTree();
-                //}
+        public void MergeUp() {
+            var current = this;
+            while (!current.IsRoot && current.Merge()) {
                 current = current.Parent;
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CanMerged(HashSet<OctreeItem<T>> movedItems) {
+        bool Merge() {
             var hasOctants = octants.Any();
             var hasItems = items.Any();
             if (!hasItems && !hasOctants) {
                 return true;
             }
-
-            if (hasOctants && octants.All(x => x.CanMerged(movedItems))) {
-                //octants = null;
-                octants = Array.Empty<OctreeNode<T>>();
+            if (!hasItems && hasOctants) {
+                var mergedAll = true;
+                foreach (var oc in octants) {
+                    mergedAll = oc.Merge() && mergedAll;
+                }
+                if (mergedAll) {
+                    octants = Array.Empty<OctreeNode<T>>();
+                    return true;
+                }
             }
-            //if (movedItems.Count >= MaximumChildren) {
-            //    movedItems.ForEach(x => items.Add(x));
-            //    movedItems.ForEach(x => x.AddOwner(this));
-            //    movedItems.Clear();
-            //    if (items.Count > MaximumChildren) {
-            //        RebuildTree();
-            //    }
-            //    return false;
-            //}
-            //if (movedItems.Count < MaximumChildren && items.Count < MaximumChildren) {
-            //    items.ForEach(x=>movedItems.Add(x));
-            //    movedItems.ForEach(x => x.RemoveOwner(this));
-            //    items.Clear();
-            //    return true;
-            //}
+            return false;
+        }
 
-            return !hasItems;
+        void AddItem(OctreeItem<T> item) {
+            item.SetOwner(this);
+            items.Add(item);
         }
     }
 
     public class OctreeItem<T> {
-        readonly List<OctreeNode<T>> owners;
+        OctreeNode<T> owner;
         public AxisAlignedBox Bound { get; }
         public T Item { get; }
         public OctreeItem(ref AxisAlignedBox box, T item) {
             Item = item;
             Bound = box;
-            owners = new List<OctreeNode<T>>();
         }
-        public void AddOwner(OctreeNode<T> node) {
-            owners.Add(node);
+
+        public void SetOwner(OctreeNode<T> node) {
+            if (owner != null) {
+                throw new Exception("Item can have only one owner.");
+            }
+            owner = node;
         }
         public void RemoveOwner(OctreeNode<T> node) {
-            owners.Remove(node);
+            owner = null;
         }
         public void SelfRemove() {
             //var temp = owners.ToArray();
-            owners.ForEach(x => x.Remove(this));
-            owners.ForEach(x => x.Merge());
-            owners.Clear();
+            owner.Remove(this);
+            owner.MergeUp();
+            owner = null;
         }
     }
 }

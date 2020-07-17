@@ -15,13 +15,14 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
     class RenderToHandleDeviceProxy : DirectX11Proxy {
         readonly SwapChain swapChain;
         readonly SwapChain1 swapChain1;
+        readonly SwapChain3 swapChain3;
 
         readonly SharpDX.Direct3D11.Device3 device3;
 
         public RenderToHandleDeviceProxy(Adapter adapter, IntPtr handle, GraphicSurfaceSize size) {
 
             var backBufferDesc = new ModeDescription(size.Width, size.Height, new Rational(60, 1), GraphicsDevice.BackBufferTextureFormat);
-
+          
             // Descriptor for the swap chain
             var swapChainDesc = new SwapChainDescription() {
                 ModeDescription = backBufferDesc,
@@ -30,7 +31,8 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
                 IsWindowed = true,
                 OutputHandle = handle,
                 Usage = Usage.RenderTargetOutput,
-                //SwapEffect = SwapEffect.Discard
+                Flags = SwapChainFlags.None,
+               // SwapEffect = SwapEffect.FlipSequential
             };
             // Create device and swap chain
             var flags = DeviceCreationFlags.None;
@@ -80,6 +82,11 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
             if (wc != null) {
                 swapChain1 = wc;
             }
+            var sc3 = sch.QueryInterfaceOrNull<SwapChain3>();
+            if (sc3 != null) {
+                swapChain3 = sc3;
+            }
+
             swapChain = sch;//.QueryInterface<SwapChain4>();//
 
             var d3 = d3dDevice.QueryInterfaceOrNull<SharpDX.Direct3D11.Device3>(); //Device5
@@ -100,6 +107,7 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
             base.Dispose();
             swapChain.Dispose();
             swapChain1.Dispose();
+            swapChain3.Dispose();
             device3.Dispose();
             //ImmediateContext.Dispose();
         }
@@ -112,10 +120,10 @@ namespace D3DLab.SDX.Engine.ProxyDevice {
             }
 
             try {//only for Window 10
-                 //    WaitForSingleObjectEx(swapChain.FrameLatencyWaitableObject.ToInt32(), 1000, true);
-            } catch {
-
-            }
+                if (swapChain3 != null) {
+                    WaitForSingleObjectEx(swapChain3.FrameLatencyWaitableObject.ToInt32(), 1000, true);
+                }
+            } catch { }
             // Output the current active Direct3D objects
             //System.Diagnostics.Debug.Write(SharpDX.Diagnostics.ObjectTracker.ReportActiveObjects());
         }

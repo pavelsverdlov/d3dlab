@@ -7,6 +7,7 @@ using D3DLab.Viewer.Presentation.OpenFiles;
 using D3DLab.Viewer.Presentation.TopPanel.SaveAll;
 using Microsoft.Extensions.DependencyInjection;
 
+using System.Linq;
 using System.Windows;
 
 using WPFLab;
@@ -50,6 +51,11 @@ namespace D3DLab.Viewer {
         protected override void AppStartup(StartupEventArgs e, IDependencyResolverService resolver) {
             resolver.UseUnhandledExceptionHandler();
             resolver.ResolveView<MainWindow, MainWindowViewModel>().Show();
+
+            if (e.Args.Any()) {
+                resolver.Resolve<AppLogger>().Info(string.Join('\n',e.Args));
+                resolver.Resolve<IFileLoader>().Load(e.Args);
+            }
         }
 
         protected override void AppExitp(ExitEventArgs e, IDependencyResolverService resolver) {

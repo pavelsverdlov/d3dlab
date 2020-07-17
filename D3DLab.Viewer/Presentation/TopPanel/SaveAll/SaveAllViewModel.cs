@@ -39,8 +39,10 @@ namespace D3DLab.Viewer.Presentation.TopPanel.SaveAll {
             IsChecked = true;
         }
     }
+
     class SaveAllViewModel : BaseNotify {
         readonly ISaveLoadedObject provider;
+        readonly DialogManager dialogs;
         readonly DispatcherTimer timer;
         private string fullPathPreview;
 
@@ -55,14 +57,17 @@ namespace D3DLab.Viewer.Presentation.TopPanel.SaveAll {
         public ICommand SaveAsCommand { get; }
         public ICommand SelectAllCommand { get; }
         public ICommand MouseMoveCommand { get; }
+        public ICommand CloseCommand { get; }
+        
 
-        public SaveAllViewModel(ISaveLoadedObject provider) {
+        public SaveAllViewModel(ISaveLoadedObject provider, DialogManager dialogs) {
             this.provider = provider;
-
+            this.dialogs = dialogs;
             MouseMoveCommand = new WpfActionCommand<ItemToSave>(OnMouseMove);
             SaveCommand = new WpfActionCommand(OnSave);
             SaveAsCommand = new WpfActionCommand(OnSaveAs);
             SelectAllCommand = new WpfActionCommand(OnSelectAll);
+            CloseCommand = new WpfActionCommand(OnClose);
 
             AllLoadedObjects = new ObservableCollection<ItemToSave>();
             foreach (var i in provider.AvaliableToSave) {
@@ -72,6 +77,10 @@ namespace D3DLab.Viewer.Presentation.TopPanel.SaveAll {
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += CleanPreviewPath;
+        }
+
+        void OnClose() {
+            dialogs.SaveAll.Close();
         }
 
         void OnSelectAll() {

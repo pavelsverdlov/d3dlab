@@ -6,7 +6,9 @@ namespace D3DLab.ECS.Components {
     public readonly struct PerfomanceComponent : IGraphicComponent {
         
 
-        public static PerfomanceComponent Create(double millisec, int fps) {
+        public static PerfomanceComponent Create(double millisec, double total, double frameTimeMillisec) {
+            int fps = frameTimeMillisec == 0 ? (int)total : (int)(total / frameTimeMillisec);
+
             return new PerfomanceComponent(millisec, fps) {
               
             };

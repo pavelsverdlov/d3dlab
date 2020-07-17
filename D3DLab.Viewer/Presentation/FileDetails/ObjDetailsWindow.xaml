@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:D3DLab.Viewer.Presentation.FileDetails"
         mc:Ignorable="d" x:Name="mainview"
-         Background="{StaticResource BlackBackgroundColor}"
+        Background="{StaticResource BlackBackgroundColor}"
+        BorderBrush="{StaticResource BorderBrushColor}"
+        BorderThickness="1"
         Title="OBJ File Details" Height="450" Width="800">
     
     <Grid Margin="0,10,0,0" >
@@ -26,15 +28,15 @@
                 <Run Text="/"/>
                 <Run Text="{Binding AllGroupsCount, Mode=OneWay}" Foreground="{StaticResource SelectedBorderBrushColor}" />
             </TextBlock>
+            <TextBlock Text="Filter: "/>
             <TextBox Text="{Binding Filder, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
-
         </DockPanel>
 
 
         <ItemsControl ItemsSource="{Binding ObjGroups}" Grid.Row="1" Grid.Column="1"
                       BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1,1,0,1"
                       VirtualizingStackPanel.IsVirtualizing="True" 
-                      ScrollViewer.CanContentScroll="True"
+                      ScrollViewer.CanContentScroll="True" Margin="0,0,5,0"
                       VirtualizingStackPanel.VirtualizationMode="Recycling">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -60,7 +62,10 @@
                     <Border BorderBrush="White" BorderThickness="0,0,0,1">
                         <DockPanel HorizontalAlignment="Stretch" Margin="5">
                             <DockPanel DockPanel.Dock="Right">
-                                <Rectangle Width="15" Height="15" Fill="{Binding Color, Mode=OneWay}" Margin="5,0,5,0"/>
+                                <Border Width="15" Height="15" BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="1" Margin="5,0,5,0">
+                                <Rectangle Fill="{Binding Color, Mode=OneWay}" 
+                                           />
+                                </Border>
                                 <ToggleButton Style="{StaticResource ImageToggleButton}"
                                               Command="{Binding DataContext.Controler.VisiblityChanged, ElementName=mainview}"
                                               x:Name="vis"
@@ -76,8 +81,8 @@
                                         <Path Fill="White" Data="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                                     </Canvas>
                                 </ToggleButton>
-                                <ToggleButton Content="H" Width="14" Height="14"
-                                              Command="{Binding DataContext.Controler.HighlightGroup, ElementName=mainview}"/>
+                                <!--<ToggleButton Content="H" Width="14" Height="14"
+                                              Command="{Binding DataContext.Controler.HighlightGroup, ElementName=mainview}"/>-->
                             </DockPanel>
                             <TextBlock HorizontalAlignment="Stretch" TextAlignment="Left">
                                 <Run Text="{Binding Name, Mode=OneWay}" >
@@ -95,8 +100,8 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <DockPanel Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10">
-            <Button Content="Refresh" Command="{Binding Controler.Refresh}" Height="25" Width="100" DockPanel.Dock="Right" />
+        <DockPanel Grid.Row="2" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5">
+            <Button Content="Refresh" Command="{Binding Controler.Refresh}" Width="100" DockPanel.Dock="Right" />
             <TextBlock/>
         </DockPanel>
 
@@ -109,7 +114,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <DockPanel Margin="0,0,0,5">
-                        <DockPanel DockPanel.Dock="Right" HorizontalAlignment="Stretch">
+                        <DockPanel DockPanel.Dock="Right" HorizontalAlignment="Stretch">                           
                             <TextBox Text="{Binding Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Margin="0,0,5,0" Width="70" />
                             <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="0,0,5,0"
@@ -130,6 +135,7 @@
                             <Rectangle Width="15" Height="15" Fill="{Binding Color, Mode=TwoWay}"/>
                             
                         </DockPanel>
+                        <CheckBox IsChecked="{Binding IsChecked}" VerticalAlignment="Center"/>
                         <TextBox HorizontalAlignment="Left" 
                                  Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  TextAlignment="Left" Width="155"/>
@@ -138,9 +144,9 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <DockPanel Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10">
-            <Button Content="Remove" Command="{Binding Controler.RemoveColorFilter}" Height="25" Width="100" />
-            <Button Content="Add" Command="{Binding Controler.AddNewColorFilter}" Height="25" Width="100" Margin="5,0,0,0" />
+        <DockPanel Grid.Row="2" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5">
+            <Button Content="Remove checked colors" Command="{Binding Controler.RemoveColorFilter}" Width="133"/>
+            <Button Content="Add Color" Command="{Binding Controler.AddNewColorFilter}"  Width="133" Margin="5,0,0,0" />
 
         </DockPanel>
 
