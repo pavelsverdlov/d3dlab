@@ -94,6 +94,8 @@ namespace D3DLab.Viewer.Presentation {
         public ICommand LockSelectedObjectCommand { get; }
         public ICommand ShowBoundsSelectedObjectCommand { get; }
         public ICommand RefreshSelectedObjectCommand { get; }
+        public ICommand FlatshadingSelectedObjectCommand { get; }
+        public ICommand WireframeSelectedObjectCommand { get; }
 
         #endregion
 
@@ -132,6 +134,8 @@ namespace D3DLab.Viewer.Presentation {
             ShowBoundsSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnShowBoundsSelectedObject);
             OpenFolderSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnOpenFolderSelectedObject);
             RefreshSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnRefreshSelectedObject);
+            FlatshadingSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnFlatshadingSelectedObject);
+            WireframeSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnWireframeSelectedObject);
 
             OpenFilesCommand = new WpfActionCommand(OnOpenFilesCommand);
 
@@ -162,6 +166,8 @@ namespace D3DLab.Viewer.Presentation {
 
             // Module = new Modules.Transform.TransformModuleViewModel(this);
         }
+
+        
 
         void OnHostLoaded(FormsHost host) {
             d3dScene = new WFScene(host, host.Overlay, context, notificator);
@@ -214,6 +220,21 @@ namespace D3DLab.Viewer.Presentation {
             var loader = new VisualObjectImporter();
             loader.Reload(obj.File, obj.Visual, d3dScene);
         }
+        void OnFlatshadingSelectedObject(LoadedObjectItem item) {
+            if (item.IsFlatshadingEnabled) {
+                item.Visual.TurnFlatshadingOff(context);
+            } else {
+                item.Visual.TurnFlatshadingOn(context);
+            }
+        }
+        void OnWireframeSelectedObject(LoadedObjectItem item) {
+            if (item.IsWireframeEnabled) {
+                item.Visual.TurnWireframeOff(context);
+            } else {
+                item.Visual.TurnWireframeOn(context);
+            }
+        }
+
 
         void OnOpenDebuggerWindow() {
             debugger.Show();
@@ -225,7 +246,7 @@ namespace D3DLab.Viewer.Presentation {
             dialogs.SaveAll.Open();
         }
         void OnCameraFocusToAll() {
-            d3dScene.ZoomToAllObjects(loadedObjects.Select(x=>x.Visual));
+            d3dScene.ZoomToAllObjects();
         }
 
         public void Dropped(string[] files) {
@@ -239,6 +260,7 @@ namespace D3DLab.Viewer.Presentation {
                 }
             }
             settings.SaveRecentFilePaths(files);
+            d3dScene.ZoomToAllObjects();
         }
 
         void IFileLoader.Load(string[] files) {

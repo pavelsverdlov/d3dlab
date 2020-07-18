@@ -16,6 +16,8 @@ namespace D3DLab.Viewer.Presentation.LoadedPanel {
         public LoadedObjectDetails Details => Visual.Details;
         public bool IsVisible { get; set; }
         public bool IsBoundsShowed { get; set; }
+        public bool IsFlatshadingEnabled { get; set; }
+        public bool IsWireframeEnabled{ get; set; }
         public FileInfo File { get; }
 
         public IViewComponent ActiveComponent { get => component; private set => Update(ref component, value); }

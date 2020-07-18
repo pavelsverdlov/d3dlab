@@ -203,6 +203,8 @@ namespace D3DLab.Viewer.D3D {
                     break;
             }
         }
+
+       
         public void HideWorldAxis(IContextState context, WorldAxisTypes axis) {
             var manager = context.GetEntityManager();
             switch (axis) {
@@ -223,6 +225,30 @@ namespace D3DLab.Viewer.D3D {
             }
         }
 
-        
+        public void TurnFlatshadingOff(IContextState context) {
+            var manager = context.GetComponentManager();
+            foreach (var t in Tags) {
+                manager.AddComponent(t, FlatShadingGeometryComponent.Create());
+            }
+        }
+        public void TurnFlatshadingOn(IContextState context) {
+            var manager = context.GetComponentManager();
+            foreach (var t in Tags) {
+                manager.RemoveComponent<FlatShadingGeometryComponent>(t);
+            }
+        }
+        public void TurnWireframeOff(IContextState context) {
+            var manager = context.GetComponentManager();
+            foreach (var t in Tags) {
+                manager.AddComponent(t, WireframeGeometryComponent.Create());
+            }
+        }
+        public void TurnWireframeOn(IContextState context) {
+            var manager = context.GetComponentManager();
+            foreach (var t in Tags) {
+                manager.RemoveComponent<WireframeGeometryComponent>(t);
+            }
+        }
+
     }
 }

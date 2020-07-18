@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace D3DLab.ECS {
 
@@ -19,6 +20,9 @@ namespace D3DLab.ECS {
         bool HasEntityContained<T>(ElementTag tag) where T : IGraphicComponent;
         bool HasEntityContained(ElementTag tag, params Type[] types);
         bool HasEntityOfComponentContained<T>(T com) where T : IGraphicComponent;
+
+
+        IComponentManager AddComponent<T>(ElementTag tagEntity, T com, out Task awaiter) where T : IGraphicComponent;
 
         void Dispose();
     }

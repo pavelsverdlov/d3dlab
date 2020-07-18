@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace D3DLab.ECS.Sync {
     public class RenderLoopSynchronizationContext : ISynchronizationContext {
@@ -16,17 +17,20 @@ namespace D3DLab.ECS.Sync {
             public readonly Func<TOwner, TInput, bool> Action;
             public readonly TInput Input;
             public readonly TOwner Owner;
+            public readonly Task OperationTask;
 
             public QueueItem(Func<TOwner, TInput, bool> action, TOwner owner, TInput input) {
                 Action = action;
                 Input = input;
                 Owner = owner;
                 Retries = 5;
+                OperationTask = new Task(TaskAwaiter);
             }
-
+            void TaskAwaiter() {}
             public override bool Execute() {
                 try {
                     Action(Owner, Input);
+                    OperationTask.Start();
                     return true;
                 } catch (Exception ex) {
                     return false;
@@ -85,11 +89,15 @@ namespace D3DLab.ECS.Sync {
         }
 
 
-        public void Add<TOwner, TInput>(Func<TOwner, TInput, bool> action, TOwner owner, TInput input) {
+        public Task Add<TOwner, TInput>(Func<TOwner, TInput, bool> action, TOwner owner, TInput input) {
+            Task task;
             lock (_loker) {
                 isChanged = true;
-                queue.Enqueue(new QueueItem<TOwner, TInput>(action, owner, input));
+                var item = new QueueItem<TOwner, TInput>(action, owner, input);
+                task = item.OperationTask;
+                queue.Enqueue(item);
             }
+            return task;
         }
         public void AddRange<TOwner, TInput>(Func<TOwner, TInput, bool> action, TOwner owner, IEnumerable<TInput> inputs) {
             lock (_loker) {

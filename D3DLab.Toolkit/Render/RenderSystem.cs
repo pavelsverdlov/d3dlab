@@ -62,7 +62,7 @@ namespace D3DLab.Toolkit.Render {
 
                     prevCameraState = snapshot.Camera;
                     var lights = snapshot.Lights.Select(x => LightStructBuffer.From(x)).ToArray();
-                    var gamebuff = GameStructBuffer.FromCameraState(prevCameraState, snapshot.Window.Size);
+                    var gamebuff = GameStructBuffer.FromCameraState(prevCameraState, snapshot.Surface.Size);
 
                     frame.Graphics.UpdateSubresource(ref gamebuff, gameDataBuffer);
                     frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer);

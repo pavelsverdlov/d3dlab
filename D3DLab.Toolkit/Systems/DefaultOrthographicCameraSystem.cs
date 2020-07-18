@@ -17,7 +17,7 @@ namespace D3DLab.Toolkit.Systems {
         public IContextState ContextState { protected get; set; }
 
         protected override void Executing(ISceneSnapshot snapshot) {
-            var window = snapshot.Window;
+            var window = snapshot.Surface;
             var emanager = ContextState.GetEntityManager();
 
             var entity = emanager.GetEntity(snapshot.CurrentCameraTag);
@@ -138,7 +138,7 @@ namespace D3DLab.Toolkit.Systems {
             var up = Vector3.Cross(forward, left).Normalized();
 
             var move = new Vector2(data.End.X - data.Begin.X, data.End.Y - data.Begin.Y);
-            var PanK = (changed.Width * changed.Scale) / snapshot.Window.Size.Width;
+            var PanK = (changed.Width * changed.Scale) / snapshot.Surface.Size.Width;
             var projectionMove = new Vector2(move.X * PanK, move.Y * PanK);
 
             var panVector = left * projectionMove.X + up * projectionMove.Y;
@@ -158,9 +158,9 @@ namespace D3DLab.Toolkit.Systems {
                 var changed = OrthographicCameraComponent.Clone(camera);
                 changed.RotatePoint = collided.IntersectionPositionWorld;
 
-                var begin = snapshot.Viewport.Vector3ToScreen(changed.Position, camera.GetState(), snapshot.Window);
+                var begin = snapshot.Viewport.Vector3ToScreen(changed.Position, camera.GetState(), snapshot.Surface);
                 var move = new Vector2(capture.ScreenPosition.X - begin.X, capture.ScreenPosition.Y - begin.Y);
-                var PanK = (changed.Width * changed.Scale) / snapshot.Window.Size.Width;
+                var PanK = (changed.Width * changed.Scale) / snapshot.Surface.Size.Width;
                 var projectionMove = new Vector2(move.X * PanK, move.Y * PanK);
                 var left = Vector3.Cross(changed.UpDirection, changed.LookDirection).Normalized();
                 var up = Vector3.Cross(changed.LookDirection, left).Normalized();

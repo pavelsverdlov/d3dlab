@@ -33,7 +33,7 @@ namespace D3DLab.ECS {
         IViewport Viewport { get; }
         //IContextState ContextState { get; }
         IManagerChangeNotify Notifier { get; }
-        IRenderableSurface Window { get; }
+        IRenderableSurface Surface { get; }
 
         InputSnapshot InputSnapshot { get; }
         TimeSpan FrameRateTime { get; }

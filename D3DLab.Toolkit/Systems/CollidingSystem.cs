@@ -29,7 +29,7 @@ namespace D3DLab.Toolkit.Systems {
             var prevCameraState = camera.GetState();
 
             var geoPool = ContextState.GetGeometryPool();
-            var rayWorld = snapshot.Viewport.UnProject(capture.ScreenPosition, prevCameraState, snapshot.Window);
+            var rayWorld = snapshot.Viewport.UnProject(capture.ScreenPosition, prevCameraState, snapshot.Surface);
 
             var octree = ContextState.GetOctreeManager();
 

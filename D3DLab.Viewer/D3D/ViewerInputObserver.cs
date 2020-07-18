@@ -14,7 +14,7 @@ namespace D3DLab.Viewer.D3D {
             : base(control, publisher, inputHandler) {
             this.inputHandler = inputHandler;
 
-            RotationSensitivity = 1;
+            RotationSensitivity = 1.5f;
         }
 
         protected override InputState GetIdleState() {

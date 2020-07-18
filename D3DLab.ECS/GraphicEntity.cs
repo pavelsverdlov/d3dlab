@@ -3,6 +3,7 @@ using D3DLab.ECS.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace D3DLab.ECS {
 
@@ -11,6 +12,11 @@ namespace D3DLab.ECS {
         struct EmptyManager : IComponentManager, IEntityManager {
             public bool HasChanges { get; }
             public IComponentManager AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent => this;
+
+            public IComponentManager AddComponent<T>(ElementTag tagEntity, T com, out Task awaiter) where T : IGraphicComponent {
+                throw new NotImplementedException();
+            }
+
             public GraphicEntity CreateEntity(ElementTag tag) => GraphicEntity.Empty();
             public void Dispose() {}
             public void FrameSynchronize(int theadId) {}

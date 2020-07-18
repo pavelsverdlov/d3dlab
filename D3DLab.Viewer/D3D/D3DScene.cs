@@ -24,6 +24,7 @@ using D3DLab.ECS.Components;
 using D3DLab.Toolkit;
 using D3DLab.Toolkit.Techniques;
 using System.Collections.Generic;
+using D3DLab.Viewer.D3D.Systems;
 
 namespace D3DLab.Viewer.D3D {
     class WFScene : D3DWFScene {
@@ -71,6 +72,7 @@ namespace D3DLab.Viewer.D3D {
             var smanager = Context.GetSystemManager();
 
             smanager.CreateSystem<DefaultInputSystem>();
+            smanager.CreateSystem<ZoomToAllObjectsSystem>();
             smanager.CreateSystem<MovingSystem>();
             smanager.CreateSystem<CollidingSystem>();
             smanager.CreateSystem<DefaultOrthographicCameraSystem>();
@@ -119,30 +121,8 @@ namespace D3DLab.Viewer.D3D {
         }
 
 
-        public void ZoomToAllObjects(IEnumerable<LoadedVisualObject> gameObjects) {
-            var box = AxisAlignedBox.Zero;
-            foreach (var ob in gameObjects) {
-                var b = ob.GetAllBounds(Context);
-                box = box.Merge(b);
-            }
-
-            var surface = this.Surface.Size;
-            var aspectRatio = surface.Width / surface.Height;
-
-            var size = box.Size();
-
-            var camera = Context.GetEntityManager().GetEntity(engine.CameraTag);
-            var com = OrthographicCameraComponent.Clone(camera.GetComponent<OrthographicCameraComponent>());
-
-            var move = Math.Max(Math.Abs(com.LookDirection.X * size.X), 
-                Math.Max(Math.Abs(com.LookDirection.Y * size.Y), Math.Abs(com.LookDirection.Z * size.Z)));
-            
-            com.Position = box.Center + com.LookDirection * -move * 10;
-            com.RotatePoint = box.Center;
-            com.Width = Math.Max(size.X,Math.Max(size.Y, size.Z)) * aspectRatio;
-            com.Scale = 1;
-
-            camera.UpdateComponent(com);
+        public void ZoomToAllObjects() {
+            Context.GetComponentManager().UpdateComponents(engine.WorldTag, ZoomToAllCompponent.Create());
         }
 
         public override void Dispose() {

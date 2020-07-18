@@ -7,7 +7,7 @@ using System;
 namespace D3DLab.Toolkit.Render {
     class ToolkitFrameSnapshot : ISceneSnapshot {
         public IManagerChangeNotify Notifier { get; set; }
-        public IRenderableSurface Window { get; set; }
+        public IRenderableSurface Surface { get; set; }
         public InputSnapshot InputSnapshot { get; set; }
         public TimeSpan FrameRateTime { get; set; }
 

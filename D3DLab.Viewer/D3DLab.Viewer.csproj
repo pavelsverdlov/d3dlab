@@ -74,6 +74,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="lab.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\ViewerSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>ViewerSettings.Designer.cs</LastGenOutput>

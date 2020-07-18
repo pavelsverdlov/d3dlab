@@ -226,6 +226,19 @@
                                             Content="{StaticResource SmallLineBoxIconCanvas}" IsChecked="{Binding IsBoundsShowed}"
                                             Command="{Binding DataContext.ShowBoundsSelectedObjectCommand, ElementName=mainwin}"
                                             CommandParameter="{Binding}"/>
+                                    <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="5,0,0,0" 
+                                            Content="{StaticResource SmallFlatshadingIconCanvas}" 
+                                            IsChecked="{Binding IsFlatshadingEnabled}"
+                                            Command="{Binding DataContext.FlatshadingSelectedObjectCommand, ElementName=mainwin}"
+                                            CommandParameter="{Binding}"/>
+                                    <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="5,0,0,0" 
+                                            Content="{StaticResource SmallWireframeIconCanvas}" 
+                                            IsChecked="{Binding IsWireframeEnabled}"
+                                            Command="{Binding DataContext.WireframeSelectedObjectCommand, ElementName=mainwin}"
+                                            CommandParameter="{Binding}"/>
+
+                                    
+
                                     <Button Style="{StaticResource ImageButton}" Margin="5,0" 
                                             Content="{StaticResource SmallFolderIconCanvas}"
                                             Command="{Binding DataContext.OpenFolderSelectedObjectCommand, ElementName=mainwin}"

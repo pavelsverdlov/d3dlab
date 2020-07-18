@@ -64,7 +64,7 @@ namespace D3DLab.Toolkit.Render {
 
         protected override ISceneSnapshot CreateSceneSnapshot(InputSnapshot isnap, TimeSpan frameRateTime)
             => new ToolkitFrameSnapshot(WorldTag, CameraTag) {
-                Window = Surface,
+                Surface = Surface,
                 Notifier = Notificator,
                 InputSnapshot = isnap,
                 FrameRateTime = frameRateTime,

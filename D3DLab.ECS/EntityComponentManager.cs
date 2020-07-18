@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace D3DLab.ECS {
     public sealed class EntityComponentManager : IEntityManager, IComponentManager {
@@ -80,16 +81,22 @@ namespace D3DLab.ECS {
         #region IComponentManager        
 
         public IComponentManager AddComponent<T>(ElementTag tagEntity, T com) where T : IGraphicComponent {
+            return AddComponent(tagEntity, com, out _);
+        }
+
+        public IComponentManager AddComponent<T>(ElementTag tagEntity, T com, out Task awaiter) where T : IGraphicComponent {
             if (typeof(T) == typeof(IGraphicComponent)) {
                 throw new NotSupportedException("IGraphicComponent is incorrect type, must be the certain component type.");
             }
             if (components.ContainsKey(com.Tag)) {
                 throw new NotSupportedException($"Component {typeof(T)} '{com.Tag}' is already belong to other Entity.");
             }
-            comSynchronizer.Add((owner, inp) => owner._AddComponent(tagEntity, inp), com);
+
+            awaiter = comSynchronizer.Add((owner, inp) => owner._AddComponent(tagEntity, inp), com);
 
             return this;
         }
+
         public void RemoveComponent<T>(ElementTag tagEntity) where T : IGraphicComponent {
             if (typeof(T) == typeof(IGraphicComponent)) {
                 throw new NotSupportedException("IGraphicComponent is incorrect type, must be the certain component type.");
