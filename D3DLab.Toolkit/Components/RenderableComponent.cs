@@ -117,8 +117,8 @@ namespace D3DLab.Toolkit.Components {
 
 
         internal RenderTechniques Technique { get; }
-        public CullMode CullMode { get; }
-        public PrimitiveTopology PrimitiveTopology { get; }
+        public CullMode CullMode { get; private set; }
+        public PrimitiveTopology PrimitiveTopology { get;}
 
 
         //perhaps these blocks should be separate components as DepthStencilStateComponent and BlendStateComponent
@@ -156,6 +156,15 @@ namespace D3DLab.Toolkit.Components {
         public RenderableComponent Enable() {
             Tag = ElementTag.New();
             IsRenderable = true;
+            return this;
+        }
+
+        public RenderableComponent SwitchFillModeTo(FillMode mode) {
+            Tag = ElementTag.New();
+            IsRenderable = true;
+            var rast = RasterizerStateDescription;
+            rast.FillMode = mode;
+            RasterizerStateDescription = rast;
             return this;
         }
     }

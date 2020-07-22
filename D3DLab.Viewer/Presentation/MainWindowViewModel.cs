@@ -136,6 +136,7 @@ namespace D3DLab.Viewer.Presentation {
             RefreshSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnRefreshSelectedObject);
             FlatshadingSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnFlatshadingSelectedObject);
             WireframeSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnWireframeSelectedObject);
+            LockSelectedObjectCommand = null;
 
             OpenFilesCommand = new WpfActionCommand(OnOpenFilesCommand);
 
@@ -164,7 +165,7 @@ namespace D3DLab.Viewer.Presentation {
             this.dialogs = dialogs;
             this.logger = logger;
 
-            // Module = new Modules.Transform.TransformModuleViewModel(this);
+             Module = new Modules.Transform.TransformModuleViewModel(this);
         }
 
         
@@ -219,19 +220,20 @@ namespace D3DLab.Viewer.Presentation {
         void OnRefreshSelectedObject(LoadedObjectItem obj) {
             var loader = new VisualObjectImporter();
             loader.Reload(obj.File, obj.Visual, d3dScene);
+            obj.Refresh(context);
         }
         void OnFlatshadingSelectedObject(LoadedObjectItem item) {
             if (item.IsFlatshadingEnabled) {
-                item.Visual.TurnFlatshadingOff(context);
+                item.HideFlatshadingMode(context);
             } else {
-                item.Visual.TurnFlatshadingOn(context);
+                item.ShowFlatshadingMode(context);
             }
         }
         void OnWireframeSelectedObject(LoadedObjectItem item) {
             if (item.IsWireframeEnabled) {
-                item.Visual.TurnWireframeOff(context);
+                item.ShowWireframe(context);
             } else {
-                item.Visual.TurnWireframeOn(context);
+                item.HideWireframe(context);
             }
         }
 

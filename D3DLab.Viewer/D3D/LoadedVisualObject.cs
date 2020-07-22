@@ -237,18 +237,35 @@ namespace D3DLab.Viewer.D3D {
                 manager.RemoveComponent<FlatShadingGeometryComponent>(t);
             }
         }
-        public void TurnWireframeOff(IContextState context) {
-            var manager = context.GetComponentManager();
-            foreach (var t in Tags) {
-                manager.AddComponent(t, WireframeGeometryComponent.Create());
-            }
-        }
-        public void TurnWireframeOn(IContextState context) {
+        public void TurnSolidWireframeOff(IContextState context) {
             var manager = context.GetComponentManager();
             foreach (var t in Tags) {
                 manager.RemoveComponent<WireframeGeometryComponent>(t);
             }
         }
-
+        public void TurnSolidWireframeOn(IContextState context) {
+            var manager = context.GetComponentManager();
+            foreach (var t in Tags) {
+                manager.AddComponent(t, WireframeGeometryComponent.Create());
+            }
+        }
+        public void TurnTransparentWireframeOff(IContextState context) {
+            var manager = context.GetEntityManager();
+            foreach (var t in Tags) {
+                var en = manager.GetEntity(t);
+                en.UpdateComponent(en
+                    .GetComponent<RenderableComponent>()
+                    .SwitchFillModeTo(SharpDX.Direct3D11.FillMode.Solid));
+            }
+        }
+        public void TurnTransparentWireframeOn(IContextState context) {
+            var manager = context.GetEntityManager();
+            foreach (var t in Tags) {
+                var en = manager.GetEntity(t);
+                en.UpdateComponent(en
+                    .GetComponent<RenderableComponent>()
+                    .SwitchFillModeTo(SharpDX.Direct3D11.FillMode.Wireframe));
+            }
+        }
     }
 }

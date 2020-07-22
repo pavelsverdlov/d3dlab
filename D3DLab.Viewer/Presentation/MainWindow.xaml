@@ -22,6 +22,9 @@
                     <DataTemplate DataType="{x:Type comp:BoundingBoxDetailsViewModel}">
                         <comp:BoundingBoxDetailsView/>
                     </DataTemplate>
+                    <DataTemplate DataType="{x:Type comp:WireframeComponetViewModel}">
+                        <comp:WireframeComponetView/>
+                    </DataTemplate>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -218,7 +221,15 @@
                                     <Run Text="{Binding Details.TriangleCount}"/>
                                 </TextBlock>
 
-                                <ContentPresenter Content="{Binding ActiveComponent}"/>
+                                <ItemsControl ItemsSource="{Binding ActiveComponents}" Margin="0,5,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{StaticResource BorderBrushColor}" BorderThickness="0,1,0,0">
+                                                <ContentPresenter Content="{Binding}"/>
+                                            </Border>                                            
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
 
                                 <DockPanel HorizontalAlignment="Left" Margin="0,5,0,0">
 

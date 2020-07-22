@@ -18,6 +18,13 @@ namespace D3DLab.Toolkit.Math3D {
         }
     }
 
+    /**
+     * alternative 
+     * https://github.com/Nition/UnityOctree
+     * https://github.com/mcserep/NetOctree/tree/master/Octree
+     * https://www.wobblyduckstudios.com/Code/OctTree.cs
+     * https://www.gamedev.net/articles/programming/general-and-gameplay-programming/introduction-to-octrees-r3529/
+     */
     public class VisualOctree<T> {
         readonly OctreeNode<T> root;
         readonly Dictionary<T, OctreeItem<T>> items;
@@ -174,10 +181,7 @@ namespace D3DLab.Toolkit.Math3D {
                     break;//if whole item inside octant, do not check the rest of octants
                 }
                 if (cross == AlignedBoxContainmentType.Intersects) {
-                    //if item Intersects, try to add it to suboctants
-                    // added = node.Add(ref box, item) || added;
-                    //node.items.Add(item);
-                    //continue;
+                    //if item Intersects, ignore it 
                 }
             }
             if (!added) {
