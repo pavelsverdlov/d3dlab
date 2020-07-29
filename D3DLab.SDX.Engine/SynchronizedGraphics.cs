@@ -18,6 +18,10 @@ namespace D3DLab.SDX.Engine {
         struct Size {
             public float Width;
             public float Height;
+
+            public bool IsValid => Width > 0 && Height > 0;
+
+            public override string ToString() => $"Size[{Width}|{Height}]";
         }
         internal event Action<GraphicsDevice> Changed;
         public readonly GraphicsDevice Device;
@@ -62,10 +66,14 @@ namespace D3DLab.SDX.Engine {
 
 
         private void OnResized() {
+            var size = new Size { Height = surface.Size.Height, Width = surface.Size.Width };
+            if (!size.IsValid) {
+
+            }
             synchronizer.Add((_this, size) => {
                 _this.Device.Resize(size.Width, size.Height);
                 Changed(_this.Device);
-            }, new Size { Height = surface.Size.Height, Width = surface.Size.Width });
+            }, size);
         }
 
         private void OnInvalidated() {

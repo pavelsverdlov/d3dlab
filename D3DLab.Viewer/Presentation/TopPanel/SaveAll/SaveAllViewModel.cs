@@ -18,6 +18,7 @@ namespace D3DLab.Viewer.Presentation.TopPanel.SaveAll {
     interface ISaveLoadedObject {
         IEnumerable<LoadedObjectItem> AvaliableToSave { get; }
         void Save(IEnumerable<LoadedObjectItem> items);
+        void SaveAs(IEnumerable<LoadedObjectItem> items);
     }
 
     class SaveAsData {
@@ -89,7 +90,7 @@ namespace D3DLab.Viewer.Presentation.TopPanel.SaveAll {
             }
         }
         void OnSaveAs() {
-
+            provider.SaveAs(AllLoadedObjects.Where(x => x.IsChecked).Select(x => x.Object));
         }
         void OnSave() {
             provider.Save(AllLoadedObjects.Where(x => x.IsChecked).Select(x => x.Object));

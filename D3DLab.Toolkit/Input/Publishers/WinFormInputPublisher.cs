@@ -48,8 +48,6 @@ namespace D3DLab.Toolkit.Input.Publishers {
 
 
         private void OnMouseLeave(object sender, System.EventArgs e) {
-            var btn = Control.MouseButtons;
-            // state.Buttons = state.Buttons | btn;
 
         }
 
@@ -126,6 +124,17 @@ namespace D3DLab.Toolkit.Input.Publishers {
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e) {
+            var btn = GeneralMouseButtons.None;
+            if (Control.MouseButtons.HasFlag(MouseButtons.Left)) {
+                btn |=  GeneralMouseButtons.Left;
+            }
+            if (Control.MouseButtons.HasFlag(MouseButtons.Right)) {
+                btn |= GeneralMouseButtons.Right;
+            }
+            if (Control.MouseButtons.HasFlag(MouseButtons.Middle)) {
+                btn |= GeneralMouseButtons.Middle;
+            }
+            state.Buttons = btn;
             state.CursorCurrentPosition = Cursor.Position.ToWindowPoint();
             state.PrevPosition = state.CurrentPosition;
             state.CurrentPosition = control.PointToClient(Cursor.Position).ToNumericsV2();

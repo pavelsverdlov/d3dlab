@@ -39,6 +39,11 @@ namespace D3DLab.Toolkit.Systems {
 
             var result = octree.GetColliding(ref rayWorld, enTag => {
                 var entity = emanager.GetEntity(enTag);
+
+                if (!entity.GetComponent<RenderableComponent>().IsRenderable) {
+                    return false;
+                }
+
                 if (!entity.TryGetComponents<GeometryPoolComponent, TransformComponent, HittableComponent>(
                     out var geoId, out var transform, out var hittable) && geoId.IsValid && transform.IsValid) {
                     return false;

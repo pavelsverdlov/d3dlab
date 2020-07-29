@@ -25,6 +25,9 @@
                     <DataTemplate DataType="{x:Type comp:WireframeComponetViewModel}">
                         <comp:WireframeComponetView/>
                     </DataTemplate>
+                    <DataTemplate DataType="{x:Type comp:CullModesComponentViewModel}">
+                        <comp:CullModesComponentView/>
+                    </DataTemplate>                    
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -43,7 +46,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="252" MinWidth="50" />
+            <ColumnDefinition Width="257" MinWidth="50" />
         </Grid.ColumnDefinitions>
 
         <!-- TOP -->
@@ -180,27 +183,43 @@
             </ItemsControl.ContextMenu>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Expander>
+                    <Expander Margin="0,0,5,0">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Expanded">
+                                <i:InvokeCommandAction 
+                                    Command="{Binding DataContext.SelectedObjectSettingsOpenedCommand, ElementName=mainwin}"
+                                    CommandParameter="{Binding}"/>
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="Collapsed">
+                                <i:InvokeCommandAction 
+                                    Command="{Binding DataContext.SelectedObjectSettingsClosedCommand, ElementName=mainwin}"
+                                    CommandParameter="{Binding}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <Expander.Header>
                             <DockPanel>
                                 <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="0,0,5,0" 
-                                                  Content="{StaticResource SmallShowHideIconCanvas}"
-                                                  IsChecked="{Binding IsVisible}"
-                                                  Command="{Binding DataContext.ShowHideSelectedObjectCommand, ElementName=mainwin}"
-                                                  CommandParameter="{Binding}"/>
+                                              Content="{StaticResource SmallShowHideIconCanvas}"
+                                              IsChecked="{Binding IsVisible}"
+                                              Command="{Binding DataContext.ShowHideSelectedObjectCommand, ElementName=mainwin}"
+                                              CommandParameter="{Binding}"
+                                              ToolTip="Show/Hide"/>
                                 <TextBlock Text="{Binding Name}" Width="125" TextTrimming="CharacterEllipsis"/>                                
                                 <Button Style="{StaticResource ImageButton}" Margin="5,0,0,0" 
-                                            Content="{StaticResource SmallRefreshIconCanvas}"
-                                            Command="{Binding DataContext.RefreshSelectedObjectCommand, ElementName=mainwin}"
-                                            CommandParameter="{Binding}"/>
+                                        Content="{StaticResource SmallRefreshIconCanvas}"
+                                        Command="{Binding DataContext.RefreshSelectedObjectCommand, ElementName=mainwin}"
+                                        CommandParameter="{Binding}"
+                                        ToolTip="Refresh from file"/>
                                 <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="5,0"
-                                                  Content="{StaticResource SmallLockIconCanvas}"
-                                                  Command="{Binding DataContext.LockSelectedObjectCommand, ElementName=mainwin}"
-                                                  CommandParameter="{Binding}"/>
+                                              Content="{StaticResource SmallLockIconCanvas}"
+                                              Command="{Binding DataContext.LockSelectedObjectCommand, ElementName=mainwin}"
+                                              CommandParameter="{Binding}"
+                                              ToolTip="Lock"/>
                                 <Button Style="{StaticResource ImageButton}" Margin="0,0" 
-                                            Content="{StaticResource SmallRemoveIconCanvas}"
-                                            Command="{Binding DataContext.RemoveSelectedObjectCommand, ElementName=mainwin}"
-                                            CommandParameter="{Binding}"/>
+                                        Content="{StaticResource SmallRemoveIconCanvas}"
+                                        Command="{Binding DataContext.RemoveSelectedObjectCommand, ElementName=mainwin}"
+                                        CommandParameter="{Binding}"
+                                        ToolTip="Remove"/>
                             </DockPanel>
                         </Expander.Header>
                         <Expander.Content>
@@ -236,28 +255,33 @@
                                     <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="0,0" 
                                             Content="{StaticResource SmallLineBoxIconCanvas}" IsChecked="{Binding IsBoundsShowed}"
                                             Command="{Binding DataContext.ShowBoundsSelectedObjectCommand, ElementName=mainwin}"
-                                            CommandParameter="{Binding}"/>
+                                            CommandParameter="{Binding}"
+                                            ToolTip="Show Bounding box"/>
                                     <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="5,0,0,0" 
                                             Content="{StaticResource SmallFlatshadingIconCanvas}" 
                                             IsChecked="{Binding IsFlatshadingEnabled}"
                                             Command="{Binding DataContext.FlatshadingSelectedObjectCommand, ElementName=mainwin}"
-                                            CommandParameter="{Binding}"/>
+                                            CommandParameter="{Binding}"
+                                            ToolTip="Flatshading"/>
                                     <ToggleButton Style="{StaticResource ImageToggleButton}" Margin="5,0,0,0" 
                                             Content="{StaticResource SmallWireframeIconCanvas}" 
                                             IsChecked="{Binding IsWireframeEnabled}"
                                             Command="{Binding DataContext.WireframeSelectedObjectCommand, ElementName=mainwin}"
-                                            CommandParameter="{Binding}"/>
+                                            CommandParameter="{Binding}"
+                                            ToolTip="Wireframe"/>
 
                                     
 
                                     <Button Style="{StaticResource ImageButton}" Margin="5,0" 
                                             Content="{StaticResource SmallFolderIconCanvas}"
                                             Command="{Binding DataContext.OpenFolderSelectedObjectCommand, ElementName=mainwin}"
-                                            CommandParameter="{Binding}"/>
+                                            CommandParameter="{Binding}"
+                                            ToolTip="Open file folder"/>
                                     <Button Style="{StaticResource ImageButton}" Margin="0,0" 
                                             Content="{StaticResource SmallSettingsIconCanvas}"
                                             Command="{Binding DataContext.OpenDetailsSelectedObjectCommand, ElementName=mainwin}"
-                                            CommandParameter="{Binding}"/>
+                                            CommandParameter="{Binding}"
+                                            ToolTip="Open file format details"/>
                                 </DockPanel>
                             </StackPanel>
                         </Expander.Content>

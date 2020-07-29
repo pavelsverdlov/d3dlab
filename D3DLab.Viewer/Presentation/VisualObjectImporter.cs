@@ -23,7 +23,7 @@ namespace D3DLab.Viewer.Presentation {
             var center = box.Center;
 
             var loaded = LoadedVisualObject.Create(scene.Context, meshes, material, f.Name);
-            loaded.Transform(scene.Context.GetEntityManager(), Matrix4x4.CreateTranslation(Vector3.Zero - center));
+            //loaded.Transform(scene.Context.GetEntityManager(), Matrix4x4.CreateTranslation(Vector3.Zero - center));
 
             return loaded;
         }

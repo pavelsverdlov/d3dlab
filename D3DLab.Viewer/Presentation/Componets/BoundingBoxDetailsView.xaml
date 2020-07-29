@@ -20,7 +20,8 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <TextBlock Text="Bounding Box" Grid.Row="0" Grid.ColumnSpan="4"/>
+        <TextBlock Text="Bounding Box" Foreground="{StaticResource HighlightedTextColor}"
+                   Grid.Row="0" Grid.ColumnSpan="4"/>
         <TextBlock Text="Min:"    Foreground="LightGray" Grid.Column="0" Grid.Row="1"/>
         <TextBlock Text="Max:"    Foreground="LightGray" Grid.Column="0" Grid.Row="2"/>
         <TextBlock Text="Size:"   Foreground="LightGray" Grid.Column="0" Grid.Row="3"/>

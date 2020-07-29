@@ -31,13 +31,29 @@ namespace D3DLab.Viewer.Presentation.LoadedPanel {
 
         BoundingBoxDetailsViewModel? boxComponent;
         WireframeComponetViewModel? wireframeComponent;
+        CullModesComponentViewModel? cullComponent;
 
         public LoadedObjectItem(LoadedVisualObject loaded, FileInfo file) {
             this.Visual = loaded;
             File = file;
             IsVisible = true;
             ActiveComponents = new ObservableCollection<IViewComponent>();
+            
         }
+
+        public void ActivateStaticComponents(IContextState context) {
+            if (cullComponent != null) throw new InvalidOperationException();
+
+            cullComponent = new CullModesComponentViewModel(Visual, context);
+            ActiveComponents.Add(cullComponent);
+        }
+        public void DeactivateStaticComponents() {
+            if (cullComponent == null) throw new InvalidOperationException();
+
+            ActiveComponents.Remove(cullComponent);
+            cullComponent = null;
+        }
+
         public void ShowBoundingBox(IContextState context) {
             Visual.ShowBoundingBox(context, out var box);
             boxComponent = new BoundingBoxDetailsViewModel(box);
@@ -65,14 +81,15 @@ namespace D3DLab.Viewer.Presentation.LoadedPanel {
             wireframeComponent = new WireframeComponetViewModel(Visual, context);
             ActiveComponents.Add(wireframeComponent);
         }
+        
         public void Transform(IEntityManager manager, in Matrix4x4 matrix) {
             Visual.Transform(manager, matrix);
             boxComponent?.ApplyMatrix(matrix);
         }
+        
         public void HideFlatshadingMode(IContextState context) {
             Visual.TurnFlatshadingOff(context);
         }
-
         public void ShowFlatshadingMode(IContextState context) {
             Visual.TurnFlatshadingOn(context);
         }

@@ -167,5 +167,14 @@ namespace D3DLab.Toolkit.Components {
             RasterizerStateDescription = rast;
             return this;
         }
+
+        public RenderableComponent SwitchCullModeTo(CullMode mode) {
+            Tag = ElementTag.New();
+            IsRenderable = true;
+            var rast = RasterizerStateDescription;
+            rast.CullMode = mode;
+            RasterizerStateDescription = rast;
+            return this;
+        }
     }
 }

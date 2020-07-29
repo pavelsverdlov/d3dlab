@@ -9,7 +9,6 @@ namespace D3DLab.ECS.Sync {
     }
     public interface ISynchronizationContext : ISynchronization {
         bool HasChanges { get; }
-        void FrameSynchronize(int theadId);
         void Dispose();
     }
 

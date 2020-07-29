@@ -48,7 +48,7 @@ namespace D3DLab.ECS.Render {
             CameraTag = new ElementTag("Camera");
             context.GetEntityManager()
                .CreateEntity(CameraTag);
-            context.GetSynchronizationContext().FrameSynchronize(-1);
+            context.GetSynchronizationContext().Synchronize(-1);
         }
 
         protected abstract void Initializing();
@@ -126,7 +126,7 @@ namespace D3DLab.ECS.Render {
                 try {
                     sys.Execute(snapshot);
                     //run synchronization after each exetuted system, to synchronize state for the next system
-                    syncContext.FrameSynchronize(managedThreadId);
+                    syncContext.Synchronize(managedThreadId);
                 } catch (Exception ex) {
                     Context.Logger.Error(ex);
 #if !DEBUG

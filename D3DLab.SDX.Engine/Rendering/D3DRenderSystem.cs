@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace D3DLab.SDX.Engine.Rendering {
     public class RenderTechniqueRegistrator<TProperties> where TProperties : IRenderProperties {
-        public IEnumerable<IRenderTechnique<TProperties>> Techniques { get { return dic.Values; } }
+        public IEnumerable<IRenderTechnique<TProperties>> Techniques { get { return dic.Values.OrderBy(x => x.OrderId); } }
 
         public bool HasAny { get; private set; }
 

@@ -12,8 +12,8 @@ namespace D3DLab.Toolkit.Input.Commands {
             //InputState = state;
         }
         public bool Execute(ISceneSnapshot snapshot, IContextState context) {
-            //var entity = context.GetEntityManager().GetEntity(snapshot.CurrentCameraTag);
-            //entity.RemoveComponent<CameraMovementComponent>();
+            var entity = context.GetEntityManager().GetEntity(snapshot.CurrentCameraTag);
+            entity.RemoveComponent<CameraMovementComponent>();
 
             return true;
         }

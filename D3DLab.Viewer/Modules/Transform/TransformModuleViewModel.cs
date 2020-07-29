@@ -21,6 +21,7 @@ namespace D3DLab.Viewer.Modules.Transform {
         public float Moved { 
             get => moved;
             set {
+                facade.ResetTransform();
                 facade.Move(value, axis);
                 Update(ref moved, value, nameof(Moved));                
             }
@@ -67,7 +68,31 @@ namespace D3DLab.Viewer.Modules.Transform {
         public StepAxisTransform YAxis { get; set; }
         public StepAxisTransform ZAxis { get; set; }
 
+        public float OriginX { 
+            get => originX;
+            set { 
+                originX = value; 
+            }
+        }
+        public float OriginY {
+            get => originY;
+            set {
+                originY = value; 
+            }
+        }
+        public float OriginZ { 
+            get => originZ;
+            set {
+                originZ = value;
+            }
+        }
+
         Vector3 showedAxis;
+        
+        float originX;
+        float originY;
+        float originZ;
+
         readonly DispatcherTimer timer;
         readonly Stopwatch stopwatch;
         public TransformTranslate(TransformModuleViewModel facade) {
@@ -78,20 +103,22 @@ namespace D3DLab.Viewer.Modules.Transform {
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.IsEnabled = true;
-            timer.Tick += Timer_Tick;
+            timer.Tick += OnTimer_Tick;
             stopwatch = new Stopwatch();
         }
 
-        void Timer_Tick(object sender, EventArgs e) {
+        void OnTimer_Tick(object? sender, EventArgs e) {
             var time = stopwatch.Elapsed.TotalSeconds;
             if (time > 1) {
                 facade.HideAxis(showedAxis);
                 showedAxis = Vector3.Zero;
                 stopwatch.Stop();
                 stopwatch.Reset();
-            }           
+            }
         }
-
+        public void ResetTransform() {
+            facade.ResetTransform();
+        }
         public void Reset() {
             XAxis.Reset();
         }
@@ -127,11 +154,13 @@ namespace D3DLab.Viewer.Modules.Transform {
         }
 
         void OnReset() {
-            selectedObject.Transform(history.Inverted());
-            history = Matrix4x4.Identity;
+            ResetTransform();
             Translate.Reset();
         }
-
+        public void ResetTransform() {
+            selectedObject.Transform(history.Inverted());
+            history = Matrix4x4.Identity;
+        }
         public void Move(float step, Vector3 axis) {
             var move = Matrix4x4.CreateTranslation(axis * step);
             history *= move;

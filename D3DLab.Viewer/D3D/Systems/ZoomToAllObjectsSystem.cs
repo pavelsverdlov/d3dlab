@@ -21,7 +21,7 @@ namespace D3DLab.Viewer.D3D.Systems {
         }
     }
     class ZoomToAllObjectsSystem : BaseEntitySystem, IGraphicSystem, IGraphicSystemContextDependent {
-        public IContextState ContextState { set; private get; }
+        public IContextState? ContextState { set; private get; }
 
         protected override void Executing(ISceneSnapshot snapshot) {
             var emanager = ContextState.GetEntityManager();
@@ -56,6 +56,8 @@ namespace D3DLab.Viewer.D3D.Systems {
             com.Scale = 1;
 
             camera.UpdateComponent(com);
+
+            
 
             world.RemoveComponent<ZoomToAllCompponent>();
         }

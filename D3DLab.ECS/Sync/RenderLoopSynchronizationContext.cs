@@ -46,7 +46,7 @@ namespace D3DLab.ECS.Sync {
 
         public bool HasChanges {
             get {
-                return isChanged || frameChanges;
+                return isChanged;
             }
         }
 
@@ -113,16 +113,7 @@ namespace D3DLab.ECS.Sync {
             queueSnapshot?.Clear();
         }
 
-        bool frameChanges;
-        public void FrameSynchronize(int theadId) {
-            if (!frameChanges) {
-                frameChanges = isChanged;
-            }
-            BeginSynchronize();
-            EndSynchronize(theadId);
-        }
         public void Synchronize(int theadId) {
-            frameChanges = false;
             BeginSynchronize();
             EndSynchronize(theadId);
         }

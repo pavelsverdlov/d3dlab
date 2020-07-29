@@ -85,7 +85,12 @@ namespace D3DLab.Viewer.Presentation {
         IFileLoader, ISelectedObjectTransformation, ISaveLoadedObject,
         IEntityRenderSubscriber {
 
+
+
         #region selected object cmd
+
+        public ICommand SelectedObjectSettingsOpenedCommand { get; }
+        public ICommand SelectedObjectSettingsClosedCommand { get; }
 
         public ICommand ShowHideSelectedObjectCommand { get; }
         public ICommand RemoveSelectedObjectCommand { get; }
@@ -120,8 +125,9 @@ namespace D3DLab.Viewer.Presentation {
         readonly DialogManager dialogs;
         readonly AppLogger logger;
         WFScene d3dScene;
+        
 
-        public MainWindowViewModel(MainWindow mainWin, DebuggerPopup debugger, 
+        public MainWindowViewModel(MainWindow mainWin, DebuggerPopup debugger,
             AppSettings settings, DialogManager dialogs, AppLogger logger) {
             GraphicsInfo = new GraphicsInfo();
             Output = new AppOutput();
@@ -136,6 +142,9 @@ namespace D3DLab.Viewer.Presentation {
             RefreshSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnRefreshSelectedObject);
             FlatshadingSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnFlatshadingSelectedObject);
             WireframeSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnWireframeSelectedObject);
+            SelectedObjectSettingsOpenedCommand = new WpfActionCommand<LoadedObjectItem>(OnSelectedObjectSettingsOpened);
+            SelectedObjectSettingsClosedCommand = new WpfActionCommand<LoadedObjectItem>(OnSelectedObjectSettingsClosed);
+            
             LockSelectedObjectCommand = null;
 
             OpenFilesCommand = new WpfActionCommand(OnOpenFilesCommand);
@@ -165,10 +174,10 @@ namespace D3DLab.Viewer.Presentation {
             this.dialogs = dialogs;
             this.logger = logger;
 
-             Module = new Modules.Transform.TransformModuleViewModel(this);
+            Module = new Modules.Transform.TransformModuleViewModel(this);
         }
 
-        
+
 
         void OnHostLoaded(FormsHost host) {
             d3dScene = new WFScene(host, host.Overlay, context, notificator);
@@ -191,6 +200,12 @@ namespace D3DLab.Viewer.Presentation {
         }
 
 
+        void OnSelectedObjectSettingsOpened(LoadedObjectItem item) {
+            item.ActivateStaticComponents(context);
+        }
+        void OnSelectedObjectSettingsClosed(LoadedObjectItem item) {
+            item.DeactivateStaticComponents();
+        }
         void OnShowBoundsSelectedObject(LoadedObjectItem obj) {
             if (obj.IsBoundsShowed) {
                 obj.ShowBoundingBox(context);
@@ -257,7 +272,7 @@ namespace D3DLab.Viewer.Presentation {
                 try {
                     var loaded = loader.ImportFromFiles(file, d3dScene);
                     loadedObjects.Add(new LoadedObjectItem(loaded, new FileInfo(file)));
-                }catch(Exception ex) {
+                } catch (Exception ex) {
                     logger.Error(ex);
                 }
             }
@@ -276,9 +291,6 @@ namespace D3DLab.Viewer.Presentation {
 
 
         void ISelectedObjectTransformation.Transform(Matrix4x4 matrix) {
-            //if(LoadedObjects.CurrentItem is LoadedObjectItem item) {
-            //    item.Visual.Move(context.GetEntityManager(), matrix);
-            //}
             foreach (var i in loadedObjects) {
                 i.Transform(context.GetEntityManager(), matrix);
             }
@@ -332,6 +344,15 @@ namespace D3DLab.Viewer.Presentation {
             var exporter = new VisualObjectExporter();
             foreach (var item in items) {
                 exporter.Export(item.Visual, item.File, d3dScene);
+            }
+        }
+        void ISaveLoadedObject.SaveAs(IEnumerable<LoadedObjectItem> items) {
+            var exporter = new VisualObjectExporter();
+            foreach (var item in items) {
+                var path = WindowsDefaultDialogs.SaveFileDialog(item.File.Directory, WindowsDefaultDialogs.FileFormats.All);
+                if (!string.IsNullOrWhiteSpace(path)) {
+                    exporter.Export(item.Visual, new FileInfo(path), d3dScene);
+                }
             }
         }
     }

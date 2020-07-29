@@ -11,12 +11,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace D3DLab.Viewer.Modules.Transform {
+namespace D3DLab.Viewer.Presentation.Componets {
     /// <summary>
-    /// Interaction logic for TransformModuleView.xaml
+    /// Interaction logic for CullModesComponentView.xaml
     /// </summary>
-    public partial class TransformModuleView : UserControl {
-        public TransformModuleView() {
+    public partial class CullModesComponentView : UserControl {
+        public CullModesComponentView() {
             InitializeComponent();
         }
     }

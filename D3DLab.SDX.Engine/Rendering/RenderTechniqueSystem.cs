@@ -17,7 +17,7 @@ namespace D3DLab.SDX.Engine.Rendering {
        CameraState CameraState { get; }
     }
 
-    public interface IRenderTechnique<TProperties> where TProperties : IRenderProperties {
+    public interface IRenderTechnique<TProperties> : INestedSystem where TProperties : IRenderProperties {
         IEnumerable<IRenderTechniquePass> GetPass();
         /// <summary>
         /// remove all entities from Technique
@@ -35,6 +35,8 @@ namespace D3DLab.SDX.Engine.Rendering {
     
 
     public abstract class D3DAbstractRenderTechnique<TProperties> where TProperties : IRenderProperties {
+        public int OrderId { get; set; }
+
         protected readonly LinkedList<GraphicEntity> entities;
         protected D3DAbstractRenderTechnique() {
             entities = new LinkedList<GraphicEntity>();

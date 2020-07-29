@@ -29,14 +29,15 @@ namespace D3DLab.Viewer.D3D {
         static readonly Vector4 color;
         static readonly Random random = new Random();
 
-        VisualPolylineObject bounds;
+        VisualPolylineObject? bounds;
 
-        VisualPolylineObject worldX;
-        VisualPolylineObject worldY;
-        VisualPolylineObject worldZ;
+        VisualPolylineObject? worldX;
+        VisualPolylineObject? worldY;
+        VisualPolylineObject? worldZ;
 
         public IEnumerable<ElementTag> Tags { get; private set; }
         public LoadedObjectDetails Details { get; private set; }
+        public SharpDX.Direct3D11.CullMode CullMode { get; private set; }
 
         static LoadedVisualObject() {
             var c = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B598");
@@ -45,6 +46,7 @@ namespace D3DLab.Viewer.D3D {
         public static LoadedVisualObject Create(IContextState context, IEnumerable<IFileGeometry3D> meshes,
             FileInfo texture, string name) {
             var visual = new LoadedVisualObject(name);
+            visual.CullMode = SharpDX.Direct3D11.CullMode.Front;
             _Create(context, meshes, texture,name, visual);
 
             return visual;
@@ -72,13 +74,13 @@ namespace D3DLab.Viewer.D3D {
             var size = fullBox.Size();
 
             visual.worldX = VisualPolylineObject.Create(context, baseTag.WithPrefix("WorldX"),
-               new[] { Vector3.Zero + Vector3.UnitX * size.X * -0.8f, Vector3.Zero + Vector3.UnitX * size.X * 0.8f }, V4Colors.Red, false);
+               new[] { Vector3.Zero + Vector3.UnitX * size.X * -2f, Vector3.Zero + Vector3.UnitX * size.X * 2f }, V4Colors.Red, false);
             visual.worldX.IsVisible = false;
             visual.worldY = VisualPolylineObject.Create(context, baseTag.WithPrefix("WorldY"),
-               new[] { Vector3.Zero + Vector3.UnitY * size.Y * -0.8f, Vector3.Zero + Vector3.UnitY * size.Y * 0.8f }, V4Colors.Green, false);
+               new[] { Vector3.Zero + Vector3.UnitY * size.Y * -2f, Vector3.Zero + Vector3.UnitY * size.Y * 2f }, V4Colors.Green, false);
             visual.worldY.IsVisible = false;
             visual.worldZ = VisualPolylineObject.Create(context, baseTag.WithPrefix("WorldZ"),
-               new[] { Vector3.Zero + Vector3.UnitZ * size.Z * -0.8f, Vector3.Zero + Vector3.UnitZ * size.Z * 0.8f }, V4Colors.Blue, false);
+               new[] { Vector3.Zero + Vector3.UnitZ * size.Z * -2f, Vector3.Zero + Vector3.UnitZ * size.Z * 2f }, V4Colors.Blue, false);
             visual.worldZ.IsVisible = false;
         }
 
@@ -165,6 +167,10 @@ namespace D3DLab.Viewer.D3D {
             foreach (var t in Tags) {
                 manager.GetEntity(t).UpdateComponent(MovingComponent.Create(move));
             }
+            worldX?.GetEntity(manager).UpdateComponent(MovingComponent.Create(move));
+            worldY?.GetEntity(manager).UpdateComponent(MovingComponent.Create(move));
+            worldZ?.GetEntity(manager).UpdateComponent(MovingComponent.Create(move));
+            bounds?.GetEntity(manager).UpdateComponent(MovingComponent.Create(move));
         }
         public void ShowBoundingBox(IContextState context, out AxisAlignedBox fullBox) {
             if (bounds != null) throw new Exception("Bounds has already showed.");
@@ -267,5 +273,17 @@ namespace D3DLab.Viewer.D3D {
                     .SwitchFillModeTo(SharpDX.Direct3D11.FillMode.Wireframe));
             }
         }
+
+        public void ChangeCullMode(IContextState context, SharpDX.Direct3D11.CullMode mode) {
+            var manager = context.GetEntityManager();
+            foreach (var t in Tags) {
+                var en = manager.GetEntity(t);
+                en.UpdateComponent(en
+                    .GetComponent<RenderableComponent>()
+                    .SwitchCullModeTo(mode));
+            }
+            this.CullMode = mode;
+        }
+
     }
 }

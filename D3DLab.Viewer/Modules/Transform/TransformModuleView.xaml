@@ -3,9 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:D3DLab.Viewer.Modules.Transform" xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:D3DLab.Viewer.Modules.Transform"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" Margin="5"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type local:StepAxisTransform}">
+            <WrapPanel DockPanel.Dock="Right" HorizontalAlignment="Stretch">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseMove">
+                        <i:InvokeCommandAction  Command="{Binding MouseMoveCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Button Content="-" Width="30" Command="{Binding BackwardCommand}"/>
+                <TextBox Text="{Binding Step, UpdateSourceTrigger=PropertyChanged}" Width="40" TextAlignment="Center"/>
+                <Button Content="+"  Width="30" Command="{Binding ForwardCommand}"/>
+            </WrapPanel>
+        </DataTemplate>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -30,59 +45,30 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="35"/>
-                    <ColumnDefinition />
+                    <ColumnDefinition Width="90"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Text="X Axis" Grid.Row="0" Grid.Column="0"/>
-                <TextBox Text="{Binding XAxis.Moved, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Grid.Row="0" Grid.Column="1"/>
-                <WrapPanel x:Name="XAxisPanel" DockPanel.Dock="Right" HorizontalAlignment="Stretch"
-                           Grid.Row="0" Grid.Column="2">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseMove">
-                            <i:InvokeCommandAction  Command="{Binding XAxis.MouseMoveCommand}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    <Button Content="-" Width="30" Command="{Binding XAxis.ForwardCommand}"/>
-                    <TextBox Text="{Binding XAxis.Step}" Width="30" TextAlignment="Center"/>
-                    <Button Content="+"  Width="30" Command="{Binding XAxis.BackwardCommand}"/>
-                </WrapPanel>
+                <TextBox Text="{Binding XAxis.Moved,UpdateSourceTrigger=PropertyChanged,Delay=600}" 
+                         Margin="5,0" Grid.Row="0" Grid.Column="1" />
+                <ContentPresenter Content="{Binding XAxis}" Grid.Row="0" Grid.Column="2"/>
 
                 <TextBlock Text="Y Axis" Grid.Row="2" Grid.Column="0"/>
                 <TextBox Text="{Binding YAxis.Moved, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Grid.Row="2" Grid.Column="1"/>
-                <WrapPanel DockPanel.Dock="Right" HorizontalAlignment="Stretch"
-                               Grid.Row="2" Grid.Column="2">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseMove">
-                            <i:InvokeCommandAction  Command="{Binding YAxis.MouseMoveCommand}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    <Button Content="-" Width="30" Command="{Binding YAxis.ForwardCommand}"/>
-                    <TextBox Text="{Binding YAxis.Step}" Width="30" TextAlignment="Center" />
-                    <Button Content="+" Width="30" Command="{Binding YAxis.BackwardCommand}" />
-                </WrapPanel>
+                <ContentPresenter Content="{Binding YAxis}" Grid.Row="2" Grid.Column="2"/>
 
                 <TextBlock Text="Z Axis" Grid.Row="4" Grid.Column="0"/>
                 <TextBox Text="{Binding ZAxis.Moved, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Grid.Row="4" Grid.Column="1" />
-                <WrapPanel DockPanel.Dock="Right" HorizontalAlignment="Stretch"
-                               Grid.Row="4" Grid.Column="2">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseMove">
-                            <i:InvokeCommandAction  Command="{Binding ZAxis.MouseMoveCommand}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    <Button Content="-" Width="30"  Command="{Binding ZAxis.ForwardCommand}"/>
-                    <TextBox Text="{Binding ZAxis.Step}" Width="30" TextAlignment="Center"/>
-                    <Button Content="+"  Width="30"  Command="{Binding ZAxis.BackwardCommand}"/>
-                </WrapPanel>
+                <ContentPresenter Content="{Binding ZAxis}" Grid.Row="4" Grid.Column="2"/>
 
                 <StackPanel Orientation="Vertical" Grid.Row="6" Grid.Column="0"
                             Grid.ColumnSpan="3">
                     <DockPanel HorizontalAlignment="Left">
                         <TextBlock Text="Origin" Margin="0,0,5,0"/>
-                        <TextBox Text="0.0" Width="40" TextAlignment="Center"/>
-                        <TextBox Text="0.0" Width="40" TextAlignment="Center" Margin="5,0"/>
-                        <TextBox Text="0.0" Width="40" TextAlignment="Center"/>
+                        <TextBox Text="{Binding OriginX}" Width="60" TextAlignment="Center"/>
+                        <TextBox Text="{Binding OriginY}" Width="60" TextAlignment="Center" Margin="5,0"/>
+                        <TextBox Text="{Binding OriginZ}" Width="60" TextAlignment="Center"/>
                     </DockPanel>
                     <Grid HorizontalAlignment="Stretch" Margin="0,5,0,0">
                         <Grid.ColumnDefinitions>
