@@ -24,7 +24,7 @@ namespace D3DLab.Viewer.D3D {
     enum WorldAxisTypes {
         X,Y,Z,All
     }
-    class LoadedVisualObject : GeometryGameObject {
+    class LoadedVisualObject : MultiVisualObject {
 
         static readonly Vector4 color;
         static readonly Random random = new Random();
@@ -35,7 +35,6 @@ namespace D3DLab.Viewer.D3D {
         VisualPolylineObject? worldY;
         VisualPolylineObject? worldZ;
 
-        public IEnumerable<ElementTag> Tags { get; private set; }
         public LoadedObjectDetails Details { get; private set; }
         public SharpDX.Direct3D11.CullMode CullMode { get; private set; }
 
@@ -68,7 +67,7 @@ namespace D3DLab.Viewer.D3D {
                 index++;
             }
 
-            visual.Tags = t;
+            visual.tags.AddRange(t);
             visual.Details = details;
 
             var size = fullBox.Size();
@@ -129,20 +128,20 @@ namespace D3DLab.Viewer.D3D {
         LoadedVisualObject(string filename) : base(filename) {
         }
 
-        public override void Hide(IEntityManager manager) {
-            foreach (var tag in Tags) {
-                var en = manager.GetEntity(tag);
-                var rend = en.GetComponent<RenderableComponent>();
-                en.UpdateComponent(rend.Disable());
-            }
-        }
-        public override void Show(IEntityManager manager) {
-            foreach (var tag in Tags) {
-                var en = manager.GetEntity(tag);
-                var rend = en.GetComponent<RenderableComponent>();
-                en.UpdateComponent(rend.Enable());
-            }
-        }
+        //public override void Hide(IEntityManager manager) {
+        //    foreach (var tag in Tags) {
+        //        var en = manager.GetEntity(tag);
+        //        var rend = en.GetComponent<RenderableComponent>();
+        //        en.UpdateComponent(rend.Disable());
+        //    }
+        //}
+        //public override void Show(IEntityManager manager) {
+        //    foreach (var tag in Tags) {
+        //        var en = manager.GetEntity(tag);
+        //        var rend = en.GetComponent<RenderableComponent>();
+        //        en.UpdateComponent(rend.Enable());
+        //    }
+        //}
         public override void Cleanup(IContextState context) {
             var manager = context.GetEntityManager();
             foreach (var tag in Tags) {
@@ -195,17 +194,17 @@ namespace D3DLab.Viewer.D3D {
             bounds = null;           
         }
 
-        public void ShowWorldAxis(IContextState context,WorldAxisTypes axis) {
+        public void ShowWorldAxis(IContextState context, WorldAxisTypes axis) {
             var manager = context.GetEntityManager();
             switch (axis) {
                 case WorldAxisTypes.X when !worldX.IsVisible:
-                    worldX.Show(manager);
+                    worldX.Show(context);
                     break;
                 case WorldAxisTypes.Y when !worldY.IsVisible:
-                    worldY.Show(manager);
+                    worldY.Show(context);
                     break;
                 case WorldAxisTypes.Z when !worldZ.IsVisible:
-                    worldZ.Show(manager);
+                    worldZ.Show(context);
                     break;
             }
         }
@@ -215,18 +214,18 @@ namespace D3DLab.Viewer.D3D {
             var manager = context.GetEntityManager();
             switch (axis) {
                 case WorldAxisTypes.All when worldX.IsVisible:
-                    worldX.Hide(manager);
-                    worldY.Hide(manager);
-                    worldZ.Hide(manager);
+                    worldX.Hide(context);
+                    worldY.Hide(context);
+                    worldZ.Hide(context);
                     break;
                 case WorldAxisTypes.X when worldX.IsVisible:
-                    worldX.Hide(manager);
+                    worldX.Hide(context);
                     break;
                 case WorldAxisTypes.Y when worldY.IsVisible:
-                    worldY.Hide(manager);
+                    worldY.Hide(context);
                     break;
                 case WorldAxisTypes.Z when worldZ.IsVisible:
-                    worldZ.Hide(manager);
+                    worldZ.Hide(context);
                     break;
             }
         }

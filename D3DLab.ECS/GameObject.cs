@@ -9,13 +9,9 @@ namespace D3DLab.ECS {
             Description = desc;
         }
 
-        public abstract void Hide(IEntityManager manager);
-        public abstract void Show(IEntityManager manager);
-
-        public virtual void Cleanup(IContextState context) {
-
-        }
-        
+        public abstract void Hide(IContextState context);
+        public abstract void Show(IContextState context);
+        public abstract void Cleanup(IContextState context);       
         
     }
 }

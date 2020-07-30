@@ -16,6 +16,11 @@ namespace D3DLab.ECS.Components {
         Specular,
         Reflection,
     }
+
+    /// <summary>
+    /// Uses in shaider as it is, no lighting or shading just exact color,
+    /// general uses for VertexBuffer
+    /// </summary>
     public readonly struct ColorComponent : IColoringMaterialComponent {
         public static ColorComponent CreateDiffuse(Vector4 color) {
             return new ColorComponent(color, ColorTypes.Diffuse);

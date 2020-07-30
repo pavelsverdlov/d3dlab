@@ -57,6 +57,7 @@ namespace D3DLab.Viewer.D3D {
         BaseInputPublisher publisher;
 
         public event Action Loaded;
+        public CoordinateSystemLinesGameObject CoordinateSystem { get; private set; }
 
         public WFScene(FormsHost host, FrameworkElement overlay, ContextStateProcessor context, EngineNotificator notify)
             : base(host, overlay, context, notify) {
@@ -111,6 +112,8 @@ namespace D3DLab.Viewer.D3D {
 
             LightObject.CreateAmbientLight(manager, 0.2f);//0.05f
             LightObject.CreateFollowCameraDirectLight(manager, System.Numerics.Vector3.UnitZ, 0.8f);//0.95f
+
+            CoordinateSystem = CoordinateSystemLinesGameObject.Create(context, false);
 
             Loaded?.Invoke();
         }

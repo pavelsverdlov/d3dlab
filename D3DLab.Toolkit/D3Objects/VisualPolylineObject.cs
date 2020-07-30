@@ -39,6 +39,22 @@ namespace D3DLab.Toolkit.D3Objects {
 
             return new VisualPolylineObject(tag);
         }
+        public static VisualPolylineObject Create(IContextState context, ElementTag tag,
+            Vector3[] points, Vector4[] colors, bool isVisible = true) {
+            var manager = context.GetEntityManager();
+            var indeces = new List<int>();
+            for (var i = 0; i < points.Length; i++) {
+                indeces.AddRange(new[] { i, i });
+            }
+            var geo = context.GetGeometryPool().AddGeometry(new ImmutableGeometryData(points, indeces, colors));
+            manager
+               .CreateEntity(tag)
+               .AddComponent(geo)
+               .AddComponent(TransformComponent.Identity())
+               .AddComponent(isVisible ? RenderableComponent.AsLineList() : RenderableComponent.AsLineList().Disable());
+
+            return new VisualPolylineObject(tag);
+        }
         public static VisualPolylineObject CreateBox(IContextState context, ElementTag tag, AxisAlignedBox box, Vector4 color) {
             var indeces = new List<int>();
             var pos = new List<Vector3>();

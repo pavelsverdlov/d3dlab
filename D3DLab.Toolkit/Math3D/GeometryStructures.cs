@@ -43,6 +43,7 @@ namespace D3DLab.Toolkit.Math3D {
     public abstract class GeometryStructures : IGeometryData {
         public ImmutableArray<Vector3> Positions { get; protected set; }
         public ImmutableArray<int> Indices { get; protected set; }
+        public ImmutableArray<Vector4> Colors { get; protected set; }
         public ImmutableArray<Vector3> Normals { get; protected set; }
         public ImmutableArray<Vector2> TexCoor { get; protected set; }
         public GeometryPrimitiveTopologies Topology { get; protected set; }

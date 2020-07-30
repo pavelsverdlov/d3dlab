@@ -4,6 +4,7 @@ using D3DLab.ECS.Ext;
 using D3DLab.Toolkit;
 using D3DLab.Toolkit.Components;
 using D3DLab.Viewer.D3D;
+using D3DLab.Viewer.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -40,7 +41,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         public ICommand ShowHideGroup { get; }
         public ICommand HighlightGroup { get; }
         //
-        public ICommand ShowHideAll { get; }
+        public ICommand ShowHideAllCommand { get; }
 
         readonly ObjDetailsViewModel facade;
 
@@ -54,9 +55,12 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
             Refresh = new WpfActionCommand(OnRefresh);
             CopyGroupName = new WpfActionCommand<string>(OnWpfActionCommand);
             VisiblityChanged = new WpfActionCommand<ObjDetailsViewModel.ObjGroupViewItem>(OnVisiblityChanged);
+            ShowHideAllCommand = new WpfActionCommand<bool>(OnShowHideAll);
         }
 
-        
+        void OnShowHideAll(bool isChecked) {
+            facade.ShowHideAll(isChecked);
+        }
 
         void OnVisiblityChanged(ObjDetailsViewModel.ObjGroupViewItem item) {
             facade.ShowHideItem(item, item.IsVisible);
@@ -140,14 +144,14 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         public int ItemsCount { get; set; }
         public int AllGroupsCount { get; set; }
 
-        public string Filder {
-            get => filder;
+        public string Filter {
+            get => filter;
             set {
-                filder = value;
-                Filter(filder);
+                filter = value;
+                OnFilter(filter);
             }
         }
-        string filder;
+        string filter;
 
         public ICollectionView FilterColors { get; }
         public Controler Controler { get; }
@@ -159,16 +163,25 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
         IEntityManager entityManager;
         IContextState context;
 
-        public ObjDetailsViewModel() {
+        public ObjDetailsViewModel(AppSettings settings) {
             Controler = new Controler(this);
             filterColors = new ObservableCollection<ColorFilterViewItem>();
             FilterColors = CollectionViewSource.GetDefaultView(filterColors);
 
-            AddNewColorFilter("^A ID*?", Colors.Blue);
-            AddNewColorFilter("^((?!LT0352).)*$", Colors.Green);
-            AddNewColorFilter("^I ID*?", Colors.Yellow);
+            foreach(var f in settings.GetObjGroupFilters()) {
+                AddNewColorFilter(f.Filter, (Color)ColorConverter.ConvertFromString(f.Color));
+            }
         }
+        internal void ShowHideAll(bool show) {
+            foreach (var item in items) {
+                var en = entityManager.GetEntity(item.Entity);
+                var com = en.GetComponent<RenderableComponent>();
 
+                en.UpdateComponent(show ? com.Enable() : com.Disable());
+
+                item.IsVisible = show;
+            }
+        }
         internal void ShowHideItem(ObjGroupViewItem item, bool show) {
             var en = entityManager.GetEntity(item.Entity);
             var com = en.GetComponent<RenderableComponent>();
@@ -246,13 +259,13 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
             ObjGroups.Refresh();
         }
 
-        void Filter(string filder) {
+        void OnFilter(string filter) {
             if (ObjGroups.IsNull()) { return; }
-            if (string.IsNullOrWhiteSpace(filder)) {
+            if (string.IsNullOrWhiteSpace(filter)) {
                 ObjGroups.Filter = x => true;
             } else {
                 try {
-                    var f = new Regex(filder, RegexOptions.Compiled);
+                    var f = new Regex(filter, RegexOptions.Compiled);
                     ObjGroups.Filter = x => {
                         var item = (ObjGroupViewItem)x;
                         return f.IsMatch(item.Name);
@@ -260,7 +273,7 @@ namespace D3DLab.Viewer.Presentation.FileDetails {
                 } catch {
                     ObjGroups.Filter = x => {
                         var item = (ObjGroupViewItem)x;
-                        return item.Name.Contains(filder);
+                        return item.Name.Contains(filter);
                     };
                 }
             }

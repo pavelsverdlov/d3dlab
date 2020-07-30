@@ -19,6 +19,7 @@ namespace D3DLab.ECS {
     public interface IGeometryData : IDisposable {
         ImmutableArray<Vector3> Positions { get; }
         ImmutableArray<int> Indices { get; }
+        ImmutableArray<Vector4> Colors { get; }
         ImmutableArray<Vector3> Normals { get; }
         ImmutableArray<Vector2> TexCoor { get; }
         GeometryPrimitiveTopologies Topology { get; } 

@@ -100,7 +100,7 @@ namespace D3DLab.Toolkit.Input {
 
         protected sealed class InputRotateStateWithCursorReturning : CurrentStateMachine {
             public InputRotateStateWithCursorReturning(StateProcessor processor) : base(processor) {
-                System.Windows.Forms.Cursor.Hide();
+               // System.Windows.Forms.Cursor.Hide();
             }
             public override void EnterState(InputStateData state) {
                 //Processor.InvokeHandler<ICameraInputHandler>(x => x.Rotate(state));
@@ -108,7 +108,7 @@ namespace D3DLab.Toolkit.Input {
             public override bool OnMouseUp(InputStateData state) {
                 if ((state.Buttons & GeneralMouseButtons.Right) != GeneralMouseButtons.Right) {
                     SwitchTo((int)AllInputStates.Idle, state);
-                    System.Windows.Forms.Cursor.Show();
+                 //   System.Windows.Forms.Cursor.Show();
                 }
                 return base.OnMouseUp(state);
             }
@@ -116,12 +116,16 @@ namespace D3DLab.Toolkit.Input {
                 switch (state.Buttons) {
                     case GeneralMouseButtons.Left | GeneralMouseButtons.Right:
                        SwitchTo((int)AllInputStates.Pan, state);
-                       System.Windows.Forms.Cursor.Show();
+                    //   System.Windows.Forms.Cursor.Show();
                     break;
                 }
                 return base.OnMouseDown(state);
             }
             public override bool OnMouseMove(InputStateData state) {
+                if(state.Buttons == GeneralMouseButtons.None) {
+                    SwitchTo((int)AllInputStates.Idle, state);
+                    return base.OnMouseMove(state);
+                }
                 //System.Windows.Forms.Cursor.Position = state.ButtonsStates[GeneralMouseButtons.Right].CursorPoint.ToDrawingPoint();
                 Processor.InvokeHandler<ICameraInputHandler>(x => x.Rotate(state));
                 //return cursore to prev position ... allow to calculate delta from static position to new move
@@ -149,10 +153,14 @@ namespace D3DLab.Toolkit.Input {
             }
 
             public override bool OnMouseUp(InputStateData state) {
-                // if ((state.Buttons & GeneralMouseButtons.Right) != GeneralMouseButtons.Right) {
-                // state.Delta = 0;
-                SwitchTo((int)AllInputStates.Idle, state);
-                //  }
+                switch (state.Buttons) {
+                    case GeneralMouseButtons.Right:
+                        SwitchTo((int)AllInputStates.Rotate, state);
+                        break;
+                    default:
+                    SwitchTo((int)AllInputStates.Idle, state);
+                        break;
+                }
 
                 return base.OnMouseUp(state);
             }

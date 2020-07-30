@@ -33,5 +33,17 @@ namespace D3DLab.Viewer.Properties {
                 this["RecentFilePaths"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ObjGroupFilters {
+            get {
+                return ((string)(this["ObjGroupFilters"]));
+            }
+            set {
+                this["ObjGroupFilters"] = value;
+            }
+        }
     }
 }

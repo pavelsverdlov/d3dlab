@@ -109,6 +109,7 @@ namespace D3DLab.Viewer.Presentation {
         public ICommand HostLoadedCommand { get; }
         public ICommand SaveAllCommand { get; }
         public ICommand CameraFocusToAllCommand { get; }
+        public ICommand ShowWorldCoordinateSystemCommand { get; }
 
         public ICollectionView LoadedObjects { get; }
 
@@ -153,6 +154,7 @@ namespace D3DLab.Viewer.Presentation {
             HostLoadedCommand = new WpfActionCommand<FormsHost>(OnHostLoaded);
             SaveAllCommand = new WpfActionCommand(OnSaveAll);
             CameraFocusToAllCommand = new WpfActionCommand(OnCameraFocusToAll);
+            ShowWorldCoordinateSystemCommand = new WpfActionCommand<bool>(OnShowWorldCoordinateSystem);
 
             loadedObjects = new ObservableCollection<LoadedObjectItem>();
             LoadedObjects = CollectionViewSource.GetDefaultView(loadedObjects);
@@ -215,9 +217,9 @@ namespace D3DLab.Viewer.Presentation {
         }
         void OnShowHideSelectedObject(LoadedObjectItem item) {
             if (item.IsVisible) {
-                item.Visual.Show(context.GetEntityManager());
+                item.Visual.Show(context);
             } else {
-                item.Visual.Hide(context.GetEntityManager());
+                item.Visual.Hide(context);
             }
         }
         void OnRemoveSelectedObject(LoadedObjectItem item) {
@@ -264,6 +266,13 @@ namespace D3DLab.Viewer.Presentation {
         }
         void OnCameraFocusToAll() {
             d3dScene.ZoomToAllObjects();
+        }
+        void OnShowWorldCoordinateSystem(bool _checked) {
+            if (_checked) {
+                d3dScene.CoordinateSystem.Show(context);
+            } else {
+                d3dScene.CoordinateSystem.Hide(context);
+            }
         }
 
         public void Dropped(string[] files) {

@@ -93,7 +93,7 @@ namespace D3DLab.Toolkit.Techniques.Lines {
                     en.AddComponent(d3drender);
                 }
 
-                var color = en.GetComponent<ColorComponent>();
+                en.TryGetComponent<ColorComponent>(out var color);
                 var renderable = en.GetComponent<RenderableComponent>();
                 var transform = en.GetComponent<TransformComponent>();
                 var geoId = en.GetComponent<GeometryPoolComponent>();
@@ -116,7 +116,8 @@ namespace D3DLab.Toolkit.Techniques.Lines {
 
                     var vertex = new Vertex[pos.Length];
                     for (var i = 0; i < pos.Length; i++) {
-                        vertex[i] = new Vertex(pos[i], color.Color);
+                        var c = color.IsValid ? color.Color : geo.Colors[i];
+                        vertex[i] = new Vertex(pos[i], c);
                     }
 
                     d3drender.VertexBuffer.Set(graphics.CreateBuffer(BindFlags.VertexBuffer, vertex));
@@ -158,8 +159,7 @@ namespace D3DLab.Toolkit.Techniques.Lines {
                 && ren.Technique == RenderTechniques.Lines
                 && entity.Contains(
                     typeof(GeometryPoolComponent),
-                    typeof(TransformComponent),
-                    typeof(ColorComponent));
+                    typeof(TransformComponent));
         }
     }
 }
