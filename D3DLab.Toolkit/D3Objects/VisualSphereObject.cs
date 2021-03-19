@@ -9,7 +9,7 @@ using System.Numerics;
 using System.Text;
 
 namespace D3DLab.Toolkit.D3Objects {
-    class VisualSphereObject : SingleVisualObject {
+    public class VisualSphereObject : SingleVisualObject {
         public struct Data {
             public Vector3 Center;
             public Vector4 Color;
@@ -34,9 +34,9 @@ namespace D3DLab.Toolkit.D3Objects {
 
         //    return new VisualSphereObject(tag);
         //}
-        public static VisualSphereObject Create(IEntityManager manager, Data data) {
+        public static VisualSphereObject Create(ElementTag elet, IEntityManager manager, Data data) {
             var tag = manager
-               .CreateEntity(ElementTag.New("Sphere"))
+               .CreateEntity(elet)
                .AddComponent(SpherePointComponent.Create(data.Center, data.Radius))
                .AddComponent(MaterialColorComponent.Create(data.Color))
                .AddComponent(RenderableComponent.AsPoints())

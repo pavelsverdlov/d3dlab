@@ -38,7 +38,7 @@ namespace D3DLab.Toolkit.Techniques.SpherePoint {
         }
         public void Dispose() { }
     }
-    class SpherePointRenderTechnique<TProperties> :
+    public class SpherePointRenderTechnique<TProperties> :
         NestedRenderTechniqueSystem<TProperties>, IRenderTechnique<TProperties>, IGraphicSystemContextDependent
         where TProperties : IToolkitFrameProperties {
 
@@ -65,7 +65,8 @@ namespace D3DLab.Toolkit.Techniques.SpherePoint {
 
         public SpherePointRenderTechnique() {
             layconst = new VertexLayoutConstructor(Vertex.Size)
-                .AddPositionElementAsVector3();
+                .AddPositionElementAsVector4()
+                .AddColorElementAsVector4();
             var d = new CombinedShadersLoader(new ManifestResourceLoader(typeof(SpherePointRenderTechnique<>)));
             pass = new D3DShaderTechniquePass(d.Load(path, "SpP_"));
 

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace D3DLab.Toolkit.D3Objects {
-    class ArrowGameObject : SingleVisualObject {
+    public class ArrowGameObject : SingleVisualObject {
 
         ArrowGameObject(ElementTag tag) :base(tag, "arrow"){
         }
