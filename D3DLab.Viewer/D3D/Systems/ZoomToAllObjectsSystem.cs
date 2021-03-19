@@ -34,7 +34,8 @@ namespace D3DLab.Viewer.D3D.Systems {
 
             var fullBox = new AxisAlignedBox();
             foreach (var entity in emanager.GetEntities()) {
-                if(entity.TryGetComponents<GeometryBoundsComponent, TransformComponent>(out var box, out var tr)) {
+                if(entity.TryGetComponents<GeometryBoundsComponent, TransformComponent, RenderableComponent>
+                    (out var box, out var tr, out var renderable) && renderable.IsRenderable) {
                     fullBox = fullBox.Merge(box.Bounds.Transform(tr.MatrixWorld));
                 }                
             }

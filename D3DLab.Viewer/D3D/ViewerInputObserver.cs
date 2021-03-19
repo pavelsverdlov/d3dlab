@@ -11,7 +11,7 @@ namespace D3DLab.Viewer.D3D {
         readonly ICameraInputHandler inputHandler;
 
         public ViewerInputObserver(FrameworkElement control, IInputPublisher publisher, ICameraInputHandler inputHandler)
-            : base(control, publisher, inputHandler) {
+            : base(publisher, inputHandler) {
             this.inputHandler = inputHandler;
 
             RotationSensitivity = 1.5f;

@@ -42,7 +42,31 @@ namespace D3DLab.SDX.Engine {
         }
 
     }
-    public static class D3DDepthStencilStateDescriptions {
+
+    public readonly struct D3DDepthStencilDefinition {
+        public static D3DDepthStencilDefinition Default(int stencilRef = 0)
+            => new D3DDepthStencilDefinition(D3DDepthStencilStateDescriptions.Default, stencilRef);
+
+        public static D3DDepthStencilDefinition DepthDisabled
+            => new D3DDepthStencilDefinition(D3DDepthStencilStateDescriptions.DepthDisabled, 0);
+
+        public static D3DDepthStencilDefinition DepthEnabled
+            => new D3DDepthStencilDefinition(D3DDepthStencilStateDescriptions.DepthEnabled, 0);
+
+
+
+        public DepthStencilStateDescription Description { get; }
+        public int StencilRef { get; }
+        public bool IsValid { get; }
+
+        public D3DDepthStencilDefinition(DepthStencilStateDescription description, int stencilRef = 0) {
+            Description = description;
+            StencilRef = stencilRef;
+            IsValid = true;
+        }
+    }
+
+    static class D3DDepthStencilStateDescriptions {
 
         public static DepthStencilStateDescription Default => DepthStencilStateDescription.Default();
 
@@ -103,6 +127,7 @@ namespace D3DLab.SDX.Engine {
                 Comparison = Comparison.Always
             }
         };
+
     }
 
     public static class D3DRasterizerStateDescriptions {

@@ -62,7 +62,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
             //debug = new ShaderDebugMode(new DirectoryInfo(@"D:\"), pass);
             //debug.Activate();
 
-            depthStencilStateDesc = D3DDepthStencilStateDescriptions.DepthEnabled;
+            depthStencilStateDesc = D3DDepthStencilDefinition.DepthEnabled;
             blendStateDesc = D3DBlendStateDescriptions.BlendStateEnabled;
 
             vertexShader = new DisposableSetter<VertexShader>(disposer);
@@ -77,7 +77,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
         readonly DisposableSetter<GeometryShader> flatShadingGS;
 
         readonly BlendStateDescription blendStateDesc;
-        readonly DepthStencilStateDescription depthStencilStateDesc;
+        readonly D3DDepthStencilDefinition depthStencilStateDesc;
         
 
         protected override void Rendering(GraphicsDevice graphics, TProperties game) {
@@ -131,7 +131,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleTextured {
 
             if (!render.DepthStencilState.HasValue) {
                 render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, 
-                    renderable.DepthStencilStateDescription));
+                    renderable.DepthStencilStateDefinition.Description));
             }
 
             if (!render.BlendingState.HasValue) {

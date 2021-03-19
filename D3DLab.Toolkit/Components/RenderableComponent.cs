@@ -29,8 +29,7 @@ namespace D3DLab.Toolkit.Components {
             new RenderableComponent(CullMode.None, PrimitiveTopology.PointList, RenderTechniques.Background) {
                 Tag = ElementTag.New(),
                 IsValid = true,
-                HasDepthStencil = true,
-                DepthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled,
+                DepthStencilStateDefinition = D3DDepthStencilDefinition.DepthEnabled,
                 RasterizerStateDescription = new RasterizerStateDescription2() {
                     CullMode = CullMode.None,
                     FillMode = FillMode.Solid,
@@ -51,8 +50,7 @@ namespace D3DLab.Toolkit.Components {
             => new RenderableComponent(CullMode.None, PrimitiveTopology.TriangleStrip, RenderTechniques.Background) {
                 Tag = ElementTag.New(),
                 IsValid = true,
-                HasDepthStencil = true,
-                DepthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthDisabled,
+                DepthStencilStateDefinition = D3DDepthStencilDefinition.DepthDisabled,
                 RasterizerStateDescription = new RasterizerStateDescription2() {
                     CullMode = CullMode.None,
                     FillMode = FillMode.Solid,
@@ -70,18 +68,17 @@ namespace D3DLab.Toolkit.Components {
             };
 
         public static RenderableComponent AsFlatWhiteTriangleList()
-             => AsTriangleList(CullMode.Front, D3DDepthStencilStateDescriptions.DepthEnabled, RenderTechniques.OneFrameFlatWhite);
+             => AsTriangleList(CullMode.Front, D3DDepthStencilDefinition.DepthEnabled, RenderTechniques.OneFrameFlatWhite);
 
-        public static RenderableComponent AsTriangleColoredList(CullMode mode, DepthStencilStateDescription depth)
+        public static RenderableComponent AsTriangleColoredList(CullMode mode, D3DDepthStencilDefinition depth)
              => AsTriangleList(mode, depth, RenderTechniques.TriangleColored);
         public static RenderableComponent AsTriangleColored(PrimitiveTopology topology) {
             var mode = CullMode.Front;
             return new RenderableComponent(mode, topology, RenderTechniques.TriangleColored) {
                 Tag = ElementTag.New(),
                 IsValid = true,
-                HasDepthStencil = true,
                 HasBlendState = true,
-                DepthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled,
+                DepthStencilStateDefinition = D3DDepthStencilDefinition.DepthEnabled,
                 RasterizerStateDescription = D3DRasterizerStateDescriptions.Default(mode),
                 BlendStateDescription = D3DBlendStateDescriptions.BlendStateEnabled,
             };
@@ -90,26 +87,24 @@ namespace D3DLab.Toolkit.Components {
             => new RenderableComponent(mode, PrimitiveTopology.TriangleList, RenderTechniques.TriangleColored) {
                 Tag = ElementTag.New(),
                 IsValid = true,
-                HasDepthStencil = false,
                 HasBlendState = true,
                 RasterizerStateDescription = D3DRasterizerStateDescriptions.Default(mode),
                 BlendStateDescription = D3DBlendStateDescriptions.BlendStateEnabled,
             };
 
         public static RenderableComponent AsTriangleTexturedList(CullMode mode)
-            => AsTriangleList(mode, D3DDepthStencilStateDescriptions.DepthEnabled, RenderTechniques.TriangleTextured);
+            => AsTriangleList(mode, D3DDepthStencilDefinition.DepthEnabled, RenderTechniques.TriangleTextured);
         public static RenderableComponent AsLineList()
            => AsLineList(D3DRasterizerStateDescriptions.Lines, RenderTechniques.Lines);
 
 
-        static RenderableComponent AsTriangleList(CullMode mode, DepthStencilStateDescription depth,
+        static RenderableComponent AsTriangleList(CullMode mode, D3DDepthStencilDefinition depth,
             RenderTechniques technique)
             => new RenderableComponent(mode, PrimitiveTopology.TriangleList, technique) {
                 Tag = ElementTag.New(),
                 IsValid = true,
-                HasDepthStencil = true,
                 HasBlendState = true,
-                DepthStencilStateDescription = depth,
+                DepthStencilStateDefinition = depth,
                 RasterizerStateDescription = D3DRasterizerStateDescriptions.Default(mode),
                 BlendStateDescription = D3DBlendStateDescriptions.BlendStateEnabled,
             };
@@ -118,10 +113,9 @@ namespace D3DLab.Toolkit.Components {
           => new RenderableComponent(CullMode.None, PrimitiveTopology.LineList, technique) {
               Tag = ElementTag.New(),
               IsValid = true,
-              HasDepthStencil = true,
               HasBlendState = true,
               RasterizerStateDescription = rast,
-              DepthStencilStateDescription = D3DDepthStencilStateDescriptions.DepthEnabled,
+              DepthStencilStateDefinition = D3DDepthStencilDefinition.DepthEnabled,
               BlendStateDescription = D3DBlendStateDescriptions.BlendStateDisabled,
           };
 
@@ -134,8 +128,8 @@ namespace D3DLab.Toolkit.Components {
 
 
         //perhaps these blocks should be separate components as DepthStencilStateComponent and BlendStateComponent
-        public bool HasDepthStencil { get; private set; }
-        public DepthStencilStateDescription DepthStencilStateDescription { get; private set; }
+        
+        public D3DDepthStencilDefinition DepthStencilStateDefinition { get; private set; }
 
         public bool HasBlendState { get; private set; }
         public BlendStateDescription BlendStateDescription { get; private set; }

@@ -30,7 +30,7 @@ namespace D3DLab.Render{
                     mormals, 
                     indexes));
 
-            return manager.CreateEntity(new ElementTag("Geometry" + Guid.NewGuid()))
+            return manager.CreateEntity(ElementTag.New("TriangleColored"))
                 .AddComponent(TransformComponent.Identity())
                 .AddComponent(material)
                 .AddComponent(geo)

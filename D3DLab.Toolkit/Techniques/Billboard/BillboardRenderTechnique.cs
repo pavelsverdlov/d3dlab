@@ -147,7 +147,7 @@ namespace D3DLab.Toolkit.Techniques.Billboard {
                 }
                 if (!render.DepthStencilState.HasValue) {
                     render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice,
-                        renderable.DepthStencilStateDescription));
+                        renderable.DepthStencilStateDefinition.Description));
                 }
 
                 base.UpdateTransformWorld(graphics, render, en);

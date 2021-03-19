@@ -55,20 +55,20 @@
                 <ContentPresenter Content="{Binding XAxis}" Grid.Row="0" Grid.Column="2"/>
 
                 <TextBlock Text="Y Axis" Grid.Row="2" Grid.Column="0"/>
-                <TextBox Text="{Binding YAxis.Moved, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Grid.Row="2" Grid.Column="1"/>
+                <TextBox Text="{Binding YAxis.Moved,UpdateSourceTrigger=PropertyChanged,Delay=600}" Margin="5,0" Grid.Row="2" Grid.Column="1"/>
                 <ContentPresenter Content="{Binding YAxis}" Grid.Row="2" Grid.Column="2"/>
 
                 <TextBlock Text="Z Axis" Grid.Row="4" Grid.Column="0"/>
-                <TextBox Text="{Binding ZAxis.Moved, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Grid.Row="4" Grid.Column="1" />
+                <TextBox Text="{Binding ZAxis.Moved,UpdateSourceTrigger=PropertyChanged,Delay=600}" Margin="5,0" Grid.Row="4" Grid.Column="1" />
                 <ContentPresenter Content="{Binding ZAxis}" Grid.Row="4" Grid.Column="2"/>
 
                 <StackPanel Orientation="Vertical" Grid.Row="6" Grid.Column="0"
                             Grid.ColumnSpan="3">
                     <DockPanel HorizontalAlignment="Left">
                         <TextBlock Text="Origin" Margin="0,0,5,0"/>
-                        <TextBox Text="{Binding OriginX}" Width="60" TextAlignment="Center"/>
-                        <TextBox Text="{Binding OriginY}" Width="60" TextAlignment="Center" Margin="5,0"/>
-                        <TextBox Text="{Binding OriginZ}" Width="60" TextAlignment="Center"/>
+                        <TextBox Text="{Binding OriginX, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Delay=600}" Width="60" TextAlignment="Center"/>
+                        <TextBox Text="{Binding OriginY, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Delay=600}" Width="60" TextAlignment="Center" Margin="5,0"/>
+                        <TextBox Text="{Binding OriginZ, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Delay=600}" Width="60" TextAlignment="Center"/>
                     </DockPanel>
                     <Grid HorizontalAlignment="Stretch" Margin="0,5,0,0">
                         <Grid.ColumnDefinitions>
@@ -76,8 +76,16 @@
                             <ColumnDefinition Width="5"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Button Content="Object center" Grid.Column="0" />
-                        <Button Content="World center" Grid.Column="2"/>
+                        <Button Grid.Column="0" Command="{Binding SetObjectCenterCommand}">
+                            <Button.Content>
+                                <TextBlock Text="Object center" HorizontalAlignment="Center"/>
+                            </Button.Content>
+                        </Button>
+                        <Button Grid.Column="2" Command="{Binding ResetToWorldCommand}">
+                            <Button.Content>
+                                <TextBlock Text="Reset to world" HorizontalAlignment="Center"/>
+                            </Button.Content>
+                        </Button>
                     </Grid>
                 </StackPanel>
             </Grid>
@@ -104,13 +112,16 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <ToggleButton Content="Preview" Height="40" Margin="0,0,5,0" IsChecked="True"
+                          x:Name="PreviewToggleButton"
+                          Command="{Binding PreviewCommand}"
+                          CommandParameter="{Binding IsChecked, ElementName=PreviewToggleButton}"
                           Style="{StaticResource TextToggleButton}"
                           Grid.Row="0" Grid.Column="0"/>
             <Button Content="Reset" Height="40" Command="{Binding Reset}"
                           Grid.Row="0" Grid.Column="1"/>
 
-            <Button Content="Close" Height="40" Grid.Row="2" Grid.Column="0" Margin="0,0,5,0"/>
-            <Button Content="Apply" Height="40" Grid.Row="2" Grid.Column="1"/>
+            <Button Content="Close" Command="{Binding CloseCommand}" Height="40" Grid.Row="2" Grid.Column="0" Margin="0,0,5,0"/>
+            <Button Content="Apply" Command="{Binding ApplyCommand}" Height="40" Grid.Row="2" Grid.Column="1"/>
         </Grid>
 
     </Grid>

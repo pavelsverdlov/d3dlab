@@ -174,14 +174,15 @@ namespace D3DLab.ECS {
             return types.All(type => entities[entity].ContainsKey(type));
         }
 
-        public void UpdateComponents<T>(ElementTag tagEntity, T newComponent) where T : IGraphicComponent {
+        public Task UpdateComponents<T>(ElementTag tagEntity, T newComponent) where T : IGraphicComponent {
             if (typeof(T) == typeof(IGraphicComponent)) {
                 throw new NotSupportedException("IGraphicComponent is incorrect type, must be the certain component type.");
             }
             if (components.ContainsKey(newComponent.Tag)) {
                 throw new NotSupportedException($"Component {typeof(T)} '{newComponent.Tag}' is already belong to other Entity.");
             }
-            comSynchronizer.Add((owner, newCom) => {
+
+            return comSynchronizer.Add((owner, newCom) => {
                 var type = newCom.GetType();
                 //do not check IsValid OR IsDisposed because it is not important for removing 
                 if (entities[tagEntity].TryGetValue(type, out var oldTag)) {

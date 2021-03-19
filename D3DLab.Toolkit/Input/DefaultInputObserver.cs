@@ -334,10 +334,8 @@ namespace D3DLab.Toolkit.Input {
 
         protected float RotationSensitivity;
 
-        readonly FrameworkElement control;
-        public DefaultInputObserver(FrameworkElement control, IInputPublisher publisher) : base(publisher) {
+        public DefaultInputObserver(IInputPublisher publisher) : base(publisher) {
             this.currentSnapshot = new InputSnapshot();
-            this.control = control;
 
             RotationSensitivity = 0.7f;
         }

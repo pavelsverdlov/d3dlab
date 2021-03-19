@@ -10,7 +10,7 @@ namespace D3DLab.Debugger.D3D {
         readonly ICameraInputHandler inputHandler;
 
         public ViewerInputObserver(FrameworkElement control, IInputPublisher publisher, ICameraInputHandler inputHandler)
-            : base(control, publisher, inputHandler) {
+            : base(publisher, inputHandler) {
             this.inputHandler = inputHandler;
         }
 

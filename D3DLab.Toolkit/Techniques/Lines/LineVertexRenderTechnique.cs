@@ -102,7 +102,7 @@ namespace D3DLab.Toolkit.Techniques.Lines {
 
                 if (!d3drender.DepthStencilState.HasValue) {
                     d3drender.DepthStencilState.Set(
-                        new DepthStencilState(graphics.D3DDevice, renderable.DepthStencilStateDescription));
+                        new DepthStencilState(graphics.D3DDevice, renderable.DepthStencilStateDefinition.Description));
                 }
 
                 if (!d3drender.BlendingState.HasValue) {

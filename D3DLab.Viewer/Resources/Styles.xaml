@@ -6,13 +6,17 @@
 
 
     <!--1E1E1E-->
+    <SolidColorBrush x:Key="AlarmColor">#f44336</SolidColorBrush>
+    <SolidColorBrush x:Key="ActiveColor">#569CD6</SolidColorBrush>
+    <SolidColorBrush x:Key="SuccessColor">#4caf50</SolidColorBrush>
+    <SolidColorBrush x:Key="HighlightedColor">#E9C46A</SolidColorBrush>
+    
     <SolidColorBrush x:Key="BlackBackgroundColor">#333333</SolidColorBrush>
     <SolidColorBrush x:Key="BorderBrushColor">White</SolidColorBrush>
     <SolidColorBrush x:Key="TextColor">White</SolidColorBrush>
     <SolidColorBrush x:Key="SelectedBorderBrushColor">#569CD6</SolidColorBrush>
     <SolidColorBrush x:Key="SecondTextColor">LightGray</SolidColorBrush>
-    <SolidColorBrush x:Key="HighlightedTextColor">Gold</SolidColorBrush>
-    
+    <SolidColorBrush x:Key="HighlightedTextColor">#E9C46A</SolidColorBrush>
 
     <PathGeometry x:Key="LockIconPathGeometry" Figures="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
     <PathGeometry x:Key="RemoveIconPathGeometry" Figures="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
@@ -108,13 +112,14 @@
 
     <!-- Normal Size -->
     
-    <Canvas x:Key="NormalFolderIconCanvas" Width="40" Margin="3,2,0,0">
+    <Canvas x:Key="NormalFolderIconCanvas" Width="45">
         <Canvas.RenderTransform>
             <TransformGroup>
-                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+                <TranslateTransform X="3" Y="1"/>
+                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
             </TransformGroup>
         </Canvas.RenderTransform>
-        <Path Fill="White" Data="{StaticResource FolderIconPathGeometry}"/>
+        <Path Fill="{StaticResource HighlightedTextColor}" Data="{StaticResource FolderIconPathGeometry}"/>
     </Canvas>
     <Canvas x:Key="NormalFileIconCanvas" Width="40" Margin="3,2,0,0">
         <Canvas.RenderTransform>
@@ -124,13 +129,14 @@
         </Canvas.RenderTransform>
         <Path Fill="White" Data="{StaticResource FileIconPathGeometry}"/>
     </Canvas>
-    <Canvas x:Key="NormalSaveIconCanvas" Width="40" Margin="3,2,0,0">
+    <Canvas x:Key="NormalSaveIconCanvas" Width="45">
         <Canvas.RenderTransform>
             <TransformGroup>
-                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                <TranslateTransform X="4.5" Y="1"/>
             </TransformGroup>
         </Canvas.RenderTransform>
-        <Path Fill="White" Data="{StaticResource SaveIconPathGeometry}"/>
+        <Path Fill="{StaticResource SelectedBorderBrushColor}" Data="{StaticResource SaveIconPathGeometry}"/>
     </Canvas>
     <Canvas x:Key="NormalRemoveIconCanvas" Width="40" Margin="3,2,0,0">
         <Canvas.RenderTransform>
@@ -140,18 +146,19 @@
         </Canvas.RenderTransform>
         <Path Fill="White" Data="{StaticResource RemoveIconPathGeometry}"/>
     </Canvas>
-    <Canvas x:Key="NormalCoorAxisIconCanvas" Width="40" Margin="3,2,0,0">
+    <Canvas x:Key="NormalCoorAxisIconCanvas" Width="45">
         <Canvas.RenderTransform>
             <TransformGroup>
-                <ScaleTransform ScaleX="0.07" ScaleY="0.07" />
+                <ScaleTransform ScaleX="0.071" ScaleY="0.071" />
+                <TranslateTransform X="4" Y="0"/>
             </TransformGroup>
         </Canvas.RenderTransform>
         <!--axis Y-->
-        <Path Fill="#4caf50" Data="m442.246094 396.496094-185.996094 80v-226l185.996094-79.996094zm0 0"/>
+        <Path Fill="{StaticResource SuccessColor}" Data="m442.246094 396.496094-185.996094 80v-226l185.996094-79.996094zm0 0"/>
         <!--axis Z-->
-        <Path Fill="#2196f3" Data="m256.25 90.5 185.996094 80-185.996094 79.996094-186-79.996094zm0 0"/>
+        <Path Fill="{StaticResource ActiveColor}" Data="m256.25 90.5 185.996094 80-185.996094 79.996094-186-79.996094zm0 0"/>
         <!--axis X-->
-        <Path Fill="#f44336" Data="m70.25 396.496094v-225.996094l186 79.996094v226zm0 0"/>
+        <Path Fill="{StaticResource AlarmColor}" Data="m70.25 396.496094v-225.996094l186 79.996094v226zm0 0"/>
         <Path Fill="White" Data="m352 346.496094c-5.523438 0-10 4.480468-10 10 0 5.519531 4.476562 10 10 10 5.519531 0 10-4.480469 10-10 0-5.519532-4.480469-10-10-10zm0 0"/>
         <Path Fill="White" Data="m266 170.5c0-5.523438-4.480469-10-10-10s-10 4.476562-10 10c0 5.519531 4.480469 10 10 10s10-4.480469 10-10zm0 0"/>
         <Path Fill="White" Data="m160 366.496094c5.519531 0 10-4.480469 10-10 0-5.519532-4.480469-10-10-10s-10 4.480468-10 10c0 5.519531 4.480469 10 10 10zm0 0"/>

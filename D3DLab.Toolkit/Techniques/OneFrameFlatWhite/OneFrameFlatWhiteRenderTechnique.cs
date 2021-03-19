@@ -107,7 +107,7 @@ namespace D3DLab.Toolkit.Techniques.BlackAndWhite {
             BlendState blendingState = null;
 
             try {
-                depthStencilState = new DepthStencilState(graphics.D3DDevice, D3DDepthStencilStateDescriptions.DepthDisabled);
+                depthStencilState = new DepthStencilState(graphics.D3DDevice, D3DDepthStencilDefinition.DepthDisabled.Description);
                 blendingState = new BlendState(graphics.D3DDevice, D3DBlendStateDescriptions.BlendStateEnabled);
 
                 foreach (var en in entities) {

@@ -25,7 +25,8 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Text="" Margin="5">
-            <Run Text="{Binding AllLoadedObjects.Count, Mode=OneTime}"/>
+            <Run Text="{Binding AllLoadedObjects.Count, Mode=OneTime}"
+                 Foreground="{StaticResource SelectedBorderBrushColor}"/>
             <Run Text="files avaliable to save:" 
                  Foreground="{StaticResource SecondTextColor}"/>
         </TextBlock>

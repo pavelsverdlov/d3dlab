@@ -7,7 +7,7 @@ namespace D3DLab.Toolkit.Input {
     public class RotateZoomPanInputObserver : DefaultInputObserver {
         readonly ICameraInputHandler externalInputHandler;
 
-        public RotateZoomPanInputObserver(FrameworkElement control, IInputPublisher publisher, ICameraInputHandler inputHandler) : base(control, publisher) {
+        public RotateZoomPanInputObserver(IInputPublisher publisher, ICameraInputHandler inputHandler) : base(publisher) {
             this.externalInputHandler = inputHandler;
         }
         protected override InputState GetIdleState() {//initilization 

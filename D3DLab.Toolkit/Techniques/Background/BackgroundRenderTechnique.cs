@@ -97,7 +97,8 @@ namespace D3DLab.Toolkit.Techniques.Background {
             }
 
             if (!depthStencilState.HasValue) {
-                depthStencilState.Set(new DepthStencilState(graphics.D3DDevice, D3DDepthStencilStateDescriptions.DepthDisabled));
+                depthStencilState.Set(new DepthStencilState(graphics.D3DDevice, 
+                    D3DDepthStencilDefinition.DepthDisabled.Description));
             }
 
             //SharpDX.Direct3D11.Device.FromPointer<SharpDX.Direct3D11.Device>(System.IntPtr.Zero);

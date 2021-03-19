@@ -203,7 +203,8 @@ namespace D3DLab.SDX.Engine {
         //}
 
         public void Refresh() {
-            ImmediateContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
+            ImmediateContext.ClearDepthStencilView(DepthStencilView, 
+                DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1f, 0);
             ImmediateContext.ClearRenderTargetView(directX.RenderTarget, new RawColor4(0, 0, 0, 0));
         }
 

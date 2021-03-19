@@ -55,7 +55,7 @@ namespace D3DLab.Toolkit.Techniques.OrderIndependentTransparency {
             pass = new D3DShaderTechniquePass(d.Load(oit, "OIT_"));
             quardPass = new D3DShaderTechniquePass(d.Load(quard, "QOIT_"));
 
-            depthStencilStateDesc = D3DDepthStencilStateDescriptions.DepthEnabled;
+            depthStencilStateDesc = D3DDepthStencilDefinition.DepthEnabled.Description;
             blendStateDesc = D3DBlendStateDescriptions.BlendStateEnabled;
 
             vertexShader = new DisposableSetter<VertexShader>(disposer);

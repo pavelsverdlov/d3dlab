@@ -100,7 +100,7 @@ namespace D3DLab.Toolkit.Techniques.CameraViews {
             }
 
             if (!depthStencilState.HasValue) {
-                depthStencilState.Set(new DepthStencilState(graphics.D3DDevice, D3DDepthStencilStateDescriptions.DepthDisabled));
+                depthStencilState.Set(new DepthStencilState(graphics.D3DDevice, D3DDepthStencilDefinition.DepthDisabled.Description));
             }
             foreach(var en in entities) {
                 if (en.TryGetComponent<CameraViewsComponent>(out var com)) {

@@ -66,7 +66,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
             //debug2 = new ShaderDebugMode(new DirectoryInfo(@"D:\Storage_D\trash\archive\shaders\"), flatShadingPass);
             //debug2.Activate();
 
-            depthStencilStateDesc = D3DDepthStencilStateDescriptions.DepthEnabled;
+            depthStencilStateDesc = D3DDepthStencilDefinition.DepthEnabled;
             blendStateDesc = D3DBlendStateDescriptions.BlendStateEnabled;
             // blendStateDesc.AlphaToCoverageEnable = true;
 
@@ -89,7 +89,7 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
         readonly DisposableSetter<GeometryShader> wireframeGS;
 
         readonly BlendStateDescription blendStateDesc;
-        readonly DepthStencilStateDescription depthStencilStateDesc;
+        readonly D3DDepthStencilDefinition depthStencilStateDesc;
 
         public IContextState ContextState { private get; set; }
 
@@ -189,20 +189,20 @@ namespace D3DLab.Toolkit.Techniques.TriangleColored {
 
             var geo = ContextState.GetGeometryPool().GetGeometry<IGeometryData>(en);
 
-            if (renderable.HasDepthStencil) {
+            if (renderable.DepthStencilStateDefinition.IsValid) {
                 if (!render.DepthStencilState.HasValue) {
                     render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice,
-                        renderable.DepthStencilStateDescription));
+                        renderable.DepthStencilStateDefinition.Description));
                 }
             } else { //TODO remake this by checking CullMode.None
                 if (!render.DepthStencilState.HasValue) {
                     render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice,
-                        color.HasAlpha ? D3DDepthStencilStateDescriptions.DepthDisabled : depthStencilStateDesc));
+                        color.HasAlpha ? D3DDepthStencilDefinition.DepthDisabled.Description : depthStencilStateDesc.Description));
                 } else if (color.HasAlpha && render.DepthStencilState.Get().Description.IsDepthEnabled) {
                     render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice,
-                        D3DDepthStencilStateDescriptions.DepthDisabled));
+                        D3DDepthStencilDefinition.DepthDisabled.Description));
                 } else if (!color.HasAlpha && !render.DepthStencilState.Get().Description.IsDepthEnabled) {
-                    render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, depthStencilStateDesc));
+                    render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice, depthStencilStateDesc.Description));
                 }
             }
 

@@ -1,7 +1,5 @@
 ﻿using D3DLab.ECS.Ext;
 
-using Syncfusion.Windows.Tools;
-
 using System;
 using System.Diagnostics;
 using System.Numerics;
@@ -21,8 +19,7 @@ namespace D3DLab.Viewer.Modules.Transform {
         public float Moved {
             get => moved;
             set {
-                facade.ResetTransform();
-                facade.Transform(value, axis);
+                facade.Transform(value - moved, axis);
                 Update(ref moved, value, nameof(Moved));
             }
         }
@@ -32,6 +29,8 @@ namespace D3DLab.Viewer.Modules.Transform {
         public ICommand BackwardCommand { get; }
         public ICommand MouseMoveCommand { get; }
 
+
+
         public TransformationByAxis(Vector3 axis, CommonTransformation facade) {
             Step = 0.1f;
             this.axis = axis;
@@ -39,9 +38,11 @@ namespace D3DLab.Viewer.Modules.Transform {
             ForwardCommand = new WpfActionCommand(OnForward);
             BackwardCommand = new WpfActionCommand(OnBackward);
             MouseMoveCommand = new WpfActionCommand(OnMouseMove);
+
+
         }
 
-        //abstract protected void OnMoved(float value, Vector3 axis);
+
 
         void OnMouseMove() {
             facade.ShowAxis(axis);
@@ -60,40 +61,16 @@ namespace D3DLab.Viewer.Modules.Transform {
         }
 
         public void Reset() {
-            Moved = 0;
+            Update(ref moved, 0, nameof(Moved));
         }
 
     }
-    abstract class CommonTransformation {
-        public AxisTranslateTransform XAxis { get; set; }
-        public AxisTranslateTransform YAxis { get; set; }
-        public AxisTranslateTransform ZAxis { get; set; }
-
-        public float OriginX {
-            get => originX;
-            set {
-                originX = value;
-            }
-        }
-        public float OriginY {
-            get => originY;
-            set {
-                originY = value;
-            }
-        }
-        public float OriginZ {
-            get => originZ;
-            set {
-                originZ = value;
-            }
-        }
+    abstract class CommonTransformation : BaseNotify {
+        public TransformationByAxis XAxis { get; set; }
+        public TransformationByAxis YAxis { get; set; }
+        public TransformationByAxis ZAxis { get; set; }
 
         Vector3 showedAxis;
-
-        float originX;
-        float originY;
-        float originZ;
-
         readonly DispatcherTimer timer;
         readonly Stopwatch stopwatch;
         public CommonTransformation() {
@@ -114,7 +91,6 @@ namespace D3DLab.Viewer.Modules.Transform {
             }
         }
 
-        public abstract void ResetTransform();
         public abstract void Transform(float value, Vector3 axis);
         public void ShowAxis(Vector3 axis) {
             if (showedAxis != axis) {
@@ -129,25 +105,85 @@ namespace D3DLab.Viewer.Modules.Transform {
     }
 
     class AxisTranslateTransform : TransformationByAxis {
-        public AxisTranslateTransform(Vector3 axis, TransformTranslate facade) : base(axis,facade){
+        public AxisTranslateTransform(Vector3 axis, TransformTranslate facade) : base(axis, facade) {
             Step = 0.1f;
         }
     }
-    
+
     class TransformTranslate : CommonTransformation {
+        public ICommand ResetToWorldCommand { get; }
+        public ICommand SetObjectCenterCommand { get; }
+
+        public float OriginX {
+            get => originX;
+            set {
+                originX = value;
+                XAxis.Moved = value;
+            }
+        }
+        public float OriginY {
+            get => originY;
+            set {
+                originY = value;
+                YAxis.Moved = value;
+            }
+        }
+        public float OriginZ {
+            get => originZ;
+            set {
+                originZ = value;
+                ZAxis.Moved = value;
+            }
+        }
+
+        float originX;
+        float originY;
+        float originZ;
+        Vector3? objectCenter;
         readonly TransformModuleViewModel facade;
+
         public TransformTranslate(TransformModuleViewModel facade) {
             XAxis = new AxisTranslateTransform(Vector3.UnitX, this);
             YAxis = new AxisTranslateTransform(Vector3.UnitY, this);
             ZAxis = new AxisTranslateTransform(Vector3.UnitZ, this);
             this.facade = facade;
+
+            ResetToWorldCommand = new WpfActionCommand(OnResetToWorldCenter);
+            SetObjectCenterCommand = new WpfActionCommand(OnSetObjectCenter);
+
+            OnSetObjectCenter();
+        }
+        void SetOrigin(Vector3 v) {
+            Update(ref originX, (float)Math.Round(v.X, 5), nameof(OriginX));
+            Update(ref originY, (float)Math.Round(v.Y, 5), nameof(OriginY));
+            Update(ref originZ, (float)Math.Round(v.Z, 5), nameof(OriginZ));
+        }
+        void OnSetObjectCenter() {
+            var v = facade.GetObjectCenter();
+            SetOrigin(v);
+            objectCenter = v;
+        }
+        void OnResetToWorldCenter() {
+            facade.Transfrom(
+                  Matrix4x4.CreateTranslation(Vector3.UnitX * -originX)
+                * Matrix4x4.CreateTranslation(Vector3.UnitY * -originY)
+                * Matrix4x4.CreateTranslation(Vector3.UnitZ * -originZ)
+                );
+            SetOrigin(Vector3.Zero);
+            objectCenter = Vector3.Zero;
+            Reset();
+        }
+        public void UpdateOrigin(Matrix4x4 matrix) {
+            if (objectCenter.HasValue) {
+                objectCenter = Vector3.Transform(objectCenter.Value, matrix);
+                SetOrigin(objectCenter.Value);
+            }
         }
 
-        public override void ResetTransform() {
-            facade.ResetTransform();
-        }
         public void Reset() {
             XAxis.Reset();
+            YAxis.Reset();
+            ZAxis.Reset();
         }
         public override void Transform(float step, Vector3 axis) {
             facade.Move(step, axis);
@@ -155,8 +191,36 @@ namespace D3DLab.Viewer.Modules.Transform {
         protected override void OnShowAxis(Vector3 show) {
             facade.ShowAxis(show);
         }
-        protected override void OnHideAxis( Vector3 hide) {
+        protected override void OnHideAxis(Vector3 hide) {
             facade.HideAxis(hide);
+        }
+    }
+
+    class AxisRotateTransform : TransformationByAxis {
+        public AxisRotateTransform(Vector3 axis, TransformRotate facade) : base(axis, facade) {
+            Step = 10;
+        }
+    }
+    class TransformRotate : CommonTransformation {
+        readonly TransformModuleViewModel facade;
+
+        public TransformRotate(TransformModuleViewModel facade) {
+            XAxis = new AxisRotateTransform(Vector3.UnitX, this);
+            YAxis = new AxisRotateTransform(Vector3.UnitY, this);
+            ZAxis = new AxisRotateTransform(Vector3.UnitZ, this);
+            this.facade = facade;
+        }
+
+        public override void Transform(float value, Vector3 axis) {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnHideAxis(Vector3 hide) {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnShowAxis(Vector3 show) {
+            throw new NotImplementedException();
         }
     }
 
@@ -166,16 +230,49 @@ namespace D3DLab.Viewer.Modules.Transform {
         public TransformTranslate Translate { get; }
 
         public ICommand Reset { get; }
+        public ICommand PreviewCommand { get; }
+        public ICommand CloseCommand { get; }
+        public ICommand ApplyCommand { get; }
+
 
         Matrix4x4 history;
 
-
+        bool isPreviewing;
+        bool isApplied;
         public TransformModuleViewModel(ISelectedObjectTransformation loaded) {
-            Translate = new TransformTranslate(this);
+            isPreviewing = true;
             this.selectedObject = loaded;
             history = Matrix4x4.Identity;
 
+            Translate = new TransformTranslate(this);
+
             Reset = new WpfActionCommand(OnReset);
+            ApplyCommand = new WpfActionCommand(OnApply);
+            CloseCommand = new WpfActionCommand(OnClose);
+            PreviewCommand = new WpfActionCommand<bool>(OnPreview);          
+        }
+
+        void OnApply() {
+            selectedObject.Transform(history);
+            isApplied = true;
+            history = Matrix4x4.Identity;
+        }
+
+        void OnClose() {
+            if (!isApplied && isPreviewing) {
+                selectedObject.Transform(history.Inverted());
+            }
+
+            selectedObject.Finish();
+        }
+
+        void OnPreview(bool ischeked) {
+            isPreviewing = ischeked;
+            if (isPreviewing) {
+                selectedObject.Transform(history);
+            } else {
+                selectedObject.Transform(history.Inverted());
+            }
         }
 
         void OnReset() {
@@ -183,14 +280,29 @@ namespace D3DLab.Viewer.Modules.Transform {
             Translate.Reset();
         }
         public void ResetTransform() {
-            selectedObject.Transform(history.Inverted());
+            var matrix = history.Inverted();
+            if (isPreviewing) {
+                selectedObject.Transform(matrix);
+            }
             history = Matrix4x4.Identity;
+            Translate.UpdateOrigin(matrix);
         }
         public void Move(float step, Vector3 axis) {
             var move = Matrix4x4.CreateTranslation(axis * step);
             history *= move;
-            selectedObject.Transform(move);
+            if (isPreviewing) {
+                selectedObject.Transform(move);
+            }
+            Translate.UpdateOrigin(move);
         }
+        public void Transfrom(Matrix4x4 matrix) {
+            history *= matrix;
+            if (isPreviewing) {
+                selectedObject.Transform(matrix);
+            }
+            Translate.UpdateOrigin(matrix);
+        }
+
         public void Rotate(float value, Vector3 axis) {
 
         }
@@ -200,6 +312,10 @@ namespace D3DLab.Viewer.Modules.Transform {
         }
         public void HideAxis(Vector3 axis) {
             selectedObject.HideTransformationAxis(axis);
+        }
+
+        public Vector3 GetObjectCenter() {
+            return selectedObject.GetCenter();
         }
     }
 }

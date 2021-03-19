@@ -111,7 +111,7 @@ namespace D3DLab.Toolkit.Techniques.SpherePoint {
             }
 
             if (!depthStencilState.HasValue) {
-                depthStencilState.Set(new DepthStencilState(graphics.D3DDevice, D3DDepthStencilStateDescriptions.DepthDisabled));
+                depthStencilState.Set(new DepthStencilState(graphics.D3DDevice, D3DDepthStencilDefinition.DepthDisabled.Description));
             }
 
 
@@ -127,7 +127,7 @@ namespace D3DLab.Toolkit.Techniques.SpherePoint {
 
                 if (!render.DepthStencilState.HasValue) {
                     render.DepthStencilState.Set(new DepthStencilState(graphics.D3DDevice,
-                        renderable.DepthStencilStateDescription));
+                        renderable.DepthStencilStateDefinition.Description));
                 }
                 if (!render.BlendingState.HasValue) {
                     render.BlendingState.Set(new BlendState(graphics.D3DDevice, renderable.BlendStateDescription));
