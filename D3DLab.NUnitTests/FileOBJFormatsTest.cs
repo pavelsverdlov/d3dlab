@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 
 namespace D3DLab.NUnitTests {
-    class FileFormatsTest {
+    class FileOBJFormatsTest {
         [SetUp]
         public void Setup() {
         }

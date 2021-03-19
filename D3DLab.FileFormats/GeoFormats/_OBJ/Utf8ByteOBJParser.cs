@@ -20,7 +20,7 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
     /// http://en.wikipedia.org/wiki/Material_Template_Library
     /// http://www.martinreddy.net/gfx/3d/OBJ.spec
     /// </remarks>
-    public sealed class Utf8ByteOBJParser {
+    public sealed class Utf8ByteOBJParser : IUtf8SpanReader {
         static readonly Encoding utf8;
 
         static readonly byte[] LFChars;
@@ -139,7 +139,7 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
                 //lenth 2 is default for OBJ format keys, just use it as a const
                 var part = line.Slice(2, line.Length - 2).Trim(space);
                 if (line.StartsWith(groupChars)) {
-                    var names = GetString(part).Trim().SplitOnWhitespace();
+                    var names = Utf8ReadOnlySpanHelper.GetString(part).Trim().SplitOnWhitespace();
                     groupname = string.Join(" ", names);//clean up group name from extra space
                     current = GeometryCache.CreatePart(groupname);
                 } else if (line.StartsWith(textureChars)) {
@@ -193,15 +193,7 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
             }
             return true;
         }
-        static unsafe string GetString(in ReadOnlySpan<byte> span) {
-            fixed (byte* buffer = &MemoryMarshal.GetReference(span)) {
-                var charCount = utf8.GetCharCount(buffer, span.Length);
-                fixed (char* chars = stackalloc char[charCount]) {
-                    var count = utf8.GetChars(buffer, span.Length, chars, charCount);
-                    return new string(chars, 0, count);
-                }
-            }
-        }
+      
         static unsafe string GetStringFrom(in ReadOnlySpan<byte> all, int offset) {
             fixed (byte* buffer = &MemoryMarshal.GetReference(all)) {
                 var charCount = utf8.GetCharCount(buffer, offset);
@@ -353,7 +345,7 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
             if (splitBySpace != -1) {
                 part = part.Slice(splitBySpace, part.Length - splitBySpace);
             }
-            var mtlFileName = GetString(part.Trim(space));
+            var mtlFileName = Utf8ReadOnlySpanHelper.GetString(part.Trim(space));
             this.MtlFileName = mtlFileName;
         }
 
