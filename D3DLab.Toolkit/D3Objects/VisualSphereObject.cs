@@ -1,6 +1,7 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
 using D3DLab.Toolkit.Components;
+using D3DLab.Toolkit.Math3D;
 using D3DLab.Toolkit.Techniques.SpherePoint;
 
 using System;
@@ -19,23 +20,25 @@ namespace D3DLab.Toolkit.D3Objects {
         public VisualSphereObject(ElementTag tag) : base(tag, "SphereByPoint") {
         }
 
-        //public static VisualSphereObject Create(IEntityManager manager) {
-        //    var tag = manager
-        //       .CreateEntity(new ElementTag("Sphere_" + DateTime.Now.Ticks))
-        //       .AddComponent(new SimpleGeometryComponent() {
-        //           Indices = new[] { 0 }.ToImmutableArray(),
-        //           Positions = new Vector3[] { Vector3.Zero }.ToImmutableArray(),
-        //           Color = V4Colors.Red,
-        //       })
-        //       .AddComponent(new D3DSpherePointRenderComponent())
-        //       .AddComponent(new TransformComponent())
-        //       .Tag;
+        public static VisualSphereObject SphereGeo(IContextState context, ElementTag tag, Data data) {
+            var geo = GeometryBuilder.BuildSphere(data.Center, data.Radius);
+            
+            var geoId = context.GetGeometryPool()
+               .AddGeometry(geo);
 
+            var en = context.GetEntityManager()
+              .CreateEntity(tag)
+              .AddComponent(RenderableComponent.AsTriangleColored(SharpDX.Direct3D.PrimitiveTopology.TriangleStrip))
+              .AddComponent(TransformComponent.Identity())
+              .AddComponent(MaterialColorComponent.Create(data.Color))
+              .AddComponent(geoId)
+              ;
 
-        //    return new VisualSphereObject(tag);
-        //}
-        public static VisualSphereObject Create(ElementTag elet, IEntityManager manager, Data data) {
-            var tag = manager
+            return new VisualSphereObject(en.Tag);
+        }
+
+        public static VisualSphereObject Create(IContextState context, ElementTag elet,  Data data) {
+            var tag = context.GetEntityManager()
                .CreateEntity(elet)
                .AddComponent(SpherePointComponent.Create(data.Center, data.Radius))
                .AddComponent(MaterialColorComponent.Create(data.Color))

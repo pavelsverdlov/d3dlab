@@ -1,4 +1,5 @@
-﻿using D3DLab.ECS.Ext;
+﻿using D3DLab.ECS;
+using D3DLab.ECS.Ext;
 using D3DLab.FileFormats.GeoFormats;
 using D3DLab.Toolkit.Math3D;
 
@@ -46,6 +47,19 @@ namespace D3DLab.Toolkit {
         public static ImmutableGeometryData ToGeometryData(this IFileGeometry3D fgeo) {// 
             return new ImmutableGeometryData(fgeo.Positions, fgeo.Normals, fgeo.Indices, 
                 fgeo.TextureCoors, fgeo.Colors.Select(x=>x.ToVector4()).ToList());
+        }
+    }
+
+    public static class ExportEx {
+        public static void ToObjFile(this IGeometryData geo, string path) {
+            G3Writers.WriteObj(new System.IO.FileInfo(path), geo );
+        }
+    }
+
+
+    public static class Vector3Ex {
+        public static Vector4 ApplyAlpha(this Vector4 color, float alpha) {
+            return new Vector4(color.X, color.Y, color.Z, alpha);
         }
     }
 }

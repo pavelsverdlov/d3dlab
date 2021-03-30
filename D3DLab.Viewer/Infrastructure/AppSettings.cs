@@ -42,7 +42,9 @@ namespace D3DLab.Viewer.Infrastructure {
         public void SaveRecentFilePaths(string[] files) {
             var all = new HashSet<string>(GetReceintFiles());
             foreach (var p in files) {
-                all.Add(p);
+                if (File.Exists(p)) {
+                    all.Add(p);
+                }
             }
             settings.RecentFilePaths.Clear();
             settings.RecentFilePaths.AddRange(all.ToArray());

@@ -14,7 +14,8 @@ namespace D3DLab.Toolkit.Components {
         TriangleTextured,
         Lines,
         OneFrameFlatWhite,
-        Background
+        Background,
+        SpherePoints, 
     }
 
 
@@ -26,7 +27,7 @@ namespace D3DLab.Toolkit.Components {
         #region creators
 
         public static RenderableComponent AsPoints() => 
-            new RenderableComponent(CullMode.None, PrimitiveTopology.PointList, RenderTechniques.Background) {
+            new RenderableComponent(CullMode.None, PrimitiveTopology.PointList, RenderTechniques.SpherePoints) {
                 Tag = ElementTag.New(),
                 IsValid = true,
                 DepthStencilStateDefinition = D3DDepthStencilDefinition.DepthEnabled,

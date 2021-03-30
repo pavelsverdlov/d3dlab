@@ -33,7 +33,7 @@ namespace D3DLab.Toolkit.Render {
         protected override void UpdateBuffers(GraphicsDevice device) {
             //camera
             var gamebuff = GameStructBuffer.FromCameraState(prevCameraState, device.Size);
-            gameDataBuffer = device.CreateBuffer(BindFlags.ConstantBuffer, ref gamebuff);
+            gameDataBuffer = device.CreateDynamicBuffer(ref gamebuff, GameStructBuffer.Size);
 
             //lights
             var dinamicLightbuff = new LightStructBuffer[3];
@@ -64,7 +64,7 @@ namespace D3DLab.Toolkit.Render {
                     var lights = snapshot.Lights.Select(x => LightStructBuffer.From(x)).ToArray();
                     var gamebuff = GameStructBuffer.FromCameraState(prevCameraState, snapshot.Surface.Size);
 
-                    frame.Graphics.UpdateSubresource(ref gamebuff, gameDataBuffer);
+                    frame.Graphics.UpdateDynamicBuffer(ref gamebuff, gameDataBuffer);
                     frame.Graphics.UpdateDynamicBuffer(lights, lightDataBuffer);
 
                     foreach (var str in registrator.Techniques) {

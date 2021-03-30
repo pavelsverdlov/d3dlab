@@ -9,6 +9,8 @@ static const float3 unitZ = float3(0, 0, 1);
 static const float3 unitX = float3(1, 0, 0);
 static const float3 unitY = float3(0, 1, 0);
 
+static const float3 PI = acos(-1);
+
 /*
     STRUCTS
 */
@@ -68,8 +70,10 @@ cbuffer MaterialBuff : register(b3)
 float4 toScreen(float3 v)
 {
     float4 p = float4(v, 1);
-    p = mul(View, p);
-    p = mul(Projection, p);
+    //p = mul(View, p);
+    //p = mul(Projection, p);
+    p = mul(p, View);
+    p = mul(p, Projection);
     return p;
 }
 float4 toWVP(float4 position)

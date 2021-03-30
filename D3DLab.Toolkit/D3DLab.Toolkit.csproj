@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Math3D\Cylinder3.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Techniques\Background\shader.hlsl" />
     <None Remove="Techniques\CameraViews\camera_views.hlsl" />
     <None Remove="Techniques\Lines\simple_lines.hlsl" />

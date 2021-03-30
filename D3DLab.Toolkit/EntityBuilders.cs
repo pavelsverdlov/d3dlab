@@ -14,27 +14,34 @@ using System.IO;
 using D3DLab.SDX.Engine.Components;
 using D3DLab.Toolkit.Math3D;
 
-namespace D3DLab.Render{
+namespace D3DLab.Toolkit {
     public static class EntityBuilders {
-        public static GraphicEntity BuildColored(IContextState context,
-            IReadOnlyCollection<Vector3> pos, IReadOnlyCollection<int> indexes,
-            IReadOnlyCollection<Vector3> norm, Vector4 v4color, CullMode cullMode) {
+        public static GraphicEntity BuildColored(IContextState context, ElementTag tag, ImmutableGeometryData geometry, 
+            Vector4 v4color, CullMode cullMode) {
 
             var material = MaterialColorComponent.Create(v4color);
 
             var manager = context.GetEntityManager();
-            var mormals = norm ?? pos.ToList().CalculateNormals(indexes.ToList()).AsReadOnly();
             var geo = context.GetGeometryPool()
-                .AddGeometry(new ImmutableGeometryData(
-                    pos,
-                    mormals, 
-                    indexes));
+                .AddGeometry(geometry);
 
-            return manager.CreateEntity(ElementTag.New("TriangleColored"))
+            return manager.CreateEntity(tag)
                 .AddComponent(TransformComponent.Identity())
                 .AddComponent(material)
                 .AddComponent(geo)
                 .AddComponent(RenderableComponent.AsTriangleColoredList(cullMode));
+        }
+
+        public static GraphicEntity BuildColored(IContextState context,
+            IReadOnlyCollection<Vector3> pos, IReadOnlyCollection<int> indexes,
+            IReadOnlyCollection<Vector3> norm, Vector4 v4color, CullMode cullMode) {
+
+            var mormals = norm ?? pos.ToList().CalculateNormals(indexes.ToList()).AsReadOnly();
+
+            return BuildColored(context, ElementTag.New("TriangleColored"), new ImmutableGeometryData(
+                    pos,
+                    mormals,
+                    indexes), v4color,cullMode );
         }
 
         public static GraphicEntity BuildTextured(IContextState context,

@@ -94,7 +94,12 @@ namespace D3DLab.Toolkit.Techniques.SpherePoint {
 
         public IEnumerable<IRenderTechniquePass> GetPass() => pass.ToEnumerable();
 
-        public override bool IsAplicable(GraphicEntity entity) => entity.Contains<SpherePointComponent>();
+        public override bool IsAplicable(GraphicEntity entity) =>
+            entity.TryGetComponent<RenderableComponent>(out var ren)
+            && ren.IsRenderable
+            && ren.Technique == RenderTechniques.SpherePoints
+            && entity.Contains<SpherePointComponent>();
+
 
         protected override void Rendering(GraphicsDevice graphics, TProperties props) {
             var device = graphics.D3DDevice;
@@ -152,6 +157,7 @@ namespace D3DLab.Toolkit.Techniques.SpherePoint {
                     context.VertexShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, render.TransformWorldBuffer.Get());
 
                     context.GeometryShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, props.Game);
+                    context.GeometryShader.SetConstantBuffer(TransforStructBuffer.RegisterResourceSlot, render.TransformWorldBuffer.Get());
 
                     context.PixelShader.SetConstantBuffer(GameStructBuffer.RegisterResourceSlot, props.Game);
                     context.PixelShader.SetConstantBuffer(LightStructBuffer.RegisterResourceSlot, props.Lights);

@@ -1,5 +1,6 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Ext;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -198,7 +199,7 @@ namespace D3DLab.Toolkit.Math3D {
                 }
             }
 
-            return new ImmutableGeometryData (
+            return new ImmutableGeometryData(
                 positions.AsReadOnly(),
                 positions.CalculateNormals(indices).AsReadOnly(),
                 indices.AsReadOnly(),
@@ -296,6 +297,175 @@ namespace D3DLab.Toolkit.Math3D {
             pos.Add(corners.FarTopLeft);
 
             return pos.ToArray();
+        }
+
+        public static ImmutableGeometryData BuildSphere(Vector3 center, float radius) {
+            int thetaDiv = 32;
+            int phiDiv = 32;
+            var positions = new List<Vector3>();
+            var normals = new List<Vector3>();
+            var texCoor = new List<Vector2>();
+
+            var index0 = positions.Count;
+            var dt = (float)(2 * Math.PI / thetaDiv);
+            var dp = (float)(Math.PI / phiDiv);
+
+            for (var pi = 0; pi <= phiDiv; pi++) {
+                var phi = pi * dp;
+
+                for (var ti = 0; ti <= thetaDiv; ti++) {
+                    // we want to start the mesh on the x axis
+                    var theta = ti * dt;
+
+                    // Spherical coordinates
+                    // http://mathworld.wolfram.com/SphericalCoordinates.html
+                    float x = (float)(Math.Cos(theta) * Math.Sin(phi));
+                    float y = (float)(Math.Sin(theta) * Math.Sin(phi));
+                    float z = (float)(Math.Cos(phi));
+
+                    //var x = (float)(Math.Sin(theta) * Math.Sin(phi));
+                    //var y = (float)(Math.Cos(phi));
+                    //var z = (float)(Math.Cos(theta) * Math.Sin(phi));
+
+                    var p = new Vector3(
+                        center.X + ((float)radius * x),
+                        center.Y + ((float)radius * y),
+                        center.Z + ((float)radius * z));
+                    positions.Add(p);
+                    normals.Add(new Vector3(x, y, z));
+                    var uv = new Vector2((float)(theta / (2 * Math.PI)), (float)(phi / Math.PI));
+                    texCoor.Add(uv);
+                }
+            }
+
+            int rows = phiDiv + 1;
+            int columns = thetaDiv + 1;
+            bool isSpherical = true;
+            var indices = new List<int>();
+
+            for (int i = 0; i < rows - 1; i++) {
+                for (int j = 0; j < columns - 1; j++) {
+                    int ij = (i * columns) + j;
+                    if (!isSpherical || i > 0) {
+                        indices.Add(index0 + ij);
+                        indices.Add(index0 + ij + 1 + columns);
+                        indices.Add(index0 + ij + 1);
+                    }
+
+                    if (!isSpherical || i < rows - 2) {
+                        indices.Add(index0 + ij + 1 + columns);
+                        indices.Add(index0 + ij);
+                        indices.Add(index0 + ij + columns);
+                    }
+                }
+            }
+
+            return new ImmutableGeometryData(positions, normals, indices, texCoor);
+        }
+
+        public static ImmutableGeometryData BuildCylinder(Vector3 start, Vector3 axis, float radius, float lenght) {
+            var positions = new Dictionary<Vector3, int>();
+            var normals = new List<Vector3>();
+            var texCoor = new List<Vector2>();
+            var indices = new List<int>();
+
+            var circles = new List<List<Vector3>>();
+
+            for (var z = 0; z < lenght; z += 10) {
+                var circle = new List<Vector3>();
+                var st = (circles.Count % 2) == 0 ? 0f : 5f;
+                for (var angle = st; angle < 360; angle += 10f) {
+                    var rad = angle.ToRad();
+                    var x = radius * MathF.Cos(rad);
+                    var y = radius * MathF.Sin(rad);
+
+                    circle.Add(new Vector3(x, y, z));
+                }
+                circles.Add(circle);
+            }
+
+            var prevCircle = circles[0];
+            for (var i = 1; i < circles.Count; i++) {
+                var circle = circles[i];
+
+                var prevVb = prevCircle[0];
+                var prevVt = circle[0];
+                var cc0 = prevCircle.GetCenter();
+                var cc1 = circle.GetCenter();
+
+                int indx0, indx1, indx2, indx3;
+                indx0 = indx1 = indx2 = indx3 = -1;
+                for (var vI = 1; vI < prevCircle.Count; vI++) {
+                    var vb = prevCircle[vI];
+                    var vt = circle[vI];
+
+                    var v0 = prevVb;
+                    var v1 = prevVt;
+                    var v2 = vb;
+                    var v3 = vt;
+
+                    if (!positions.TryGetValue(v0, out indx0)) {
+                        indx0 = positions.Count;
+                        positions.Add(v0, indx0);
+                        normals.Add((v0 - cc0).Normalized());
+                    }                    
+                    if (!positions.TryGetValue(v1, out indx1)) {
+                        indx1 = positions.Count;
+                        positions.Add(v1, indx1);
+                        normals.Add((v1 - cc1).Normalized());
+                    }                    
+                    if (!positions.TryGetValue(v2, out indx2)) {
+                        indx2 = positions.Count;
+                        positions.Add(v2, indx2);
+                        normals.Add((v2 - cc0).Normalized());
+                    }
+                    if (!positions.TryGetValue(v3, out indx3)) {
+                        indx3 = positions.Count;
+                        positions.Add(v3, indx3);
+                        normals.Add((v3 - cc0).Normalized());
+                    }
+                    indices.Add(indx1);
+                    indices.Add(indx0);
+                    indices.Add(indx2);
+
+                    indices.Add(indx2);
+                    indices.Add(indx3);
+                    indices.Add(indx1);
+
+                    prevVb = vb;
+                    prevVt = vt;
+                }
+                indices.Add(positions[prevCircle[0]]);
+                indices.Add(indx3);
+                indices.Add(indx2);
+                
+
+                indices.Add(positions[circle[0]]);
+                indices.Add(indx3);
+                indices.Add(positions[prevCircle[0]]);
+                
+
+                prevCircle = circle;
+            }
+
+            var geo = new ImmutableGeometryData(positions.Keys.ToArray(), normals, indices);
+
+            var box = AxisAlignedBox.CreateFrom(geo.Positions);
+
+            var cross = Vector3.Cross(axis, Vector3.UnitZ);
+            if (cross == Vector3.Zero) {
+                cross = Vector3.UnitX;
+            }
+            var angleRad = axis.AngleRad(Vector3.UnitZ);
+
+            var moveToZero = Matrix4x4.CreateTranslation(-box.Center);
+            var rotate = Matrix4x4.CreateFromAxisAngle(cross, angleRad);
+            var moveBoxCenterToStart = Matrix4x4.CreateTranslation(start);
+            var moveCylStartToStart = Matrix4x4.CreateTranslation(axis * box.Center.Length() );
+
+            geo = geo.Transform(moveToZero * rotate * moveBoxCenterToStart * moveCylStartToStart);
+
+            return geo;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Ext;
 using D3DLab.FileFormats.GeoFormats;
+using D3DLab.FileFormats.GeoFormats.STL;
 
 using g3;
 
@@ -46,30 +47,34 @@ namespace D3DLab.Toolkit.Math3D {
             var builder = new SimpleMeshBuilder();
             var stl = new STLReader();
             IOReadResult res;
+            var reader = new ASCIIBinarySTLParser();
             using (var fs = file.OpenRead()) {
-                using (var br = new BinaryReader(fs)) {
-                    res = stl.Read(br, new ReadOptions { }, builder);
-                }
+                reader.Read(fs);
+                //using (var br = new BinaryReader(fs)) {
+                //    res = stl.Read(br, new ReadOptions { }, builder);
+                //}
             }
-            if (res.code == IOCode.Ok && builder.Meshes.Any()) {
-                var mesh = builder.Meshes.Single();
-                return new[] {
-                    new MeshData("STL",
-                    mesh.GetVertexArrayFloat().ToVector3List().AsReadOnly(),
-                    mesh.HasVertexNormals ?
-                        mesh.GetVertexNormalArray().ToVector3List().AsReadOnly()
-                        : new ReadOnlyCollection<Vector3>(new List<Vector3>()),
-                    mesh.GetTriangleArray().AsReadOnly(),
-                    mesh.HasVertexUVs ?
-                        mesh.GetVertexUVArray().ToVector2List().AsReadOnly()
-                        : new ReadOnlyCollection<Vector2>(new List<Vector2>()),
-                    mesh.HasVertexColors ?
-                        mesh.GetVertexColorArray().ToVector3List().AsReadOnly()
-                        :  new ReadOnlyCollection<Vector3>(new List<Vector3>())
-                    )
-                };
-            }
-            throw new Exception("Can't read STL.");
+            return reader.Geometry;
+
+            //    if (res.code == IOCode.Ok && builder.Meshes.Any()) {
+            //        var mesh = builder.Meshes.Single();
+            //        return new[] {
+            //            new MeshData("STL",
+            //            mesh.GetVertexArrayFloat().ToVector3List().AsReadOnly(),
+            //            mesh.HasVertexNormals ?
+            //                mesh.GetVertexNormalArray().ToVector3List().AsReadOnly()
+            //                : new ReadOnlyCollection<Vector3>(new List<Vector3>()),
+            //            mesh.GetTriangleArray().AsReadOnly(),
+            //            mesh.HasVertexUVs ?
+            //                mesh.GetVertexUVArray().ToVector2List().AsReadOnly()
+            //                : new ReadOnlyCollection<Vector2>(new List<Vector2>()),
+            //            mesh.HasVertexColors ?
+            //                mesh.GetVertexColorArray().ToVector3List().AsReadOnly()
+            //                :  new ReadOnlyCollection<Vector3>(new List<Vector3>())
+            //            )
+            //        };
+            //    }
+            //    throw new Exception("Can't read STL.");
         }
 
 
@@ -129,6 +134,43 @@ namespace D3DLab.Toolkit.Math3D {
             //        obj.Write(writer, meshes, WriteOptions.Defaults);
             //    }
             //}
+        }
+
+        public static void WriteObj(FileInfo file, IGeometryData geo) {
+            var meshes = new List<WriteMesh>();
+            var mesh = new SimpleMesh();
+
+            var map = new Dictionary<Vector3, int>();
+            var indeces = new List<int>();
+
+            for (var index = 0; index < geo.Positions.Length; index++) {
+                var v = geo.Positions[index];
+                if (!map.ContainsKey(v)) {
+                    map.Add(v, map.Count);
+                }
+            }
+            for (var index = 0; index < geo.Indices.Length; index++) {
+                var i = geo.Indices[index];
+                var v = geo.Positions[i];
+                indeces.Add(map[v]);
+            }
+
+
+            var points = map.Keys.ToArray();
+            var pcount = points.Length * 3;
+            var pp = new double[pcount];
+            var pindex = 0;
+            for (var index = 0; index < points.Length; index++) {
+                var v = points[index];
+                pp[pindex++] = v.X;
+                pp[pindex++] = v.Y;
+                pp[pindex++] = v.Z;
+            }
+            mesh.Initialize(new VectorArray3d(pp), new VectorArray3i(indeces.ToArray()));
+
+            meshes.Add(new WriteMesh(mesh, $"d3dlab export"));
+
+            StandardMeshWriter.WriteFile(file.FullName, meshes, WriteOptions.Defaults);
         }
     }
 }

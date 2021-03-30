@@ -40,8 +40,8 @@ namespace D3DLab.Toolkit._CommonShaders {
         public GameStructBuffer(Matrix4x4 view, Matrix4x4 proj, Vector3 lookDirection, Vector3 up, Vector3 pos, SurfaceSize size) {
             View = view;
             Projection = proj;
-            CameraLook = new Vector4(lookDirection, 0);// Matrix4x4.Identity ;// lookDirection;
-            CameraUp = new Vector4(up, 0);
+            CameraLook = new Vector4(Vector3.Normalize(lookDirection), 0);// Matrix4x4.Identity ;// lookDirection;
+            CameraUp = new Vector4(Vector3.Normalize(up), 0);
             CameraPosition = new Vector4(pos, 1);
             Viewport = new Vector4(size.Width, size.Height, 1f / size.Width, 1f / size.Height);
         }

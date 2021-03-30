@@ -30,7 +30,7 @@ namespace D3DLab.Toolkit.Math3D {
         public ImmutableArray<Vector4> Colors { get; private set; }
         public bool IsModified { get; set; }
         public bool IsDisposed { get; private set; }
-        public GeometryPrimitiveTopologies Topology { get; }
+        public GeometryPrimitiveTopologies Topology { get; private set; }
 
         public ImmutableGeometryData(IReadOnlyCollection<Vector3> positions, IReadOnlyCollection<int> indices) 
             : this(positions, null, indices, null) {
@@ -72,6 +72,19 @@ namespace D3DLab.Toolkit.Math3D {
             Indices = ImmutableArray<int>.Empty;
             TexCoor = ImmutableArray<Vector2>.Empty;
             Colors = ImmutableArray<Vector4>.Empty;
+        }
+
+        public ImmutableGeometryData Transform(Matrix4x4 matrix) {
+            var p = Positions.ToArray().Transform(ref matrix);
+            var n = Normals.ToArray().Transform(ref matrix);
+
+            return new ImmutableGeometryData(p.AsReadOnly(), n.AsReadOnly(), Indices) {
+                Colors = Colors,
+                TexCoor = TexCoor,
+                Topology = Topology,
+                IsModified = true,
+            };
+
         }
     }
 }
