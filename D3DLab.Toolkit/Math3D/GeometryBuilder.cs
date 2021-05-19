@@ -306,56 +306,50 @@ namespace D3DLab.Toolkit.Math3D {
             var normals = new List<Vector3>();
             var texCoor = new List<Vector2>();
 
-            var index0 = positions.Count;
-            var dt = (float)(2 * Math.PI / thetaDiv);
-            var dp = (float)(Math.PI / phiDiv);
+            var dt = 2f * MathF.PI / thetaDiv;
+            var dp = MathF.PI / phiDiv;
 
             for (var pi = 0; pi <= phiDiv; pi++) {
                 var phi = pi * dp;
 
                 for (var ti = 0; ti <= thetaDiv; ti++) {
-                    // we want to start the mesh on the x axis
+                    // start the mesh on the x axis
                     var theta = ti * dt;
 
                     // Spherical coordinates
                     // http://mathworld.wolfram.com/SphericalCoordinates.html
-                    float x = (float)(Math.Cos(theta) * Math.Sin(phi));
-                    float y = (float)(Math.Sin(theta) * Math.Sin(phi));
-                    float z = (float)(Math.Cos(phi));
-
-                    //var x = (float)(Math.Sin(theta) * Math.Sin(phi));
-                    //var y = (float)(Math.Cos(phi));
-                    //var z = (float)(Math.Cos(theta) * Math.Sin(phi));
+                    float x = MathF.Cos(theta) * MathF.Sin(phi);
+                    float y = MathF.Sin(theta) * MathF.Sin(phi);
+                    float z = MathF.Cos(phi);
 
                     var p = new Vector3(
-                        center.X + ((float)radius * x),
-                        center.Y + ((float)radius * y),
-                        center.Z + ((float)radius * z));
+                        center.X + (radius * x),
+                        center.Y + (radius * y),
+                        center.Z + (radius * z));
                     positions.Add(p);
                     normals.Add(new Vector3(x, y, z));
-                    var uv = new Vector2((float)(theta / (2 * Math.PI)), (float)(phi / Math.PI));
+                    var uv = new Vector2(theta / (2 * MathF.PI), phi / MathF.PI);
                     texCoor.Add(uv);
                 }
             }
 
+
             int rows = phiDiv + 1;
-            int columns = thetaDiv + 1;
-            bool isSpherical = true;
+            int columns = thetaDiv;
             var indices = new List<int>();
 
-            for (int i = 0; i < rows - 1; i++) {
-                for (int j = 0; j < columns - 1; j++) {
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < columns; j++) {
                     int ij = (i * columns) + j;
-                    if (!isSpherical || i > 0) {
-                        indices.Add(index0 + ij);
-                        indices.Add(index0 + ij + 1 + columns);
-                        indices.Add(index0 + ij + 1);
+                    if (i > 0) {//ignore first slice because there only one tringle
+                        indices.Add(ij);
+                        indices.Add(ij + 1 + columns);
+                        indices.Add(ij + 1);
                     }
-
-                    if (!isSpherical || i < rows - 2) {
-                        indices.Add(index0 + ij + 1 + columns);
-                        indices.Add(index0 + ij);
-                        indices.Add(index0 + ij + columns);
+                    if (i < rows - 1) {//ignore last slice because there only one tringle
+                        indices.Add(ij + 1 + columns);
+                        indices.Add(ij);
+                        indices.Add(ij + columns);
                     }
                 }
             }
@@ -408,12 +402,12 @@ namespace D3DLab.Toolkit.Math3D {
                         indx0 = positions.Count;
                         positions.Add(v0, indx0);
                         normals.Add((v0 - cc0).Normalized());
-                    }                    
+                    }
                     if (!positions.TryGetValue(v1, out indx1)) {
                         indx1 = positions.Count;
                         positions.Add(v1, indx1);
                         normals.Add((v1 - cc1).Normalized());
-                    }                    
+                    }
                     if (!positions.TryGetValue(v2, out indx2)) {
                         indx2 = positions.Count;
                         positions.Add(v2, indx2);
@@ -438,12 +432,12 @@ namespace D3DLab.Toolkit.Math3D {
                 indices.Add(positions[prevCircle[0]]);
                 indices.Add(indx3);
                 indices.Add(indx2);
-                
+
 
                 indices.Add(positions[circle[0]]);
                 indices.Add(indx3);
                 indices.Add(positions[prevCircle[0]]);
-                
+
 
                 prevCircle = circle;
             }
@@ -461,7 +455,7 @@ namespace D3DLab.Toolkit.Math3D {
             var moveToZero = Matrix4x4.CreateTranslation(-box.Center);
             var rotate = Matrix4x4.CreateFromAxisAngle(cross, angleRad);
             var moveBoxCenterToStart = Matrix4x4.CreateTranslation(start);
-            var moveCylStartToStart = Matrix4x4.CreateTranslation(axis * box.Center.Length() );
+            var moveCylStartToStart = Matrix4x4.CreateTranslation(axis * box.Center.Length());
 
             geo = geo.Transform(moveToZero * rotate * moveBoxCenterToStart * moveCylStartToStart);
 

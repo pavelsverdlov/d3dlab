@@ -1,7 +1,6 @@
 ﻿using D3DLab.ECS;
 using D3DLab.ECS.Components;
 using D3DLab.ECS.Context;
-using D3DLab.Render;
 using D3DLab.Toolkit;
 using D3DLab.Toolkit.D3Objects;
 using D3DLab.Debugger.D3D;
@@ -13,7 +12,6 @@ using WPFLab.MVVM;
 using D3DLab.FileFormats.GeoFormats;
 using D3DLab.Toolkit.Host;
 using D3DLab.Toolkit.Components;
-using D3DLab.Toolkit.Math3D;
 using System.Windows;
 
 namespace D3DLab.Debugger.Presentation.TDI.Scene {

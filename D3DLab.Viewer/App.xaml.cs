@@ -4,6 +4,7 @@ using D3DLab.Viewer.Infrastructure;
 using D3DLab.Viewer.Presentation;
 using D3DLab.Viewer.Presentation.FileDetails;
 using D3DLab.Viewer.Presentation.OpenFiles;
+using D3DLab.Viewer.Presentation.Plugin;
 using D3DLab.Viewer.Presentation.TopPanel.SaveAll;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,15 +37,17 @@ namespace D3DLab.Viewer {
                 .Register<MainWindowViewModel>()
                 .Register<IFileLoader>(x => x.GetService<MainWindowViewModel>())
                 .Register<ISaveLoadedObject>(x => x.GetService<MainWindowViewModel>())
+                .Register<IPluginHandler>(x => x.GetService<MainWindowViewModel>())
                 //               
-                .RegisterMvvm()
+                //.RegisterMvvm()
 
                 //dialogs 
                 .RegisterDebugger()
                 .RegisterTransient<OpenFilesViewModel>().RegisterTransientView<OpenFilesWindow>()
                 .RegisterTransient<ObjDetailsViewModel>().RegisterTransientView<ObjDetailsWindow>()
                 .RegisterTransient<SaveAllViewModel>().RegisterTransientView<SaveAllWindow>()
-                .Register<DialogManager>()
+                .RegisterTransient<PluginsViewModel>().RegisterTransientView<PluginsWindow>()
+                .Register<D3DLab.Viewer.Presentation.DialogManager>()
                 ;
         }
 
@@ -58,7 +61,7 @@ namespace D3DLab.Viewer {
             }
         }
 
-        protected override void AppExitp(ExitEventArgs e, IDependencyResolverService resolver) {
+        protected override void AppExit(ExitEventArgs e, IDependencyResolverService resolver) {
             resolver.RemoveUnhandledExceptionHandler();
         }
     }

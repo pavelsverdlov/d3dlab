@@ -38,10 +38,17 @@ namespace D3DLab.Toolkit.D3Objects {
         }
 
         public static VisualSphereObject Create(IContextState context, ElementTag elet,  Data data) {
+
+            var geo = GeometryBuilder.BuildSphere(data.Center, data.Radius);
+
+            var geoId = context.GetGeometryPool()
+               .AddGeometry(geo);
+
             var tag = context.GetEntityManager()
                .CreateEntity(elet)
                .AddComponent(SpherePointComponent.Create(data.Center, data.Radius))
                .AddComponent(MaterialColorComponent.Create(data.Color))
+               .AddComponent(GeometryBoundsComponent.Create(AxisAlignedBox.FromSphere(data.Center, data.Radius)))
                .AddComponent(RenderableComponent.AsPoints())
                .AddComponent(TransformComponent.Identity())
                .Tag;

@@ -172,5 +172,6 @@ namespace D3DLab.Toolkit.Math3D {
 
             StandardMeshWriter.WriteFile(file.FullName, meshes, WriteOptions.Defaults);
         }
+
     }
 }

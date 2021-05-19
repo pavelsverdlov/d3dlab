@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>C:\Storage\projects\sv\_\d3dlab\D3DLab.Viewer\bin\Debug\netcoreapp3.1\plugins\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\wpflab\WPFLab\WPFLab\WPFLab.csproj" />
+    <ProjectReference Include="..\..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\..\D3DLab.Plugin\D3DLab.Plugin.csproj" />
+    <ProjectReference Include="..\..\D3DLab.SDX.Engine\D3DLab.SDX.Engine.csproj" />
+    <ProjectReference Include="..\..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
+  </ItemGroup>
+
+</Project>

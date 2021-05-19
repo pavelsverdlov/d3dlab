@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath></OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\wpflab\WPFLab\WPFLab\WPFLab.csproj" />
+    <ProjectReference Include="..\..\D3DLab.ECS\D3DLab.ECS.csproj" />
+    <ProjectReference Include="..\..\D3DLab.FileFormats\D3DLab.FileFormats.csproj" />
+    <ProjectReference Include="..\..\D3DLab.Plugin\D3DLab.Plugin.csproj" />
+    <ProjectReference Include="..\..\D3DLab.Toolkit\D3DLab.Toolkit.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /d /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)D3DLab.Viewer\plugins\&quot;" />
+  </Target>
+
+</Project>

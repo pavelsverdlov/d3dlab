@@ -87,6 +87,16 @@ namespace D3DLab.ECS.Ext {
                 && Math.Round(a.Y, round) == Math.Round(b.Y, round)
                 && Math.Round(a.Z, round) == Math.Round(b.Z, round);
         }
+
+
+        public static Vector3 GetCenter(this IReadOnlyList<Vector3> points) {
+            var pathcenter = Vector3.Zero;
+            for (var i = 0; i < points.Count; i++) {
+                var vector3 = points[i];
+                pathcenter = Vector3.Add(vector3, pathcenter);
+            }
+            return pathcenter / points.Count;
+        }
     }
 
     public static class Vector3CollectionEx {
@@ -107,6 +117,7 @@ namespace D3DLab.ECS.Ext {
             }
             return result;
         }
+
         unsafe public static Vector3[] CalculateNormals(this Vector3[] positions, int[] indices) {
             var aNormals = new Vector3[positions.Length];
             var aPos = positions.ToArray();

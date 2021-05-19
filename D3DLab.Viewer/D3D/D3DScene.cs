@@ -3,7 +3,6 @@ using D3DLab.ECS;
 using D3DLab.ECS.Input;
 using D3DLab.ECS.Context;
 using D3DLab.ECS.Systems;
-using D3DLab.Toolkit.Techniques.OrderIndependentTransparency;
 using D3DLab.Toolkit.Systems;
 using D3DLab.Toolkit.Render;
 using D3DLab.Toolkit.Techniques.Lines;
@@ -12,19 +11,12 @@ using D3DLab.Toolkit.Host;
 using System.Windows;
 using D3DLab.Toolkit.Input.Publishers;
 using D3DLab.Toolkit.D3Objects;
-using D3DLab.SDX.Engine.Components;
 using D3DLab.Toolkit.Techniques.TriangleColored;
 using System.Numerics;
-using D3DLab.Render;
-using D3DLab.FileFormats.GeoFormats;
-using System.IO;
-using D3DLab.Toolkit.Components;
-using System.Linq;
-using D3DLab.ECS.Components;
 using D3DLab.Toolkit;
-using D3DLab.Toolkit.Techniques;
-using System.Collections.Generic;
 using D3DLab.Viewer.D3D.Systems;
+using D3DLab.Toolkit.Techniques.TriangleTextured;
+using D3DLab.Toolkit.Techniques.SpherePoint;
 
 namespace D3DLab.Viewer.D3D {
     class WFScene : D3DWFScene {
@@ -53,8 +45,8 @@ namespace D3DLab.Viewer.D3D {
             }
         }
 
-        CameraObject cameraObject;
-        BaseInputPublisher publisher;
+        protected CameraObject cameraObject;
+        protected BaseInputPublisher publisher;
 
         public event Action Loaded;
         public CoordinateSystemLinesGameObject CoordinateSystem { get; private set; }
@@ -89,18 +81,16 @@ namespace D3DLab.Viewer.D3D {
             smanager
                 .CreateSystem<RenderSystem>()
                 .Init(engine.Graphics)
-                // .CreateNested<SkyGradientColoringRenderTechnique>()
-                //  .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
-                //   .CreateNested<TerrainRenderTechnique>()//
-
+            // .CreateNested<SkyGradientColoringRenderTechnique>()
+            //  .CreateNested<SkyPlaneWithParallaxRenderTechnique>()
+            //   .CreateNested<TerrainRenderTechnique>()//
                 //.CreateNested<Toolkit.D3D.CameraViews.CameraViewsRenderTechnique<CustomRenderProperties>>()
                 //.CreateNested<OITTriangleColoredVertexRenderTechnique<ToolkitRenderProperties>>()
                 .CreateNested<TriangleColoredVertexRenderTechnique<ToolkitRenderProperties>>()
-                //.CreateNested<TriangleTexturedVertexRenderTechnique<CustomRenderProperties>>()
+                .CreateNested<TriangleTexturedVertexRenderTechnique<ToolkitRenderProperties>>()
                 .CreateNested<LineVertexRenderTechnique<ToolkitRenderProperties>>()
                 //.CreateNested<CudaTestTechniques<ToolkitRenderProperties>>()
-                //.CreateNested<LineVertexRenderTechnique>()
-                //.CreateNested<SpherePointRenderStrategy>()
+                .CreateNested<SpherePointRenderTechnique<ToolkitRenderProperties>>()
                 //.CreateNested<AminRenderTechniqueSystem>()
                 ;
 
@@ -116,6 +106,13 @@ namespace D3DLab.Viewer.D3D {
             CoordinateSystem = CoordinateSystemLinesGameObject.Create(context, false);
 
             Loaded?.Invoke();
+
+
+            //VisualSphereObject.SphereGeo(Context, ElementTag.New($"Point"), new VisualSphereObject.Data {
+            //    Center = new Vector3(10, 20, 10),
+            //    Color = V4Colors.Yellow,
+            //    Radius = 10
+            //});
         }
 
         static Vector4 ToVector4(System.Windows.Media.Color color) {
@@ -133,6 +130,7 @@ namespace D3DLab.Viewer.D3D {
             publisher?.Dispose();
         }
 
-        
+        protected void InvokeLoaded() => Loaded?.Invoke();
+
     }
 }

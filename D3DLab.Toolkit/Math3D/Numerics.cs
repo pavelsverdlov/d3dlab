@@ -182,6 +182,14 @@ namespace System.Numerics {
             return new AxisAlignedBox(min, max);
         }
 
+        public static AxisAlignedBox FromSphere(Vector3 center, float radius) {
+
+            Vector3 min = center + Vector3.UnitZ * -radius;
+            Vector3 max = center + Vector3.UnitZ * radius;
+
+            return new AxisAlignedBox(min, max);
+        }
+
         public AlignedBoxCorners GetCornersBox() {
             AlignedBoxCorners corners;
             corners.NearBottomLeft = new Vector3(Minimum.X, Minimum.Y, Maximum.Z);

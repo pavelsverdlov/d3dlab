@@ -13,6 +13,20 @@ namespace D3DLab.ECS {
         TriangleList,
         TriangleFan
     }
+
+    public readonly struct HitResultLocal {
+        public static HitResultLocal Empty() => new HitResultLocal(Vector3.Zero, -1, true);
+        public readonly Vector3 Point;
+        public readonly float Distance;
+        public readonly bool IsHitted;
+
+        public HitResultLocal(Vector3 point, float distance, bool isHitted) {
+            Point = point;
+            Distance = distance;
+            IsHitted = isHitted;
+        }
+    }
+
     /// <summary>
     /// ImmutableArray is immutable and thus inherently thread safe.
     /// </summary>
@@ -25,6 +39,8 @@ namespace D3DLab.ECS {
         GeometryPrimitiveTopologies Topology { get; } 
         bool IsModified { get; set; }
         bool IsDisposed { get; }
+
+        IEnumerable<HitResultLocal> HitByLocal(Ray rayLocal);
     }
 
     public interface IGeometryMemoryPool : IDisposable {

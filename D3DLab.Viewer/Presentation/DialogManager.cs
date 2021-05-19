@@ -1,5 +1,6 @@
 ﻿using D3DLab.Viewer.Presentation.FileDetails;
 using D3DLab.Viewer.Presentation.OpenFiles;
+using D3DLab.Viewer.Presentation.Plugin;
 using D3DLab.Viewer.Presentation.TopPanel.SaveAll;
 using System;
 using System.Collections.Generic;
@@ -55,12 +56,14 @@ namespace D3DLab.Viewer.Presentation {
                 () => service.ResolveView<OpenFilesWindow, OpenFilesViewModel>());
             SaveAll = new ProxyDialog<SaveAllWindow, SaveAllViewModel>(
                () => service.ResolveView<SaveAllWindow, SaveAllViewModel>());
+            Plugins = new ProxyDialog<PluginsWindow, PluginsViewModel>(
+                () => service.ResolveView<PluginsWindow, PluginsViewModel>());
         }
 
         public ProxyDialog<ObjDetailsWindow, ObjDetailsViewModel> ObjDetails { get; }
         public ProxyDialog<OpenFilesWindow, OpenFilesViewModel>  OpenFiles { get; }
         public ProxyDialog<SaveAllWindow, SaveAllViewModel>  SaveAll { get; }
 
-       
+        public ProxyDialog<PluginsWindow, PluginsViewModel> Plugins { get; }
     }
 }

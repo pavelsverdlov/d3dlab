@@ -18,7 +18,7 @@ namespace D3DLab.SDX.Engine {
     public class GraphicsDeviceException : Exception {
         GraphicsDeviceException(string mess) : base(mess) { }
         public static Exception ResourseSlotAlreadyUsed(int slot) { return new GraphicsDeviceException($"Resourse Slot '{slot}' is already used."); }
-        public static Exception ShaderAddedTwice() { return new GraphicsDeviceException($"Shader war added twise to DeviceContext."); }
+        public static Exception ShaderAddedTwice() { return new GraphicsDeviceException($"Shader was added twise to DeviceContext."); }
 
         public static Exception NotDynamicBuffer =>
             new GraphicsDeviceException($"Can't be updated. Buffer must be CpuAccessFlags.Write & ResourceUsage.Dynamic.");
@@ -490,6 +490,7 @@ namespace D3DLab.SDX.Engine {
             resourseHash.RegisterShader(ImmediateContext.GeometryShader.GetHashCode());
         }
         public void ClearAllShader() {
+            resourseHash.Clear();
             ImmediateContext.VertexShader.Set(null);
             ImmediateContext.GeometryShader.Set(null);
             ImmediateContext.ComputeShader.Set(null);

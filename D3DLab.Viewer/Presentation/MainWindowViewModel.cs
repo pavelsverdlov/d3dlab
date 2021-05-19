@@ -1,6 +1,7 @@
 ﻿using D3DLab.Debugger;
 using D3DLab.ECS;
 using D3DLab.ECS.Context;
+using D3DLab.Plugin;
 using D3DLab.Toolkit;
 using D3DLab.Toolkit.Host;
 using D3DLab.Viewer.D3D;
@@ -10,6 +11,7 @@ using D3DLab.Viewer.Presentation.Componets;
 using D3DLab.Viewer.Presentation.FileDetails;
 using D3DLab.Viewer.Presentation.LoadedPanel;
 using D3DLab.Viewer.Presentation.OpenFiles;
+using D3DLab.Viewer.Presentation.Plugin;
 using D3DLab.Viewer.Presentation.TopPanel.SaveAll;
 
 using SharpDX.DXGI;
@@ -22,6 +24,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Data;
@@ -83,7 +86,7 @@ namespace D3DLab.Viewer.Presentation {
 
     class MainWindowViewModel : BaseNotify, IDropFiles,
         IFileLoader, ISelectedObjectTransformation, ISaveLoadedObject,
-        IEntityRenderSubscriber {
+        IEntityRenderSubscriber, IPluginHandler {
 
 
 
@@ -110,12 +113,14 @@ namespace D3DLab.Viewer.Presentation {
         public ICommand SaveAllCommand { get; }
         public ICommand CameraFocusToAllCommand { get; }
         public ICommand ShowWorldCoordinateSystemCommand { get; }
+        public ICommand ManipulatorToolEnabledCommand { get; }
 
-        public ICollectionView LoadedObjects { get; }
+        public ObservableCollection<LoadedObjectItem> LoadedObjects => loadedObjects;
 
-        public IActionModule Module { get; }
+        public IActionModule? Module { get => module; set => Update(ref module, value); }
         public GraphicsInfo GraphicsInfo { get; }
         public AppOutput Output { get; }
+        public string WinTitle { get; }
 
         readonly ObservableCollection<LoadedObjectItem> loadedObjects;
         readonly ContextStateProcessor context;
@@ -125,13 +130,26 @@ namespace D3DLab.Viewer.Presentation {
         readonly AppSettings settings;
         readonly DialogManager dialogs;
         readonly AppLogger logger;
-        WFScene d3dScene;
-        
+        readonly PluginProxy plugins;
+
+        IActionModule? module;
+        WFScene? d3dScene;
+
 
         public MainWindowViewModel(MainWindow mainWin, DebuggerPopup debugger,
             AppSettings settings, DialogManager dialogs, AppLogger logger) {
+
+            this.mainWin = mainWin;
+            this.debugger = debugger;
+            this.settings = settings;
+            this.dialogs = dialogs;
+            this.logger = logger;
+
+            var ver = FileVersionInfo.GetVersionInfo(this.GetType().Assembly.Location).FileVersion;
+            WinTitle = $"D3DLab Viewer {ver}";
             GraphicsInfo = new GraphicsInfo();
             Output = new AppOutput();
+            plugins = new PluginProxy(Path.Combine(AppContext.BaseDirectory, "plugins"));
 
             logger.Subscrube(Output);
 
@@ -145,7 +163,7 @@ namespace D3DLab.Viewer.Presentation {
             WireframeSelectedObjectCommand = new WpfActionCommand<LoadedObjectItem>(OnWireframeSelectedObject);
             SelectedObjectSettingsOpenedCommand = new WpfActionCommand<LoadedObjectItem>(OnSelectedObjectSettingsOpened);
             SelectedObjectSettingsClosedCommand = new WpfActionCommand<LoadedObjectItem>(OnSelectedObjectSettingsClosed);
-            
+
             LockSelectedObjectCommand = null;
 
             OpenFilesCommand = new WpfActionCommand(OnOpenFilesCommand);
@@ -155,9 +173,9 @@ namespace D3DLab.Viewer.Presentation {
             SaveAllCommand = new WpfActionCommand(OnSaveAll);
             CameraFocusToAllCommand = new WpfActionCommand(OnCameraFocusToAll);
             ShowWorldCoordinateSystemCommand = new WpfActionCommand<bool>(OnShowWorldCoordinateSystem);
+            ManipulatorToolEnabledCommand = new WpfActionCommand<bool>(OnManipulatorToolEnabled);
 
             loadedObjects = new ObservableCollection<LoadedObjectItem>();
-            LoadedObjects = CollectionViewSource.GetDefaultView(loadedObjects);
 
             notificator = new EngineNotificator();
 
@@ -170,19 +188,17 @@ namespace D3DLab.Viewer.Presentation {
             context.SwitchTo(0);
 
             debugger.SetContext(context, notificator);
-            this.mainWin = mainWin;
-            this.debugger = debugger;
-            this.settings = settings;
-            this.dialogs = dialogs;
-            this.logger = logger;
 
-            Module = new Modules.Transform.TransformModuleViewModel(this);
+            plugins.Load();
         }
 
 
 
         void OnHostLoaded(FormsHost host) {
             d3dScene = new WFScene(host, host.Overlay, context, notificator);
+
+           // d3dScene = new Tests.StensilTestScene(host, host.Overlay, context, notificator);
+
             d3dScene.Loaded += D3dScene_Loaded;
         }
 
@@ -191,6 +207,10 @@ namespace D3DLab.Viewer.Presentation {
         }
 
         public override void OnUnloaded() {
+            foreach (var plugin in plugins.Plugins) {
+                plugin.Plugin.CloseAsync().Wait();
+            }
+
             debugger.Dispose();
             d3dScene.Dispose();
 
@@ -256,7 +276,10 @@ namespace D3DLab.Viewer.Presentation {
 
 
         void OnOpenDebuggerWindow() {
-            debugger.Show();
+            //debugger.Show();
+            dialogs.Plugins.Open(vm => {
+                vm.SetPluginProxy(plugins);
+            });
         }
         void OnOpenFilesCommand() {
             dialogs.OpenFiles.Open();
@@ -272,6 +295,13 @@ namespace D3DLab.Viewer.Presentation {
                 d3dScene.CoordinateSystem.Show(context);
             } else {
                 d3dScene.CoordinateSystem.Hide(context);
+            }
+        }
+        void OnManipulatorToolEnabled(bool _checked) {
+            if (_checked) {
+                Module = new Modules.Transform.TransformModuleViewModel(this);
+            } else {
+                Module = null;
             }
         }
 
@@ -339,7 +369,13 @@ namespace D3DLab.Viewer.Presentation {
                 i.Visual.HideWorldAxis(context, WorldAxisTypes.All);
             }
         }
-
+        Vector3 ISelectedObjectTransformation.GetCenter() {
+            var any = loadedObjects.FirstOrDefault(x => x.IsVisible);
+            return any == null ? Vector3.Zero : any.Visual.GetAllBounds(context).Center;
+        }
+        void ISelectedObjectTransformation.Finish() {
+            Module = null;
+        }
 
         void IEntityRenderSubscriber.Render(IEnumerable<GraphicEntity> entities) {
             var state = d3dScene.GetPerfomanceState();
@@ -363,6 +399,21 @@ namespace D3DLab.Viewer.Presentation {
                     exporter.Export(item.Visual, new FileInfo(path), d3dScene);
                 }
             }
+        }
+
+        void IPluginHandler.Handle(LoadedPlugin pl) {
+           var objs = new List<IPluginLoadedObjectDetails>();
+
+            foreach(var o in loadedObjects) {
+                objs.Add(new Modules.Plugin.PluginLoadedObjectDetails(
+                    o.File, 
+                    o.Visual.Tags));
+            }
+
+            pl.Plugin
+                .ExecuteAsync(new Modules.Plugin.PluginContext(new Modules.Plugin.PluginScene(context), mainWin, pl.File.Directory, objs));
+
+            dialogs.Plugins.Close();
         }
     }
 }

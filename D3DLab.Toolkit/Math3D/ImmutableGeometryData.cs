@@ -86,5 +86,9 @@ namespace D3DLab.Toolkit.Math3D {
             };
 
         }
+
+        public IEnumerable<HitResultLocal> HitByLocal(Ray rayLocal) {
+            throw new NotImplementedException();
+        }
     }
 }
