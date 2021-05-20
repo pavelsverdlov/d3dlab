@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	
+  
+<!--
+https://www.youtube.com/watch?v=6Yf-eDsRrnM
+-->
+  <Product Id="*" 
+           Name="D3DLab Viewer x64 1.0.1.0" 
+           Language="1033" 
+           Version="1.0.1.0" 
+           Manufacturer="D3DLab Com." 
+           UpgradeCode="b86fd7aa-a6cf-4f1a-97ea-fa007708bb0e">
+    
+		<Package 
+      InstallerVersion="200" 
+			Compressed="yes" 
+      InstallScope="perMachine" 
+      Platform="x64"
+      Manufacturer="D3DLab Com."
+      Description="D3DLab Company"
+      Comments="Application to view 3D file formats"
+      />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of D3DLab Viewer is already installed." />
+    
+		<MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="icon.ico" SourceFile="$(var.D3DLab.Viewer.ProjectDir)\lab.ico"/>
+
+    <Property Id="ARPPRODUCTICON">lab.ico</Property>
+
+    <UIRef Id="WixUI_Minimal"/>
+
+    <!--<WixVariable Id="WixUILicenseRtf" Value="$(var.D3DLab.Viewer.ProjectDir)\license.rtf"/>-->
+      
+		<Feature Id="ProductFeature" Title="D3DLab Viewer" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+			<ComponentGroupRef Id="PublishedComponents" />      
+    </Feature>
+    
+	</Product>
+
+	
+
+</Wix>

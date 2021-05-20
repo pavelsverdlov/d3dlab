@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="cmpFD65F52CD5EC0B46A750F8EEFC3D4422" Guid="{A6CF9F21-80C3-4FE7-AE3C-30940810B0EE}">
+                <File Id="fil1F7E777B326B02F60B86F747002F8605" KeyPath="yes" Source="$(var.BasePath)\AutoMapper.dll" />
+            </Component>
+            <Component Id="cmp250D0F083F62C4186C388B0EEA591A84" Guid="{57E6CF5B-B87D-4F58-B357-63D97FD3F717}">
+                <File Id="fil14FD62B1DCAE0A6AD638FE7363D2ED32" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Debugger.dll" />
+            </Component>
+            <Component Id="cmpDA85281F2A639D759A02D33803FD4341" Guid="{F84BF474-350B-4C90-8588-331EE6070E5D}">
+                <File Id="fil90CFC7210E70100CA64E87C2A35628C1" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Debugger.pdb" />
+            </Component>
+            <Component Id="cmp93277F1125275885CC7694FC325227C3" Guid="{D24A9BBB-F2BA-4E23-B651-7CCBF4563610}">
+                <File Id="fil861B0167C04C422E49DED45CC51B59BD" KeyPath="yes" Source="$(var.BasePath)\D3DLab.ECS.dll" />
+            </Component>
+            <Component Id="cmp69DD6E20ED166A877F1E24E40C27382C" Guid="{7DF4C9EE-6288-4B3E-98B4-CD6C1BE8A529}">
+                <File Id="fil852D27D12785A37F91A23B39BA733758" KeyPath="yes" Source="$(var.BasePath)\D3DLab.ECS.pdb" />
+            </Component>
+            <Component Id="cmpAFF09CED9B78CC7DB00ADFD0D43AE7F8" Guid="{9AF9A73E-87AF-4AC4-B836-2C6115F35256}">
+                <File Id="fil790070EA9A58BF8401F4AD3C1D370688" KeyPath="yes" Source="$(var.BasePath)\D3DLab.FileFormats.dll" />
+            </Component>
+            <Component Id="cmpCF19F29EFFA366FC98BD43C98318E407" Guid="{26E93B82-1B79-42D9-8E08-99F3753470A6}">
+                <File Id="filFA2197B43D8E1E8C0E968DC04B75D229" KeyPath="yes" Source="$(var.BasePath)\D3DLab.FileFormats.pdb" />
+            </Component>
+            <Component Id="cmpAA3C0C67C0CA976CC84EDA640E10F02F" Guid="{FF51350A-0BF2-4F0E-9E3A-782FF7F61A6D}">
+                <File Id="filB5D923566617F11FF62B242A11AAD942" KeyPath="yes" Source="$(var.BasePath)\D3DLab.SDX.Engine.dll" />
+            </Component>
+            <Component Id="cmpD4D08671BD7A677608FE1B716FDE3FC5" Guid="{EC5A15BC-9DF7-4E63-AD57-3BD73219A4CE}">
+                <File Id="filA194A320153DD7990F87E62017076D13" KeyPath="yes" Source="$(var.BasePath)\D3DLab.SDX.Engine.pdb" />
+            </Component>
+            <Component Id="cmpABE3BB9F4EABE2A6CD6AB97542721A5B" Guid="{2069532E-5047-4AAF-AD93-911D4B480230}">
+                <File Id="fil772ACD223ECFD759C1D974A1FFFAC00C" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Toolkit.dll" />
+            </Component>
+            <Component Id="cmp6893C23CBAFEF2811C5D5D70F8261AAA" Guid="{29139FC5-E079-4D2D-A125-BDC4A2D76619}">
+                <File Id="fil4F290D66C069AEFDF5942A8A07340F10" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Toolkit.pdb" />
+            </Component>
+            <Component Id="cmpB482341DD86CAE8733557FAA4A7BD1C9" Guid="{C4449946-E40F-448E-94AE-DC6DC4432547}">
+                <File Id="fil3340B351765097E4E1803549E93A5AFD" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Viewer.deps.json" />
+            </Component>
+            <Component Id="cmp6FAF08CD0D5AF8A010C553236E59F5E5" Guid="{DBDA10CD-AF8D-4741-BD61-22E4A6D4D0BD}">
+                <File Id="filD363D724ED24433AB47E2837BD4708A3" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Viewer.dll" />
+            </Component>
+            <Component Id="cmp0BE8F5167494D808D8C997BF02320B54" Guid="{E131AF36-8A80-40D5-9833-0B4F5E998D71}">
+                <File Id="filF0373BD0D02E1586A94263234797381C" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Viewer.exe" />
+            </Component>
+            <Component Id="cmpE9CF8BF11ACB8686793439B4609E3139" Guid="{7871002A-6AED-43F1-806D-D81F2DB3500C}">
+                <File Id="filE84AD4C441BD37C975A4EC4D6FD814D0" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Viewer.pdb" />
+            </Component>
+            <Component Id="cmpB035F6107AE9022BFE14EBD872D94D2F" Guid="{B895B841-D50C-4ED8-9EA4-3A823F466B33}">
+                <File Id="fil3E2FC21D75BFD6C7D011150622333020" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Viewer.runtimeconfig.dev.json" />
+            </Component>
+            <Component Id="cmp8AB5DFE13C4CABD0DA489C96053CA6D1" Guid="{C6F20CEB-362F-4B67-A614-DA0B92589237}">
+                <File Id="fil2D3B93398453CA92B4126487D8631FBB" KeyPath="yes" Source="$(var.BasePath)\D3DLab.Viewer.runtimeconfig.json" />
+            </Component>
+            <Component Id="cmp461E1E7FBE4E607F33327C277F03BE7A" Guid="{B588A0A6-E0A9-4DFC-A90A-DBEB0ACFF8F0}">
+                <File Id="fil452E4A22939EC280C632FEA277D3B3A2" KeyPath="yes" Source="$(var.BasePath)\FluentValidation.dll" />
+            </Component>
+            <Component Id="cmpDC32E589DBDA6EBD644262DC2E8F322B" Guid="{00589864-3120-4B33-8E23-04BD6567F812}">
+                <File Id="filDF9D87E09018A0BC4E9D81A40FC95AA8" KeyPath="yes" Source="$(var.BasePath)\geometry3Sharp.dll" />
+            </Component>
+            <Component Id="cmp8D1543ABCB80F210097DE6C692F8E7D3" Guid="{D5D4B474-A7B6-4CA4-9A73-FC2F31905839}">
+                <File Id="fil5F3739B9F27C9025F95EE63EBCEC5060" KeyPath="yes" Source="$(var.BasePath)\ICSharpCode.AvalonEdit.dll" />
+            </Component>
+            <Component Id="cmp0F80B5ADFFDCA34A65D613C97619080E" Guid="{53C34C79-E5C0-4CC1-8B6B-D3E076DF82E8}">
+                <File Id="fil49E17CBBCDE83B7BB910BC15C0C2CC2C" KeyPath="yes" Source="$(var.BasePath)\lab.ico" />
+            </Component>
+            <Component Id="cmp198468A4AE980CD6955CB6EB86083726" Guid="{23FBC381-7A26-41BE-BB0B-3A4BF829162C}">
+                <File Id="fil02E4E4D119BFC4831CEA5A71F1288443" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+            </Component>
+            <Component Id="cmp493E9BC44885B6BC5C57BDB1302C40D9" Guid="{67542A96-AAA6-4A3E-872C-82172DA6CD73}">
+                <File Id="filA40291A4FBD4719B6995DEB783A39A65" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Extensions.DependencyInjection.dll" />
+            </Component>
+            <Component Id="cmp8AC833CFB7DC6722697152FE46DA157A" Guid="{9F4CB4C1-7721-4307-A166-61E8AC69A9F7}">
+                <File Id="filD3CAD095889A5DE7EAAE25C73BC9910A" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Xaml.Behaviors.dll" />
+            </Component>
+            <Component Id="cmpB7F1EBE42DCB1051B92D42C1EF84E2F9" Guid="{936CA8AC-D1E4-46B5-BEDB-02871485B273}">
+                <File Id="filA09ADF42C6343B9B7C7780D266455CC4" KeyPath="yes" Source="$(var.BasePath)\NLog.dll" />
+            </Component>
+            <Component Id="cmp8F84CF63D61C592EEF49784DE42DFC0A" Guid="{C73AC689-B29E-4527-8917-674557F1F0BB}">
+                <File Id="fil5F70A6616299A09189B00977B8599F81" KeyPath="yes" Source="$(var.BasePath)\SharpDX.D3DCompiler.dll" />
+            </Component>
+            <Component Id="cmpF79562B8D935E93E73AB94C78A5F52AD" Guid="{183871B9-C9EE-4E13-B2D9-E190898053FF}">
+                <File Id="filD288EFBC69A5E275EAB4F50C7BB109A3" KeyPath="yes" Source="$(var.BasePath)\SharpDX.Direct2D1.dll" />
+            </Component>
+            <Component Id="cmp0320A630A0EB3081EE50B8E83E5E78CB" Guid="{41C76DB7-207E-4D44-8955-3B7C42FA2CF5}">
+                <File Id="filA5881046D6EA465DB34B8DBABB43FE3D" KeyPath="yes" Source="$(var.BasePath)\SharpDX.Direct3D11.dll" />
+            </Component>
+            <Component Id="cmp5628FD27631E522C3D67C498667BC8A5" Guid="{3CBB6C5B-B3A1-44FF-8DBA-3218E2E1F909}">
+                <File Id="fil9AF927B04C176B9DDB9785FEBFB421F9" KeyPath="yes" Source="$(var.BasePath)\SharpDX.Direct3D9.dll" />
+            </Component>
+            <Component Id="cmp9607F152871CB9C2659ED14722E13E44" Guid="{43B0076A-D524-45C7-9E49-391B9F37D8F6}">
+                <File Id="filF5517F7734A13514A2CDF5F069816EE5" KeyPath="yes" Source="$(var.BasePath)\SharpDX.dll" />
+            </Component>
+            <Component Id="cmpC12E0E231E2E8E7FE864B56E6323063E" Guid="{46B4467F-CEBC-4405-A924-4940F68BD619}">
+                <File Id="filEA19CC1C8ED8FB958DF7853CFD91383F" KeyPath="yes" Source="$(var.BasePath)\SharpDX.DXGI.dll" />
+            </Component>
+            <Component Id="cmp413E3055139D32C390E1E38470BDF8EE" Guid="{3DAB59A1-2503-4832-9EB4-42B3026ACCF8}">
+                <File Id="fil05B16AA81B26C3F3168B4307DD3F0F3E" KeyPath="yes" Source="$(var.BasePath)\SharpDX.Mathematics.dll" />
+            </Component>
+            <Component Id="cmp04AF36E452EC81D2CA5C47A17B5D9A66" Guid="{933BAD49-C051-4E2D-B434-C19BF0BBAD48}">
+                <File Id="filA021A26433653B1A0D87B57928A0F017" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.Licensing.dll" />
+            </Component>
+            <Component Id="cmpD5B761AFC13B68AF1E450B6A370EB05D" Guid="{3014B42D-03C6-4E5F-9FD6-D7FEC1B27D2D}">
+                <File Id="fil4D4EA1F754D6B919DFB0733AFA6E9F15" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.PropertyGrid.WPF.dll" />
+            </Component>
+            <Component Id="cmp1411041EBAA0E34F4176D61F2AB23E20" Guid="{73F393D4-8184-488A-8665-69B9E4F0E3AA}">
+                <File Id="fil4FE64F7163EDBEA8012EC9B9887EECE4" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.SfInput.WPF.dll" />
+            </Component>
+            <Component Id="cmp6E07F81E2DCCCD1DEF94CB917FFA66A5" Guid="{D5EC50BA-5EE0-4EEB-8F02-5982D0BB95E9}">
+                <File Id="fil3131567AA138F558B7690F3BA85C5FA1" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.SfShared.WPF.dll" />
+            </Component>
+            <Component Id="cmpBFEF22949B0D1DA441AB6D293E6B4008" Guid="{829ACD80-4D33-464D-BCB0-3229740870F4}">
+                <File Id="filE138E4E8CF79365FC744EF66C2E8942B" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.SfSkinManager.WPF.dll" />
+            </Component>
+            <Component Id="cmp2B62EB54A81873E947A60724B27A4A20" Guid="{CD9A68CB-89D9-4E79-8E19-444F991C0478}">
+                <File Id="filA7A1BE632E8B8E30AA8B67174EF98465" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.Shared.WPF.dll" />
+            </Component>
+            <Component Id="cmpCA45C8F39AC250C23FC8E97F29FA1DCC" Guid="{E679030E-F671-419B-8BF7-8262BFA1B10C}">
+                <File Id="fil16C5C8496E21526532F2D3C9148BA8CA" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.Themes.Office2013DarkGray.WPF.dll" />
+            </Component>
+            <Component Id="cmpBD059910729C8B6100D497F7866C7EC2" Guid="{CFDBAB03-B916-4666-88DB-F411FB317BC1}">
+                <File Id="fil8BBF8E239815215B36CBEEE8470445C7" KeyPath="yes" Source="$(var.BasePath)\Syncfusion.Tools.WPF.dll" />
+            </Component>
+            <Component Id="cmp969F6EDF2594F3809D7A716387BF8894" Guid="{20A72F51-9BB4-43D1-8E95-28C67BFBA807}">
+                <File Id="fil60E3CB228DB7CBE488269EDFC1321CC6" KeyPath="yes" Source="$(var.BasePath)\System.Collections.Immutable.dll" />
+            </Component>
+            <Component Id="cmp68C8720058CC2E381CE829343FCDBA38" Guid="{5E2187D5-D599-46EC-A9EA-A243790F83A3}">
+                <File Id="filB75B3AC93E893D104DF485DB2B2A3336" KeyPath="yes" Source="$(var.BasePath)\WPFLab.dll" />
+            </Component>
+            <Component Id="cmpC2B172EAD6EF605134198E79A660BE12" Guid="{5A26BF88-62B0-4A37-A8E8-699D2091F081}">
+                <File Id="fil1E054BB8546BBDAB85D5910C7AEEE397" KeyPath="yes" Source="$(var.BasePath)\WPFLab.pdb" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="PublishedComponents">
+            <ComponentRef Id="cmpFD65F52CD5EC0B46A750F8EEFC3D4422" />
+            <ComponentRef Id="cmp250D0F083F62C4186C388B0EEA591A84" />
+            <ComponentRef Id="cmpDA85281F2A639D759A02D33803FD4341" />
+            <ComponentRef Id="cmp93277F1125275885CC7694FC325227C3" />
+            <ComponentRef Id="cmp69DD6E20ED166A877F1E24E40C27382C" />
+            <ComponentRef Id="cmpAFF09CED9B78CC7DB00ADFD0D43AE7F8" />
+            <ComponentRef Id="cmpCF19F29EFFA366FC98BD43C98318E407" />
+            <ComponentRef Id="cmpAA3C0C67C0CA976CC84EDA640E10F02F" />
+            <ComponentRef Id="cmpD4D08671BD7A677608FE1B716FDE3FC5" />
+            <ComponentRef Id="cmpABE3BB9F4EABE2A6CD6AB97542721A5B" />
+            <ComponentRef Id="cmp6893C23CBAFEF2811C5D5D70F8261AAA" />
+            <ComponentRef Id="cmpB482341DD86CAE8733557FAA4A7BD1C9" />
+            <ComponentRef Id="cmp6FAF08CD0D5AF8A010C553236E59F5E5" />
+            <ComponentRef Id="cmp0BE8F5167494D808D8C997BF02320B54" />
+            <ComponentRef Id="cmpE9CF8BF11ACB8686793439B4609E3139" />
+            <ComponentRef Id="cmpB035F6107AE9022BFE14EBD872D94D2F" />
+            <ComponentRef Id="cmp8AB5DFE13C4CABD0DA489C96053CA6D1" />
+            <ComponentRef Id="cmp461E1E7FBE4E607F33327C277F03BE7A" />
+            <ComponentRef Id="cmpDC32E589DBDA6EBD644262DC2E8F322B" />
+            <ComponentRef Id="cmp8D1543ABCB80F210097DE6C692F8E7D3" />
+            <ComponentRef Id="cmp0F80B5ADFFDCA34A65D613C97619080E" />
+            <ComponentRef Id="cmp198468A4AE980CD6955CB6EB86083726" />
+            <ComponentRef Id="cmp493E9BC44885B6BC5C57BDB1302C40D9" />
+            <ComponentRef Id="cmp8AC833CFB7DC6722697152FE46DA157A" />
+            <ComponentRef Id="cmpB7F1EBE42DCB1051B92D42C1EF84E2F9" />
+            <ComponentRef Id="cmp8F84CF63D61C592EEF49784DE42DFC0A" />
+            <ComponentRef Id="cmpF79562B8D935E93E73AB94C78A5F52AD" />
+            <ComponentRef Id="cmp0320A630A0EB3081EE50B8E83E5E78CB" />
+            <ComponentRef Id="cmp5628FD27631E522C3D67C498667BC8A5" />
+            <ComponentRef Id="cmp9607F152871CB9C2659ED14722E13E44" />
+            <ComponentRef Id="cmpC12E0E231E2E8E7FE864B56E6323063E" />
+            <ComponentRef Id="cmp413E3055139D32C390E1E38470BDF8EE" />
+            <ComponentRef Id="cmp04AF36E452EC81D2CA5C47A17B5D9A66" />
+            <ComponentRef Id="cmpD5B761AFC13B68AF1E450B6A370EB05D" />
+            <ComponentRef Id="cmp1411041EBAA0E34F4176D61F2AB23E20" />
+            <ComponentRef Id="cmp6E07F81E2DCCCD1DEF94CB917FFA66A5" />
+            <ComponentRef Id="cmpBFEF22949B0D1DA441AB6D293E6B4008" />
+            <ComponentRef Id="cmp2B62EB54A81873E947A60724B27A4A20" />
+            <ComponentRef Id="cmpCA45C8F39AC250C23FC8E97F29FA1DCC" />
+            <ComponentRef Id="cmpBD059910729C8B6100D497F7866C7EC2" />
+            <ComponentRef Id="cmp969F6EDF2594F3809D7A716387BF8894" />
+            <ComponentRef Id="cmp68C8720058CC2E381CE829343FCDBA38" />
+            <ComponentRef Id="cmpC2B172EAD6EF605134198E79A660BE12" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>

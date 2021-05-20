@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+
+      <ComponentRef Id="MainAppShortcut"/>
+
+    </ComponentGroup>
+
+
+
+
+    <!--<DirectoryRef Id="INSTALLFOLDER" FileSource="..\D3DLab.Viewer\bin\x64\Release\netcoreapp3.1\">
+      <Component Id="File1" Guid="{27D8556F-9F1E-4846-8F4A-1C7059C2E64C}"  Win64="yes">
+        <File Id="D3DLab_Viewer_exe" Name="D3DLab.Viewer.exe" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>-->
+
+    <DirectoryRef Id="INSTALLFOLDER" FileSource="..\D3DLab.Viewer\bin\x64\Release\netcoreapp3.1\" >
+      <Component Id="MainAppShortcut" Guid="{27D8556F-9F1E-4846-8F4A-1C7059C2E64C}" Win64="yes">
+        <!--<File Id="D3DLab_Viewer_exe" Name="D3DLab.Viewer.exe" KeyPath="yes"/>-->
+        <Shortcut
+          Id="ShortcutMainApp"
+          Name="D3DLab Viewer"
+          Target="[INSTALLFOLDER]D3DLab.Viewer.exe"
+          Directory="InstalProgramMenuFolder"
+          WorkingDirectory="INSTALLFOLDER"
+          Icon="icon.ico"
+          
+          />
+
+        <RegistryValue Id="RegShortcutKey"
+                       Root="HKCU"
+                       Key="SOFTWARE\D3DLab\Viewer"
+                       Name="Shortcut"
+                       Value="1"
+                       Type="integer"
+                       KeyPath="yes"
+                       />
+
+        <ProgId Id="D3DLab.Viewer.OBJ" Description="3D OBJ file format" Icon="fil49E17CBBCDE83B7BB910BC15C0C2CC2C">
+          <Extension Id="obj" ContentType="application/obj">
+            <Verb Id="open" Command="Open" TargetFile="filF0373BD0D02E1586A94263234797381C" Argument="%1"/>
+          </Extension>
+        </ProgId>
+
+        <RemoveFolder Id="RemoveFolder1" Directory="InstalProgramMenuFolder" On="uninstall"/>
+
+      </Component>
+    </DirectoryRef>
+
+  </Fragment>
+</Wix>

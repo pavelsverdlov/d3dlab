@@ -143,7 +143,7 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
                 Positions.Clear();
                 Indices.Clear();
                 indxToPos.Clear();
-                switch (newTopology) {//TODO: support conveting to other topology
+                switch (newTopology) {//TODO: support converting to other topology
                     case GeometryPrimitiveTopologies.TriangleList:
                         BuildGroup(group);
                         groups.Add(new GeometryData(group.Name, Positions.ToList(),
@@ -156,7 +156,7 @@ namespace D3DLab.FileFormats.GeoFormats._OBJ {
         }
 
         void BuildGroup(OBJGroupGeometryCache group) {
-            //first add all points 
+            //first, all points must be added
             for (var index = 0; index < group.Vertices.Count; index++) {
                 AddPosition(group.Vertices[index]);
             }
