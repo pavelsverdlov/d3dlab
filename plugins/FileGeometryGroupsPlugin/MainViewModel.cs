@@ -174,7 +174,7 @@ namespace FileGeometryGroupsPlugin {
         }
 
         public void Closed() {
-            throw new NotImplementedException();
+            
         }
 
         internal void ShowHideAll(bool show) {
