@@ -4,6 +4,12 @@ One of the thousands attempts to implement own game engine with blackjack and et
 
 ![image](https://user-images.githubusercontent.com/3679373/118953477-863e5700-b965-11eb-9fdb-af79998b486b.png)
 
+
+## Visualization geometry file groups (only OBJ for now), show/hide filter and color changing
+
+![image](https://user-images.githubusercontent.com/3679373/118954841-d4a02580-b966-11eb-81b3-dfae8241d379.png)
+
+
 ## Solution structure:
 
 Engine.Core - .NET Standard, no dependency from any graphics API such as DirectX etc
