@@ -2,6 +2,10 @@
 
 One of the thousands attempts to implement own game engine with blackjack and etc. There was no goal to do engine for a specific game or make a mega universal engine. The main idea to do ECS based engine using DirectX. After finishing the main implementation it was too sad to throw all away and it became development new features just for fun.
 
+![image](https://user-images.githubusercontent.com/3679373/118953477-863e5700-b965-11eb-9fdb-af79998b486b.png)
+
+## Solution structure:
+
 ## Solution structure:
 
 Engine.Core - .NET Standard, no dependency from any graphics API such as DirectX etc
