@@ -79,12 +79,6 @@
     <None Update="lab.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="plugins\FileGeometryGroupsPlugin.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="plugins\ZZNMetaPlugin.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Properties\ViewerSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>ViewerSettings.Designer.cs</LastGenOutput>
