@@ -7,7 +7,7 @@ One of the thousands attempts to implement own game engine with blackjack and et
 
 ## Visualization geometry file groups (only OBJ for now), show/hide filter and color changing
 
-![image](https://user-images.githubusercontent.com/3679373/118954841-d4a02580-b966-11eb-81b3-dfae8241d379.png)
+![image](https://user-images.githubusercontent.com/3679373/119630202-669ca800-be17-11eb-9c4a-e49bddbff0d8.png)
 
 
 ## Solution structure:
