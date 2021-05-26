@@ -4,8 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileGeometryGroupsPlugin"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        mc:Ignorable="d" 
+        BorderThickness="1" x:Name="mainview"
+        BorderBrush="{StaticResource BorderBrushColor}"
+        Title="File geo group details" Height="450" Width="800">
 
 
     <Grid Background="{StaticResource BlackBackgroundColor}">
@@ -13,7 +15,13 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ListBox ItemsSource="{Binding Files}" IsSynchronizedWithCurrentItem="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ListBox ItemsSource="{Binding Files}" Grid.RowSpan="2"
+                 BorderThickness="0,0,1,0" BorderBrush="{StaticResource BorderBrushColor}"
+                 IsSynchronizedWithCurrentItem="True">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="5" DataContext="{Binding Details}" Width="150">
@@ -28,8 +36,14 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        
+        <Border Grid.Column="1" BorderThickness="0,0,0,1" BorderBrush="{StaticResource BorderBrushColor}">
+        <TextBlock FontSize="15" Margin="5"
+                Text="{Binding Files.CurrentItem.Details.FilePath.Name}"/>    
+        </Border>
+        
 
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -47,7 +61,7 @@
                    Margin="5,10,28,5">
                 <ToggleButton Style="{StaticResource ImageToggleButton}" x:Name="ShowHideAllToggleButton"
                           Command="{Binding Controler.ShowHideAllCommand}" CommandParameter="{Binding IsChecked, ElementName=ShowHideAllToggleButton}"
-                          Height="20" Width="20" DockPanel.Dock="Right"
+                          Height="20" Width="20" DockPanel.Dock="Right" IsChecked="True"
                           Content="{StaticResource SmallShowHideIconCanvas}" />
                 <TextBlock DockPanel.Dock="Right" Margin="10,0,10,0">
                 <Run Text="{Binding ItemsCount, Mode=OneWay}" />

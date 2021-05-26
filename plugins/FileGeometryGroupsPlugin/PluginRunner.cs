@@ -7,7 +7,7 @@ using D3DLab.Plugin;
 
 namespace FileGeometryGroupsPlugin {
     public class PluginRunner : APluginRunner {
-        public PluginRunner() : base("File geo group details", "allow to show/hide and filter geometry groups, determined in file.") {
+        public PluginRunner() : base("File geometry group details", "allow to show/hide and filter geometry groups, determined in file.") {
         }
 
         protected override IPluginViewModel CreateViewModel(IPluginContext context) => new MainViewModel(context);

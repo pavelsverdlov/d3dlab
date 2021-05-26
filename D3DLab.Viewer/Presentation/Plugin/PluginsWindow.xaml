@@ -4,19 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:D3DLab.Viewer.Presentation.Plugin"
-        mc:Ignorable="d" WindowStyle="ToolWindow" ResizeMode="NoResize"
-        Title="PluginsWindow" Height="450" Width="400">
+        mc:Ignorable="d" WindowStyle="ToolWindow" 
+        ResizeMode="NoResize"
+        Title="Plugins" Height="450" Width="300">
     <Grid>
-        <ListBox ItemsSource="{Binding Plugins}" IsSynchronizedWithCurrentItem="True">
+        <ListBox ItemsSource="{Binding Plugins}" 
+                 Width="300"
+                 IsSynchronizedWithCurrentItem="True">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="5">
+                    <Grid Margin="5" Width="270" >
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="{Binding Name}" Foreground="White" FontSize="15"/>
-                        <TextBlock Text="{Binding Description}" Grid.Row="1" Foreground="LightGray"/>
+                        <TextBlock Text="{Binding Description}" Margin="10,5,0,0"
+                                   TextWrapping="Wrap"
+                                   Grid.Row="1" Foreground="LightGray"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
